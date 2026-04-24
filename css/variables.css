@@ -5,282 +5,74 @@
 /* @layer tokens { */
 
 :root {
-    /* Dark mode by default — explicit color-scheme declaration */
-    color-scheme: dark;
+   /* Dark mode by default — explicit color-scheme declaration */
+   color-scheme: dark;
 
-    /* ============================================
+   /* ============================================
      1. COLORS — Dark Mode (default)
      ============================================ */
 
-    --color-primary: #0D0D0D;
-    /* Primary background 60% — main canvas */
+   --color-primary: #0D0D0D;
+   /* Primary background 60% — main canvas */
 
-    --color-secondary: #F0F0F0;
-    /* Primary text 30% — body, headings, most content */
+   --color-secondary: #F0F0F0;
+   /* Primary text 30% — body, headings, most content */
 
-    --color-accent: #00D46E;
-    /* Accent color 10% — CTAs, highlights, interactive elements, active states */
+   --color-accent: #00D46E;
+   /* Accent color 10% — CTAs, highlights, interactive elements, active states */
 
-    --color-bg: #1A1A1A;
-    /* Secondary background — cards, panels, elevated surfaces */
+   --color-bg: #1A1A1A;
+   /* Secondary background — cards, panels, elevated surfaces */
 
-    --color-text-secondary: #A0A0A0;
-    /* Secondary text — metadata, descriptions, hints */
+   --color-text-secondary: #A0A0A0;
+   /* Secondary text — metadata, descriptions, hints */
 
-    --color-glass-bg-dark: rgba(255, 255, 255, 0.05);
-    /* Glassmorphism background — dark mode semi-transparent overlay */
+   --color-glass-bg-dark: rgba(255, 255, 255, 0.05);
+   /* Glassmorphism background — dark mode semi-transparent overlay */
 
-    --color-glass-border: rgba(255, 255, 255, 0.12);
-    /* Glassmorphism border — dark mode subtle divider */
+   --color-glass-border: rgba(255, 255, 255, 0.12);
+   /* Glassmorphism border — dark mode subtle divider */
 
-    /* ============================================
+   /* ============================================
      2. GLASSMORPHISM EFFECTS — Dark Mode
      ============================================ */
 
-    --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-    /* Glassmorphism background gradient — subtle angled gradient */
+   --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+   /* Glassmorphism background gradient — subtle angled gradient */
 
-    --glass-backdrop: blur(20px) saturate(180%);
-    /* Glassmorphism blur + saturation — frosted glass effect */
+   --glass-backdrop: blur(20px) saturate(180%);
+   /* Glassmorphism blur + saturation — frosted glass effect */
 
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    /* Glassmorphism shadow — depth and elevation */
+   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+   /* Glassmorphism shadow — depth and elevation */
 
-    /* ============================================
-     3. TYPOGRAPHY
+   /* ============================================
+     3. TYPOGRAPHY FAMILY
      ============================================ */
 
-    /* Font stack — Sora primary, system fallback */
-    --font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+   /* Font stack — Sora primary, system fallback */
+   --font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-    /* Font loading strategy — self-hosted .woff2 / .woff */
+   /* Font loading strategy — self-hosted .woff2 / .woff */
 
-    /* ============================================
+   /* ============================================
      4. FONT WEIGHTS — Sora scale
      ============================================ */
 
-    --font-weight-regular: 400;
-    /* Regular — body, secondary text */
+   --regular: 400;
+   /* Regular — body, secondary text */
 
-    --font-weight-semibold: 600;
-    /* SemiBold — nav links, UI accents */
+   --semibold: 600;
+   /* SemiBold — nav links, UI accents */
 
-    --font-weight-bold: 700;
-    /* Bold — h2, strong emphasis, buttons */
+   --bold: 700;
+   /* Bold — h2, strong emphasis, buttons */
 
-    --font-weight-extrabold: 800;
-    /* ExtraBold — h1, metric numbers, display-level text */
+   --extrabold: 800;
+   /* ExtraBold — h1, metric numbers, display-level text */
 
-    /* ============================================
-     5. TYPE SCALE — Responsive with clamp()
-     ============================================ */
 
-    /* H1 — Headline (unique in page) */
-    --size-h1: clamp(3rem, 7vw, 5.5rem);
-    /* 48px (mobile) ↔ 88px (desktop max) via 7vw fluid */
-
-    --size-h1-tablet: 4rem;
-    /* 64px — tablet explicit */
-
-    /* H2 Section — Primary section title */
-    --size-h2-section: clamp(3rem, 7vw, 5.5rem);
-    /* 48px (mobile) ↔ 88px (desktop max) via 7vw fluid */
-
-    --size-h2-section-tablet: 4rem;
-    /* 64px — tablet explicit */
-
-    --size-h2-section-mobile: 2.5rem;
-    /* 40px — mobile explicit */
-
-    /* H2 Case — Case study title */
-    --size-h2-case: clamp(2rem, 4vw, 3rem);
-    /* 32px (mobile) ↔ 48px (desktop max) via 4vw fluid */
-
-    --size-h2-case-tablet: 2.25rem;
-    /* 36px — tablet explicit */
-
-    /* Subtitle — Accompanies section titles */
-    --size-subtitle: 1.5rem;
-    /* 24px desktop, 22px tablet, 20px mobile — set in responsive.css */
-
-    /* Subtitle Bold / Case summary — Above metrics */
-    --size-subtitle-bold: 1.5rem;
-    /* Same as subtitle, weight changes to bold — set in responsive.css */
-
-    /* Body — Main content text */
-    --size-body: 1rem;
-    /* 16px — consistent across breakpoints */
-
-    /* Body small / Caption — Metadata, footer, helper text */
-    --size-body-small: 0.875rem;
-    /* 14px — secondary UI text */
-
-    /* Nav / Links — Navigation items */
-    --size-nav: 1rem;
-    /* 16px — same as body */
-
-    /* Button — CTA text (uppercase) */
-    --size-button: 1rem;
-    /* 16px — same as body, transform: uppercase applied */
-
-    /* Label / Tag — Section labels (uppercase) */
-    --size-label: 1rem;
-    /* 16px — same as body, transform: uppercase, color: accent */
-
-    /* Metric number — Impact numbers in cases */
-    --size-metric-number: clamp(1.5rem, 3vw, 2rem);
-    /* 24px (mobile) ↔ 32px (desktop max) via 3vw fluid */
-
-    --size-metric-number-tablet: 1.75rem;
-    /* 28px — tablet explicit */
-
-    /* Metric text — Description below number */
-    --size-metric-text: 0.75rem;
-    /* 12px — caption size */
-
-    /* Industria / Company type — Case metadata */
-    --size-company-type: 1.25rem;
-    /* 20px desktop, 18px tablet, 16px mobile — set in responsive.css */
-
-    /* Testimonio name — Testimonial card person name */
-    --size-testimonio-name: 1rem;
-    /* 16px — same as body but bold */
-
-    /* Testimonio role — Testimonial card job title */
-    --size-testimonio-role: 0.875rem;
-    /* 14px — same as body-small */
-
-    /* ============================================
-     6. LINE HEIGHT SCALE
-     ============================================ */
-
-    --line-height-tight: 1;
-    /* 1.0 — H1, H2, headlines (no breathing room) */
-
-    --line-height-snug: 1.2;
-    /* 1.1 — H2 case titles (slightly relaxed) */
-
-    --line-height-normal: 1.3;
-    /* 1.3 — Subtitles, company type, metadata */
-
-    --line-height-relaxed: 1.5;
-    /* 1.5 — Nav, links, labels, UI text */
-
-    --line-height-loose: 1.6;
-    /* 1.6 — Body, paragraphs (comfortable reading) */
-
-    /* ============================================
-     7. SPACING SCALE — 8-point system
-     ============================================ */
-
-    --space-4: 0.25rem;
-    /* 4px — minimal gaps, tight components */
-
-    --space-8: 0.5rem;
-    /* 8px — minimal gaps, tight components */
-
-    --space-12: 0.75rem;
-    /* 12px — minimal gaps, tight components */
-
-    --space-16: 1rem;
-    /* 16px — standard padding, gutters */
-
-    --space-24: 1.5rem;
-    /* 24px — medium spacing, component groups */
-
-    --space-32: 2rem;
-    /* 32px — comfortable spacing */
-
-    --space-40: 2.5rem;
-    /* 40px — medium section spacing */
-
-    --space-48: 3rem;
-    /* 48px — section padding, major breaks */
-
-    --space-64: 4rem;
-    /* 64px — large section spacing */
-
-    --space-72: 4.5rem;
-    /* 72px — section padding, major breaks */
-
-    --space-96: 6rem;
-    /* 96px — hero section spacing */
-
-    --space-128: 8rem;
-    /* 128px — full-height spacing, major sections */
-
-    /* ============================================
-     8. BORDER RADIUS SCALE
-     ============================================ */
-
-    --radius-4: 4px;
-    /* Minimal rounding — tooltips, tiny elements */
-
-    --radius-8: 8px;
-    /* Small — badges, small buttons */
-
-    --radius-12: 12px;
-    /* Medium — metric cards, moderate components */
-
-    --radius-16: 16px;
-    /* Large — containers, glassmorphism panels */
-
-    --radius-24: 24px;
-    /* Extra large — testimonial cards, prominent panels */
-
-    --radius-48: 48px;
-    /* XXL — from Figma, larger interactive elements */
-
-    --radius-64: 64px;
-    /* XXXL — from Figma, very large featured areas */
-
-    --radius-full: 9999px;
-    /* Circular — buttons, badges, avatars */
-
-    /* ============================================
-     9. Z-INDEX SCALE
-     ============================================ */
-
-    --z-base: 0;
-    /* Default stacking context */
-
-    --z-float: 10;
-    /* Floating elements — scroll-to-top button, floating CTAs */
-
-    --z-nav: 100;
-    /* Navigation — header, sticky nav */
-
-    --z-overlay: 200;
-    /* Overlays — modals backdrop, semi-transparent covers */
-
-    --z-modal: 300;
-    /* Modal windows — dialogs, popups above overlays */
-
-    /* ============================================
-     10. TRANSITIONS
-     ============================================ */
-
-    --transition-fast: 150ms ease;
-    --transition-base: 300ms ease;
-    --transition-slow: 500ms ease;
-
-    /* ============================================
-     11. COLOR ALIASES — semantic convenience
-     ============================================ */
-
-    --color-text: var(--color-secondary);
-    /* Main text color — alias of --color-secondary */
-
-    --color-bg-primary: var(--color-primary);
-    /* Page canvas — alias of --color-primary */
-
-    --color-bg-secondary: var(--color-bg);
-    /* Elevated surfaces — alias of --color-bg */
-
-    --color-glass-border: rgba(255, 255, 255, 0.12);
-    /* Glassmorphism border */
-
-    /* ============================================
+   /* ============================================
 } — end @layer tokens ============================================ */
 }
 
@@ -289,23 +81,23 @@
    ============================================ */
 
 [data-theme="light"] {
-    color-scheme: light;
+   color-scheme: light;
 
-    --color-primary: #F5F5F5;
-    --color-secondary: #111111;
-    --color-accent: #00B85C;
-    --color-bg: #FFFFFF;
-    --color-text-secondary: #555555;
-    /* Darker green for sufficient contrast in light mode */
+   --color-primary: #F5F5F5;
+   --color-secondary: #111111;
+   --color-accent: #00B85C;
+   --color-bg: #FFFFFF;
+   --color-text-secondary: #555555;
+   /* Darker green for sufficient contrast in light mode */
 
-    /* Glassmorphism light mode */
-    --color-glass-bg-light: rgba(0, 0, 0, 0.05);
-    --color-glass-border: rgba(0, 0, 0, 0.08);
-    --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+   /* Glassmorphism light mode */
+   --color-glass-bg-light: rgba(0, 0, 0, 0.05);
+   --color-glass-border: rgba(0, 0, 0, 0.08);
+   --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
-    /* Selection — light mode */
-    --selection-bg: rgba(0, 184, 92, 0.2);
+   /* Selection — light mode */
+   --selection-bg: rgba(0, 184, 92, 0.2);
 }
 
 /* ============================================
@@ -313,22 +105,100 @@
    ============================================ */
 
 @media (prefers-color-scheme: light) {
-    :root {
-        color-scheme: light;
+   :root {
+      color-scheme: light;
 
-        --color-primary: #F5F5F5;
-        --color-secondary: #111111;
-        --color-accent: #00B85C;
-        --color-bg: #FFFFFF;
-        --color-text-secondary: #555555;
+      --color-primary: #F5F5F5;
+      --color-secondary: #111111;
+      --color-accent: #00B85C;
+      --color-bg: #FFFFFF;
+      --color-text-secondary: #555555;
 
-        --color-glass-bg-light: rgba(0, 0, 0, 0.05);
-        --color-glass-border: rgba(0, 0, 0, 0.08);
-        --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
-        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --color-glass-bg-light: rgba(0, 0, 0, 0.05);
+      --color-glass-border: rgba(0, 0, 0, 0.08);
+      --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
-        --selection-bg: rgba(0, 184, 92, 0.2);
-    }
+      --selection-bg: rgba(0, 184, 92, 0.2);
+   }
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+/* H1 — Headline (unique in page) */
+h1 {
+   font-size: clamp(3rem, 7vw, 5.5rem);
+   font-weight: var(--extrabold);
+   line-height: 1.1;
+   text-transform: uppercase;
+   width: 100%;
+   overflow-wrap: break-word;
+}
+
+/* H2 — Primary section title */
+h2 {
+   font-size: clamp(3rem, 7vw, 5.5rem);
+   font-weight: var(--bold);
+   line-height: 1.1;
+   text-transform: uppercase;
+}
+
+/* H2 Case Card — Case study title */
+.case-card-title {
+   font-size: clamp(2rem, 4vw, 3rem);
+   font-weight: var(--regular);
+   line-height: 1.1;
+}
+
+/* Subtitle — Títulos de secciones más pequeños */
+h4 {
+   font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+   font-weight: var(--regular);
+   line-height: 1.5;
+}
+
+/* Subtitle bold — Títulos pequeños con peso importante */
+.bold-subtitle {
+   font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+   font-weight: var(--bold);
+   line-height: 1.5;
+}
+
+/* Impact — Texto de impacto e importante */
+.important {
+   font-size: clamp(1.5rem, 3vw, 2rem);
+   font-weight: var(--extrabold);
+   line-height: 1.3;
+}
+
+/* Body Large — Cuerpo de texto más grande */
+.large-paragraph {
+   font-size: clamp(1rem, 1.25vw, 1.25rem);
+   font-weight: var(--regular);
+   line-height: 1.3;
+}
+
+/* Body Bold — Cuerpo de texto en negrita */
+.bold-paragraph {
+   font-size: 1rem;
+   font-weight: var(--bold);
+   line-height: 1.6;
+}
+
+/* Body Small — Cuerpo de texto más pequeño */
+.small-paragraph {
+   font-size: 0.875rem;
+   font-weight: var(--regular);
+   line-height: 1.5;
+}
+
+/* Caption — Texto pequeño general */
+.caption {
+   font-size: 0.75rem;
+   font-weight: var(--regular);
+   line-height: 1.5;
 }
 
 /* ============================================
@@ -338,18 +208,18 @@
    ============================================ */
 
 [data-theme="dark"] {
-    color-scheme: dark;
+   color-scheme: dark;
 
-    --color-primary: #0D0D0D;
-    --color-secondary: #F0F0F0;
-    --color-accent: #00D46E;
-    --color-bg: #1A1A1A;
-    --color-text-secondary: #A0A0A0;
-    --color-glass-bg-dark: rgba(255, 255, 255, 0.05);
-    --color-glass-border: rgba(255, 255, 255, 0.12);
-    --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --selection-bg: rgba(0, 212, 110, 0.3);
+   --color-primary: #0D0D0D;
+   --color-secondary: #F0F0F0;
+   --color-accent: #00D46E;
+   --color-bg: #1A1A1A;
+   --color-text-secondary: #A0A0A0;
+   --color-glass-bg-dark: rgba(255, 255, 255, 0.05);
+   --color-glass-border: rgba(255, 255, 255, 0.12);
+   --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+   --selection-bg: rgba(0, 212, 110, 0.3);
 }
 
 /* ============================================

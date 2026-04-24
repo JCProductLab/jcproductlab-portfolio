@@ -57,7 +57,7 @@
    ============================================ */
 
 .icon--primary {
-  color: var(--color-text);
+  color: var(--color-secondary);
 }
 
 .icon--secondary {
@@ -70,7 +70,7 @@
 
 .icon--disabled {
   color: var(--color-text-secondary);
-  opacity: var(--opacity-disabled);
+  opacity: 0.4;
 }
 
 /* ============================================
@@ -79,7 +79,7 @@
 
 .icon--interactive {
   cursor: pointer;
-  transition: color var(--transition-fast), transform var(--transition-fast);
+  transition: color 150ms ease, transform 150ms ease;
 }
 
 .icon--interactive:hover {

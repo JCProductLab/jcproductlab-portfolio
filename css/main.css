@@ -17,36 +17,36 @@ body {
     background-color: var(--color-primary);
     color: var(--color-secondary);
     font-family: var(--font-family);
-    font-size: var(--size-body);
-    line-height: var(--line-height-loose);
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 /* Skip link — keyboard navigation */
 .skip-link {
     position: absolute;
     top: -200%;
-    left: var(--space-16);
-    z-index: calc(var(--z-modal) + 1);
-    padding: var(--space-8) var(--space-16);
+    left: 16px;
+    z-index: calc(300 + 1);
+    padding: 8px 16px;
     background-color: var(--color-accent);
     color: var(--color-primary);
     font-family: var(--font-family);
-    font-size: var(--size-body);
-    font-weight: var(--font-weight-bold);
-    border-radius: var(--radius-8);
+    font-size: 1rem;
+    font-weight: var(--bold);
+    border-radius: 8px;
     text-decoration: none;
-    transition: top var(--transition-fast);
+    transition: top 150ms ease;
 }
 
 .skip-link:focus {
-    top: var(--space-16);
+    top: 16px;
 }
 
 /* Smooth dark/light mode transitions */
 @media (prefers-reduced-motion: no-preference) {
     body {
-        transition: background-color var(--transition-base),
-            color var(--transition-base);
+        transition: background-color 300ms ease,
+            color 300ms ease;
     }
 }
 
@@ -60,12 +60,12 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    z-index: var(--z-nav);
+    z-index: 100;
     /* Transparent by default — glassmorphism added via .header--scrolled */
-    transition: background var(--transition-base),
-        backdrop-filter var(--transition-base),
-        border-color var(--transition-base),
-        box-shadow var(--transition-base);
+    transition: background 300ms ease,
+        backdrop-filter 300ms ease,
+        border-color 300ms ease,
+        box-shadow 300ms ease;
 }
 
 /* Nav scrolled state — glassmorphism applied by JS */
@@ -81,7 +81,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-8) var(--space-16);
+    padding: 8px 16px;
     /* Mobile padding: 8px 16px — per Figma */
 }
 
@@ -104,13 +104,13 @@ body {
 /* Logo text adapts to theme */
 .nav__logo-text {
     fill: var(--color-secondary);
-    transition: fill var(--transition-base);
+    transition: fill 300ms ease;
 }
 
 /* Nav menu — hidden on mobile, shown on desktop */
 .nav__menu {
     display: none;
-    gap: var(--space-40);
+    gap: 40px;
     align-items: center;
     list-style: none;
 }
@@ -119,20 +119,20 @@ body {
 .nav__actions {
     display: flex;
     align-items: center;
-    gap: var(--space-16);
+    gap: 16px;
 }
 
 /* Desktop action buttons group — hidden on mobile */
 .nav__actions-controls {
     display: none;
     align-items: center;
-    gap: var(--space-16);
+    gap: 16px;
 }
 
 /* Hamburger — visible on mobile and tablet */
 .nav__hamburger {
     display: inline-flex;
-    margin-left: var(--space-40);
+    margin-left: 40px;
 }
 
 .nav__hamburger i {
@@ -144,7 +144,7 @@ body {
 .nav__hamburger:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 4px;
-    border-radius: var(--radius-8);
+    border-radius: 8px;
 }
 
 
@@ -155,12 +155,12 @@ body {
 .nav-overlay {
     position: fixed;
     inset: 0;
-    z-index: var(--z-overlay);
+    z-index: 200;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-48);
+    gap: 48px;
 
     /* Dark semi-transparent background with blur */
     background-color: rgba(13, 13, 13, 0.96);
@@ -171,8 +171,8 @@ body {
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
-    transition: opacity var(--transition-base),
-        visibility var(--transition-base);
+    transition: opacity 300ms ease,
+        visibility 300ms ease;
 }
 
 /* Open state — toggled by JS */
@@ -184,8 +184,8 @@ body {
 
 .nav-overlay__close {
     position: absolute;
-    top: var(--space-16);
-    right: var(--space-16);
+    top: 16px;
+    right: 16px;
 }
 
 .nav-overlay__close i {
@@ -196,7 +196,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-32);
+    gap: 32px;
     list-style: none;
 }
 
@@ -209,7 +209,7 @@ body {
 .nav-overlay__actions {
     display: flex;
     align-items: center;
-    gap: var(--space-16);
+    gap: 16px;
 }
 
 
@@ -228,8 +228,8 @@ body {
     align-items: flex-start;
     justify-content: flex-end;
 
-    padding: var(--space-40);
-    padding-top: calc(var(--space-40) + 64px);
+    padding: 40px;
+    padding-top: calc(40px + 64px);
 
     background-color: var(--color-primary);
     overflow: hidden;
@@ -277,17 +277,17 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-32);
+    gap: 32px;
     width: 100%;
     position: relative;
     z-index: 2;
     background: linear-gradient(to right,
-        rgba(13, 13, 13, 0.95) 0%,
-        rgba(13, 13, 13, 0.85) 60%,
-        transparent 100%);
-    padding: var(--space-32);
-    padding-right: var(--space-48);
-    border-radius: var(--radius-12);
+            rgba(13, 13, 13, 0.95) 0%,
+            rgba(13, 13, 13, 0.85) 60%,
+            transparent 100%);
+    padding: 32px;
+    padding-right: 48px;
+    border-radius: 12px;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
 }
@@ -295,9 +295,9 @@ body {
 /* H1 — único en la página */
 .hero__headline {
     font-family: var(--font-family);
-    font-size: var(--size-h1);
+    font-size: clamp(3rem, 7vw, 5.5rem);
     /* clamp(3rem, 7vw, 5.5rem) — base is 3rem = 48px on mobile */
-    font-weight: var(--font-weight-extrabold);
+    font-weight: var(--extrabold);
     line-height: 1.1;
     text-transform: uppercase;
     color: var(--color-secondary);
@@ -313,17 +313,6 @@ body {
 .hero__headline-accent {
     display: inline;
     color: var(--color-accent);
-}
-
-/* Subtitle */
-.hero__subtitle {
-    font-family: var(--font-family);
-    font-size: 1.25rem;
-    /* 20px on mobile — tablet and desktop override in responsive.css */
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-relaxed);
-    color: var(--color-secondary);
-    max-width: 36ch;
 }
 
 
@@ -349,9 +338,9 @@ body {
 
 [data-theme="light"] .hero__content {
     background: linear-gradient(to right,
-        rgba(245, 245, 245, 0.95) 0%,
-        rgba(245, 245, 245, 0.85) 60%,
-        transparent 100%);
+            rgba(245, 245, 245, 0.95) 0%,
+            rgba(245, 245, 245, 0.85) 60%,
+            transparent 100%);
 }
 
 
@@ -362,7 +351,7 @@ body {
 :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 4px;
-    border-radius: var(--radius-8);
+    border-radius: 8px;
 }
 
 
