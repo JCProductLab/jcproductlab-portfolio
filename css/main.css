@@ -219,7 +219,8 @@ body {
 
 .hero {
     position: relative;
-    min-height: 100svh;
+    height: 100dvh;
+    width: 100vw;
     /* Mobile: full viewport, compensates browser chrome */
 
     display: flex;
@@ -235,6 +236,12 @@ body {
 
     background-color: var(--color-primary);
     overflow: hidden;
+}
+
+@supports not (height: 100dvh) {
+    .hero {
+        height: 100vh;
+    }
 }
 
 /* Hero content — left column */
