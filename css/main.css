@@ -262,6 +262,7 @@ body {
 }
 
 .hero__photo {
+    display: block;
     position: absolute;
     inset: 0;
     width: 100%;
@@ -305,12 +306,12 @@ body {
 }
 
 .hero__headline-line {
-    display: block;
+    display: inline;
     color: var(--color-secondary);
 }
 
 .hero__headline-accent {
-    display: block;
+    display: inline;
     color: var(--color-accent);
 }
 
