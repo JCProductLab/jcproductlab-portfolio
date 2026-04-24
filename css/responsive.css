@@ -266,7 +266,9 @@
         justify-content: center;
         position: relative;
         align-self: stretch;
-        overflow: hidden;
+        overflow: visible;
+        /* Changed from overflow: hidden to allow .hero__image to deflow */
+        /* Only .hero (parent) has overflow: hidden as final clipping boundary */
         min-width: 1px;
         padding-top: 0;
         width: auto;
@@ -278,10 +280,14 @@
         width: auto;
         height: auto;
         max-width: none;
+        max-height: none;
         border-radius: 0;
         overflow: visible;
-        align-self: auto;
-        flex-shrink: 1;
+        align-self: flex-start;
+        flex: 0 0 auto;
+        /* flex: 0 0 auto prevents shrinking/growing, allowing natural sizing */
+        /* overflow: visible allows image to deflow its container */
+        /* align-self: flex-start prevents vertical stretching */
     }
 
     /* Photo centered in right column, slight upward offset per Figma */
