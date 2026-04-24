@@ -226,13 +226,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-end;
 
-    padding-top: calc(var(--space-48) + 56px);
-    /* top: extra space for fixed nav (~56px nav height + breathing room) */
-    padding-right: var(--space-24);
-    padding-bottom: var(--space-40);
-    padding-left: var(--space-24);
+    padding: var(--space-40);
+    padding-top: calc(var(--space-40) + 64px);
 
     background-color: var(--color-primary);
     overflow: hidden;
@@ -244,7 +241,37 @@ body {
     }
 }
 
-/* Hero content — left column */
+/* Background image fills entire hero (0px-1199px) */
+.hero__right {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.hero__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.hero__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    max-width: none;
+}
+
+/* Hero content — text overlay with contrast gradient */
 .hero__content {
     display: flex;
     flex-direction: column;
@@ -252,7 +279,16 @@ body {
     gap: var(--space-32);
     width: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    background: linear-gradient(to right,
+        rgba(13, 13, 13, 0.95) 0%,
+        rgba(13, 13, 13, 0.85) 60%,
+        transparent 100%);
+    padding: var(--space-32);
+    padding-right: var(--space-48);
+    border-radius: var(--radius-12);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 /* H1 — único en la página */
@@ -323,6 +359,13 @@ body {
 [data-theme="light"] .hero {
     background-color: var(--color-primary);
     /* #F5F5F5 in light mode */
+}
+
+[data-theme="light"] .hero__content {
+    background: linear-gradient(to right,
+        rgba(245, 245, 245, 0.95) 0%,
+        rgba(245, 245, 245, 0.85) 60%,
+        transparent 100%);
 }
 
 

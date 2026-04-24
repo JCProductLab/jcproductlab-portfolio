@@ -122,8 +122,7 @@
 
 /* ============================================
    TABLET HORIZONTAL — min-width: 850px, max-width: 1199px
-   Text overlay 70-80% width, image as background
-   Sweet spot for tablet landscape/large portrait
+   Same as tablet vertical: fullscreen background with text overlay
    ============================================ */
 
 @media (min-width: 850px) and (max-width: 1199px) {
@@ -144,21 +143,21 @@
 
 
     /* ----------------------------------------
-       Hero — tablet horizontal overlay
-       Large background image with text overlay
+       Hero — tablet horizontal fullscreen background
+       Same behavior as tablet vertical: image fills entire hero,
+       text overlay bottom-left
        ---------------------------------------- */
 
     .hero {
         height: 100dvh;
         width: 100vw;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
         position: relative;
 
         padding: var(--space-40);
         padding-top: calc(var(--space-40) + 64px);
-        gap: var(--space-32);
 
         overflow: hidden;
     }
@@ -167,13 +166,11 @@
     .hero__right {
         position: absolute;
         inset: 0;
-        display: flex;
+        display: block;
         width: 100%;
         height: 100%;
-        align-items: center;
-        justify-content: flex-end;
         overflow: hidden;
-        z-index: 0;
+        z-index: 1;
     }
 
     .hero__image {
@@ -195,44 +192,33 @@
         max-width: none;
     }
 
-    /* Text content overlays image at 70-80% width */
+    /* Text content overlays with higher z-index */
     .hero__content {
         position: relative;
         z-index: 2;
-        flex: 0 1 75%;
-        max-width: 75%;
-        gap: var(--space-32);
+        max-width: 90%;
+        gap: var(--space-24);
         background: linear-gradient(to right,
-            rgba(13, 13, 13, 0.98) 0%,
-            rgba(13, 13, 13, 0.9) 50%,
-            rgba(13, 13, 13, 0.7) 80%,
+            rgba(13, 13, 13, 0.95) 0%,
+            rgba(13, 13, 13, 0.85) 60%,
             transparent 100%);
-        padding: var(--space-40);
-        border-radius: var(--radius-16);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        padding: var(--space-32);
+        padding-right: var(--space-48);
+        border-radius: var(--radius-12);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
     }
 
     .hero__headline {
-        font-size: 3rem;
-        /* 48px — per Figma portrait */
+        font-size: 2.5rem;
+        /* 40px — tablet horizontal */
         line-height: 1.1;
     }
 
     .hero__subtitle {
-        font-size: 1.25rem;
-        /* 20px — per Figma portrait */
-        max-width: 42ch;
-    }
-
-    /* Button icon — responsive for tablet */
-    .btn__icon {
-        width: var(--space-40);
-        height: var(--space-40);
-    }
-
-    .btn__icon i {
-        font-size: 1.5rem;
+        font-size: 1rem;
+        /* 16px — tablet horizontal */
+        max-width: 32ch;
     }
 
     [data-theme="light"] .hero {
@@ -241,9 +227,8 @@
 
     [data-theme="light"] .hero__content {
         background: linear-gradient(to right,
-            rgba(245, 245, 245, 0.98) 0%,
-            rgba(245, 245, 245, 0.9) 50%,
-            rgba(245, 245, 245, 0.7) 80%,
+            rgba(245, 245, 245, 0.95) 0%,
+            rgba(245, 245, 245, 0.85) 60%,
             transparent 100%);
     }
 
