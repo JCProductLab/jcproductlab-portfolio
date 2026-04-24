@@ -1,0 +1,344 @@
+/* ============================================
+   MAIN STYLESHEET
+   Organización: base → organisms → utilities
+   Mobile-first — base styles for mobile
+   ============================================ */
+
+
+/* ============================================
+   BASE
+   ============================================ */
+
+html {
+    scroll-padding-top: 80px;
+}
+
+body {
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+    font-family: var(--font-family);
+    font-size: var(--size-body);
+    line-height: var(--line-height-loose);
+}
+
+/* Skip link — keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -200%;
+    left: var(--space-16);
+    z-index: calc(var(--z-modal) + 1);
+    padding: var(--space-8) var(--space-16);
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+    font-family: var(--font-family);
+    font-size: var(--size-body);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--radius-8);
+    text-decoration: none;
+    transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+    top: var(--space-16);
+}
+
+/* Smooth dark/light mode transitions */
+@media (prefers-reduced-motion: no-preference) {
+    body {
+        transition: background-color var(--transition-base),
+            color var(--transition-base);
+    }
+}
+
+
+/* ============================================
+   ORGANISMO: Header / Nav
+   ============================================ */
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-nav);
+    /* Transparent by default — glassmorphism added via .header--scrolled */
+    transition: background var(--transition-base),
+        backdrop-filter var(--transition-base),
+        border-color var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+/* Nav scrolled state — glassmorphism applied by JS */
+.header--scrolled {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border-bottom: 1px solid var(--color-glass-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-8) var(--space-16);
+    /* Mobile padding: 8px 16px — per Figma */
+}
+
+/* Logo link */
+.nav__logo-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    text-decoration: none;
+    outline-offset: 4px;
+}
+
+.nav__logo-svg {
+    width: 162px;
+    height: 32px;
+    display: block;
+    /* Logo text paths have class nav__logo-text */
+}
+
+/* Logo text adapts to theme */
+.nav__logo-text {
+    fill: var(--color-secondary);
+    transition: fill var(--transition-base);
+}
+
+/* Nav menu — hidden on mobile, shown on desktop */
+.nav__menu {
+    display: none;
+    gap: var(--space-40);
+    align-items: center;
+    list-style: none;
+}
+
+/* Nav actions container */
+.nav__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+}
+
+/* Desktop action buttons group — hidden on mobile */
+.nav__actions-controls {
+    display: none;
+    align-items: center;
+    gap: var(--space-16);
+}
+
+/* Hamburger — visible on mobile and tablet */
+.nav__hamburger {
+    display: inline-flex;
+    margin-left: var(--space-40);
+}
+
+.nav__hamburger i {
+    color: var(--color-secondary);
+}
+
+/* Focus visible — consistent accent outline */
+.nav__logo-link:focus-visible,
+.nav__hamburger:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-8);
+}
+
+
+/* ============================================
+   ORGANISMO: Nav Overlay — Mobile / Tablet menu
+   ============================================ */
+
+.nav-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-48);
+
+    /* Dark semi-transparent background with blur */
+    background-color: rgba(13, 13, 13, 0.96);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+
+    /* Hidden state */
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity var(--transition-base),
+        visibility var(--transition-base);
+}
+
+/* Open state — toggled by JS */
+.nav-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.nav-overlay__close {
+    position: absolute;
+    top: var(--space-16);
+    right: var(--space-16);
+}
+
+.nav-overlay__close i {
+    color: var(--color-secondary);
+}
+
+.nav-overlay__menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-32);
+    list-style: none;
+}
+
+/* Larger links in overlay */
+.nav-overlay__link {
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+}
+
+.nav-overlay__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+}
+
+
+/* ============================================
+   ORGANISMO: Hero
+   ============================================ */
+
+.hero {
+    position: relative;
+    min-height: 100svh;
+    /* Mobile: full viewport, compensates browser chrome */
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    padding-top: calc(var(--space-48) + 56px);
+    /* top: extra space for fixed nav (~56px nav height + breathing room) */
+    padding-right: var(--space-24);
+    padding-bottom: var(--space-40);
+    padding-left: var(--space-24);
+
+    background-color: var(--color-primary);
+    overflow: hidden;
+}
+
+/* Hero content — left column */
+.hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-32);
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+/* H1 — único en la página */
+.hero__headline {
+    font-family: var(--font-family);
+    font-size: var(--size-h1);
+    /* clamp(3rem, 7vw, 5.5rem) — base is 3rem = 48px on mobile */
+    font-weight: var(--font-weight-extrabold);
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+    width: 100%;
+    overflow-wrap: break-word;
+}
+
+.hero__headline-line {
+    display: block;
+    color: var(--color-secondary);
+}
+
+.hero__headline-accent {
+    display: block;
+    color: var(--color-accent);
+}
+
+/* Subtitle */
+.hero__subtitle {
+    font-family: var(--font-family);
+    font-size: 1.25rem;
+    /* 20px on mobile — tablet and desktop override in responsive.css */
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-secondary);
+    max-width: 36ch;
+}
+
+/* Hero right — photo section, hidden on mobile */
+.hero__right {
+    display: none;
+    /* Shown on tablet and desktop via responsive.css */
+}
+
+.hero__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    pointer-events: none;
+    user-select: none;
+}
+
+
+/* ============================================
+   LIGHT MODE — Token overrides
+   nav logo text and overlay background
+   ============================================ */
+
+[data-theme="light"] .nav__logo-text {
+    fill: var(--color-secondary);
+    /* #111111 in light mode */
+}
+
+[data-theme="light"] .nav-overlay {
+    background-color: rgba(245, 245, 245, 0.97);
+}
+
+[data-theme="light"] .hero {
+    background-color: var(--color-primary);
+    /* #F5F5F5 in light mode */
+}
+
+
+/* ============================================
+   FOCUS STATES — Global keyboard navigation
+   ============================================ */
+
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-8);
+}
+
+
+/* ============================================
+   ACCESSIBILITY — Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .header,
+    .nav-overlay,
+    .skip-link {
+        transition: none !important;
+    }
+}

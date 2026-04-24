@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System — Atoms Reference</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/phosphor.css">
+    <link rel="stylesheet" href="css/atoms.css">
+    <style>
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-family);
+            padding: var(--space-6);
+        }
+
+        .atoms-container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .atoms-header {
+            margin-bottom: var(--space-8);
+        }
+
+        section {
+            padding: 56px 40px;
+            border: 1px solid var(--color-secondary);
+        }
+
+        .atoms-header h1 {
+            font-size: 32px;
+            font-weight: var(--font-weight-extrabold);
+            margin-bottom: var(--space-2);
+        }
+
+        .atoms-header p {
+            font-size: var(--size-body);
+            color: var(--color-text-secondary);
+        }
+
+        .atom-section {
+            margin-bottom: var(--space-8);
+            padding-bottom: var(--space-6);
+            border-bottom: 1px solid var(--color-bg-secondary);
+        }
+
+        .atom-section h2 {
+            font-size: 24px;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-4);
+            color: var(--color-accent);
+        }
+
+        .atom-grid {
+            display: grid;
+            gap: var(--space-4);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .atom-showcase {
+            background-color: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .atom-label {
+            font-size: 0.75rem;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .atom-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            flex: 1;
+        }
+
+        .atom-note {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="atoms-container">
+        <!-- Header -->
+        <div class="atoms-header">
+            <h1>Design System Atoms</h1>
+            <p>Atomic design tokens — 15 foundational building blocks</p>
+        </div>
+
+        <!-- 1. BUTTON -->
+        <section class="atom-section">
+            <h2>1. Button</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Primary • Default</div>
+                    <div class="atom-content">
+                        <button class="btn btn--primary">
+                            Así genero resultados
+                            <span class="btn__icon">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Primary • Disabled</div>
+                    <div class="atom-content">
+                        <button class="btn btn--primary" disabled>
+                            Así genero resultados
+                            <span class="btn__icon">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Secondary • Default</div>
+                    <div class="atom-content">
+                        <button class="btn btn--secondary">
+                            Conocer más
+                            <span class="btn__icon">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Secondary • Disabled</div>
+                    <div class="atom-content">
+                        <button class="btn btn--secondary" disabled>
+                            Conocer más
+                            <span class="btn__icon">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. TAG -->
+        <section class="atom-section">
+            <h2>2. Tag / Label</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Bordered</div>
+                    <div class="atom-content">
+                        <span class="tag tag--bordered">Fintech</span>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Text Only</div>
+                    <div class="atom-content">
+                        <span class="tag tag--text-only">Casos de estudio</span>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Contact Label</div>
+                    <div class="atom-content">
+                        <span class="tag tag--contact">Disponible para trabajar</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. METRIC BADGE -->
+        <section class="atom-section">
+            <h2>3. Metric Badge</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Number + Label</div>
+                    <div class="atom-content">
+                        <div class="metric-badge">
+                            <div class="metric-badge__number">+45%</div>
+                            <div class="metric-badge__divider"></div>
+                            <div class="metric-badge__description">
+                                <p>Aumento en</p>
+                                <p>conversiones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Alternate Example</div>
+                    <div class="atom-content">
+                        <div class="metric-badge">
+                            <div class="metric-badge__number">13 años</div>
+                            <div class="metric-badge__divider"></div>
+                            <div class="metric-badge__description">
+                                <p>Experiencia</p>
+                                <p>profesional</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ICON BUTTON -->
+        <section class="atom-section">
+            <h2>4. Icon Button (Circular)</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Mode Toggle</div>
+                    <div class="atom-content">
+                        <button class="btn-icon" title="Toggle dark/light mode">
+                            <i class="ph ph-sun"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Language Toggle</div>
+                    <div class="atom-content">
+                        <button class="btn-icon" title="Change language">
+                            <i class="ph ph-globe"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Download CV</div>
+                    <div class="atom-content">
+                        <button class="btn-icon" title="Download CV">
+                            <i class="ph ph-download"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">WhatsApp Contact</div>
+                    <div class="atom-content">
+                        <button class="btn-icon" title="Contact via WhatsApp">
+                            <i class="ph ph-whatsapp-logo"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. LINKS -->
+        <section class="atom-section">
+            <h2>6. Links</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Nav Link (Menú)</div>
+                    <div class="atom-content">
+                        <a href="#" class="nav-link">Link menú</a>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Body Link (Página)</div>
+                    <div class="atom-content">
+                        <a href="#" class="body-link">Body link</a>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Secondary Link (Footer)</div>
+                    <div class="atom-content">
+                        <a href="#" class="link-secondary">Secondary Link</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. AVATAR -->
+        <section class="atom-section">
+            <h2>8. Avatar</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Default (48px)</div>
+                    <div class="atom-content">
+                        <div class="avatar avatar--default">
+                            <img src="./assets/images/testimonials/avatar__image.jpg" alt="Avatar"
+                                class="avatar__image">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Small (32px)</div>
+                    <div class="atom-content">
+                        <div class="avatar avatar--small">
+                            <img src="./assets/images/testimonials/avatar__image.jpg" alt="Avatar"
+                                class="avatar__image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. DIVIDER -->
+        <section class="atom-section">
+            <h2>9. Divider / Separator</h2>
+            <div class="atom-grid">
+                <div class="atom-showcase">
+                    <div class="atom-label">Horizontal</div>
+                    <div class="atom-content">
+                        <hr class="divider divider--horizontal">
+                    </div>
+                </div>
+
+                <div class="atom-showcase">
+                    <div class="atom-label">Vertical</div>
+                    <div class="atom-content">
+                        <div class="divider divider--vertical"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+
+</html>

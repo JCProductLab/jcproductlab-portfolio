@@ -1,0 +1,1 @@
+// Estela de humo (código de referencia)

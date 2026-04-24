@@ -1,0 +1,1 @@
+// Marquee infinito logos mobile

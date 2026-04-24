@@ -1,0 +1,1 @@
+// Web Component badge número + texto

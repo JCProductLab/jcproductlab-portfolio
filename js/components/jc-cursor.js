@@ -1,0 +1,1 @@
+// Web Component estela de humo desktop

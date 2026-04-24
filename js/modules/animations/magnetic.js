@@ -1,0 +1,1 @@
+// Botón magnético (código de referencia)

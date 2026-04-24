@@ -1,0 +1,1 @@
+// Texto rotatorio CTA flotante casos

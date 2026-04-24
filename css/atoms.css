@@ -1,0 +1,469 @@
+/* ============================================
+   DESIGN SYSTEM ATOMS — Component Styles
+   Mobile-first approach — base styles for mobile,
+   expanded with media queries for tablet/desktop
+   All values use CSS custom properties from variables.css
+   ============================================ */
+
+/* ============================================
+   BUTTON — Primary & Secondary CTA
+   ============================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-12);
+    padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
+    font-family: var(--font-family);
+    font-size: var(--size-button);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+}
+
+.btn--primary {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+.btn--primary:hover:not(:disabled) {
+    background-color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 212, 110, 0.2);
+}
+
+.btn--primary:active:not(:disabled) {
+    background-color: var(--color-accent);
+    transform: translateY(0);
+}
+
+.btn--primary:disabled {
+    background-color: var(--color-accent);
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn--secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-accent);
+}
+
+.btn--secondary:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 212, 110, 0.1);
+}
+
+.btn--secondary:active:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(0);
+}
+
+.btn--secondary:disabled {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn--secondary .btn__icon {
+    background-color: var(--color-accent);
+}
+
+.btn--secondary .btn__icon i {
+    color: var(--color-secondary);
+}
+
+.btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-32);
+    height: var(--space-32);
+    padding: var(--space-8);
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.btn__icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--color-accent);
+}
+
+.btn--primary .btn__icon {
+    background-color: var(--color-primary);
+}
+
+
+@media (min-width: 1200px) {
+    .btn {
+        gap: var(--space-24);
+        padding: var(--space-8) var(--space-8) var(--space-8) var(--space-32);
+    }
+
+    .btn__icon {
+        width: var(--space-48);
+        height: var(--space-48);
+    }
+
+    .btn__icon i {
+        font-size: 2rem;
+    }
+}
+
+/* ============================================
+   ICON BUTTON — Circular interactive element
+   ============================================ */
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-48);
+    height: var(--space-48);
+    padding: var(--space-8);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-full);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-size: 2rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.btn-icon:hover {
+    background-color: rgba(0, 212, 110, 0.15);
+    color: var(--color-accent);
+    transform: scale(1.05);
+    border-color: var(--color-accent);
+}
+
+.btn-icon:active {
+    transform: scale(0.95);
+}
+
+.btn-icon:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.btn-icon i {
+    color: var(--color-accent);
+}
+
+/* ============================================
+   TAG — Category label element
+   ============================================ */
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-12);
+    padding: var(--space-8) var(--space-16);
+    font-family: var(--font-family);
+    font-size: var(--size-body);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.tag::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-accent);
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.tag--bordered {
+    background-color: transparent;
+    border: 1px solid rgba(240, 240, 240, 0.5);
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tag--text-only {
+    background-color: transparent;
+    border: none;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tag--text-only::before {
+    display: none;
+}
+
+.tag--contact {
+    background-color: transparent;
+    border: 1px solid rgba(240, 240, 240, 0.5);
+    color: var(--color-secondary);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* ============================================
+   METRIC BADGE — Number + Label compound
+   ============================================ */
+
+.metric-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-12);
+    padding: var(--space-16) var(--space-24);
+    background-color: rgba(240, 240, 240, 0.1);
+    border-radius: var(--radius-12);
+}
+
+.metric-badge__number {
+    font-size: 2rem;
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-accent);
+    line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.metric-badge__divider {
+    width: 1px;
+    height: 32px;
+    background-color: var(--color-secondary);
+    flex-shrink: 0;
+}
+
+.metric-badge__description {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-regular);
+    color: var(--color-secondary);
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.metric-badge__description p {
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================
+   NAV LINK — Primary navigation element
+   ============================================ */
+
+.nav-link {
+    display: inline-block;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-secondary);
+    text-decoration: none;
+    line-height: 1.5;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        letter-spacing 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-accent);
+    border-radius: 1px;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 8px rgba(0, 212, 110, 0);
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+    width: 100%;
+    box-shadow: 0 0 12px rgba(0, 212, 110, 0.4);
+}
+
+.nav-link:hover,
+.nav-link[aria-current="page"] {
+    color: var(--color-accent);
+    letter-spacing: 0.08em;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   BODY LINK — Content link element
+   ============================================ */
+
+.body-link {
+    display: inline;
+    font-family: var(--font-family);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-secondary);
+    text-decoration: none;
+    position: relative;
+    line-height: 1.5;
+    letter-spacing: 0;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        letter-spacing 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.body-link:hover,
+.body-link:active {
+    color: var(--color-accent);
+    letter-spacing: 0.03em;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   SECONDARY LINK — Footer/metadata link
+   ============================================ */
+
+.link-secondary {
+    display: inline;
+    font-family: var(--font-family);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-regular);
+    color: rgba(240, 240, 240, 0.7);
+    text-decoration: none;
+    position: relative;
+    line-height: 1.5;
+    letter-spacing: 0;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        letter-spacing 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.link-secondary:hover,
+.link-secondary:active {
+    color: var(--color-accent);
+    letter-spacing: 0.03em;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   AVATAR — User profile image element
+   ============================================ */
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background-color: var(--color-bg-secondary);
+    overflow: hidden;
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(0, 212, 110, 0.15);
+}
+
+.avatar--default {
+    width: 3rem;
+    height: 3rem;
+}
+
+.avatar--small {
+    width: 2rem;
+    height: 2rem;
+}
+
+.avatar__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ============================================
+   DIVIDER — Visual separator element
+   ============================================ */
+
+.divider {
+    display: block;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.divider--horizontal {
+    width: 100%;
+    height: 1px;
+    border-top: 0.5px solid var(--color-secondary);
+}
+
+.divider--vertical {
+    width: 1px;
+    height: 280px;
+    border-left: 0.5px solid var(--color-secondary);
+}
+
+/* ============================================
+   FOCUS STATES — Keyboard Navigation
+   ============================================ */
+
+.btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+}
+
+.nav-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+}
+
+.body-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.link-secondary:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   ACCESSIBILITY — Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .btn,
+    .btn-icon,
+    .nav-link,
+    .body-link,
+    .link-secondary,
+    .cursor {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .btn:hover {
+        transform: none !important;
+    }
+
+    .btn-icon:hover {
+        transform: none !important;
+    }
+}
