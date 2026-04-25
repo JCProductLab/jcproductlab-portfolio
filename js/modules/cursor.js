@@ -4,7 +4,7 @@
 // ============================================
 
 export function initCustomCursor() {
-    if (window.innerWidth < 1024) return;
+    if (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches) return;
 
     const canvas = document.getElementById('fluid');
     const customCursor = document.getElementById('customCursor');
@@ -616,6 +616,8 @@ export function initCustomCursor() {
         update();
     }, { once: true });
 
+    const header = document.querySelector('header');
+
     window.addEventListener('mousemove', e => {
         // Visual cursor position
         customCursor.style.left = `${e.clientX}px`;
@@ -623,6 +625,12 @@ export function initCustomCursor() {
         // Fluid simulation pointer
         let p = pointers[0];
         updatePointerMoveData(p, scaleByPixelRatio(e.clientX), scaleByPixelRatio(e.clientY), p.color);
+        // Suppress smoke while cursor is over the header or a button
+        const overHeader = header && e.clientY <= header.getBoundingClientRect().bottom;
+        const overButton = !!e.target.closest('button, .btn, .btn-icon');
+        if (overHeader || overButton) {
+            p.moved = false;
+        }
     });
 
     window.addEventListener('resize', resizeCanvas);
