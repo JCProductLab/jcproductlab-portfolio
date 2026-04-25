@@ -28,6 +28,7 @@
     position: relative;
     overflow: hidden;
     will-change: transform;
+    z-index: 0;
 }
 
 .btn--primary {
@@ -80,7 +81,7 @@
 }
 
 .btn--secondary .btn__icon i {
-    color: var(--color-secondary);
+    color: var(--color-primary);
 }
 
 .btn__icon {
@@ -144,7 +145,7 @@
         border-radius: 50%;
         opacity: 0;
         pointer-events: none;
-        z-index: 0;
+        z-index: -1;
     }
 
     .btn--primary:hover::before {
@@ -160,13 +161,13 @@
         top: var(--y, 50%);
         width: 160px;
         height: 160px;
-        background: radial-gradient(circle, rgba(240, 240, 240, 0.15) 0%, rgba(240, 240, 240, 0) 75%);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(240, 240, 240, 0) 75%);
         transform: translate(-50%, -50%) scale(0);
         transition: transform 0.4s ease, opacity 0.3s ease;
         border-radius: 50%;
         opacity: 0;
         pointer-events: none;
-        z-index: 0;
+        z-index: -1;
     }
 
     .btn--secondary:hover::before {
@@ -180,21 +181,26 @@
         z-index: 1;
     }
 
+    .btn__icon {
+        position: relative;
+        z-index: 1;
+    }
+
     /* Icon button glow effect */
     .btn-icon::before {
         content: '';
         position: absolute;
         left: var(--x, 50%);
         top: var(--y, 50%);
-        width: 100px;
-        height: 100px;
-        background: radial-gradient(circle, rgba(0, 212, 110, 0.4) 0%, rgba(0, 212, 110, 0) 70%);
+        width: 40px;
+        height: 40px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(240, 240, 240, 0) 75%);
         transform: translate(-50%, -50%) scale(0);
         transition: transform 0.4s ease, opacity 0.3s ease;
         border-radius: 50%;
         opacity: 0;
         pointer-events: none;
-        z-index: 0;
+        z-index: -1;
     }
 
     .btn-icon:hover::before {

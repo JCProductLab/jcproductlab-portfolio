@@ -46,6 +46,9 @@
    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
    /* Glassmorphism shadow — depth and elevation */
 
+   --glass-glow: rgba(255, 255, 255, 0.08);
+   /* Glassmorphism glow — subtle white radial gradient for hover effects */
+
    /* ============================================
      3. TYPOGRAPHY FAMILY
      ============================================ */
@@ -94,7 +97,9 @@
    --color-glass-bg-light: rgba(0, 0, 0, 0.05);
    --color-glass-border: rgba(0, 0, 0, 0.08);
    --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+   --glass-backdrop: blur(20px) saturate(180%);
    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+   --glass-glow: rgba(0, 0, 0, 0.08);
 
    /* Selection — light mode */
    --selection-bg: rgba(0, 184, 92, 0.2);
@@ -117,7 +122,9 @@
       --color-glass-bg-light: rgba(0, 0, 0, 0.05);
       --color-glass-border: rgba(0, 0, 0, 0.08);
       --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+      --glass-backdrop: blur(20px) saturate(180%);
       --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --glass-glow: rgba(0, 0, 0, 0.08);
 
       --selection-bg: rgba(0, 184, 92, 0.2);
    }
@@ -218,7 +225,9 @@ h4 {
    --color-glass-bg-dark: rgba(255, 255, 255, 0.05);
    --color-glass-border: rgba(255, 255, 255, 0.12);
    --glass-bg: linear-gradient(-45deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+   --glass-backdrop: blur(20px) saturate(180%);
    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+   --glass-glow: rgba(255, 255, 255, 0.08);
    --selection-bg: rgba(0, 212, 110, 0.3);
 }
 
