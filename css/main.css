@@ -61,7 +61,11 @@ body {
     left: 0;
     right: 0;
     z-index: 100;
-    /* Transparent by default — glassmorphism added via .header--scrolled */
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border-bottom: 1px solid var(--color-glass-border);
+    box-shadow: var(--glass-shadow);
     transition: background 300ms ease,
         backdrop-filter 300ms ease,
         border-color 300ms ease,
@@ -228,7 +232,6 @@ body {
     align-items: flex-start;
     justify-content: flex-end;
 
-    padding: 40px;
     padding-top: calc(40px + 64px);
 
     background-color: var(--color-primary);
@@ -277,7 +280,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 32px;
+    gap: 24px;
     width: 100%;
     position: relative;
     z-index: 2;
@@ -285,7 +288,7 @@ body {
             rgba(13, 13, 13, 0.95) 0%,
             rgba(13, 13, 13, 0.85) 60%,
             transparent 100%);
-    padding: 32px;
+    padding: 24px;
     padding-right: 48px;
     border-radius: 12px;
     backdrop-filter: blur(4px);
@@ -307,7 +310,6 @@ body {
 
 .hero__headline-line {
     display: inline;
-    color: var(--color-secondary);
 }
 
 .hero__headline-accent {
@@ -315,8 +317,7 @@ body {
     color: var(--color-accent);
 }
 
-
-
+.hero__content
 /* ============================================
    LIGHT MODE — Token overrides
    nav logo text and overlay background

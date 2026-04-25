@@ -129,7 +129,7 @@
 
 /* H1 — Headline (unique in page) */
 h1 {
-   font-size: clamp(3rem, 7vw, 5.5rem);
+   font-size: clamp(2.5rem, 7vw, 6rem);
    font-weight: var(--extrabold);
    line-height: 1.1;
    text-transform: uppercase;
