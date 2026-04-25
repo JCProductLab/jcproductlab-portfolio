@@ -25,6 +25,9 @@
     cursor: pointer;
     transition: all 300ms ease;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
 }
 
 .btn--primary {
@@ -119,6 +122,93 @@
     .btn__icon i {
         font-size: 2rem;
     }
+}
+
+/* ============================================
+   DESKTOP EFFECTS — Magnetic & Glow (min-width: 1024px)
+   ============================================ */
+
+@media (min-width: 1024px) {
+
+    /* Primary button glow effect */
+    .btn--primary::before {
+        content: '';
+        position: absolute;
+        left: var(--x, 50%);
+        top: var(--y, 50%);
+        width: 140px;
+        height: 140px;
+        background: radial-gradient(circle, rgba(0, 255, 132, 0.7) 0%, rgba(0, 212, 110, 0) 70%);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.4s ease, opacity 0.3s ease;
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .btn--primary:hover::before {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+
+    /* Secondary button glow effect */
+    .btn--secondary::before {
+        content: '';
+        position: absolute;
+        left: var(--x, 50%);
+        top: var(--y, 50%);
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, rgba(240, 240, 240, 0.15) 0%, rgba(240, 240, 240, 0) 75%);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.4s ease, opacity 0.3s ease;
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .btn--secondary:hover::before {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+
+    /* Ensure button content stays above glow effect */
+    .btn--primary,
+    .btn--secondary {
+        z-index: 1;
+    }
+
+    /* Icon button glow effect */
+    .btn-icon::before {
+        content: '';
+        position: absolute;
+        left: var(--x, 50%);
+        top: var(--y, 50%);
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(0, 212, 110, 0.4) 0%, rgba(0, 212, 110, 0) 70%);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.4s ease, opacity 0.3s ease;
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .btn-icon:hover::before {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+
+    .btn-icon {
+        position: relative;
+        overflow: hidden;
+        will-change: transform;
+        z-index: 1;
+    }
+
 }
 
 /* ============================================
