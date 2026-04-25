@@ -4,7 +4,8 @@
 // ============================================
 
 export function initCustomCursor() {
-    if (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches) return;
+    const isTouchDevice = navigator.maxTouchPoints > 0 || window.matchMedia('(any-pointer: coarse)').matches;
+    if (window.innerWidth < 1024 || isTouchDevice) return;
 
     const canvas = document.getElementById('fluid');
     const customCursor = document.getElementById('customCursor');

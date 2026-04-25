@@ -15,7 +15,7 @@
     display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (pointer: fine) {
 
     /* Hide system cursor globally */
     *, html, body, canvas, a, button, input, select, textarea {
