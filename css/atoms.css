@@ -6,6 +6,77 @@
    ============================================ */
 
 /* ============================================
+   CUSTOM CURSOR — Desktop only
+   ============================================ */
+
+/* Hidden by default on mobile/tablet */
+.custom-cursor,
+#fluid {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+
+    /* Hide system cursor globally */
+    *, html, body, canvas, a, button, input, select, textarea {
+        cursor: none !important;
+    }
+
+    /* Custom cursor container */
+    .custom-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 32px;
+        height: 32px;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        display: block;
+        mix-blend-mode: difference;
+    }
+
+    /* Pulsing animation */
+    .custom-cursor-inner {
+        width: 100%;
+        height: 100%;
+        display: block;
+        animation: pulse-slow 1s ease-in-out infinite;
+    }
+
+    .custom-cursor img {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    @keyframes pulse-slow {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.5);
+            opacity: 0.8;
+        }
+    }
+
+    /* Fluid canvas */
+    #fluid {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100dvw;
+        height: 100dvh;
+        pointer-events: none;
+        z-index: 998;
+        mix-blend-mode: screen;
+    }
+
+}
+
+/* ============================================
    BUTTON — Primary & Secondary CTA
    ============================================ */
 
