@@ -359,6 +359,19 @@ body {
     object-position: center;
 }
 
+/* Dark overlay for text legibility — sits on top of image, below container (z-index: 2) */
+.case-card__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.25) 0%,
+        rgba(0, 0, 0, 0.55) 100%
+    );
+    z-index: 1;
+}
+
 /* Content constraint container */
 .case-card__container {
     position: relative;
@@ -384,7 +397,8 @@ body {
 }
 
 /* Solution paragraph hidden on mobile */
-.case-card__solution {
+.case-card__solution,
+.case-card__description {
     display: none;
 }
 
@@ -405,13 +419,6 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-}
-
-/* Show button only on touch devices */
-@media (pointer: coarse) {
-    .case-card__cta {
-        display: inline-flex;
-    }
 }
 
 

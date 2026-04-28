@@ -113,7 +113,8 @@
         width: 65%;
     }
 
-    .case-card__solution {
+    .case-card__solution,
+    .case-card__description {
         display: block;
     }
 
@@ -293,7 +294,7 @@
     .case-card__container {
         flex-direction: row;
         padding: 40px;
-        padding-top: calc(40px + 64px);
+        padding-top: calc(64px + 64px);
     }
 
     .case-card__left {
@@ -381,4 +382,25 @@
 
 
 
+}
+
+
+/* ============================================
+   case-card__cta — Visibility by pointer type
+   Must come AFTER all width-only breakpoints
+   so these pointer rules win in the cascade.
+   ============================================ */
+
+/* ≥ 1024px + mouse: hidden */
+@media (min-width: 1024px) and (pointer: fine) {
+    .case-card__cta {
+        display: none;
+    }
+}
+
+/* ≥ 1024px + touch: visible — overrides the min-width: 1200px rule above */
+@media (min-width: 1024px) and (pointer: coarse) {
+    .case-card__cta {
+        display: inline-flex;
+    }
 }
