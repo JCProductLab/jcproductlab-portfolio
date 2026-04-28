@@ -112,6 +112,27 @@
         </div>
     </div>
 
+    <!-- Case Study cursor — desktop pointer:fine only, se activa sobre .case-cards -->
+    <div class="case-cursor" id="case-cursor" aria-hidden="true">
+        <div class="case-cursor__inner">
+            <svg class="case-cursor__svg" viewBox="0 0 300 300">
+                <circle class="case-cursor__ring" cx="150" cy="150" r="90" />
+                <defs>
+                    <path id="case-cursor-path-top" d="M 70, 110 A 90,90 0 0,1 230,110" />
+                    <path id="case-cursor-path-bottom" d="M 230, 190 A 90,90 0 0,1 70,190" />
+                </defs>
+                <text class="case-cursor__text">
+                    <textPath href="#case-cursor-path-top" startOffset="50%" text-anchor="middle">VER CASO DE ESTUDIO</textPath>
+                </text>
+                <text class="case-cursor__text">
+                    <textPath href="#case-cursor-path-bottom" startOffset="50%" text-anchor="middle">VER CASO DE ESTUDIO</textPath>
+                </text>
+                <circle class="case-cursor__dot" cx="240" cy="150" r="7" />
+                <circle class="case-cursor__dot" cx="60" cy="150" r="7" />
+            </svg>
+        </div>
+    </div>
+
     <!-- ============================================ -->
     <!-- SKIP LINK — Keyboard navigation             -->
     <!-- ============================================ -->

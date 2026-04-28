@@ -88,6 +88,76 @@
 }
 
 /* ============================================
+   CASE STUDY CURSOR — Desktop pointer: fine only
+   Activado al hacer hover sobre section.case-cards
+   ============================================ */
+
+.case-cursor {
+    display: none;
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+
+    .case-cursor {
+        display: block;
+        position: fixed;
+        width: 180px;
+        height: 180px;
+        pointer-events: none;
+        z-index: 10000;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: difference;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .case-cursor--active {
+        opacity: 1;
+    }
+
+    .case-cursor__inner {
+        width: 100%;
+        height: 100%;
+        animation: case-cursor-rotate 12s linear infinite;
+        animation-play-state: paused;
+    }
+
+    .case-cursor--active .case-cursor__inner {
+        animation-play-state: running;
+    }
+
+    @keyframes case-cursor-rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .case-cursor__svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .case-cursor__ring {
+        fill: none;
+        stroke: #00D46E;
+        stroke-width: 60;
+    }
+
+    .case-cursor__text {
+        font-family: 'Sora', sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        text-transform: uppercase;
+        fill: #0d0d0d;
+    }
+
+    .case-cursor__dot {
+        fill: #0d0d0d;
+    }
+
+}
+
+/* ============================================
    BUTTON — Primary & Secondary CTA
    ============================================ */
 
