@@ -325,16 +325,12 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    background-color: var(--color-primary);
 }
 
 .case-card {
     position: relative;
     width: 100vw;
     height: 100dvh;
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
     overflow: hidden;
 }
 
@@ -369,54 +365,22 @@ body {
     z-index: 2;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    /* Una arriba, otra abajo */
     justify-content: space-between;
-    gap: 24px;
+    /* Fuerza la separación */
     width: 100%;
-    max-width: 1440px;
     height: 100%;
-    margin-left: auto;
-    margin-right: auto;
     padding: 24px;
     padding-top: calc(24px + 64px);
+    margin: 0 auto;
+    max-width: 1440px;
 }
 
 /* Left column: Problem narrative (top-left anchor) */
 .case-card__left {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    border-radius: 12px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-}
-
-.case-card__left h2 {
-    font-size: clamp(1.5rem, 3vw, 2.5rem);
-    font-weight: var(--regular);
-    line-height: 1.2;
-    margin: 0;
-}
-
-.case-card__left .large-paragraph {
-    margin: 0;
-    color: var(--color-secondary);
-    font-weight: var(--regular);
-}
-
-/* Company data block */
-.case-card__company-data {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.case-card__company-data p {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: clamp(0.875rem, 1vw, 1rem);
+    gap: 24px;
 }
 
 /* Solution paragraph hidden on mobile */
@@ -429,49 +393,27 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    /* Pegado a la derecha */
+    justify-content: flex-end;
+    /* Pegado abajo */
+    text-align: right;
     gap: 24px;
-    width: 100%;
-    border-radius: 12px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
 }
 
 /* Metrics container */
 .case-card__metrics {
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-/* CTA button — Hidden by default, visible only on touch devices */
-.case-card__cta {
-    display: none;
+    gap: 16px;
 }
 
 /* Show button only on touch devices */
 @media (pointer: coarse) {
     .case-card__cta {
         display: inline-flex;
-        margin-top: 8px;
     }
 }
 
-/* Light mode overrides */
-[data-theme="light"] .case-card__left {
-    background: linear-gradient(to right,
-            rgba(245, 245, 245, 0.95) 0%,
-            rgba(245, 245, 245, 0.85) 60%,
-            transparent 100%);
-}
-
-[data-theme="light"] .case-card__right {
-    background: linear-gradient(to left,
-            rgba(245, 245, 245, 0.95) 0%,
-            rgba(245, 245, 245, 0.85) 40%,
-            transparent 100%);
-}
 
 /* ============================================
    LIGHT MODE — Token overrides
