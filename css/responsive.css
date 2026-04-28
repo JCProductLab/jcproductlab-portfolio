@@ -398,8 +398,10 @@
     }
 }
 
-/* ≥ 1024px + touch: visible — overrides the min-width: 1200px rule above */
-@media (min-width: 1024px) and (pointer: coarse) {
+/* ≥ 1024px + any touch input: visible — overrides the min-width: 1200px rule above.
+   Uses any-pointer (not pointer) to catch Samsung/stylus tablets where the S Pen
+   reports pointer: fine even though the device has a touch screen. */
+@media (min-width: 1024px) and (any-pointer: coarse) {
     .case-card__cta {
         display: inline-flex;
     }
