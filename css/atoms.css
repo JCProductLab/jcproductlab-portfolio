@@ -106,7 +106,6 @@
         pointer-events: none;
         z-index: 10000;
         transform: translate(-50%, -50%);
-        mix-blend-mode: difference;
         opacity: 0;
         transition: opacity 0.2s ease;
     }
@@ -153,6 +152,13 @@
 
     .case-cursor__dot {
         fill: #0d0d0d;
+    }
+
+    /* Restaurar puntero de mano en case-card — sobreescribe cursor: none !important global.
+       .case-card * tiene mayor especificidad que * por lo que gana aunque ambos usen !important */
+    .case-card,
+    .case-card * {
+        cursor: pointer !important;
     }
 
 }

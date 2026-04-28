@@ -11,6 +11,7 @@ export function initCaseCursor() {
     const cursor = document.getElementById('case-cursor');
     const section = document.querySelector('.case-cards');
     const globalCursor = document.getElementById('customCursor');
+    const fluidCanvas = document.getElementById('fluid');
     if (!cursor || !section) return;
 
     let rafId = null;
@@ -30,11 +31,25 @@ export function initCaseCursor() {
 
     section.addEventListener('mouseenter', () => {
         cursor.classList.add('case-cursor--active');
+        // Suprimir cursor global y estela fluida — solo dentro de esta sección
         if (globalCursor) globalCursor.style.opacity = '0';
+        if (fluidCanvas) {
+            fluidCanvas.style.transition = 'opacity 0.25s ease';
+            fluidCanvas.style.opacity = '0';
+        }
     });
 
     section.addEventListener('mouseleave', () => {
         cursor.classList.remove('case-cursor--active');
+        // Restaurar cursor global y estela fluida al salir
         if (globalCursor) globalCursor.style.opacity = '';
+        if (fluidCanvas) fluidCanvas.style.opacity = '';
+    });
+
+    // Cards clicables — solo pointer: fine, >= 1024px (misma condición que el guard)
+    section.querySelectorAll('.case-card[data-href]').forEach(card => {
+        card.addEventListener('click', () => {
+            window.location.href = card.dataset.href;
+        });
     });
 }
