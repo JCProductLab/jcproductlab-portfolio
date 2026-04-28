@@ -157,6 +157,7 @@ h2 {
    font-size: clamp(2rem, 4vw, 3rem);
    font-weight: var(--regular);
    line-height: 1.1;
+   text-transform: none;
 }
 
 /* Subtitle — Títulos de secciones más pequeños */
@@ -182,7 +183,7 @@ h4 {
 
 /* Body Large — Cuerpo de texto más grande */
 .large-paragraph {
-   font-size: clamp(1rem, 1.25vw, 1.25rem);
+   font-size: clamp(1.125rem, 1.25vw, 1.375rem);
    font-weight: var(--regular);
    line-height: 1.3;
 }
