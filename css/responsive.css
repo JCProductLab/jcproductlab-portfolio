@@ -9,7 +9,7 @@
    min-width: 768px — Tablet portrait
    ============================================ */
 
-@media (min-width: 768px) {
+@media (min-width: 700px) {
 
     /******************* Nav *******************/
     .nav {
