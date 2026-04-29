@@ -83,6 +83,7 @@ export function initCaseCardsScroll() {
                 scrub: 1,
                 anticipatePin: 1,
                 invalidateOnRefresh: true,
+                onEnterBack: () => animateShowCaseCursor(),
                 onLeaveBack: () => animateHideCaseCursor(),
                 onLeave:     () => animateHideCaseCursor()
             }
