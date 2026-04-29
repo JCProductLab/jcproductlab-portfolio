@@ -632,6 +632,12 @@ export function initCustomCursor() {
         if (overHeader || overButton) {
             p.moved = false;
         }
+        // Hide custom cursor on interactive elements; .case-cards manages its own opacity
+        const overCaseCards = !!e.target.closest('.case-cards');
+        if (!overCaseCards) {
+            const overInteractive = !!e.target.closest('a, button, [role="button"]');
+            customCursor.style.opacity = overInteractive ? '0' : '';
+        }
     });
 
     window.addEventListener('resize', resizeCanvas);

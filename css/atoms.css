@@ -41,7 +41,6 @@
         z-index: 9999;
         transform: translate(-50%, -50%);
         display: block;
-        mix-blend-mode: difference;
     }
 
     /* Pulsing animation */
@@ -70,6 +69,16 @@
             transform: scale(1.5);
             opacity: 0.8;
         }
+    }
+
+    /* Restore native pointer on interactive elements and all their descendants */
+    a,
+    a *,
+    button,
+    button *,
+    [role="button"],
+    [role="button"] * {
+        cursor: pointer !important;
     }
 
     /* Fluid canvas */
