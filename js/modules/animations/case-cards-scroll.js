@@ -169,4 +169,64 @@ export function initCaseCardsScroll() {
         // al cambiar de breakpoint. No hace falta cleanup manual.
         return () => { };
     });
+
+    // ============================================
+    // MOBILE / TABLET (< 1024px) — scroll natural + animaciones de entrada
+    // ============================================
+    mm.add('(max-width: 1023px)', () => {
+        cards.forEach((card) => {
+            const content = card.querySelector('.case-card__container');
+            const bgImage = card.querySelector('.case-card__bg');
+            const metrics = card.querySelectorAll('.metric-badge__number');
+
+            // 1. Fade-in + slide-up del contenido al entrar 20% en viewport
+            if (content) {
+                gsap.set(content, { opacity: 0, y: 30 });
+                gsap.to(content, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            }
+
+            // 2. Parallax sutil de la imagen de fondo (scrub bajo para no sentirse pesado al tacto)
+            if (bgImage) {
+                gsap.to(bgImage, {
+                    yPercent: -10,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 0.5
+                    }
+                });
+            }
+
+            // 3. Stagger con rebote de las métricas cuando entran en pantalla
+            if (metrics.length) {
+                gsap.set(metrics, { scale: 0.8, opacity: 0 });
+                gsap.to(metrics, {
+                    scale: 1,
+                    opacity: 1,
+                    duration: 0.6,
+                    ease: 'back.out(1.7)',
+                    stagger: 0.15,
+                    scrollTrigger: {
+                        trigger: card.querySelector('.case-card__metrics') || card,
+                        start: 'top 85%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            }
+        });
+
+        return () => { };
+    });
 }
