@@ -205,6 +205,17 @@
 
 }
 
+/* ============================================
+   min-width: 768px + max-width: 1199px + landscape
+   ============================================ */
+
+@media (min-width: 900px) and (max-width: 1199px) and (orientation: landscape) {
+
+    .case-card__container {
+        flex-direction: row;
+    }
+
+}
 
 /* ============================================
    min-width: 1200px — Desktop
@@ -298,7 +309,7 @@
     }
 
     .case-card__left {
-        width: 35%;
+        width: 45%;
     }
 
     .case-card__right {
@@ -306,7 +317,7 @@
     }
 
     .case-card__solution {
-        width: 45%;
+        width: 55%;
     }
 
     .case-card__cta {
@@ -379,8 +390,31 @@
     }
 
     /******************* Case Cards *******************/
+    .case-card__container {
+        flex-direction: row;
+        padding: 40px;
+        padding-top: calc(64px + 64px);
+    }
 
+    .case-card__left {
+        width: 45%;
+    }
 
+    .case-card__right {
+        width: 60%;
+    }
+
+    .case-card__solution {
+        width: 55%;
+    }
+
+    .case-card__cta {
+        display: none;
+    }
+
+    .case-card-title {
+        font-size: 2.5rem;
+    }
 
 }
 

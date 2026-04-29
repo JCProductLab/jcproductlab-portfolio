@@ -122,10 +122,12 @@
                     <path id="case-cursor-path-bottom" d="M 230, 190 A 90,90 0 0,1 70,190" />
                 </defs>
                 <text class="case-cursor__text">
-                    <textPath href="#case-cursor-path-top" startOffset="50%" text-anchor="middle">VER CASO DE ESTUDIO</textPath>
+                    <textPath href="#case-cursor-path-top" startOffset="50%" text-anchor="middle">VER CASO DE ESTUDIO
+                    </textPath>
                 </text>
                 <text class="case-cursor__text">
-                    <textPath href="#case-cursor-path-bottom" startOffset="50%" text-anchor="middle">VER CASO DE ESTUDIO</textPath>
+                    <textPath href="#case-cursor-path-bottom" startOffset="50%" text-anchor="middle">VER CASO DE ESTUDIO
+                    </textPath>
                 </text>
                 <circle class="case-cursor__dot" cx="240" cy="150" r="7" />
                 <circle class="case-cursor__dot" cx="60" cy="150" r="7" />
@@ -362,11 +364,13 @@
                     <!-- Left column: Problem narrative -->
                     <div class="case-card__left">
                         <h2 class="case-card-title" data-i18n="cases.case1.title">
-                            Capacitaciones en manos de un solo hombre y un excel infinito.
+                            El futuro de 27,000 empleados en manos de un solo hombre y un Excel infinito.
                         </h2>
 
                         <p class="case-card__description" data-i18n="cases.case1.problem">
-                            Carlos llegaba cada jueves con una semana de datos sin procesar.
+                            Carlos llegaba cada jueves a las 8 de la mañana con una semana de datos sin procesar.
+                            Treinta horas de tablas, fórmulas y calendarios creados a mano, uno por uno, para cientos de
+                            personas. Si se enfermaba, la capacitación de 27,000 empleados simplemente se detenía.
                         </p>
 
                         <p class="large-paragraph" data-i18n="cases.case1.business_model_value">
@@ -387,18 +391,18 @@
                                     data-i18n="cases.case1.metric1_number">95%</span>
                                 <div class="metric-badge__divider" aria-hidden="true"></div>
                                 <div class="metric-badge__description">
-                                    <p class="caption" data-i18n="cases.case1.metric1_label">Optimización</p>
-                                    <p class="caption" data-i18n="cases.case1.metric1_label">del tiempo</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">Tiempo</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">operativo</p>
                                 </div>
                             </div>
 
                             <div class="metric-badge">
-                                <span class="important metric-badge__number"
-                                    data-i18n="cases.case1.metric2_number">-45%</span>
+                                <span class="important metric-badge__number" data-i18n="cases.case1.metric2_number">&lt;
+                                    0.5%</span>
                                 <div class="metric-badge__divider" aria-hidden="true"></div>
                                 <div class="metric-badge__description">
-                                    <p class="caption" data-i18n="cases.case1.metric1_label">Optimización</p>
-                                    <p class="caption" data-i18n="cases.case1.metric1_label">del tiempo</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">Errores</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label"></p>
                                 </div>
                             </div>
                         </div>
@@ -411,15 +415,174 @@
                             </span>
                         </button>
 
-                        <!-- Future: Custom cursor interaction listener area (desktop) -->
-                        <!-- TODO: Add mousemove listener for custom cursor interaction on desktop/pointer devices -->
-
                     </div>
 
                 </div>
 
             </article>
             <!-- END: Case Card #1 -->
+
+            <!-- Case Card #2 -->
+            <article class="case-card" aria-label="Caso de estudio: Fintech" data-href="/casos/gentera">
+
+                <!-- Background image with responsive <picture> -->
+                <div class="case-card__bg">
+                    <picture class="case-card__picture">
+                        <source media="(min-width: 1200px)"
+                            srcset="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp">
+                        <source media="(min-width: 768px)"
+                            srcset="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp">
+                        <img src="assets/images/cases/product-design-ecommerce-asdeporte-mobile.webp"
+                            alt="Caso de estudio: Optimización de experiencia del paciente en plataforma HealthTech"
+                            class="case-card__image" draggable="false">
+                    </picture>
+                </div>
+
+                <!-- Content container (max-width: 1440px, centered) -->
+                <div class="case-card__container">
+
+                    <!-- Left column: Problem narrative -->
+                    <div class="case-card__left">
+                        <h2 class="case-card-title" data-i18n="cases.case1.title">
+                            Una app de clase mundial que castigaba a sus propios atletas.
+                        </h2>
+
+                        <p class="case-card__description" data-i18n="cases.case1.problem">
+                            Atletas que entrenaban meses para un triatlón llegaban al momento de inscribirse y se
+                            encontraban con una aplicación que generaba más dudas que certeza. Interfaces descuidadas,
+                            pasos confusos y una experiencia que hacía sentir que algo podía salir mal.
+                        </p>
+
+                        <p class="large-paragraph" data-i18n="cases.case1.business_model_value">
+                            E-commerce · B2C · 125k usuarios
+                        </p>
+                    </div>
+
+                    <!-- Right column: Solution & Results -->
+                    <div class="case-card__right">
+                        <h4 class="bold-subtitle case-card__solution" data-i18n="cases.case1.solution">
+                            Construimos un camino sin fricción desde el primer clic hasta la línea de salida.
+                        </h4>
+
+                        <!-- Metrics group: 2x badges -->
+                        <div class="case-card__metrics">
+                            <div class="metric-badge">
+                                <span class="important metric-badge__number"
+                                    data-i18n="cases.case1.metric1_number">+11%</span>
+                                <div class="metric-badge__divider" aria-hidden="true"></div>
+                                <div class="metric-badge__description">
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">Conversión</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label"></p>
+                                </div>
+                            </div>
+
+                            <div class="metric-badge">
+                                <span class="important metric-badge__number"
+                                    data-i18n="cases.case1.metric2_number">-60%</span>
+                                <div class="metric-badge__divider" aria-hidden="true"></div>
+                                <div class="metric-badge__description">
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">Errores</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">de pago</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA button: Touch devices only -->
+                        <button class="btn btn--primary case-card__cta" data-i18n="cases.case1.cta">
+                            Ver caso de estudio
+                            <span class="btn__icon" aria-hidden="true">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+            <!-- END: Case Card #2 -->
+
+            <!-- Case Card #3 -->
+            <article class="case-card" aria-label="Caso de estudio: Fintech" data-href="/casos/gentera">
+
+                <!-- Background image with responsive <picture> -->
+                <div class="case-card__bg">
+                    <picture class="case-card__picture">
+                        <source media="(min-width: 1200px)"
+                            srcset="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp">
+                        <source media="(min-width: 768px)"
+                            srcset="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp">
+                        <img src="assets/images/cases/product-design-healthtech-hospital-abc-mobile.webp"
+                            alt="Caso de estudio: Optimización de experiencia del paciente en plataforma HealthTech"
+                            class="case-card__image" draggable="false">
+                    </picture>
+                </div>
+
+                <!-- Content container (max-width: 1440px, centered) -->
+                <div class="case-card__container">
+
+                    <!-- Left column: Problem narrative -->
+                    <div class="case-card__left">
+                        <h2 class="case-card-title" data-i18n="cases.case1.title">
+                            El hospital más prestigioso de México con un laberinto digital que confundía a sus
+                            pacientes.
+                        </h2>
+
+                        <p class="case-card__description" data-i18n="cases.case1.problem">
+                            Pacientes que llegaban al mejor hospital de México y se disculpaban por no entender, cuando
+                            el problema no eran ellos. El sistema era un laberinto. Para buscar un doctor iban
+                            a una página, para sus estudios a otra y para agendar una cita terminaban esperando al
+                            teléfono.
+                        </p>
+
+                        <p class="large-paragraph" data-i18n="cases.case1.business_model_value">
+                            HealthTech · B2C · Portal de paciente
+                        </p>
+                    </div>
+
+                    <!-- Right column: Solution & Results -->
+                    <div class="case-card__right">
+                        <h4 class="bold-subtitle case-card__solution" data-i18n="cases.case1.solution">
+                            Le dimos al hospital digital la misma calidez que ya tenía en sus pasillos.
+                        </h4>
+
+                        <!-- Metrics group: 2x badges -->
+                        <div class="case-card__metrics">
+                            <div class="metric-badge">
+                                <span class="important metric-badge__number"
+                                    data-i18n="cases.case1.metric1_number">-25%</span>
+                                <div class="metric-badge__divider" aria-hidden="true"></div>
+                                <div class="metric-badge__description">
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">Llamadas</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">a soporte</p>
+                                </div>
+                            </div>
+
+                            <div class="metric-badge">
+                                <span class="important metric-badge__number"
+                                    data-i18n="cases.case1.metric2_number">-50%</span>
+                                <div class="metric-badge__divider" aria-hidden="true"></div>
+                                <div class="metric-badge__description">
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">Tiempo al</p>
+                                    <p class="caption" data-i18n="cases.case1.metric1_label">agendar citas</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA button: Touch devices only -->
+                        <button class="btn btn--primary case-card__cta" data-i18n="cases.case1.cta">
+                            Ver caso de estudio
+                            <span class="btn__icon" aria-hidden="true">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+            <!-- END: Case Card #3 -->
 
         </section>
         <!-- END: Case Cards Section -->

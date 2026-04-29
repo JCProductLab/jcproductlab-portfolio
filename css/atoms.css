@@ -126,8 +126,13 @@
     }
 
     @keyframes case-cursor-rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .case-cursor__svg {
@@ -501,6 +506,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
+    text-align: left;
 }
 
 .metric-badge__description p {
