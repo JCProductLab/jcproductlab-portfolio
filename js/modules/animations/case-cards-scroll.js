@@ -75,6 +75,7 @@ export function initCaseCardsScroll() {
 
         const mainTl = gsap.timeline({
             scrollTrigger: {
+                id: 'caseCards',
                 trigger: section,
                 start: 'top top',
                 end: '+=8000',
@@ -83,7 +84,6 @@ export function initCaseCardsScroll() {
                 scrub: 1,
                 anticipatePin: 1,
                 invalidateOnRefresh: true,
-                onEnterBack: () => animateShowCaseCursor(),
                 onLeaveBack: () => animateHideCaseCursor(),
                 onLeave:     () => animateHideCaseCursor()
             }
@@ -117,8 +117,11 @@ export function initCaseCardsScroll() {
             ease: 'power2.inOut'
         });
 
-        // Cursor nace simultáneamente con la expansión de Card 1 (posición '<' = inicio de PASO C)
-        mainTl.call(animateShowCaseCursor, null, '<');
+        // Cursor nace con expansión de Card 1 al bajar; dirección > 0 evita re-animación al subir
+        mainTl.call(() => {
+            const st = ScrollTrigger.getById('caseCards');
+            if (st && st.direction > 0) animateShowCaseCursor();
+        }, null, '<');
 
         // PASO D: Aparece el texto en stagger (después de que Card 1 y cursor están al 100%)
         mainTl.add(fadeInText(cards[0]));
@@ -151,6 +154,11 @@ export function initCaseCardsScroll() {
 
         // ─── 4. SALIDA FINAL ───────────────────────────────
         mainTl.addLabel('final');
+        // Al subir: Card 3 acaba de revertir su salida y está al 100% — cursor aparece aquí
+        mainTl.call(() => {
+            const st = ScrollTrigger.getById('caseCards');
+            if (st && st.direction < 0) animateShowCaseCursor();
+        }, null, 'final');
         mainTl.add(fadeOutText(cards[2]), 'final');
         mainTl.to(cards[2], {
             yPercent: -100, scale: 0.5, borderRadius: '280px', rotate: -15,
