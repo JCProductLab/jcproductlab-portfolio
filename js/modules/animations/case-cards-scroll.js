@@ -175,21 +175,27 @@ export function initCaseCardsScroll() {
     // ============================================
     mm.add('(max-width: 1023px)', () => {
         cards.forEach((card) => {
-            const content = card.querySelector('.case-card__container');
             const bgImage = card.querySelector('.case-card__bg');
             const metrics = card.querySelectorAll('.metric-badge__number');
 
-            // 1. Fade-in + slide-up del contenido al entrar 20% en viewport
-            if (content) {
-                gsap.set(content, { opacity: 0, y: 30 });
-                gsap.to(content, {
-                    opacity: 1,
+            // 1. Stagger en escalera de elementos de la columna izquierda, filtrando ocultos
+            const leftEls = [
+                card.querySelector('.case-card-title'),
+                card.querySelector('.case-card__description'),
+                card.querySelector('.large-paragraph')
+            ].filter(el => el && getComputedStyle(el).display !== 'none');
+
+            if (leftEls.length) {
+                gsap.set(leftEls, { opacity: 0, y: 20 });
+                gsap.to(leftEls, {
                     y: 0,
-                    duration: 1,
+                    opacity: 1,
+                    duration: 0.8,
+                    stagger: 0.2,
                     ease: 'power2.out',
                     scrollTrigger: {
                         trigger: card,
-                        start: 'top 80%',
+                        start: 'top 70%',
                         toggleActions: 'play none none reverse'
                     }
                 });
