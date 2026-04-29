@@ -3,6 +3,8 @@
 // Solo desktop (min-width: 1024px). Mobile/tablet conservan scroll natural.
 // ============================================
 
+import { animateShowCaseCursor, animateHideCaseCursor } from './case-cursor.js';
+
 export function initCaseCardsScroll() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
@@ -80,7 +82,9 @@ export function initCaseCardsScroll() {
                 pinSpacing: true,
                 scrub: 1,
                 anticipatePin: 1,
-                invalidateOnRefresh: true
+                invalidateOnRefresh: true,
+                onLeaveBack: () => animateHideCaseCursor(),
+                onLeave:     () => animateHideCaseCursor()
             }
         });
 
@@ -112,7 +116,10 @@ export function initCaseCardsScroll() {
             ease: 'power2.inOut'
         });
 
-        // PASO D: Aparece el texto en stagger
+        // Cursor nace simultáneamente con la expansión de Card 1 (posición '<' = inicio de PASO C)
+        mainTl.call(animateShowCaseCursor, null, '<');
+
+        // PASO D: Aparece el texto en stagger (después de que Card 1 y cursor están al 100%)
         mainTl.add(fadeInText(cards[0]));
 
         // ─── 2. TRANSICIÓN 1 → 2 ───────────────────────────
