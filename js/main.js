@@ -9,6 +9,7 @@ import { initNavigation } from './modules/navigation.js';
 import { initMagnetic } from './modules/magnetic.js';
 import { initCustomCursor } from './modules/cursor.js';
 import { initCaseCursor } from './modules/animations/case-cursor.js';
+import { initCaseCardsScroll } from './modules/animations/case-cards-scroll.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -22,4 +23,5 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('load', () => {
     initCustomCursor();
     initCaseCursor();
+    initCaseCardsScroll();
 });
