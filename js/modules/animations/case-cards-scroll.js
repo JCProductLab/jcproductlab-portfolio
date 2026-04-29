@@ -67,9 +67,9 @@ export function initCaseCardsScroll() {
         });
 
         // --- ESTADOS INICIALES (referencia exacta) ---
-        gsap.set(cards[0], { yPercent: 100, scale: 0,   borderRadius: '280px', rotateY: 180, opacity: 0 });
+        gsap.set(cards[0], { yPercent: 100, scale: 0, borderRadius: '280px', rotateY: 180, opacity: 0 });
         gsap.set(cards[1], { yPercent: 100, scale: 0.4, borderRadius: '280px', rotate: -15, opacity: 1 });
-        gsap.set(cards[2], { yPercent: 100, scale: 0.4, borderRadius: '280px', rotate:  15, opacity: 1 });
+        gsap.set(cards[2], { yPercent: 100, scale: 0.4, borderRadius: '280px', rotate: 15, opacity: 1 });
 
         const mainTl = gsap.timeline({
             scrollTrigger: {
@@ -83,6 +83,9 @@ export function initCaseCardsScroll() {
                 invalidateOnRefresh: true
             }
         });
+
+        // Zona muerta inicial: pin activo pero sin animación visible (~850px de scroll libre)
+        mainTl.to({}, { duration: 0.1 });
 
         // ─── 1. INTRO CARD 1 ───────────────────────────────
         // PASO A: Entrada (zoom in + fade + sube al centro)
@@ -148,6 +151,6 @@ export function initCaseCardsScroll() {
 
         // Cleanup: gsap.matchMedia revierte automáticamente todos los gsap.set anteriores
         // al cambiar de breakpoint. No hace falta cleanup manual.
-        return () => {};
+        return () => { };
     });
 }
