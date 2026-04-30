@@ -244,20 +244,12 @@ export function initCaseCardsScroll() {
                 }, solutionVisible ? '<0.12' : 0);
             }
 
-            // CTA: ScrollTrigger independiente — desvinculado de rightTl para máximo rendimiento
+            // CTA: parte de rightTl para coreografía coordinada con métricas
             if (ctaEl) {
-                ctaEl.style.willChange = 'opacity, transform';
-                gsap.fromTo(ctaEl,
-                    { opacity: 0, y: 10 },
-                    {
-                        opacity: 1, y: 0, duration: 0.5, ease: 'power1.out', force3D: true, delay: 0.8,
-                        scrollTrigger: {
-                            trigger: card.querySelector('.case-card__metrics') || card,
-                            start: 'top 85%',
-                            toggleActions: 'play none none reverse'
-                        }
-                    }
-                );
+                gsap.set(ctaEl, { opacity: 0, y: 10, force3D: true });
+                rightTl.to(ctaEl, {
+                    opacity: 1, y: 0, duration: 0.4, ease: 'power1.out', force3D: true
+                }, '<0.3');
             }
         });
 
