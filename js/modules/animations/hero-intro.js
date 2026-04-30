@@ -33,8 +33,9 @@ function initWordSwapper(hero) {
         measureDiv.appendChild(span);
     });
 
-    // ESPERA 4 segundos desde window.load antes de modificar HTML
-    // (initWordSwapper se llama 100ms post-load, así que espera 3900ms más)
+    // ESPERA 2 segundos desde window.load antes de modificar HTML
+    // H1 última palabra termina en ~1.3s, + 800ms = 2.1s
+    // (initWordSwapper se llama 100ms post-load, así que espera 2000ms más)
     setTimeout(() => {
         const wordElements = hero.querySelectorAll('.hero-word');
         let heroWord = null;
@@ -90,13 +91,13 @@ function initWordSwapper(hero) {
                 setTimeout(() => {
                     swapper.classList.remove('word-swapper-enter');
                     isAnimating = false;
-                }, 400);
-            }, 300);
+                }, 600);
+            }, 600);
         }
 
-        // Inicia ciclo cada 4 segundos (ya están 4 segundos pasados)
+        // Inicia ciclo cada 4 segundos
         setInterval(changeWord, 4000);
-    }, 3900); // 3900ms + 100ms del activate = 4000ms total desde window.load
+    }, 2000); // 2000ms + 100ms del activate = 2100ms total desde window.load
 }
 
 export function initHeroIntro() {
