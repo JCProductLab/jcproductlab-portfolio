@@ -33,10 +33,8 @@ function initWordSwapper(hero) {
         measureDiv.appendChild(span);
     });
 
-    // ESPERA 2 segundos desde window.load antes de modificar HTML
-    // H1 última palabra termina en ~1.3s, + 800ms = 2.1s
-    // (initWordSwapper se llama 100ms post-load, así que espera 2000ms más)
-    setTimeout(() => {
+    // Arranca el swapper: modifica DOM e inicia el ciclo
+    function startSwapper() {
         const wordElements = hero.querySelectorAll('.hero-word');
         let heroWord = null;
 
@@ -95,9 +93,25 @@ function initWordSwapper(hero) {
             }, 600);
         }
 
-        // Inicia ciclo cada 4 segundos
-        setInterval(changeWord, 4000);
-    }, 2000); // 2000ms + 100ms del activate = 2100ms total desde window.load
+        // Primera rotación a los 800ms, luego cada 2.5 segundos
+        setTimeout(changeWord, 800);
+        setInterval(changeWord, 2500);
+    }
+
+    // Espera a que el botón termine su animación de entrada (transitionend)
+    // para arrancar el swapper como último paso de la coreografía.
+    const btnWrapper = hero.querySelector('.hero-btn-wrapper');
+    if (btnWrapper) {
+        function onBtnTransitionEnd(e) {
+            if (e.propertyName !== 'opacity') return;
+            btnWrapper.removeEventListener('transitionend', onBtnTransitionEnd);
+            startSwapper();
+        }
+        btnWrapper.addEventListener('transitionend', onBtnTransitionEnd);
+    } else {
+        // Fallback: el wrapper no existe todavía, esperar un tick extra
+        setTimeout(startSwapper, 2000);
+    }
 }
 
 export function initHeroIntro() {
