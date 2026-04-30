@@ -50,6 +50,13 @@ function initWordSwapper(hero) {
         const parent = heroWord.parentElement;
         const container = document.createElement('span');
         container.className = 'word-swapper-container';
+
+        // Fija el line-height exacto del H1 para evitar saltos al activarse
+        const h1El = hero.querySelector('h1');
+        if (h1El) {
+            container.style.lineHeight = window.getComputedStyle(h1El).lineHeight;
+        }
+
         const swapper = document.createElement('span');
         swapper.className = 'word-swapper';
         swapper.textContent = words[0];
