@@ -85,7 +85,7 @@ export function initCaseCardsScroll() {
                 anticipatePin: 1,
                 invalidateOnRefresh: true,
                 onLeaveBack: () => animateHideCaseCursor(),
-                onLeave:     () => animateHideCaseCursor()
+                onLeave: () => animateHideCaseCursor()
             }
         });
 
@@ -176,7 +176,7 @@ export function initCaseCardsScroll() {
     mm.add('(max-width: 1023px)', () => {
         cards.forEach((card) => {
             const bgImage = card.querySelector('.case-card__bg');
-            const metrics = card.querySelectorAll('.metric-badge__number');
+            const metrics = card.querySelectorAll('.metric-badge');
 
             // 1. Stagger en escalera de elementos de la columna izquierda, filtrando ocultos
             const leftEls = [
@@ -195,16 +195,17 @@ export function initCaseCardsScroll() {
                     ease: 'power2.out',
                     scrollTrigger: {
                         trigger: card,
-                        start: 'top 70%',
+                        start: 'top 65%',
                         toggleActions: 'play none none reverse'
                     }
                 });
             }
 
-            // 2. Parallax sutil de la imagen de fondo (scrub bajo para no sentirse pesado al tacto)
+            // 2. Parallax de imagen: sobredimensionada para evitar huecos al moverse
             if (bgImage) {
+                gsap.set(bgImage, { height: '140%', top: '-20%', objectFit: 'cover' });
                 gsap.to(bgImage, {
-                    yPercent: -10,
+                    yPercent: 20,
                     ease: 'none',
                     scrollTrigger: {
                         trigger: card,
@@ -215,21 +216,48 @@ export function initCaseCardsScroll() {
                 });
             }
 
-            // 3. Stagger con rebote de las métricas cuando entran en pantalla
+            // 3. Columna derecha — cascada ágil con solapamiento
+            const solutionEl = card.querySelector('.case-card__solution');
+            const ctaEl      = card.querySelector('.case-card__cta');
+
+            const rightTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: card.querySelector('.case-card__right') || card,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+
+            // Subtítulo: arranca primero, 0.6s
+            const solutionVisible = solutionEl && getComputedStyle(solutionEl).display !== 'none';
+            if (solutionVisible) {
+                gsap.set(solutionEl, { opacity: 0, y: 20 });
+                rightTl.to(solutionEl, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+            }
+
+            // Badges: arranca cuando el subtítulo lleva 0.12s (20% de 0.6s)
             if (metrics.length) {
-                gsap.set(metrics, { scale: 0.8, opacity: 0 });
-                gsap.to(metrics, {
-                    scale: 1,
-                    opacity: 1,
-                    duration: 0.6,
-                    ease: 'back.out(1.7)',
-                    stagger: 0.15,
-                    scrollTrigger: {
-                        trigger: card.querySelector('.case-card__metrics') || card,
-                        start: 'top 85%',
-                        toggleActions: 'play none none reverse'
+                gsap.set(metrics, { opacity: 0, scale: 0.8, y: 20 });
+                rightTl.to(metrics, {
+                    opacity: 1, scale: 1, y: 0,
+                    duration: 0.5, ease: 'back.out(2)', stagger: 0.15
+                }, solutionVisible ? '<0.12' : 0);
+            }
+
+            // CTA: ScrollTrigger independiente — desvinculado de rightTl para máximo rendimiento
+            if (ctaEl) {
+                ctaEl.style.willChange = 'opacity, transform';
+                gsap.fromTo(ctaEl,
+                    { opacity: 0, y: 10 },
+                    {
+                        opacity: 1, y: 0, duration: 0.5, ease: 'power1.out', force3D: true, delay: 0.8,
+                        scrollTrigger: {
+                            trigger: card.querySelector('.case-card__metrics') || card,
+                            start: 'top 85%',
+                            toggleActions: 'play none none reverse'
+                        }
                     }
-                });
+                );
             }
         });
 
