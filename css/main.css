@@ -539,15 +539,86 @@ body {
     transform: scale(1);
 }
 
+/* WORD SWAPPER — Ciclo dinámico de palabras en el H1 */
+
+.word-swapper-container {
+    display: inline-flex;
+    vertical-align: baseline;
+    align-items: center;
+    height: 1.2em;
+    overflow: visible;
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.word-swapper {
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 2px;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+}
+
+/* Animación de entrada: y -20 → 0, opacity 0 → 1, blur 8 → 0 */
+.word-swapper-enter {
+    animation: wordSwapperEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes wordSwapperEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+        filter: blur(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+    }
+}
+
+/* Animación de salida: y 0 → 20, opacity 1 → 0, blur 0 → 8 */
+.word-swapper-exit {
+    animation: wordSwapperExit 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes wordSwapperExit {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(8px);
+    }
+}
+
+/* Div de medición oculto — mismo tamaño/tipografía que H1 */
+.word-swapper-measure {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    top: -9999px;
+    left: -9999px;
+}
+
 /* Reduced motion — sin animación, contenido visible */
 @media (prefers-reduced-motion: reduce) {
     .hero .tag,
     .hero .hero-word,
     .hero h4,
-    .hero .hero-btn-wrapper {
+    .hero .hero-btn-wrapper,
+    .word-swapper {
         opacity: 1 !important;
         transform: none !important;
         filter: none !important;
         transition: none !important;
+        animation: none !important;
     }
 }

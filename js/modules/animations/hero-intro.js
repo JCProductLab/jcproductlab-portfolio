@@ -3,6 +3,102 @@
 // Aislado: no toca case-cards ni scripts globales.
 // ============================================
 
+// Word Swapper: cicla palabras dinámicamente en el H1
+// NO modifica HTML hasta 4 segundos después de window.load
+function initWordSwapper(hero) {
+    const words = ['negocio', 'producto', 'usuario', 'mañana'];
+
+    // Crea el div de medición oculto SIN modificar el H1 todavía
+    const measureDiv = document.createElement('div');
+    measureDiv.className = 'word-swapper-measure';
+    measureDiv.setAttribute('aria-hidden', 'true');
+
+    // Inyecta en body para evitar herencia de transformaciones
+    document.body.appendChild(measureDiv);
+
+    // Copia estilos exactos del H1
+    const h1 = hero.querySelector('h1');
+    if (h1) {
+        const computedStyle = window.getComputedStyle(h1);
+        measureDiv.style.fontFamily = computedStyle.fontFamily;
+        measureDiv.style.fontSize = computedStyle.fontSize;
+        measureDiv.style.fontWeight = computedStyle.fontWeight;
+        measureDiv.style.letterSpacing = computedStyle.letterSpacing;
+        measureDiv.style.textTransform = 'uppercase';
+    }
+
+    words.forEach((word) => {
+        const span = document.createElement('span');
+        span.textContent = word;
+        measureDiv.appendChild(span);
+    });
+
+    // ESPERA 4 segundos desde window.load antes de modificar HTML
+    // (initWordSwapper se llama 100ms post-load, así que espera 3900ms más)
+    setTimeout(() => {
+        const wordElements = hero.querySelectorAll('.hero-word');
+        let heroWord = null;
+
+        wordElements.forEach((el) => {
+            if (el.textContent.trim() === 'negocio') {
+                heroWord = el;
+            }
+        });
+
+        if (!heroWord) return;
+
+        // Ahora modifica el HTML
+        const parent = heroWord.parentElement;
+        const container = document.createElement('span');
+        container.className = 'word-swapper-container';
+        const swapper = document.createElement('span');
+        swapper.className = 'word-swapper';
+        swapper.textContent = words[0];
+
+        heroWord.textContent = '';
+        heroWord.appendChild(swapper);
+        parent.insertBefore(container, heroWord);
+        container.appendChild(heroWord);
+
+        // Estado
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        // Medición inicial con buffer de 4px
+        const measureSpans = measureDiv.querySelectorAll('span');
+        const initialWidth = measureSpans[0].offsetWidth + 4;
+        container.style.width = initialWidth + 'px';
+
+        // Función para cambiar palabra
+        function changeWord() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            swapper.classList.add('word-swapper-exit');
+
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % words.length;
+                swapper.textContent = words[currentIndex];
+
+                // Mide con buffer de 4px
+                const newWidth = measureSpans[currentIndex].offsetWidth + 4;
+                container.style.width = newWidth + 'px';
+
+                swapper.classList.remove('word-swapper-exit');
+                swapper.classList.add('word-swapper-enter');
+
+                setTimeout(() => {
+                    swapper.classList.remove('word-swapper-enter');
+                    isAnimating = false;
+                }, 400);
+            }, 300);
+        }
+
+        // Inicia ciclo cada 4 segundos (ya están 4 segundos pasados)
+        setInterval(changeWord, 4000);
+    }, 3900); // 3900ms + 100ms del activate = 4000ms total desde window.load
+}
+
 export function initHeroIntro() {
     const hero = document.querySelector('.hero');
     if (!hero) return;
@@ -41,9 +137,12 @@ export function initHeroIntro() {
         wrapper.appendChild(btn);
     }
 
-    // 3. Activa la coreografía 100ms después del window.load
+    // 3. Activa la coreografía 100ms después del window.load e inicia word-swapper
     const activate = () => {
-        setTimeout(() => hero.classList.add('hero-active'), 100);
+        setTimeout(() => {
+            hero.classList.add('hero-active');
+            initWordSwapper(hero);
+        }, 100);
     };
 
     if (document.readyState === 'complete') {
