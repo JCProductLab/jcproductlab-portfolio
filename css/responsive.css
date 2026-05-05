@@ -631,3 +631,53 @@
         display: inline-flex;
     }
 }
+
+
+/* ============================================
+   CLIENTS MARQUEE — Marquee infinito ≤ 1024px
+   El segundo <ul aria-hidden="true"> es el clon
+   necesario para el bucle sin saltos.
+   Desktop (>1024px) conserva el layout estático
+   y el clon queda oculto.
+   ============================================ */
+
+.clients-marquee__list--clone {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+
+    .clients-marquee {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 40px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .clients-marquee__list {
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+        justify-content: flex-start;
+        width: max-content;
+        gap: 64px;
+        animation: clients-marquee-scroll 30s linear infinite;
+        will-change: transform;
+    }
+
+    .clients-marquee__list--clone {
+        display: flex;
+    }
+
+    @keyframes clients-marquee-scroll {
+        from { transform: translate3d(0, 0, 0); }
+        to   { transform: translate3d(calc(-100% - 40px), 0, 0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .clients-marquee__list {
+            animation: none;
+        }
+    }
+}
