@@ -118,6 +118,91 @@
         display: block;
     }
 
+    /******************* Testimonial Section *******************/
+    .testimonial-section {
+        padding: 80px 40px;
+        gap: 48px;
+    }
+
+    .testimonial-section__grid {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 32px;
+    }
+
+    .testimonial-card {
+        flex: 1 1 0;
+        min-width: 288px;
+        padding: 32px;
+        gap: 24px;
+    }
+
+    /******************* Clients Marquee *******************/
+    .clients-marquee {
+        padding: 48px 40px;
+    }
+
+    .clients-marquee__list {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        gap: 32px;
+    }
+
+    .clients-marquee__item {
+        height: 32px;
+    }
+
+    .clients-marquee__logo {
+        max-height: 56px;
+    }
+
+    /******************* About Section *******************/
+    .about-section {
+        padding: 80px 40px;
+        gap: 64px;
+    }
+
+    .about-section__body {
+        align-self: flex-end;
+        align-items: flex-start;
+        max-width: 60%;
+    }
+
+    /******************* CTA Section *******************/
+    .cta-section {
+        padding: 80px 40px;
+        gap: 48px;
+    }
+
+    /******************* Footer *******************/
+    .footer {
+        padding: 64px 40px;
+        gap: 48px;
+    }
+
+    .footer__top {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 48px;
+    }
+
+    .footer__brand-col {
+        flex: 1 1 320px;
+    }
+
+    .footer__nav-block {
+        flex: 0 1 auto;
+    }
+
+    .footer__legal {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
 }
 
 
@@ -322,6 +407,112 @@
 
     .case-card__cta {
         display: none;
+    }
+
+    /******************* Testimonial Section *******************/
+    .testimonial-section {
+        padding: 80px;
+        gap: 48px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        gap: 32px;
+    }
+
+    .testimonial-section__grid {
+        gap: 32px;
+    }
+
+    .testimonial-card {
+        padding: 32px;
+        gap: 24px;
+    }
+
+    /******************* Clients Marquee *******************/
+    .clients-marquee {
+        padding: 64px 80px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    .clients-marquee__list {
+        gap: 48px;
+    }
+
+    .clients-marquee__item {
+        height: 32px;
+    }
+
+    .clients-marquee__logo {
+        max-height: 64px;
+    }
+
+    /******************* About Section *******************/
+    .about-section {
+        display: grid;
+        grid-template-columns: minmax(0, 568px) minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: 1fr 1fr;
+        gap: 32px;
+        padding: 80px;
+        max-width: 1440px;
+        margin: 0 auto;
+        min-height: 720px;
+    }
+
+    .about-section__header {
+        grid-column: 1 / span 2;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    .about-section__body {
+        grid-column: 2 / span 2;
+        grid-row: 2;
+        align-self: end;
+        max-width: 100%;
+        gap: 40px;
+    }
+
+    /******************* CTA Section *******************/
+    .cta-section {
+        padding: 80px;
+        gap: 48px;
+        max-width: 1440px;
+        margin: 0 auto;
+        min-height: 720px;
+    }
+
+    .cta-section__body {
+        gap: 40px;
+    }
+
+    .cta-section__contacts {
+        gap: 32px;
+    }
+
+    /******************* Footer *******************/
+    .footer {
+        padding: 80px;
+        gap: 48px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    .footer__top {
+        flex-wrap: nowrap;
+        gap: 64px;
+    }
+
+    .footer__brand-col {
+        flex: 1 1 0;
+        min-width: 0;
+        gap: 32px;
+    }
+
+    .footer__nav-block {
+        flex: 0 1 200px;
     }
 
 }
