@@ -1,39 +1,51 @@
 'use strict';
 
 // ============================================
-// TESTIMONIAL CARDS — Tilt 3D + Parallax + Shine
+// TESTIMONIAL CARDS — Tilt 3D + Parallax por capas + Shine
 // ============================================
 //
-// • Parallax (desktop + mobile): el icono de comillas y el avatar
-//   reciben translateY proporcional al avance del card por el viewport.
-//   La comilla se mueve más despacio que el avatar para crear depth.
+// • Animación 1 — Layered Parallax (desktop + mobile):
+//   Scroll listener throttled con requestAnimationFrame.
+//   Cada capa interna se desplaza vertically con un factor distinto
+//   sobre la posición de la card respecto al viewport center:
+//     - quote   → factor 0.05  (la más lenta, plano "más profundo")
+//     - text    → factor 0.02  (intermedia)
+//     - footer  → 0           (capa de referencia, sin parallax)
 //
-// • Tilt 3D + Shine (sólo pointer:fine): rotateX/rotateY + scale 1.02
-//   y un radial-gradient .shine que sigue al cursor. Inyectado vía JS.
+// • Animación 2 — Tilt 3D + Shine (sólo pointer:fine):
+//   rotateX/rotateY ÷ 20 + scale3d(1.02) + radial-gradient .shine
+//   que sigue al cursor. Inyectado vía JS.
 //
-// • Proximity (sólo pointer:coarse): cuando la card pasa por el centro
-//   del viewport, su .shine se enciende suavemente al 10% y la card
-//   escala 1.02. La intensidad es continua según la distancia al centro.
+// • Animación 3 — Proximity Reveal (sólo pointer:coarse):
+//   IntersectionObserver con rootMargin -35%/-35% (banda central
+//   del 30% del viewport). Cuando la card intersecta la banda,
+//   .shine.opacity → 0.18 y card.scale → 1.02. Al salir, transición
+//   suave de vuelta a 0 / 1 vía CSS transition.
 //
 // La composición de transforms se hace con CSS custom properties
 // (--parallax-y, --tilt-z, --tilt-rx, --tilt-ry, --tilt-scale) para que
-// parallax y tilt no se sobrescriban entre sí.
+// las tres animaciones convivan sin pisarse.
 // ============================================
 
-const TILT_MAX_DEG = 1 / 20;            // factor (centerY-y)/20 → grados
+// Tilt 3D
+const TILT_MAX_DEG_FACTOR = 1 / 20;     // (centerY - y) / 20 → grados
 const TILT_SCALE = '1.02';
 const TILT_LIFT_Z = '40px';
-const PARALLAX_QUOTE_AMP = -14;         // px máx (signo negativo: queda atrás)
-const PARALLAX_AVATAR_AMP = 8;          // px máx (sentido opuesto)
-const PROXIMITY_RANGE = 0.4;            // fracción del viewport (40%) de zona activa
-const PROXIMITY_SHINE_MAX = 0.10;       // 10% opacidad máx en mobile
-const PROXIMITY_SCALE_GAIN = 0.02;      // 1 → 1.02
+
+// Parallax por capas (Animación 1)
+const PARALLAX_FACTOR_QUOTE = 0.05;
+const PARALLAX_FACTOR_TEXT = 0.02;
+
+// Proximity reveal (Animación 3)
+const PROXIMITY_SHINE_OPACITY = '0.18';
+const PROXIMITY_SCALE = '1.02';
+const PROXIMITY_BAND = '-35% 0px -35% 0px'; // 30% central del viewport
 
 export function initInteractions() {
     const cards = document.querySelectorAll('.testimonial-card');
     if (!cards.length) return;
 
-    // 1) Inyectar capa .testimonial-card__shine en cada card
+    // Inyectar capa .testimonial-card__shine en cada card
     cards.forEach((card) => {
         if (!card.querySelector('.testimonial-card__shine')) {
             const shine = document.createElement('div');
@@ -48,39 +60,46 @@ export function initInteractions() {
 
     const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    // 2) Scroll-driven: parallax (siempre) + proximity (sólo coarse)
+    // === Animación 1 — Layered Parallax ===
+    initLayeredParallax(cards);
+
+    // === Animación 3 — Proximity Reveal (sólo coarse pointer) ===
+    if (!isFinePointer) initProximityReveal(cards);
+
+    // === Animación 2 — Tilt 3D + Shine (sólo fine pointer) ===
+    if (isFinePointer) cards.forEach(initTiltOnCard);
+}
+
+// --------------------------------------------
+// Animación 1 — Layered Parallax (scroll + rAF)
+// --------------------------------------------
+function initLayeredParallax(cards) {
     let ticking = false;
-    const updateScroll = () => {
+
+    const update = () => {
         const vh = window.innerHeight || document.documentElement.clientHeight;
+        const halfVh = vh / 2;
         cards.forEach((card) => {
             const rect = card.getBoundingClientRect();
             const cardCenter = rect.top + rect.height / 2;
-            // sp ∈ [-1, 1]: -1 si centro arriba del viewport, +1 si abajo, 0 centrado.
-            const sp = clamp(cardCenter / vh - 0.5, -1, 1);
+            // offset signed en píxeles: 0 cuando card center == viewport center
+            const offset = cardCenter - halfVh;
+            // Limitar a ±vh/2 para evitar valores extremos cuando la card
+            // está muy fuera del viewport
+            const clampedOffset = clamp(offset, -halfVh, halfVh);
 
             const quote = card.querySelector('.testimonial-card__quote');
-            const avatar = card.querySelector('.testimonial-card__author .avatar');
+            const text = card.querySelector('.testimonial-card__text');
 
-            // Comilla: factor pequeño con signo negativo → más lenta = "más atrás"
             if (quote) {
-                quote.style.setProperty('--parallax-y', `${(sp * PARALLAX_QUOTE_AMP).toFixed(2)}px`);
+                const y = clampedOffset * PARALLAX_FACTOR_QUOTE;
+                quote.style.setProperty('--parallax-y', `${y.toFixed(2)}px`);
             }
-            // Avatar: amplitud menor con sentido opuesto → "más adelante"
-            if (avatar) {
-                avatar.style.setProperty('--parallax-y', `${(sp * PARALLAX_AVATAR_AMP).toFixed(2)}px`);
+            if (text) {
+                const y = clampedOffset * PARALLAX_FACTOR_TEXT;
+                text.style.setProperty('--parallax-y', `${y.toFixed(2)}px`);
             }
-
-            // Proximity sólo en touch / coarse pointer
-            if (!isFinePointer) {
-                const dist = Math.abs(cardCenter - vh / 2);
-                const proximity = clamp(1 - dist / (vh * PROXIMITY_RANGE), 0, 1);
-                card.style.setProperty(
-                    '--tilt-scale',
-                    (1 + PROXIMITY_SCALE_GAIN * proximity).toFixed(4)
-                );
-                const shine = card.querySelector('.testimonial-card__shine');
-                if (shine) shine.style.opacity = (PROXIMITY_SHINE_MAX * proximity).toFixed(3);
-            }
+            // .testimonial-card__author → factor 0 (capa de referencia, sin transform)
         });
         ticking = false;
     };
@@ -88,20 +107,47 @@ export function initInteractions() {
     const requestUpdate = () => {
         if (!ticking) {
             ticking = true;
-            requestAnimationFrame(updateScroll);
+            requestAnimationFrame(update);
         }
     };
 
     window.addEventListener('scroll', requestUpdate, { passive: true });
     window.addEventListener('resize', requestUpdate, { passive: true });
     requestUpdate(); // primer cálculo
-
-    // 3) Tilt 3D + Shine — sólo desktop con pointer fino
-    if (isFinePointer) {
-        cards.forEach(initTiltOnCard);
-    }
 }
 
+// --------------------------------------------
+// Animación 3 — Proximity Reveal (IntersectionObserver)
+// --------------------------------------------
+function initProximityReveal(cards) {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                const card = entry.target;
+                const shine = card.querySelector('.testimonial-card__shine');
+                if (entry.isIntersecting) {
+                    // Card entró en la banda central del viewport
+                    card.style.setProperty('--tilt-scale', PROXIMITY_SCALE);
+                    if (shine) shine.style.opacity = PROXIMITY_SHINE_OPACITY;
+                } else {
+                    // Salió → reset suave (CSS transition se encarga del fade)
+                    card.style.setProperty('--tilt-scale', '1');
+                    if (shine) shine.style.opacity = '0';
+                }
+            });
+        },
+        {
+            root: null,
+            rootMargin: PROXIMITY_BAND,
+            threshold: 0,
+        }
+    );
+    cards.forEach((card) => observer.observe(card));
+}
+
+// --------------------------------------------
+// Animación 2 — Tilt 3D + Shine (mousemove + rAF)
+// --------------------------------------------
 function initTiltOnCard(card) {
     const shine = card.querySelector('.testimonial-card__shine');
     const lifters = [
@@ -136,8 +182,8 @@ function initTiltOnCard(card) {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         pending = {
-            rx: (rect.height / 2 - y) * TILT_MAX_DEG,
-            ry: (x - rect.width / 2) * TILT_MAX_DEG,
+            rx: (rect.height / 2 - y) * TILT_MAX_DEG_FACTOR,
+            ry: (x - rect.width / 2) * TILT_MAX_DEG_FACTOR,
             x, y, w: rect.width, h: rect.height,
         };
         if (raf == null) raf = requestAnimationFrame(apply);

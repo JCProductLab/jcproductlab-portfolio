@@ -774,7 +774,8 @@ body {
     transition: opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.testimonial-card__quote {
+.testimonial-card__quote,
+.testimonial-card__text {
     --parallax-y: 0px;
     --tilt-z: 0px;
     position: relative;
@@ -784,19 +785,11 @@ body {
     will-change: transform;
 }
 
-.testimonial-card__text,
 .testimonial-card__author {
     --tilt-z: 0px;
     position: relative;
     z-index: 2;
     transform: translateZ(var(--tilt-z));
-    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: transform;
-}
-
-.testimonial-card__author .avatar {
-    --parallax-y: 0px;
-    transform: translate3d(0, var(--parallax-y), 0);
     transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform;
 }
@@ -807,8 +800,7 @@ body {
     .testimonial-card__shine,
     .testimonial-card__quote,
     .testimonial-card__text,
-    .testimonial-card__author,
-    .testimonial-card__author .avatar {
+    .testimonial-card__author {
         transition: none;
     }
 }

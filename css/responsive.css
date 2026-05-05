@@ -651,7 +651,7 @@
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
-        gap: 40px;
+        gap: 64px;
         padding-left: 0;
         padding-right: 0;
     }
@@ -671,8 +671,13 @@
     }
 
     @keyframes clients-marquee-scroll {
-        from { transform: translate3d(0, 0, 0); }
-        to   { transform: translate3d(calc(-100% - 40px), 0, 0); }
+        from {
+            transform: translate3d(0, 0, 0);
+        }
+
+        to {
+            transform: translate3d(calc(-100% - 64px), 0, 0);
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
