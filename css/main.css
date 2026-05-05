@@ -744,6 +744,75 @@ body {
     color: var(--color-text-secondary);
 }
 
+/* --- Tilt 3D + Parallax + Shine (interactions.js) --- */
+.testimonial-section__grid {
+    perspective: 1200px;
+}
+
+.testimonial-card {
+    --tilt-rx: 0deg;
+    --tilt-ry: 0deg;
+    --tilt-scale: 1;
+    position: relative;
+    overflow: hidden;
+    transform: rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry))
+               scale3d(var(--tilt-scale), var(--tilt-scale), var(--tilt-scale));
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+}
+
+.testimonial-card__shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+    background: radial-gradient(circle at 50% 50%,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0) 75%);
+    transition: opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.testimonial-card__quote {
+    --parallax-y: 0px;
+    --tilt-z: 0px;
+    position: relative;
+    z-index: 2;
+    transform: translate3d(0, var(--parallax-y), var(--tilt-z));
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+}
+
+.testimonial-card__text,
+.testimonial-card__author {
+    --tilt-z: 0px;
+    position: relative;
+    z-index: 2;
+    transform: translateZ(var(--tilt-z));
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+}
+
+.testimonial-card__author .avatar {
+    --parallax-y: 0px;
+    transform: translate3d(0, var(--parallax-y), 0);
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .testimonial-card,
+    .testimonial-card__shine,
+    .testimonial-card__quote,
+    .testimonial-card__text,
+    .testimonial-card__author,
+    .testimonial-card__author .avatar {
+        transition: none;
+    }
+}
+
 
 /* ============================================
    ORGANISMO: Clients Marquee

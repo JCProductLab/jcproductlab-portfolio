@@ -11,6 +11,7 @@ import { initCustomCursor } from './modules/cursor.js';
 import { initCaseCursor } from './modules/animations/case-cursor.js';
 import { initCaseCardsScroll } from './modules/animations/case-cards-scroll.js';
 import { initHeroIntro } from './modules/animations/hero-intro.js';
+import { initInteractions } from './modules/animations/interactions.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -28,4 +29,5 @@ window.addEventListener('load', () => {
     initCustomCursor();
     initCaseCursor();
     initCaseCardsScroll();
+    initInteractions();
 });
