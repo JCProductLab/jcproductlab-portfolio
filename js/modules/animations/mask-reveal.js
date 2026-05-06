@@ -39,6 +39,8 @@ export function initMaskReveal() {
         if (header.closest('.testimonial-section')) return;
         // About section header is orchestrated by about-section-reveal.js
         if (header.closest('.about-section')) return;
+        // CTA section header is orchestrated by cta-section-reveal.js
+        if (header.closest('.cta-section')) return;
 
         const title = header.querySelector('.section-header__title');
         const label = header.querySelector('.section-header__label');
