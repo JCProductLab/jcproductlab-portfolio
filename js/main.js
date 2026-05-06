@@ -13,6 +13,7 @@ import { initCaseCardsScroll } from './modules/animations/case-cards-scroll.js';
 import { initHeroIntro } from './modules/animations/hero-intro.js';
 import { initInteractions } from './modules/animations/interactions.js';
 import { initMaskReveal } from './modules/animations/mask-reveal.js';
+import { initTestimonialCardsReveal } from './modules/animations/testimonial-cards-reveal.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -34,4 +35,5 @@ window.addEventListener('load', () => {
     // Mask-reveal corre tras case-cards-scroll para que ScrollTrigger calcule
     // posiciones contra la altura final del documento (pin del scrollytelling).
     initMaskReveal();
+    initTestimonialCardsReveal();
 });

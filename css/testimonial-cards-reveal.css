@@ -1,0 +1,33 @@
+/* ============================================
+   TESTIMONIAL CARDS REVEAL — entrada scrub-driven
+   Compone variables --entry-* con las --tilt-* existentes para no
+   romper el hover 3D / shine. Tras la animación, los entry-vars
+   vuelven a default (0px, 1, 0deg) y la transform queda
+   funcionalmente equivalente al CSS base de main.css.
+   El progreso de los --entry-* lo controla GSAP via ScrollTrigger
+   con scrub:1 — la animación está ligada al scroll del usuario.
+   ============================================ */
+
+.testimonial-section .testimonial-card {
+    --entry-x: 0px;
+    --entry-y: 0px;
+    --entry-scale: 1;
+    --entry-rotation: 0deg;
+    transform:
+        translate3d(var(--entry-x), var(--entry-y), 0)
+        rotate(var(--entry-rotation))
+        rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry))
+        scale3d(
+            calc(var(--tilt-scale) * var(--entry-scale)),
+            calc(var(--tilt-scale) * var(--entry-scale)),
+            calc(var(--tilt-scale) * var(--entry-scale))
+        );
+}
+
+/* Durante la entrada GSAP escribe los --entry-* a 60fps. La transition
+   CSS de la card pelearía con eso e introduciría lag visual. Se desactiva
+   sólo mientras dura la coreografía y se restaura al terminar para que
+   el hover-tilt mantenga su suavizado original. */
+.testimonial-card.testimonial-card--entering {
+    transition: none;
+}

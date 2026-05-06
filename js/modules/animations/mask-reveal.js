@@ -35,6 +35,8 @@ export function initMaskReveal() {
 
     headers.forEach((header) => {
         if (header.closest('.case-card')) return;
+        // Testimonial section header is orchestrated by testimonial-cards-reveal.js
+        if (header.closest('.testimonial-section')) return;
 
         const title = header.querySelector('.section-header__title');
         const label = header.querySelector('.section-header__label');
