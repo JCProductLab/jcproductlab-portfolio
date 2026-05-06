@@ -1,0 +1,30 @@
+/* ============================================
+   MASK REVEAL — Section headers entry choreography
+   Aplica overflow:hidden y display:inline-block sólo cuando JS añade
+   la clase .mask-reveal. Sin JS, los headers se muestran tal cual.
+   ============================================ */
+
+.section-header {
+    /* Token scopado — lo lee mask-reveal.js para alinear con el "feel" del sitio.
+       Override global posible desde otra hoja sin tocar JS. */
+    --mask-reveal-duration: 2s;
+}
+
+.section-header__title.mask-reveal,
+.section-header__label.mask-reveal {
+    display: inline-block;
+    overflow: hidden;
+    /* padding-top generoso para que los acentos de mayúsculas (é, ó, etc.)
+       no queden recortados en la posición final (yPercent 0).
+       margin negativo compensa el espacio extra en el flujo. */
+    padding-top: 0.35em;
+    margin-top: -0.35em;
+    padding-bottom: 0.1em;
+    margin-bottom: -0.1em;
+}
+
+.mask-reveal__inner {
+    display: inline-block;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
