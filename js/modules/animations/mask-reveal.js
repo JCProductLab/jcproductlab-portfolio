@@ -37,6 +37,8 @@ export function initMaskReveal() {
         if (header.closest('.case-card')) return;
         // Testimonial section header is orchestrated by testimonial-cards-reveal.js
         if (header.closest('.testimonial-section')) return;
+        // About section header is orchestrated by about-section-reveal.js
+        if (header.closest('.about-section')) return;
 
         const title = header.querySelector('.section-header__title');
         const label = header.querySelector('.section-header__label');
