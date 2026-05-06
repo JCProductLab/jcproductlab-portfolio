@@ -14,6 +14,7 @@ import { initHeroIntro } from './modules/animations/hero-intro.js';
 import { initInteractions } from './modules/animations/interactions.js';
 import { initMaskReveal } from './modules/animations/mask-reveal.js';
 import { initTestimonialCardsReveal } from './modules/animations/testimonial-cards-reveal.js';
+import { initLogosReveal } from './modules/animations/logos-reveal.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -36,4 +37,5 @@ window.addEventListener('load', () => {
     // posiciones contra la altura final del documento (pin del scrollytelling).
     initMaskReveal();
     initTestimonialCardsReveal();
+    initLogosReveal();
 });
