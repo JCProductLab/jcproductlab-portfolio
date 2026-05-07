@@ -39,11 +39,9 @@ export function initCaseCardsScroll() {
     const mm = gsap.matchMedia();
 
     mm.add('(pointer: fine)', () => {
-        // Container: pin canvas con perspective 3D (necesaria para rotateY: 180 del card 1)
+        // Container: la altura (100dvh) se maneja en CSS para evitar conflictos con URL bar dinámico
+        // GSAP solo aplica perspective 3D; ScrollTrigger.pin lee el height del CSS
         gsap.set(section, {
-            position: 'relative',
-            height: '100vh',
-            overflow: 'hidden',
             perspective: 2000,
             transformStyle: 'preserve-3d'
         });
