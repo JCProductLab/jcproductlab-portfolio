@@ -39,10 +39,10 @@ export function initAboutSectionReveal() {
     if (!section) return;
 
     const header = section.querySelector('.section-header');
-    const label  = header?.querySelector('.section-header__label');
-    const title  = header?.querySelector('.section-header__title');
-    const text   = section.querySelector('.about-section__text');
-    const cta    = section.querySelector('.about-section__cta');
+    const label = header?.querySelector('.section-header__label');
+    const title = header?.querySelector('.section-header__title');
+    const text = section.querySelector('.about-section__text');
+    const cta = section.querySelector('.about-section__cta');
 
     // ── Wrap idempotente para mask-reveal del header ─────────────────
     const wrapInner = (el) => {
@@ -143,23 +143,21 @@ export function initAboutSectionReveal() {
     if (ctaWrapper) gsap.set(ctaWrapper, { scale: 0.5, opacity: 0, transformOrigin: 'left center' });
 
     // ── Posiciones del timeline (proporciones bajo scrub) ────────────
-    const LABEL_DUR    = 0.6;
-    const TITLE_START  = 0.2;
-    const TITLE_DUR    = 0.8;
-    const TEXT_START   = TITLE_START + TITLE_DUR;                                   // 1.0
-    const LINE_DUR     = 0.5;
+    const LABEL_DUR = 0.6;
+    const TITLE_START = 0.2;
+    const TITLE_DUR = 0.8;
+    const TEXT_START = TITLE_START + TITLE_DUR;                                   // 1.0
+    const LINE_DUR = 0.5;
     const LINE_STAGGER = 0.18;
-    const TEXT_END     = TEXT_START + LINE_STAGGER * Math.max(0, lines.length - 1) + LINE_DUR;
-    const CTA_START    = Math.max(TEXT_END - 0.1, TEXT_START);                      // overlap suave
-    const CTA_DUR      = 0.6;
+    const TEXT_END = TEXT_START + LINE_STAGGER * Math.max(0, lines.length - 1) + LINE_DUR;
+    const CTA_START = Math.max(TEXT_END - 0.1, TEXT_START);                      // overlap suave
+    const CTA_DUR = 0.6;
 
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: section,
             start: 'top 75%',
-            // Rango ~100%vh — la coreografía completa cabe en la zona
-            // visible mientras la sección cruza el viewport.
-            end: 'top -25%',
+            end: '+=20%',
             scrub: 1,
         },
     });
