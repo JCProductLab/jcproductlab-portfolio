@@ -1,6 +1,8 @@
 // ============================================
 // CASE CARDS — Scrollytelling 1:1 con case-studies.html (referencia)
-// Solo desktop (min-width: 1024px). Mobile/tablet conservan scroll natural.
+// Detecta tipo de dispositivo por pointer (fine/coarse), no por tamaño de pantalla
+// Animación compleja: pointer: fine (desktop/laptop con cursor)
+// Animación simple: pointer: coarse (móvil/tablet con touch)
 // ============================================
 
 import { animateShowCaseCursor, animateHideCaseCursor } from './case-cursor.js';
@@ -36,7 +38,7 @@ export function initCaseCardsScroll() {
 
     const mm = gsap.matchMedia();
 
-    mm.add('(min-width: 1024px)', () => {
+    mm.add('(pointer: fine)', () => {
         // Container: pin canvas con perspective 3D (necesaria para rotateY: 180 del card 1)
         gsap.set(section, {
             position: 'relative',
@@ -171,9 +173,10 @@ export function initCaseCardsScroll() {
     });
 
     // ============================================
-    // MOBILE / TABLET (< 1024px) — scroll natural + animaciones de entrada
+    // TOUCH DEVICES (pointer: coarse) — scroll natural + animaciones de entrada
+    // Incluye móvil y tablet con touch, independientemente del tamaño de pantalla
     // ============================================
-    mm.add('(max-width: 1023px)', () => {
+    mm.add('(pointer: coarse)', () => {
         cards.forEach((card) => {
             const bgImage = card.querySelector('.case-card__bg');
             const metrics = card.querySelectorAll('.metric-badge');
