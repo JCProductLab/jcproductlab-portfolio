@@ -898,6 +898,28 @@ body {
     text-align: center;
     border-top: 1px solid var(--color-primary);
     border-bottom: 1px solid var(--color-primary);
+    /* Stacking context propio para el canvas fractal */
+    position: relative;
+    isolation: isolate;
+}
+
+/* Canvas escapa del max-width de la sección (1440px en desktop) y cubre
+   el ancho completo del viewport. La sección sigue centrada vía margin:auto
+   pero el canvas se ancla al centro del viewport con width: 100vw.
+   max-width:none + min-width:100vw anulan el max-width:100% del reset.css
+   que limita a todos los <canvas> al tamaño del padre. */
+#cta-fractal-canvas {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    min-width: 100vw;
+    max-width: none;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    display: block;
 }
 
 .cta-section__body {

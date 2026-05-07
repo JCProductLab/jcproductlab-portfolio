@@ -753,6 +753,9 @@
         <!-- ============================================ -->
         <section class="cta-section" id="hablemos" aria-label="Contacto">
 
+            <!-- Aurora WebGL2 background — fractal.js init -->
+            <canvas id="cta-fractal-canvas" aria-hidden="true"></canvas>
+
             <header class="section-header section-header--centered">
                 <span class="section-header__label" data-i18n="cta.label">Contacto</span>
                 <h2 class="section-header__title" data-i18n="cta.title">¿Arrancamos?</h2>
@@ -927,6 +930,16 @@
     <!-- JAVASCRIPT — defer, non-blocking            -->
     <!-- ============================================ -->
     <script type="module" src="js/main.js" defer></script>
+
+    <!-- Fractal Aurora — fondo .cta-section (independiente de main.js) -->
+    <script type="module">
+        import { initFractalBackground } from './js/modules/animations/fractal.js';
+        if (document.readyState === 'complete') {
+            initFractalBackground();
+        } else {
+            window.addEventListener('load', initFractalBackground);
+        }
+    </script>
 
 </body>
 
