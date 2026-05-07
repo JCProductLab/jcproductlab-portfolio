@@ -223,9 +223,9 @@ body {
 
 .hero {
     position: relative;
-    height: 100svh;
+    height: 100dvh;
     width: 100vw;
-    /* Mobile: small viewport height (ignora URL bar) para evitar reflow dinámico */
+    /* Mobile: full viewport, compensates browser chrome */
 
     display: flex;
     flex-direction: column;
@@ -238,7 +238,7 @@ body {
     overflow: hidden;
 }
 
-@supports not (height: 100svh) {
+@supports not (height: 100dvh) {
     .hero {
         height: 100vh;
     }
@@ -330,11 +330,11 @@ body {
 .case-card {
     position: relative;
     width: 100vw;
-    height: 100svh;
+    height: 100dvh;
     overflow: hidden;
 }
 
-@supports not (height: 100svh) {
+@supports not (height: 100dvh) {
     .case-card {
         height: 100vh;
     }
