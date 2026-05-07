@@ -33,11 +33,11 @@ export function initCtaSectionReveal() {
     if (!section) return;
 
     const header = section.querySelector('.section-header');
-    const label  = header?.querySelector('.section-header__label');
-    const title  = header?.querySelector('.section-header__title');
-    const text   = section.querySelector('.cta-section__text');
-    const cta    = section.querySelector('.cta-section__cta');
-    const email  = section.querySelector('.cta-section__contact-tag');
+    const label = header?.querySelector('.section-header__label');
+    const title = header?.querySelector('.section-header__title');
+    const text = section.querySelector('.cta-section__text');
+    const cta = section.querySelector('.cta-section__cta');
+    const email = section.querySelector('.cta-section__contact-tag');
 
     // ── Wrap idempotente para mask-reveal del header ─────────────────
     const wrapInner = (el) => {
@@ -87,21 +87,21 @@ export function initCtaSectionReveal() {
     if (email) gsap.set(email, { opacity: 0 });
 
     // ── Posiciones del timeline (proporciones bajo scrub) ────────────
-    const LABEL_DUR    = 0.6;
-    const TITLE_START  = 0.2;
-    const TITLE_DUR    = 0.8;
-    const TEXT_START   = TITLE_START + TITLE_DUR;          // 1.0
-    const TEXT_DUR     = 0.6;
+    const LABEL_DUR = 0.3;
+    const TITLE_START = 0.2;
+    const TITLE_DUR = 0.3;
+    const TEXT_START = TITLE_START + TITLE_DUR;          // 1.0
+    const TEXT_DUR = 0.3;
     // CTA: réplica EXACTA de about-section-reveal (scale, dur, ease, opacity)
-    const CTA_DUR      = 0.6;
-    const CTA_START    = TEXT_START + TEXT_DUR - 0.1;      // overlap suave con texto
-    const EMAIL_DUR    = 0.5;
-    const EMAIL_START  = CTA_START + CTA_DUR - 0.1;        // overlap suave con botón
+    const CTA_DUR = 0.3;
+    const CTA_START = TEXT_START + TEXT_DUR - 0.1;      // overlap suave con texto
+    const EMAIL_DUR = 0.5;
+    const EMAIL_START = CTA_START + CTA_DUR - 0.1;        // overlap suave con botón
 
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: section,
-            start: 'top 80%',
+            start: 'top 70%',
             // 'bottom 80%' termina la animación cuando la sección está
             // completamente visible — evita que el footer aparezca antes
             // de que la coreografía complete.

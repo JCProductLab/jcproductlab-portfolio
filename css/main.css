@@ -858,7 +858,7 @@ body {
     flex-direction: column;
     gap: 40px;
     width: 100%;
-    padding: 64px 24px;
+    padding: 64px 24px 300px 24px;
     background-color: var(--color-primary);
     border-top: 1px solid var(--color-primary);
     border-bottom: 1px solid var(--color-primary);
@@ -896,6 +896,7 @@ body {
     justify-content: center;
     gap: 40px;
     width: 100%;
+    min-height: 100dvh;
     padding: 64px 24px;
     background-color: var(--color-primary);
     text-align: center;

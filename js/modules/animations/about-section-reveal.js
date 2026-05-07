@@ -157,7 +157,7 @@ export function initAboutSectionReveal() {
         scrollTrigger: {
             trigger: section,
             start: 'top 75%',
-            end: '+=20%',
+            end: '+=70%',
             scrub: 1,
         },
     });
