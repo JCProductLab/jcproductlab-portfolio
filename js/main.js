@@ -16,7 +16,7 @@ import { initMaskReveal } from './modules/animations/mask-reveal.js';
 import { initTestimonialCardsReveal } from './modules/animations/testimonial-cards-reveal.js';
 import { initLogosReveal } from './modules/animations/logos-reveal.js';
 import { initAboutSectionReveal } from './modules/animations/about-section-reveal.js';
-import { initCtaSectionReveal } from './modules/animations/cta-section-reveal.js';
+import { initCtaSectionReveal, initStickyReveal } from './modules/animations/cta-section-reveal.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -40,6 +40,7 @@ window.addEventListener('load', () => {
     initMaskReveal();
     initTestimonialCardsReveal();
     initLogosReveal();
+    initStickyReveal();
     initAboutSectionReveal();
     initCtaSectionReveal();
 });

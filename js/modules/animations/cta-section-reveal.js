@@ -136,3 +136,29 @@ export function initCtaSectionReveal() {
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
 }
+
+// ============================================
+// STICKY REVEAL — about-section se queda fija
+// mientras cta-section sube y la cubre.
+//
+// Mecánica: CSS position:sticky;top:0 en .about-section
+// (ver main.css). About se pega en el top del viewport
+// cuando su top llega a 0, y se despega exactamente
+// cuando su bottom toca el top del viewport (= scrollY
+// llega a Y_cta). CTA sube en flujo normal y, con
+// z-index:2 sobre about z-index:1, pasa por encima.
+// No se necesita GSAP pin: el sticky de CSS garantiza
+// el comportamiento sin alterar el document height ni
+// las posiciones de ScrollTrigger existentes.
+// ============================================
+
+export function initStickyReveal() {
+    // El sticky reveal lo maneja CSS (position:sticky).
+    // Esta función existe para poder importarla y llamarla
+    // desde main.js sin refactors, en caso de que en el
+    // futuro se quieran añadir ajustes JS (p.ej. forçar
+    // un ScrollTrigger.refresh() extra tras el resize).
+    if (typeof ScrollTrigger !== 'undefined') {
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+    }
+}

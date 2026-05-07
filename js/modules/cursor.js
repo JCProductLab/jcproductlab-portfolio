@@ -626,10 +626,11 @@ export function initCustomCursor() {
         // Fluid simulation pointer
         let p = pointers[0];
         updatePointerMoveData(p, scaleByPixelRatio(e.clientX), scaleByPixelRatio(e.clientY), p.color);
-        // Suppress smoke while cursor is over the header or a button
+        // Suppress smoke while cursor is over the header, a button, or the CTA section
         const overHeader = header && e.clientY <= header.getBoundingClientRect().bottom;
         const overButton = !!e.target.closest('button, .btn, .btn-icon');
-        if (overHeader || overButton) {
+        const overCTA    = !!e.target.closest('.cta-section');
+        if (overHeader || overButton || overCTA) {
             p.moved = false;
         }
         // Hide custom cursor on interactive elements; .case-cards manages its own opacity

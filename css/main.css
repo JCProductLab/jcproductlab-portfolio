@@ -862,6 +862,9 @@ body {
     background-color: var(--color-primary);
     border-top: 1px solid var(--color-primary);
     border-bottom: 1px solid var(--color-primary);
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .about-section__body {
@@ -901,6 +904,8 @@ body {
     /* Stacking context propio para el canvas fractal */
     position: relative;
     isolation: isolate;
+    z-index: 2;
+    will-change: transform;
 }
 
 /* Canvas escapa del max-width de la sección (1440px en desktop) y cubre
