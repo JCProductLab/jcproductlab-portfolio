@@ -69,15 +69,15 @@ export function initCaseCardsScroll() {
         });
 
         // --- ESTADOS INICIALES (referencia exacta) ---
-        gsap.set(cards[0], { yPercent: 100, scale: 0, borderRadius: '280px', rotateY: 180, opacity: 0 });
-        gsap.set(cards[1], { yPercent: 100, scale: 0.4, borderRadius: '280px', rotate: -15, opacity: 1 });
-        gsap.set(cards[2], { yPercent: 100, scale: 0.4, borderRadius: '280px', rotate: 15, opacity: 1 });
+        gsap.set(cards[0], { yPercent: 100, scale: 0, borderRadius: '200px', rotateY: 180, opacity: 0 });
+        gsap.set(cards[1], { yPercent: 100, scale: 0.4, borderRadius: '200px', rotate: -15, opacity: 1 });
+        gsap.set(cards[2], { yPercent: 100, scale: 0.4, borderRadius: '200px', rotate: 15, opacity: 1 });
 
         const mainTl = gsap.timeline({
             scrollTrigger: {
                 id: 'caseCards',
                 trigger: section,
-                start: 'top top',
+                start: 'top 0%',
                 end: '+=8000',
                 pin: true,
                 pinSpacing: true,
@@ -130,7 +130,7 @@ export function initCaseCardsScroll() {
         mainTl.addLabel('push1');
         mainTl.add(fadeOutText(cards[0]), 'push1');
         mainTl.to(cards[0], {
-            yPercent: -100, scale: 0.6, borderRadius: '280px', rotate: -15,
+            yPercent: -100, scale: 0.6, borderRadius: '200px', rotate: -15,
             opacity: 1, duration: 2.5
         }, 'push1');
         mainTl.to(cards[1], {
@@ -143,7 +143,7 @@ export function initCaseCardsScroll() {
         mainTl.addLabel('push2');
         mainTl.add(fadeOutText(cards[1]), 'push2');
         mainTl.to(cards[1], {
-            yPercent: -100, scale: 0.6, borderRadius: '280px', rotate: 15,
+            yPercent: -100, scale: 0.6, borderRadius: '200px', rotate: 15,
             opacity: 1, duration: 2.5
         }, 'push2');
         mainTl.to(cards[2], {
@@ -161,7 +161,7 @@ export function initCaseCardsScroll() {
         }, null, 'final');
         mainTl.add(fadeOutText(cards[2]), 'final');
         mainTl.to(cards[2], {
-            yPercent: -100, scale: 0.5, borderRadius: '280px', rotate: -15,
+            yPercent: -100, scale: 0.5, borderRadius: '200px', rotate: -15,
             opacity: 1, duration: 2.5
         }, 'final');
 
@@ -218,7 +218,7 @@ export function initCaseCardsScroll() {
 
             // 3. Columna derecha — cascada ágil con solapamiento
             const solutionEl = card.querySelector('.case-card__solution');
-            const ctaEl      = card.querySelector('.case-card__cta');
+            const ctaEl = card.querySelector('.case-card__cta');
 
             const rightTl = gsap.timeline({
                 scrollTrigger: {

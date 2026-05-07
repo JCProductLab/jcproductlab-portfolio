@@ -35,9 +35,9 @@ export function initTestimonialCardsReveal() {
     if (!section) return;
 
     const header = section.querySelector('.section-header');
-    const label  = header?.querySelector('.section-header__label');
-    const title  = header?.querySelector('.section-header__title');
-    const cards  = Array.from(section.querySelectorAll('.testimonial-card'));
+    const label = header?.querySelector('.section-header__label');
+    const title = header?.querySelector('.section-header__title');
+    const cards = Array.from(section.querySelectorAll('.testimonial-card'));
     if (!cards.length) return;
 
     // Wrap idempotente en .mask-reveal__inner — el container (.mask-reveal) recibe
@@ -63,7 +63,7 @@ export function initTestimonialCardsReveal() {
     // Desactiva la transition CSS de transform durante el scrub para que GSAP
     // (que escribe a 60fps) no pelee con la transition. Se restaura al salir.
     const enterClass = 'testimonial-card--entering';
-    const lockTransition    = (t) => (Array.isArray(t) ? t : [t]).forEach((c) => c.classList.add(enterClass));
+    const lockTransition = (t) => (Array.isArray(t) ? t : [t]).forEach((c) => c.classList.add(enterClass));
     const releaseTransition = (t) => (Array.isArray(t) ? t : [t]).forEach((c) => c.classList.remove(enterClass));
 
     const mm = gsap.matchMedia();
@@ -71,7 +71,7 @@ export function initTestimonialCardsReveal() {
     mm.add(
         {
             isDesktop: '(min-width: 1025px)',
-            isMobile:  '(max-width: 1024px)',
+            isMobile: '(max-width: 1024px)',
         },
         (context) => {
             const { isDesktop } = context.conditions;
@@ -102,26 +102,26 @@ export function initTestimonialCardsReveal() {
                 });
 
                 // Timing relativo (sólo proporciones bajo scrub)
-                const LABEL_DUR        = 0.7;
-                const TITLE_START      = 0.25;
-                const TITLE_DUR        = 0.9;
-                const CARDS_START      = 0.85;
-                const CARDS_DUR        = 0.9;
-                const REST_DUR         = 0.4;
-                const EXIT_START       = CARDS_START + CARDS_DUR + REST_DUR;     // 2.15
+                const LABEL_DUR = 0.7;
+                const TITLE_START = 0.25;
+                const TITLE_DUR = 0.9;
+                const CARDS_START = 0.85;
+                const CARDS_DUR = 0.9;
+                const REST_DUR = 0.4;
+                const EXIT_START = CARDS_START + CARDS_DUR + REST_DUR;     // 2.15
                 const TITLE_EXIT_START = EXIT_START + 0.5;                       // 2.65
                 const LABEL_EXIT_START = TITLE_EXIT_START + 0.45;                // 3.10
-                const TITLE_EXIT_DUR   = 0.8;
-                const LABEL_EXIT_DUR   = 0.6;
+                const TITLE_EXIT_DUR = 0.8;
+                const LABEL_EXIT_DUR = 0.6;
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: section,
-                        start: 'top 80%',
-                        end: 'top -50%',
+                        start: 'top 70%',
+                        end: 'top -90%',
                         scrub: 1,
-                        onEnter:     () => lockTransition(cards),
-                        onLeave:     () => releaseTransition(cards),
+                        onEnter: () => lockTransition(cards),
+                        onLeave: () => releaseTransition(cards),
                         onEnterBack: () => lockTransition(cards),
                         onLeaveBack: () => releaseTransition(cards),
                     },
@@ -216,8 +216,8 @@ export function initTestimonialCardsReveal() {
                     // Rest  1.0→1.4 (card asentada, plenamente legible)
                     // Exit  1.4→2.4 (card se eleva y desvanece por arriba)
                     const ENTRY_DUR = 1.0;
-                    const REST_DUR  = 0.4;
-                    const EXIT_DUR  = 1.0;
+                    const REST_DUR = 0.4;
+                    const EXIT_DUR = 1.0;
                     const EXIT_START_CARD = ENTRY_DUR + REST_DUR; // 1.4
 
                     const tl = gsap.timeline({
@@ -232,8 +232,8 @@ export function initTestimonialCardsReveal() {
                             // visible en la mitad superior del viewport.
                             end: 'top -30%',
                             scrub: 1,
-                            onEnter:     () => lockTransition(card),
-                            onLeave:     () => releaseTransition(card),
+                            onEnter: () => lockTransition(card),
+                            onLeave: () => releaseTransition(card),
                             onEnterBack: () => lockTransition(card),
                             onLeaveBack: () => releaseTransition(card),
                         },
