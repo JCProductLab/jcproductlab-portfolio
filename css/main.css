@@ -224,7 +224,7 @@ body {
 .hero {
     position: relative;
     height: 100dvh;
-    width: 100vw;
+    width: 100%;
     /* Mobile: full viewport, compensates browser chrome */
 
     display: flex;
@@ -329,7 +329,7 @@ body {
 
 .case-card {
     position: relative;
-    width: 100vw;
+    width: 100%;
     height: 100dvh;
     overflow: hidden;
 }
@@ -919,8 +919,7 @@ body {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 100vw;
-    min-width: 100vw;
+    width: 100%;
     max-width: none;
     height: 100%;
     pointer-events: none;
