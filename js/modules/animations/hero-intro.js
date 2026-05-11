@@ -86,6 +86,7 @@ function initWordSwapper(hero) {
             setTimeout(() => {
                 currentIndex = (currentIndex + 1) % words.length;
                 swapper.textContent = words[currentIndex];
+                container.style.width = maxWidth + 'px';
 
                 swapper.classList.remove('word-swapper-exit');
                 swapper.classList.add('word-swapper-enter');
