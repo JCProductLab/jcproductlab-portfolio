@@ -607,6 +607,18 @@
         font-size: 2.5rem;
     }
 
+    /******************* About Section *******************/
+    .about-section {
+        display: flex;
+        flex-direction: row;
+        min-height: 720px;
+        padding-bottom: 220px;
+    }
+
+    .about-section__body {
+        align-items: flex-end;
+    }
+
 }
 
 
