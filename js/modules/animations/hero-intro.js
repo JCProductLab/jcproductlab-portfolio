@@ -74,7 +74,9 @@ function initWordSwapper(hero) {
         // sea idéntico sin importar qué palabra se muestre (evita salto de línea)
         const measureSpans = measureDiv.querySelectorAll('span');
         const maxWidth = Math.max(...Array.from(measureSpans).map(s => s.offsetWidth)) + 4;
+        container.style.transition = 'none';
         container.style.width = maxWidth + 'px';
+        void container.offsetWidth;
 
         // Función para cambiar palabra
         function changeWord() {
