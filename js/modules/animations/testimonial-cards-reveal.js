@@ -70,8 +70,8 @@ export function initTestimonialCardsReveal() {
 
     mm.add(
         {
-            isDesktop: '(min-width: 1200px)',
-            isMobile: '(max-width: 1199px)',
+            isDesktop: '(hover: hover) and (pointer: fine)',
+            isMobile: '(pointer: coarse)',
         },
         (context) => {
             const { isDesktop } = context.conditions;

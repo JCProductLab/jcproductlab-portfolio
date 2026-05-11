@@ -1,25 +1,29 @@
-# Testimonial Section — Detección de tipo de puntero
+# Testimonial Section — Detección de tipo de dispositivo
 
 **Fecha:** 2026-05-11
 
 ## Problema
 
-El breakpoint de la animación de `testimonial-section` es puramente por ancho (`min-width: 1200px`). Tablets con pantalla táctil y ancho ≥1200px (ej. Samsung Galaxy Tab S8 a 1280px) reciben la animación de escritorio (entrada horizontal ±220px, timeline unificado con scrub), lo que causa:
-- Problemas de rendimiento en dispositivos táctiles
-- La sección no se muestra correctamente
+La animación de `testimonial-section` usa `min-width: 1200px` para decidir entre comportamiento desktop y mobile. Esto es incorrecto porque el ancho no determina la capacidad del dispositivo:
+
+- Un desktop con ventana estrecha (800px) puede manejar animaciones complejas
+- Una tablet Samsung Tab S8 a 1280px no tiene esa capacidad y muestra mal la sección
+
+El criterio correcto es el **tipo de dispositivo**, no el ancho de pantalla.
 
 ## Solución
 
-Añadir detección de tipo de puntero a la condición `isDesktop` en `gsap.matchMedia()` dentro de `testimonial-cards-reveal.js`.
+Reemplazar la condición basada en ancho por detección de puntero pura en `gsap.matchMedia()`.
 
 **Condición nueva:**
 ```
-(min-width: 1200px) and (hover: hover) and (pointer: fine)
+isDesktop: '(hover: hover) and (pointer: fine)'
+isMobile:  '(pointer: coarse)'
 ```
 
-- `hover: hover` — el dispositivo puede hacer hover real (mouse)
-- `pointer: fine` — el puntero tiene precisión fina (mouse/trackpad, no dedo)
-- Juntos identifican un mouse verdadero; excluyen tablets táctiles aunque sean ≥1200px
+- `(hover: hover) and (pointer: fine)` → mouse/trackpad = desktop → animación compleja
+- `(pointer: coarse)` → pantalla táctil = mobile/tablet → animación sencilla
+- Sin `min-width` — el tamaño de pantalla no entra en la decisión
 
 ## Cambio
 
@@ -31,23 +35,24 @@ isDesktop: '(min-width: 1200px)',
 isMobile: '(max-width: 1199px)',
 
 // Después
-isDesktop: '(min-width: 1200px) and (hover: hover) and (pointer: fine)',
-isMobile: 'not all and (min-width: 1200px) and (hover: hover) and (pointer: fine)',
+isDesktop: '(hover: hover) and (pointer: fine)',
+isMobile: '(pointer: coarse)',
 ```
 
 ## Comportamiento resultante
 
 | Dispositivo | Ancho | Puntero | Animación |
 |---|---|---|---|
-| Desktop con mouse | ≥1200px | fine + hover | Desktop (horizontal ±220px) |
+| Desktop con mouse | cualquiera | fine + hover | Desktop (horizontal ±220px, scrub unificado) |
+| Laptop con trackpad | cualquiera | fine + hover | Desktop |
 | Samsung Tab S8 | 1280px | coarse | Mobile (vertical, por card) |
-| iPad táctil | ≥1200px | coarse | Mobile (vertical, por card) |
-| iPad con teclado+mouse | ≥1200px | fine + hover | Desktop |
-| Cualquier móvil | <1200px | coarse | Mobile |
+| iPad táctil | cualquiera | coarse | Mobile |
+| iPad con teclado+mouse | cualquiera | fine + hover | Desktop |
+| iPhone / Android | cualquiera | coarse | Mobile |
 
 ## Consistencia
 
-`interactions.js` ya usa `(hover: hover) and (pointer: fine)` para el tilt 3D. Este cambio alinea ambos módulos.
+`interactions.js` ya usa `(hover: hover) and (pointer: fine)` para el tilt 3D. Este cambio alinea `testimonial-cards-reveal.js` con esa misma lógica.
 
 ## Alcance
 
