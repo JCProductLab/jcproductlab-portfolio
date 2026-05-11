@@ -223,9 +223,9 @@ body {
 
 .hero {
     position: relative;
-    height: 100dvh;
+    height: 100svh;
     width: 100vw;
-    /* Mobile: full viewport, compensates browser chrome */
+    /* Mobile: small viewport height — constante, no reacciona a URL bar */
 
     display: flex;
     flex-direction: column;
@@ -238,7 +238,7 @@ body {
     overflow: hidden;
 }
 
-@supports not (height: 100dvh) {
+@supports not (height: 100svh) {
     .hero {
         height: 100vh;
     }
