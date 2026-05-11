@@ -70,10 +70,11 @@ function initWordSwapper(hero) {
         let currentIndex = 0;
         let isAnimating = false;
 
-        // Medición inicial con buffer de 4px
+        // Usar el ancho máximo de todas las palabras para que el layout del H1
+        // sea idéntico sin importar qué palabra se muestre (evita salto de línea)
         const measureSpans = measureDiv.querySelectorAll('span');
-        const initialWidth = measureSpans[0].offsetWidth + 4;
-        container.style.width = initialWidth + 'px';
+        const maxWidth = Math.max(...Array.from(measureSpans).map(s => s.offsetWidth)) + 4;
+        container.style.width = maxWidth + 'px';
 
         // Función para cambiar palabra
         function changeWord() {
@@ -85,10 +86,6 @@ function initWordSwapper(hero) {
             setTimeout(() => {
                 currentIndex = (currentIndex + 1) % words.length;
                 swapper.textContent = words[currentIndex];
-
-                // Mide con buffer de 4px
-                const newWidth = measureSpans[currentIndex].offsetWidth + 4;
-                container.style.width = newWidth + 'px';
 
                 swapper.classList.remove('word-swapper-exit');
                 swapper.classList.add('word-swapper-enter');
