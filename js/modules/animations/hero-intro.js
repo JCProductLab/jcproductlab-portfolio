@@ -3,20 +3,18 @@
 // Aislado: no toca case-cards ni scripts globales.
 // ============================================
 
-// Word Swapper: cicla palabras dinámicamente en el H1
-// NO modifica HTML hasta 4 segundos después de window.load
+// Word Swapper: cicla palabras dinámicamente en el H1.
+// El container se construye ANTES de hero-active para que el H1
+// ya esté en su layout definitivo cuando se revele la animación.
 function initWordSwapper(hero) {
     const words = ['negocio', 'producto', 'usuario', 'mañana'];
 
-    // Crea el div de medición oculto SIN modificar el H1 todavía
+    // Div de medición oculto con las mismas propiedades tipográficas del H1
     const measureDiv = document.createElement('div');
     measureDiv.className = 'word-swapper-measure';
     measureDiv.setAttribute('aria-hidden', 'true');
-
-    // Inyecta en body para evitar herencia de transformaciones
     document.body.appendChild(measureDiv);
 
-    // Copia estilos exactos del H1
     const h1 = hero.querySelector('h1');
     if (h1) {
         const computedStyle = window.getComputedStyle(h1);
@@ -33,52 +31,50 @@ function initWordSwapper(hero) {
         measureDiv.appendChild(span);
     });
 
-    // Arranca el swapper: modifica DOM e inicia el ciclo
-    function startSwapper() {
-        const wordElements = hero.querySelectorAll('.hero-word');
-        let heroWord = null;
-
-        wordElements.forEach((el) => {
-            if (el.textContent.trim() === 'negocio') {
-                heroWord = el;
-            }
-        });
-
-        if (!heroWord) return;
-
-        // Ahora modifica el HTML
-        const parent = heroWord.parentElement;
-        const container = document.createElement('span');
-        container.className = 'word-swapper-container';
-
-        // Fija el line-height exacto del H1 para evitar saltos al activarse
-        const h1El = hero.querySelector('h1');
-        if (h1El) {
-            container.style.lineHeight = window.getComputedStyle(h1El).lineHeight;
+    // Busca el hero-word que contiene "negocio"
+    const wordElements = hero.querySelectorAll('.hero-word');
+    let heroWord = null;
+    wordElements.forEach((el) => {
+        if (el.textContent.trim() === 'negocio') {
+            heroWord = el;
         }
+    });
 
-        const swapper = document.createElement('span');
-        swapper.className = 'word-swapper';
-        swapper.textContent = words[0];
+    if (!heroWord) return;
 
-        heroWord.textContent = '';
-        heroWord.appendChild(swapper);
-        parent.insertBefore(container, heroWord);
-        container.appendChild(heroWord);
+    // Construye el container y lo inyecta en el DOM AHORA — antes de hero-active —
+    // para que el H1 ya tenga su layout final cuando la animación lo revele.
+    const parent = heroWord.parentElement;
+    const container = document.createElement('span');
+    container.className = 'word-swapper-container';
 
-        // Estado
+    const h1El = hero.querySelector('h1');
+    if (h1El) {
+        container.style.lineHeight = window.getComputedStyle(h1El).lineHeight;
+    }
+
+    const swapper = document.createElement('span');
+    swapper.className = 'word-swapper';
+    swapper.textContent = words[0];
+
+    heroWord.textContent = '';
+    heroWord.appendChild(swapper);
+    parent.insertBefore(container, heroWord);
+    container.appendChild(heroWord);
+
+    // Fija el ancho al máximo (PRODUCTO, la más larga) sin transición,
+    // para que el layout no cambie entre palabras.
+    const measureSpans = measureDiv.querySelectorAll('span');
+    const maxWidth = Math.max(...Array.from(measureSpans).map(s => s.offsetWidth)) + 4;
+    container.style.transition = 'none';
+    container.style.width = maxWidth + 'px';
+    void container.offsetWidth;
+
+    // La rotación de palabras empieza cuando el botón termina su animación de entrada
+    function startRotation() {
         let currentIndex = 0;
         let isAnimating = false;
 
-        // Usar el ancho máximo de todas las palabras para que el layout del H1
-        // sea idéntico sin importar qué palabra se muestre (evita salto de línea)
-        const measureSpans = measureDiv.querySelectorAll('span');
-        const maxWidth = Math.max(...Array.from(measureSpans).map(s => s.offsetWidth)) + 4;
-        container.style.transition = 'none';
-        container.style.width = maxWidth + 'px';
-        void container.offsetWidth;
-
-        // Función para cambiar palabra
         function changeWord() {
             if (isAnimating) return;
             isAnimating = true;
@@ -106,18 +102,17 @@ function initWordSwapper(hero) {
     }
 
     // Espera a que el botón termine su animación de entrada (transitionend)
-    // para arrancar el swapper como último paso de la coreografía.
+    // para arrancar la rotación como último paso de la coreografía.
     const btnWrapper = hero.querySelector('.hero-btn-wrapper');
     if (btnWrapper) {
         function onBtnTransitionEnd(e) {
             if (e.propertyName !== 'opacity') return;
             btnWrapper.removeEventListener('transitionend', onBtnTransitionEnd);
-            startSwapper();
+            startRotation();
         }
         btnWrapper.addEventListener('transitionend', onBtnTransitionEnd);
     } else {
-        // Fallback: el wrapper no existe todavía, esperar un tick extra
-        setTimeout(startSwapper, 2000);
+        setTimeout(startRotation, 2000);
     }
 }
 
@@ -159,11 +154,13 @@ export function initHeroIntro() {
         wrapper.appendChild(btn);
     }
 
-    // 3. Activa la coreografía 100ms después del window.load e inicia word-swapper
+    // 3. Activa la coreografía 100ms después del window.load.
+    //    initWordSwapper se llama ANTES de hero-active para que el container
+    //    ya tenga su ancho final cuando el H1 se revele.
     const activate = () => {
         setTimeout(() => {
-            hero.classList.add('hero-active');
             initWordSwapper(hero);
+            hero.classList.add('hero-active');
         }, 100);
     };
 
