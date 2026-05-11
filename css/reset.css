@@ -26,6 +26,7 @@ body {
   line-height: 1.5;
   color: inherit;
   background-color: inherit;
+  overflow-x: clip;
 }
 
 /* 2. TYPOGRAPHY */
