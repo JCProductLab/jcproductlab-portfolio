@@ -330,11 +330,11 @@ body {
 .case-card {
     position: relative;
     width: 100vw;
-    height: 100dvh;
+    height: 100svh;
     overflow: hidden;
 }
 
-@supports not (height: 100dvh) {
+@supports not (height: 100svh) {
     .case-card {
         height: 100vh;
     }
