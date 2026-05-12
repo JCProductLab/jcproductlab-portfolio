@@ -164,6 +164,14 @@ export function initCaseCardsScroll() {
             yPercent: -100, scale: 0.5, borderRadius: '200px', rotate: -15,
             opacity: 1, duration: 2.5
         }, 'final');
+        // Cursor desaparece cuando Card 3 lleva ~80% de su salida (al bajar)
+        // y reaparece al mismo punto si se sube de nuevo
+        mainTl.call(() => {
+            const st = ScrollTrigger.getById('caseCards');
+            if (!st) return;
+            if (st.direction > 0) animateHideCaseCursor();
+            else animateShowCaseCursor();
+        }, null, 'final+=1');
 
         // Cleanup: gsap.matchMedia revierte automáticamente todos los gsap.set anteriores
         // al cambiar de breakpoint. No hace falta cleanup manual.

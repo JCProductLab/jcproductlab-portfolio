@@ -9,6 +9,7 @@ export function initCustomCursor() {
 
     const canvas = document.getElementById('fluid');
     const customCursor = document.getElementById('customCursor');
+    const caseCursorEl = document.getElementById('case-cursor');
     if (!canvas || !customCursor) return;
 
     resizeCanvas();
@@ -635,7 +636,8 @@ export function initCustomCursor() {
         }
         // Hide custom cursor on interactive elements; .case-cards manages its own opacity
         const overCaseCards = !!e.target.closest('.case-cards');
-        if (!overCaseCards) {
+        const caseCursorActive = caseCursorEl && caseCursorEl.classList.contains('case-cursor--active');
+        if (!overCaseCards && !caseCursorActive) {
             const overInteractive = !!e.target.closest('a, button, [role="button"]');
             customCursor.style.opacity = overInteractive ? '0' : '';
         }

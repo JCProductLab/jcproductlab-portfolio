@@ -12,7 +12,7 @@ npx serve .
 python3 -m http.server 8080
 ```
 
-Deployed to Netlify automatically from the main branch.
+Deployed to GitHub Pages automatically from the main branch (`https://jcproductlab.github.io/jcproductlab-portfolio/`). Deployments suelen tardar 2-10 minutos tras el push.
 
 ## Architecture
 
