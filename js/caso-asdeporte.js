@@ -25,6 +25,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // (línea ~120) y del onLeaveBack del ST #2 de la métrica.
     let metricaAnimated = false;
 
+    // Flag del trazado de la flecha de Contexto — se dispara desde el pin de
+    // Shift (sub-paso 4) cuando localP >= 1 en forward. Se resetea en la
+    // reversa (direction === -1) cuando la flecha ya está fuera de foco
+    // (opacidad <= 0.05) — análogo al reset invisible de la métrica.
+    let contextoArrowAnimated = false;
+
     const VIDEO_DURATION_FALLBACK = 3;
 
     // ============================================
@@ -415,6 +421,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.set(arrowDecorations, { opacity: 0 });
     }
 
+    // Reset reversible de la flecha de Contexto — análogo a resetMetrica().
+    // Lo llama el pin de Shift durante la reversa cuando la flecha ya está
+    // fuera de foco (opacidad <= 0.05 por la entrada escalonada). El usuario
+    // no ve el "borrado" porque ocurre cuando la flecha ya es invisible.
+    function resetContextoArrow() {
+        contextoArrowAnimated = false;
+        gsap.killTweensOf([arrowLine, arrowTip, arrowCap]);
+        gsap.set(arrowLine, { strokeDashoffset: -lineLength });
+        gsap.set(arrowTip,  { strokeDashoffset: tipLength });
+        gsap.set(arrowCap,  { opacity: 0 });
+    }
+
     // ============================================
     // Sección 3 — Contexto: flecha curva animada
     // ============================================
@@ -507,6 +525,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const contextoTitle = document.querySelector('.cs-section-title');
     const contextoMedia = document.querySelector('.cs-contexto__media');
     const contextoTags = document.querySelector('.cs-contexto__tags');
+    // Flecha curva de Contexto — entra junto a los demás elementos de la
+    // columna izquierda vía renderContextoEntrada (rango 0.55 → 0.75).
+    const contextoArrow = document.querySelector('.cs-contexto__arrow');
 
     // Función de easing power2.out personalizada
     function power2Out(t) {
@@ -558,7 +579,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             { el: contextoLabel, start: 0.00, end: 0.25 },
             { el: contextoTitle, start: 0.15, end: 0.40 },
             { el: contextoMedia, start: 0.30, end: 0.55 },
-            { el: contextoTags,  start: 0.45, end: 0.70 }
+            { el: contextoTags,  start: 0.45, end: 0.70 },
+            { el: contextoArrow, start: 0.55, end: 0.75 }
         ];
 
         elementos.forEach(({ el, start, end }) => {
@@ -598,14 +620,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // Trackinner quieto: la Métrica no se desplaza horizontalmente
             gsap.set(trackInner, { x: 0 });
             // Cometa: primera mitad (0 → 0.40). La segunda mitad (0.40 → 1.0)
-            // se animará desde el pin de Shift en sub-paso 4.
+            // se anima desde el pin de Shift en sub-paso 4.
             updateCometTrail(localP * 0.40);
             // Elementos de Contexto: estado inicial oculto. Los animan los
             // pins de Shift (entrada slide-in) y Contexto (pintado) en
             // sub-pasos 3-4. Si el usuario entra y sale del pin de Métrica
             // varias veces, los dejamos en estado oculto para que no
-            // aparezcan prematuramente.
-            [contextoLabel, contextoTitle, contextoMedia, contextoTags].forEach(el => {
+            // aparezcan prematuramente. La flecha (contextoArrow) también
+            // se incluye para que esté en un estado conocido al entrar al
+            // pin de Shift.
+            [contextoLabel, contextoTitle, contextoMedia, contextoTags, contextoArrow].forEach(el => {
                 if (el) gsap.set(el, { opacity: 0, x: 120 });
             });
         },
@@ -616,9 +640,64 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         }
     });
 
-    // NOTA: en sub-pasos siguientes se añadirán los pins de Shift y Contexto
-    // sobre .cs-pin-spacer--shift-mc y .cs-pin-spacer--contexto. Cada uno
-    // controlará su propio rango del trackInner.x.
+    // ============================================
+    // Sub-paso 4 — Pin de Shift M→C
+    // Pino el .cs-pin-spacer--shift-mc. Mientras está pineado:
+    //   - el trackInner.x se desplaza de 0 a -100vw (Métrica sale por la
+    //     izquierda, Contexto entra por la derecha)
+    //   - la cometa completa su segunda mitad (0.40 → 1.0) cruzando de
+    //     Métrica a Contexto
+    //   - los elementos de Contexto (label, title, media, tags, flecha)
+    //     hacen su entrada escalonada vía renderContextoEntrada(localP)
+    //   - animateContextoArrow() se dispara una vez al final del pin
+    //     (localP >= 1, forward) — gobernado por contextoArrowAnimated
+    //   - en reversa, resetContextoArrow() se llama cuando la flecha ya
+    //     está fuera de foco (opacidad <= 0.05), análogo al reset
+    //     invisible de la métrica. El usuario nunca ve el "borrado".
+    // ============================================
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--shift-mc',
+        start: 'top top',
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            const localP = self.progress;
+
+            // 1. Desplazamiento horizontal del track
+            gsap.set(trackInner, { x: -localP * window.innerWidth });
+
+            // 2. Cometa: segunda mitad (0.40 → 1.0)
+            updateCometTrail(0.40 + localP * 0.60);
+
+            // 3. Entrada escalonada de los elementos de Contexto
+            //    (label, title, media, tags, flecha)
+            renderContextoEntrada(localP);
+
+            // 4. Reset del flag en reversa — fuera de foco
+            //    La flecha ya está invisible (opacity <= 0.05 por la
+            //    entrada escalonada), así que el reset de los dashoffsets
+            //    ocurre sin que el usuario lo vea.
+            const flechaOpacity = contextoArrow
+                ? parseFloat(gsap.getProperty(contextoArrow, 'opacity'))
+                : 1;
+            if (self.direction === -1 && contextoArrowAnimated && flechaOpacity <= 0.05) {
+                resetContextoArrow();
+            }
+
+            // 5. Disparo del trazado de la flecha al final del pin (forward)
+            if (self.direction === 1 && localP >= 1 && !contextoArrowAnimated) {
+                contextoArrowAnimated = true;
+                animateContextoArrow();
+            }
+        }
+    });
+
+    // NOTA: en sub-pasos siguientes se añadirá el pin de Contexto
+    // sobre .cs-pin-spacer--contexto, que controlará el pintado palabra
+    // por palabra y el scroll del texto dentro de la máscara.
 
     // initScrollPhase() se llama AQUÍ (al final) para que todas las
     // declaraciones (metricaNumber, trackInner, animateMetrica, resetMetrica)
