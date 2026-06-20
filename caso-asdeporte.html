@@ -296,13 +296,27 @@
 
         </section>
 
-        <div class="cs-apertura__spacer"></div>
+        <!-- ============================================ -->
+        <!-- PIN SPACERS — Refactor a pin por sección     -->
+        <!-- Espaciadores invisibles en el flujo. El JS   -->
+        <!-- (en sub-pasos siguientes) los pineará uno a   -->
+        <!-- uno para encadenar Métrica → Shift →         -->
+        <!-- Contexto. Alturas temporales; se calibran     -->
+        <!-- en sub-paso 5.                                -->
+        <!-- NOTA: el de la apertura ya no es necesario    -->
+        <!-- porque pinSpacing: true en el ST de la        -->
+        <!-- apertura añade el espacio al flujo.           -->
+        <!-- ============================================ -->
+        <div class="cs-pin-spacer cs-pin-spacer--metrica"  data-phase="metrica"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--shift-mc" data-phase="shift-mc"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--contexto" data-phase="contexto"></div>
 
         <!-- ============================================ -->
         <!-- TRACK HORIZONTAL — Panel 1: Métrica · Panel 2: Contexto -->
         <!-- Métrica y Contexto comparten un mismo track para lograr -->
         <!-- la transición horizontal continua entre ambas.          -->
         <!-- ============================================ -->
+        <div class="cs-horizontal-stage">
         <div class="cs-horizontal-track">
           <div class="cs-horizontal-track__inner">
 
@@ -498,6 +512,7 @@
 
         </section>
           </div>
+        </div>
         </div>
 
     </main>

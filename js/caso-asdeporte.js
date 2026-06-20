@@ -19,6 +19,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const tracks = document.querySelectorAll('.cs-ticker__track');
     const metrica = document.querySelector('.cs-metrica');
 
+    // Flag de la animación de la métrica — se dispara desde el cruce vertical
+    // (sub-paso 3.5) cuando la métrica se ancla al final del cruce.
+    // Declarado aquí para que esté en scope del onUpdate del ST de apertura
+    // (línea ~120) y del onLeaveBack del ST #2 de la métrica.
+    let metricaAnimated = false;
+
     const VIDEO_DURATION_FALLBACK = 3;
 
     // ============================================
@@ -79,15 +85,29 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
     // ============================================
     // Fase 2 — controlada por scroll (Fase 3 es su reverso vía scrub)
+    // Migrado a pin por sección en sub-paso 3 (corrección final):
+    //   - trigger: .cs-apertura (la apertura misma)
+    //   - pin: true (pineamos el trigger, que es la apertura)
+    //   - pinSpacing: true (añade 100vh al flujo, sin transform residual
+    //     como tenía el modelo original con pinSpacing: false + end: '+=200%')
+    //   - end: 'bottom top' (100vh, igual a la altura de la apertura)
+    // El onUpdate se mantiene exacto — todas las animaciones son
+    // función del progress 0→1 sobre el rango de scroll del pin.
+    // NOTA: el rango de scroll del pin cambió de 200vh (con '+=200%') a
+    // 100vh (con 'bottom top'). Las animaciones internas (ticker, video,
+    // sombra) se ejecutan sobre 100vh en lugar de 200vh, lo que cambia
+    // su velocidad. Esto se calibrará en sub-paso 5 si se desea otra
+    // velocidad. La prioridad ahora es eliminar el transform residual.
     // ============================================
     function initScrollPhase() {
         ScrollTrigger.create({
-            trigger: apertura,
-            start: 'top top',
-            end: '+=200%',
-            scrub: 1,
+            trigger: '.cs-apertura',
             pin: true,
-            pinSpacing: false,
+            pinSpacing: true,
+            pinType: 'fixed',
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 1,
             onUpdate: (self) => {
                 const progress = self.progress;
                 const videoDuration = getVideoDuration();
@@ -128,6 +148,53 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     const finalCover = (progress - 0.85) / 0.15;
                     gsap.set(shadow, { opacity: Math.min(1, Math.pow(progress, 0.3) + finalCover) });
                 }
+
+                // 5. Cruce vertical — último 25% del pin (progress 0.75 → 1.0).
+                // La métrica entra desde abajo (y: 100vh → 0) mientras la
+                // apertura sale por arriba (y: 0 → -100vh). animateMetrica()
+                // se dispara al final del cruce, cuando la métrica se ancla.
+                //
+                // Reset: dispara SOLO al inicio de una entrada forward al cruce
+                // (crossProgress cruza 0 desde abajo en dirección +1), NO en
+                // la reversa. Esto garantiza que la métrica mantenga su "25%",
+                // flecha y texto intactos durante toda la reversa. El reset es
+                // invisible — ocurre cuando la métrica está en y: 100vh.
+                if (progress >= 0.75) {
+                    const crossProgress = (progress - 0.75) / 0.25;
+                    gsap.set(metrica, { y: (1 - crossProgress) * window.innerHeight });
+                    gsap.set(apertura, { y: -crossProgress * window.innerHeight });
+
+                    if (crossProgress >= 1 && !metricaAnimated) {
+                        // Forward: la métrica se ancla al final del cruce.
+                        metricaAnimated = true;
+                        animateMetrica();
+                    } else if (crossProgress <= 0.05 && metricaAnimated && self.direction === 1) {
+                        // Forward entry: el usuario entra al cruce después de
+                        // un reverse. La métrica aún tiene "25%" del ciclo
+                        // anterior — reset invisible: el KPI está en el centro
+                        // vertical del panel (~50vh desde el top), y a
+                        // crossProgress <= 0.05 el panel está a y >= 95vh, con
+                        // el KPI debajo del viewport. La tolerancia amplia
+                        // (0.05) absorbe los saltos de frame del smooth scroll.
+                        resetMetrica();
+                    }
+                } else {
+                    gsap.set(metrica, { y: window.innerHeight });
+                    // Apertura vuelve a y: 0 (su sitio natural durante el pin).
+                    gsap.set(apertura, { y: 0 });
+                }
+            },
+            onLeave: () => {
+                // Limpia el transform residual que GSAP deja al terminar el pin.
+                // Con pinType: 'fixed' + pinSpacing: true, GSAP setea un
+                // transform translate(0, pinRange) en el inline style que
+                // mantiene la apertura visible en el viewport más allá de
+                // lo deseado. Reseteamos manualmente.
+                gsap.set(apertura, { clearProps: 'transform' });
+            },
+            onLeaveBack: () => {
+                // Mismo reset al hacer scroll reverso saliendo del pin.
+                gsap.set(apertura, { clearProps: 'transform' });
             }
         });
     }
@@ -142,13 +209,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
     gsap.set(words, { y: window.innerHeight, opacity: 1 });
     gsap.set(overlay, { opacity: 1 });
-    // La métrica ahora es el primer panel del track horizontal — visible por
-    // defecto; su entrada la orquesta el ScrollTrigger del track (animateMetrica).
+    // La métrica ahora es el primer panel del track horizontal — su entrada
+    // la orquestan el cruce vertical (sub-paso 3.5) y animateMetrica.
+    // Posición inicial: 100vh por debajo del viewport para que entre desde
+    // abajo durante el cruce.
+    gsap.set(metrica, { y: window.innerHeight });
     gsap.set(ticker, { willChange: 'transform' });
     gsap.set(tracks, { willChange: 'transform' });
 
     playFase1();
-    initScrollPhase();
+    // initScrollPhase() se llama al FINAL del script (línea ~610).
+    // Razón: ScrollTrigger dispara onUpdate durante init() para establecer
+    // el estado inicial. Si se llama aquí, animateMetrica() y resetMetrica()
+    // fallan con temporal dead zone porque metricaNumber/trackInner/etc.
+    // se declaran más abajo en este mismo bloque síncrono.
 
     // ============================================
     // Sección 2 — Métrica: secuencia de entrada
@@ -499,92 +573,55 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     }
 
     // ============================================
-    // Track horizontal compartido — Métrica (panel 1) → Contexto (panel 2)
-    //
-    // El progreso del track se reparte en tres tramos:
-    //   [0 .. COMET_END]          la cometa sube; el track no se desplaza aún
-    //   [COMET_END .. SHIFT_END]  desplazamiento métrica → contexto (un viewport)
-    //   [SHIFT_END .. 1]          pausa de Contexto: pintado + scroll del texto
-    //
-    // Límites y recorrido son ajustables — se calibran en pasos posteriores.
+    // Sub-paso 2 — Pin de Métrica
+    // Pino el .cs-pin-spacer--metrica. Mientras está pineado:
+    //   - la cometa avanza 0 → 0.40 de su recorrido
+    //   - el trackInner.x se mantiene en 0 (la Métrica no se desplaza)
+    //   - los elementos de Contexto se mantienen ocultos (los animan los
+    //     pins de Shift y Contexto en sub-pasos 3-4)
+    // Nota: animateMetrica() ya NO se dispara aquí — lo dispara el cruce
+    // vertical del ST de apertura (sub-paso 3.5) cuando la métrica se ancla.
+    // El onLeaveBack se mantiene como respaldo idempotente: si el usuario
+    // entra y sale del pin sin pasar por el cruce (caso edge), resetea.
     // ============================================
-    const track = document.querySelector('.cs-horizontal-track');
     const trackInner = document.querySelector('.cs-horizontal-track__inner');
-    let metricaAnimated = false;
-
-    // Límites de los tramos
-    // COMET_END = SHIFT_END: la cometa recorre toda su ruta durante el shift (tramo 1 + 2)
-    const COMET_END = 0.45;
-    const SHIFT_END = 0.45;
-
-    // Desplazamiento total = contenido total - viewport.
-    // Esto asegura que la columna derecha de Contexto quede completamente visible
-    // antes de que arranque el pintado (Tramo 3).
-    const getScrollAmount = () => trackInner.scrollWidth - window.innerWidth;
-
-    // Recorrido de scroll total del track — calibrado para que SHIFT_END = 0.45
-    // coincida con el desplazamiento completo del trackInner (getScrollAmount).
-    const getTrackScroll = () => getScrollAmount() / 0.45;
-
-    // La flecha curva de Contexto se dibuja una sola vez dentro del tramo 3.
-    let contextoArrowFired = false;
 
     ScrollTrigger.create({
-        trigger: track,
+        trigger: '.cs-pin-spacer--metrica',
         start: 'top top',
-        end: () => `+=${getTrackScroll()}`,
-        scrub: 1,
+        end: 'bottom top',
         pin: true,
         pinSpacing: true,
-        onEnter: () => {
-            if (!metricaAnimated) {
-                metricaAnimated = true;
-                animateMetrica();
-            }
-        },
+        scrub: 1,
         onUpdate: (self) => {
-            const p = self.progress;
-
-            // TRAMO 1 (0 → 0.25): la cometa avanza ~40%, sin desplazamiento horizontal.
-            if (p <= 0.25) {
-                const cometProgress = (p / 0.25) * 0.40;
-                updateCometTrail(cometProgress);
-                gsap.set(trackInner, { x: 0 });
-                [contextoLabel, contextoTitle, contextoMedia, contextoTags].forEach(el => {
-                    if (el) gsap.set(el, { opacity: 0, x: 120 });
-                });
-            }
-            // TRAMO 2 (0.25 → 0.45): la cometa avanza del 40% al 100%, track se desplaza.
-            else if (p <= 0.45) {
-                const shiftProgress = (p - 0.25) / 0.20;
-                const cometProgress = 0.40 + shiftProgress * 0.60;
-                updateCometTrail(cometProgress);
-                gsap.set(trackInner, { x: -getScrollAmount() * shiftProgress });
-                renderContextoEntrada(p);
-                renderContexto(0);
-                contextoArrowFired = false;
-            }
-            // TRAMO 3 (0.45 → 1): cometa completa, Contexto pintado.
-            else {
-                updateCometTrail(1);
-                gsap.set(trackInner, { x: -getScrollAmount() });
-                const contextoProgress = (p - 0.45) / 0.55;
-                renderContextoEntrada(0.45);
-                renderContexto(contextoProgress);
-
-                if (!contextoArrowFired && contextoProgress > 0.15) {
-                    contextoArrowFired = true;
-                    animateContextoArrow();
-                }
-            }
+            const localP = self.progress;
+            // Trackinner quieto: la Métrica no se desplaza horizontalmente
+            gsap.set(trackInner, { x: 0 });
+            // Cometa: primera mitad (0 → 0.40). La segunda mitad (0.40 → 1.0)
+            // se animará desde el pin de Shift en sub-paso 4.
+            updateCometTrail(localP * 0.40);
+            // Elementos de Contexto: estado inicial oculto. Los animan los
+            // pins de Shift (entrada slide-in) y Contexto (pintado) en
+            // sub-pasos 3-4. Si el usuario entra y sale del pin de Métrica
+            // varias veces, los dejamos en estado oculto para que no
+            // aparezcan prematuramente.
+            [contextoLabel, contextoTitle, contextoMedia, contextoTags].forEach(el => {
+                if (el) gsap.set(el, { opacity: 0, x: 120 });
+            });
+        },
+        onLeaveBack: () => {
+            // No-op: el reset ahora se dispara en el forward entry del cruce
+            // (ST de apertura, sub-paso 3.5), no en la reversa. Esto garantiza
+            // que la métrica mantenga su "25%" intacto durante toda la reversa.
         }
     });
 
-    // Reset invisible: dispara solo cuando el track ya salió completamente por
-    // abajo del viewport en reversa (scroll < 3280), donde el usuario no lo ve.
-    ScrollTrigger.create({
-        trigger: track,
-        start: 'top bottom',
-        onLeaveBack: () => resetMetrica()
-    });
+    // NOTA: en sub-pasos siguientes se añadirán los pins de Shift y Contexto
+    // sobre .cs-pin-spacer--shift-mc y .cs-pin-spacer--contexto. Cada uno
+    // controlará su propio rango del trackInner.x.
+
+    // initScrollPhase() se llama AQUÍ (al final) para que todas las
+    // declaraciones (metricaNumber, trackInner, animateMetrica, resetMetrica)
+    // estén en scope cuando ScrollTrigger dispare onUpdate durante su init.
+    initScrollPhase();
 }

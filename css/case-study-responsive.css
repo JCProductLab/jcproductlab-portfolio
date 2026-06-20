@@ -13,6 +13,10 @@
     overflow: hidden;
     background-color: var(--color-primary);
     opacity: 0;
+    /* z-index 2: la apertura queda por encima del .cs-horizontal-stage
+       (z-index 1) al inicio de la página. Cuando la apertura sale del
+       viewport con el scroll, el stage con la Métrica queda visible. */
+    z-index: 2;
 }
 
 /* Video de fondo — capa base */
@@ -87,10 +91,6 @@
 .cs-ticker__separator {
     margin: 0 0.5em;
     opacity: 0;
-}
-
-.cs-apertura__spacer {
-    height: 100vh;   /* calibrable: controla cuánto se solapa la métrica sobre la apertura */
 }
 
 /* ============================================
@@ -169,8 +169,25 @@
 }
 
 /* ============================================
-   SCROLL HORIZONTAL — Track de paneles
+   SCROLL HORIZONTAL — Stage fijo + Track de paneles
    ============================================ */
+
+/* Stage: contenedor fijo que vive en el viewport durante toda la
+   zona horizontal. No ocupa espacio en el flujo. El JS (sub-pasos
+   siguientes) pineará los pin spacers para orquestar las fases. */
+.cs-horizontal-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cs-horizontal-stage .cs-metrica,
+.cs-horizontal-stage .cs-contexto,
+.cs-horizontal-stage .cs-decisiones-titulos {
+    pointer-events: auto;
+}
 
 .cs-horizontal-track {
     width: 100vw;
@@ -311,3 +328,22 @@
     justify-content: flex-end;
     gap: 2rem;
 }
+
+/* ============================================
+   PIN SPACERS — Refactor a pin por sección
+   Espaciadores invisibles en el flujo de la página. Cada uno
+   será pineado por un ScrollTrigger independiente (sub-pasos
+   siguientes) para orquestar su fase correspondiente.
+
+   Alturas temporales — se calibran en sub-paso 5 para igualar
+   el "feel" del modelo anterior.
+   ============================================ */
+
+.cs-pin-spacer {
+    position: relative;
+    width: 100%;
+}
+
+.cs-pin-spacer--metrica  { height: 150vh; }
+.cs-pin-spacer--shift-mc { height: 120vh; }
+.cs-pin-spacer--contexto { height: 200vh; }
