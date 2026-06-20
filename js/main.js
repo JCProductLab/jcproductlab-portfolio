@@ -17,6 +17,8 @@ import { initTestimonialCardsReveal } from './modules/animations/testimonial-car
 import { initLogosReveal } from './modules/animations/logos-reveal.js';
 import { initAboutSectionReveal } from './modules/animations/about-section-reveal.js';
 import { initCtaSectionReveal, initStickyReveal } from './modules/animations/cta-section-reveal.js';
+import { initModalMiRol } from './modal-rol-proceso.js';
+import { initModalProceso } from './modal-proceso.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -27,6 +29,8 @@ initHeroIntro();
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initMagnetic();
+    initModalMiRol();
+    initModalProceso();
 });
 
 // Custom cursor needs to run after full page load

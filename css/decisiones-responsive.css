@@ -1,0 +1,42 @@
+/* ============================================
+   DECISIONES — Estilos desktop (1024px+)
+   Panel: 3 títulos desalineados en escalera
+   Posiciones iniciales de la escalera (translateX) se interpolan
+   a 0 (alineados) con scroll horizontal en fase 2.
+   ============================================ */
+
+@media (min-width: 1024px) {
+
+    /* Panel del track horizontal — ancho fijo de un viewport.
+       flex: 0 0 auto + width: 100vw garantiza que getScrollAmount()
+       del track existente lo incluya en el cálculo dinámico. */
+    .cs-decisiones-titulos {
+        flex: 0 0 100vw;
+        width: 100vw;
+        height: 100vh;
+        padding: calc(var(--cs-header-height) + 60px) clamp(2rem, 6vw, 8rem) 80px;
+    }
+
+    /* Lista con espaciado generoso entre items.
+       Anclada al tercio superior del viewport (no centrada) para coincidir
+       con la composición de @decision-01.jpg. */
+    .cs-decisiones-titulos__list {
+        gap: clamp(80px, 14vh, 160px);
+        margin-top: clamp(80px, 18vh, 220px);
+    }
+
+    /* Estado inicial: cada item desplazado hacia la derecha (escalera).
+       Decisión 1 más cerca de la posición final, Decisión 3 más a la derecha
+       y parcialmente cortada por el borde derecho (teaser intencional).
+       Fase 2 interpola cada translateX a 0 con el scroll del track. */
+    .cs-decisiones-titulos__item:nth-child(1) {
+        transform: translateX(40vw);
+    }
+    .cs-decisiones-titulos__item:nth-child(2) {
+        transform: translateX(52vw);
+    }
+    .cs-decisiones-titulos__item:nth-child(3) {
+        transform: translateX(64vw);
+    }
+
+}

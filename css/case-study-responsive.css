@@ -1,0 +1,313 @@
+/* ============================================
+   CASE STUDY — Desktop (1200px+)
+   ============================================ */
+
+/* ============================================
+   SECCIÓN 1 — APERTURA
+   ============================================ */
+
+.cs-apertura {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--color-primary);
+    opacity: 0;
+}
+
+/* Video de fondo — capa base */
+.cs-apertura__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center -50%;
+    transform: scale(2.5);
+    z-index: 0;
+}
+
+/* Overlay oscuro sobre el video */
+.cs-apertura__overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--color-primary);
+    opacity: 0.35;
+    z-index: 1;
+}
+
+/* Viñeta radial */
+.cs-apertura__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(13, 13, 13, 0.2) 0%,
+        rgba(13, 13, 13, 0.7) 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Sombra de transición — aparece al avanzar el scroll */
+.cs-apertura__shadow {
+    position: absolute;
+    inset: 0;
+    background: #0D0D0D;
+    z-index: 3;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Ticker — headline anclado al fondo */
+.cs-apertura__ticker {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    z-index: 4;
+    padding-left: 160px;
+}
+
+.cs-ticker__track {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: baseline;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cs-ticker__word {
+    display: inline-block;
+    margin-right: 0.25em;
+}
+
+.cs-ticker__separator {
+    margin: 0 0.5em;
+    opacity: 0;
+}
+
+.cs-apertura__spacer {
+    height: 100vh;   /* calibrable: controla cuánto se solapa la métrica sobre la apertura */
+}
+
+/* ============================================
+   SECCIÓN 2 — MÉTRICA
+   ============================================ */
+
+.cs-metrica {
+    position: relative;
+    isolation: isolate;
+    /* Panel del track horizontal — ocupa un viewport completo */
+    flex: 0 0 100vw;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--color-primary);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+}
+
+/* Línea-cometa — Vive en el track para abarcar Métrica + Contexto.
+   Width 200vw mínimo para cubrir ambos paneles mientras se desplazan.
+   z-index: 1 para dibujarse encima de los paneles (background opaco). */
+.cs-metrica__comet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200vw;
+    height: 100vh;
+    overflow: visible;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Columna izquierda — KPI + texto */
+.cs-metrica__left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+    padding-left: calc(clamp(2rem, 6vw, 8rem) + 120px);
+}
+
+.cs-metrica__kpi {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.25em;
+}
+
+/* Flecha — SVG con trazo animable */
+.cs-metrica__arrow {
+    display: inline-block;
+    width: 103px;
+    height: 103px;
+    vertical-align: middle;
+    margin-left: 6px;
+    margin-top: 56px;
+    overflow: visible;
+}
+
+.cs-metrica__arrow-main,
+.cs-metrica__arrow-tip {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+}
+
+.cs-metrica__word-wrapper {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+.cs-metrica__left p {
+    max-width: 600px;
+}
+
+/* ============================================
+   SCROLL HORIZONTAL — Track de paneles
+   ============================================ */
+
+.cs-horizontal-track {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;    /* pinta encima de la apertura pinned (position:fixed, z-index:auto) */
+}
+
+.cs-horizontal-track__inner {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: max-content;
+    will-change: transform;
+}
+
+/* ============================================
+   SECCIÓN 3 — CONTEXTO
+   ============================================ */
+
+/* Panel = suma real de columnas + flecha + gaps + paddings laterales
+   (box-sizing: border-box → el width incluye los paddings) */
+.cs-contexto {
+    flex: 0 0 auto;
+    width: calc(
+        clamp(2rem, 6vw, 8rem)          /* padding izquierdo  */
+        + clamp(560px, 62vw, 896px)     /* columna izquierda  */
+        + clamp(40px, 5vw, 80px)        /* gap col-izq → flecha */
+        + clamp(90px, 7vw, 120px)       /* flecha             */
+        + clamp(40px, 5vw, 80px)        /* gap flecha → col-der */
+        + clamp(500px, 56vw, 800px)     /* columna derecha    */
+        + clamp(2rem, 6vw, 8rem)        /* padding derecho    */
+    );
+    height: 100vh;
+    padding: calc(var(--cs-header-height) + 80px) clamp(2rem, 6vw, 8rem) 80px;
+    background-color: var(--color-primary);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: clamp(40px, 5vw, 80px);
+}
+
+/* Columnas */
+.cs-contexto__col {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Columna izquierda — label, título (alto automático), imagen, tags */
+.cs-contexto__col--left {
+    flex: 0 0 clamp(560px, 62vw, 896px);
+    width: clamp(560px, 62vw, 896px);
+    gap: clamp(1.5rem, 2.5vw, 2.5rem);
+    position: relative;
+    z-index: 2;
+}
+
+/* Columna derecha — anclada al fondo del viewport */
+.cs-contexto__col--right {
+    flex: 0 0 clamp(500px, 56vw, 800px);
+    width: clamp(500px, 56vw, 800px);
+    align-self: stretch;
+    justify-content: flex-end;
+    gap: 80px;
+}
+
+/* Flecha curva — vive en el gap entre columnas */
+.cs-contexto__arrow {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    margin-top: 380px;
+    width: clamp(90px, 7vw, 120px);
+    aspect-ratio: 119 / 133;
+    pointer-events: none;
+}
+
+/* Imagen — banner bajo el título */
+.cs-contexto__media {
+    overflow: hidden;
+    border-radius: 24px;
+    width: 100%;
+    aspect-ratio: 900 / 226;
+}
+
+.cs-contexto__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Máscara del párrafo — recorta el texto a 400px (intencional) */
+.cs-contexto__mask {
+    width: clamp(500px, 56vw, 800px);
+    height: 400px;
+    overflow: hidden;
+}
+
+/* Track del texto — contiene los 4 párrafos y se desplaza con el scroll.
+   Hereda el layout flex/gap que antes vivía en la máscara. */
+.cs-contexto__text-track {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    will-change: transform;
+}
+
+.cs-contexto__mask p {
+    color: var(--color-text-tertiary);
+}
+
+/* Pintado palabra por palabra — cada palabra arranca en el color tenue.
+   El color se interpola por JS atado al scroll (ver caso-asdeporte.js). */
+.cs-contexto__word {
+    color: var(--color-text-tertiary);
+    transition: none;
+}
+
+/* Tags de contexto */
+.cs-contexto__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cs-contexto__tag {
+    background-color: var(--color-bg);
+    padding: 4px 12px;
+    color: var(--color-accent);
+    border-radius: 1rem;
+}
+
+/* Acciones */
+.cs-contexto__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+}

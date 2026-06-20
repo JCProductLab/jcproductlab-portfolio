@@ -1,0 +1,79 @@
+/* ============================================
+   MODAL MI ROL — Responsive (desktop 1024px+)
+   ============================================ */
+
+@media (min-width: 1024px) {
+    /* Modal — 85% ancho, 100% alto, anclado a la derecha */
+    .modal-rol-proceso__content {
+        width: 85vw;
+        max-width: 1600px;
+        padding: 80px 80px 120px;
+        border-radius: 40px 0 0 40px;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Botón cerrar — 50px desde los bordes */
+    .modal-rol-proceso__close {
+        top: 50px;
+        right: 50px;
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+
+    /* Columnas — layout horizontal */
+    .modal-rol-proceso__inner {
+        flex-direction: row;
+        gap: 80px;
+        align-items: stretch;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* Imagen — 55% del ancho */
+    .modal-rol-proceso__image {
+        flex: 0 0 45%;
+        width: 45%;
+        height: 100%;
+    }
+
+    /* Texto — 45% del ancho */
+    .modal-rol-proceso__text {
+        flex: 0 0 55%;
+        width: 55%;
+        padding-right: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* ============================================
+       MODAL EL PROCESO — Responsive desktop
+       ============================================ */
+
+    #modalProceso .modal-rol-proceso__content {
+        padding: 80px 80px 80px;
+    }
+
+    .modal-proceso__grid {
+        padding: 0;
+        gap: 80px;
+    }
+
+    .modal-proceso__steps {
+        justify-content: flex-end;
+        gap: 80px;
+    }
+
+    .modal-proceso__detail {
+        position: relative;
+    }
+
+    .modal-proceso__image {
+        position: absolute;
+        top: 80px;
+        left: 0;
+        flex-shrink: 0;
+    }
+}

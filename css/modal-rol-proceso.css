@@ -1,0 +1,231 @@
+/* ============================================
+   MODAL MI ROL — Estilos base (mobile-first)
+   ============================================ */
+
+/* Estado inicial — oculto */
+.modal-rol-proceso {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    transition: opacity 0.4s ease;
+}
+
+/* Estado activo — visible */
+.modal-rol-proceso.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Overlay oscuro — cubre toda la pantalla */
+.modal-rol-proceso__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Contenedor del modal — panel que se desliza */
+.modal-rol-proceso__content {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--color-bg-modal);
+    padding: 40px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateX(100%);
+}
+
+/* Botón cerrar (X) — esquina superior derecha */
+.modal-rol-proceso__close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-accent);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    z-index: 10;
+}
+
+.modal-rol-proceso__close i {
+    color: var(--color-accent);
+    font-size: inherit;
+}
+
+/* Label verde */
+.modal-rol-proceso__label {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+}
+
+/* Título principal */
+.modal-rol-proceso__title {
+    width: 45%;
+    margin-bottom: 80px;
+}
+
+/* Contenedor interno — columnas */
+.modal-rol-proceso__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Imagen placeholder */
+.modal-rol-proceso__image {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    border-radius: 24px;
+    overflow: hidden;
+    background-color: #1A1A1A;
+}
+
+.modal-rol-proceso__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Texto narrativo */
+.modal-rol-proceso__text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+}
+
+.modal-rol-proceso__text .large-paragraph {
+    line-height: 1.6;
+    color: #C0C0C0;
+}
+
+/* ============================================
+   MODAL EL PROCESO — Carrusel de 3 pasos
+   ============================================ */
+
+/* Grid 50/50 — columnas iguales */
+.modal-proceso__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    flex: 1;
+    min-height: 0;
+    padding: 0 48px;
+}
+
+/* Columna izquierda: pasos apilados */
+.modal-proceso__steps {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 80px;
+}
+
+.modal-proceso__step {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 40px 0;
+    cursor: pointer;
+}
+
+/* Círculo con número */
+.modal-proceso__number {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: var(--color-text-inactive);
+    font-family: var(--font-family);
+    font-size: 18px;
+    font-weight: var(--semibold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.4s ease;
+}
+
+/* Título del paso — transición de color suave */
+.modal-proceso__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 500;
+    color: var(--color-text-inactive);
+    transition: color 0.4s ease;
+    margin: 0;
+}
+
+/* Paso activo — texto iluminado */
+.modal-proceso__step--active .modal-proceso__title,
+.modal-proceso__step--active .modal-proceso__number {
+    color: var(--color-secondary);
+}
+
+/* Columna derecha: imagen + texto */
+.modal-proceso__detail {
+    position: relative;
+}
+
+.modal-proceso__image {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    height: 280px;
+    flex-shrink: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    background-color: #1A1A1A;
+}
+
+.modal-proceso__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Párrafo con fade */
+.modal-proceso__description {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: var(--color-text-secondary);
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    white-space: pre-line;
+}
+
+/* Estado fade-out durante transición */
+.modal-proceso__description--fading {
+    opacity: 0;
+}
