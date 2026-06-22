@@ -818,6 +818,100 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         }
     });
 
+    // ============================================
+    // Sub-paso 7 — Transición de salida Contexto → Decisiones (títulos)
+    // Pino el .cs-pin-spacer--decisiones-titulos (100vh de alto). Mientras
+    // está pineado:
+    //   - trackInner.x interpola desde el finalX congelado del Shift hasta
+    //     decisionesFinalX, que alinea el borde izquierdo de
+    //     .cs-decisiones-titulos con el borde izquierdo del viewport
+    //   - los 3 ítems de la escalera interpolan su translateX (40/52/64vw
+    //     en CSS) hasta 0, leyéndose del getComputedStyle al inicio
+    //     (no hardcode) para que sigan al CSS si cambia
+    // Al final del pin la pantalla queda con los 3 títulos alineados a la
+    // izquierda y el trackInner detenido en decisionesFinalX. Sin onLeave:
+    // mismo patrón que Contexto (línea 798). Sin onLeaveBack: el onUpdate
+    // ya restaura los translateX al hacer scroll reverso porque
+    // localP decrece, y al estar inactivo el ST el CSS initial persiste.
+    // start/end son FUNCIONES ancladas a calculateShiftLayout() (mismo
+    // patrón que Métrica/Shift/Contexto): nunca se usan literales
+    // 'top top' / 'bottom top' que GSAP re-mida distinto tras un reflow.
+    // ============================================
+
+    // Lectura única del pin-spacer nuevo y de los ítems de la escalera.
+    // decisionesPinSpacer se usa en el start() del ST para anclar la
+    // contigüidad con el final del pin de Contexto.
+    const decisionesPinSpacer = document.querySelector('.cs-pin-spacer--decisiones-titulos');
+    const decisionesItems = document.querySelectorAll('.cs-decisiones-titulos__item');
+
+    // Cache del translateX inicial de cada ítem, leído del CSS computado.
+    // getComputedStyle devuelve matrix(...) en píxeles, no en vw; se
+    // parsea el tx de la matriz. Si el CSS cambia, este array se adapta
+    // en la siguiente recarga sin tocar el JS.
+    const initialTranslates = Array.from(decisionesItems).map(item => {
+        const t = getComputedStyle(item).transform;
+        if (t === 'none') return 0;
+        const m = t.match(/matrix\(([^)]+)\)/);
+        if (m) return parseFloat(m[1].split(',')[4]);
+        return 0;
+    });
+
+    // Captura del ST de Contexto para leer su .end real (post pinSpacing).
+    // El ST de Contexto usa end: 'bottom top', que GSAP resuelve como
+    // start + trigger.offsetHeight después de aplicar pinSpacing. La altura
+    // original del spacer (contextoSpacer.offsetHeight = 200vh) NO coincide
+    // con el rango efectivo del ST porque pinSpacing: true extiende el
+    // rango. Por eso，我们必须 leer contextoST.end directamente.
+    const contextoST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.className && st.trigger.className.includes('pin-spacer--contexto')
+    );
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decisiones-titulos',
+        // Contiguo con el fin real del pin de Contexto. Lee contextoST.end
+        // (que ya incluye el pinSpacing) en vez de calcular con
+        // contextoSpacer.offsetHeight (que da la altura CSS original, no
+        // el rango efectivo del ST). No modifica calculateShiftLayout().
+        start: () => contextoST ? contextoST.end : 0,
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            // [FIX] Mismo guard que Métrica/Shift/Contexto: descarta el
+            // obj(0) interno del refresh de ScrollTrigger.
+            if (ScrollTrigger.isRefreshing) return;
+
+            // 1. Punto de partida: posición que el Shift dejó congelada
+            //    al terminar (línea 761). Mismo cálculo exacto.
+            const finalX = -Math.max(window.innerWidth, contextoEl.offsetWidth);
+
+            // 2. Punto de llegada: alinea el borde izquierdo de
+            //    .cs-decisiones-titulos con el borde izquierdo del
+            //    viewport. El panel decisiones está en posición
+            //    [metrica.width + contexto.width, + decisiones.width] en
+            //    el trackInner; con metrica.width = 100vw y
+            //    decisiones.width = 100vw, la x que pone su borde
+            //    izquierdo en 0 es -(viewport + contexto.width).
+            const decisionesFinalX = -(window.innerWidth + contextoEl.offsetWidth);
+
+            // 3. Interpolación lineal con localP. El delta es
+            //    decisionesFinalX - finalX. Cuando contexto > viewport
+            //    (caso típico a 1920px), el delta colapsa a
+            //    -window.innerWidth — la unidad es px, NO vw.
+            gsap.set(trackInner, {
+                x: finalX + self.progress * (decisionesFinalX - finalX)
+            });
+
+            // 4. Interpolación de la escalera desde el translateX inicial
+            //    (en píxeles, cacheado en initialTranslates) hasta 0.
+            decisionesItems.forEach((item, i) => {
+                const offsetPx = (1 - self.progress) * initialTranslates[i];
+                item.style.transform = `translateX(${offsetPx}px)`;
+            });
+        }
+    });
+
     // initScrollPhase() se llama AQUÍ (al final) para que todas las
     // declaraciones (metricaNumber, trackInner, animateMetrica, resetMetrica)
     // estén en scope cuando ScrollTrigger dispare onUpdate durante su init.

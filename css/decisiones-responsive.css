@@ -39,4 +39,8 @@
         transform: translateX(64vw);
     }
 
+    /* Altura del pin-spacer de la transición Contexto → Decisiones.
+       100vh = un viewport de scroll para la interpolación de la escalera. */
+    .cs-pin-spacer--decisiones-titulos { height: 100vh; }
+
 }
