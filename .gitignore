@@ -50,3 +50,8 @@ yarn-error.log*
 
 # Servidor local (Python http.server y similares)
 .server.pid
+.DS_Store
+
+.tmp-screenshots/
+d1-*.png
+*.png

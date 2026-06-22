@@ -4,6 +4,13 @@
 // MAIN ENTRY POINT
 // ============================================
 
+// Fijar scrollRestoration a 'manual' para evitar que el navegador
+// resetee el scroll a 0 al terminar la carga (interactúa con
+// scroll-behavior: smooth y dispara onUpdates espurios en los STs).
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
 import { initTheme } from './modules/theme.js';
 import { initNavigation } from './modules/navigation.js';
 import { initMagnetic } from './modules/magnetic.js';
@@ -33,9 +40,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initModalProceso();
 });
 
-// Custom cursor needs to run after full page load
-window.addEventListener('load', () => {
+// Custom cursor: el canvas #fluid y el div #customCursor ya existen en el DOM
+// al dispararse DOMContentLoaded, y el WebGL solo depende del viewport (no de
+// assets). Lo movemos aquí para que el cursor siga al mouse desde el primer
+// frame, sin esperar a `load` (que puede tardar decenas de segundos por
+// videos, fonts e imágenes). Si el script corre con readyState !== 'loading'
+// (caso típico en módulos defer), lo ejecuta directo; si no, lo engancha
+// a DOMContentLoaded sin duplicar la llamada.
+if (document.readyState !== 'loading') {
     initCustomCursor();
+} else {
+    document.addEventListener('DOMContentLoaded', initCustomCursor);
+}
+
+// El resto se queda en `load` (depende de assets/mediciones tardías)
+window.addEventListener('load', () => {
     initCaseCursor();
     initCaseCardsScroll();
     initInteractions();

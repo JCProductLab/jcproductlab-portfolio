@@ -153,6 +153,8 @@ export function initCtaSectionReveal() {
 // ============================================
 
 export function initStickyReveal() {
+    if (!document.querySelector('.about-section, .cta-section')) return;
+
     // El sticky reveal lo maneja CSS (position:sticky).
     // Esta función existe para poder importarla y llamarla
     // desde main.js sin refactors, en caso de que en el

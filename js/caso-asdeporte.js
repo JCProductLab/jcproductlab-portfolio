@@ -608,15 +608,85 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // ============================================
     const trackInner = document.querySelector('.cs-horizontal-track__inner');
 
+    // ============================================
+    // Sub-paso 5 — Cálculo de layout del Shift
+    // Aplica la altura calculada del Shift ANTES de que se cree el
+    // ScrollTrigger del Shift, para que GSAP lea la altura correcta al
+    // crear el wrapper. La altura se recalcula en refreshInit (para
+    // resize) y se protege con !important para sobrevivir resets de
+    // estilos inline de GSAP en refreshes.
+    // ============================================
+    const contextoEl = document.querySelector('.cs-contexto');
+    const shiftSpacer = document.querySelector('.cs-pin-spacer--shift-mc');
+    const contextoSpacer = document.querySelector('.cs-pin-spacer--contexto');
+    const aperturaEl = document.querySelector('.cs-apertura');
+    const metricaSpacer = document.querySelector('.cs-pin-spacer--metrica');
+
+    function calculateShiftLayout() {
+        const contextoWidth = contextoEl.offsetWidth;
+        const overflow = Math.max(0, contextoWidth - window.innerWidth);
+        // pinHeight: velocidad 0.667 px-desplazamiento/px-scroll.
+        const pinHeightPx = Math.round((overflow + window.innerWidth) / 0.667);
+        // Aplicar la altura con !important para sobrevivir resets de GSAP.
+        // max-height también porque GSAP lo pone en el inline style.
+        shiftSpacer.style.setProperty('height', pinHeightPx + 'px', 'important');
+        shiftSpacer.style.setProperty('max-height', pinHeightPx + 'px', 'important');
+        // Starts contiguos: leídos del DOM en este momento, no números.
+        const aperturaEnd = aperturaEl.offsetHeight;
+        const metricaHeight = metricaSpacer.offsetHeight;
+        // metricaStart = fin de apertura → ancla el ST de Métrica a la misma
+        // fuente que el Shift, evitando que GSAP lo re-mida con un literal
+        // 'top top' y rompa la contigüidad tras un refresh.
+        const metricaStart = aperturaEnd;
+        const shiftStart = aperturaEnd + metricaHeight;
+        const shiftEnd = shiftStart + pinHeightPx;
+        const contextoStart = shiftEnd;
+        return {
+            pinHeightPx, contextoWidth, overflow,
+            metricaStart,
+            shiftStart, shiftEnd, contextoStart
+        };
+    }
+
+    // Aplicar ANTES de crear el ST del Shift, para que GSAP lea la altura correcta.
+    calculateShiftLayout();
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--metrica',
-        start: 'top top',
-        end: 'bottom top',
+        // start/end como funciones que leen de calculateShiftLayout() — la
+        // MISMA fuente que el ST del Shift. Anclaje determinista: metrica.end
+        // lee el mismo campo que shift.start, así son idénticos por
+        // construcción (no por coincidencia de timing). Sobrevive a
+        // cualquier refresh sin abrir el gap.
+        start: () => calculateShiftLayout().metricaStart,
+        end: () => calculateShiftLayout().shiftStart,
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
+            // [FIX] ScrollTrigger.refresh() hace obj(0) internamente para
+            // re-medir pines. Eso dispara este onUpdate con scrollY:0 y
+            // progress=1.0 espurio, haciendo que la cometa salte a su estado
+            // final durante el refresh. isRefreshing=true durante el refresh
+            // y =2 en el _updateAll(2) final (ambos truthy → capturados).
+            if (ScrollTrigger.isRefreshing) return;
             const localP = self.progress;
+            // [Salvaguarda] Filtra frames espurios donde scrollY está fuera
+            // del rango del ST (p.ej. scrollRestoration pone scrollY=0
+            // mientras el usuario está en Métrica con scrollY=1024). Sin esto,
+            // la cometa salta al estado calculado con scrollY falso.
+            if (window.scrollY < self.start) return;
+            // [FIX carrera] La cometa no dibuja hasta que el contador haya
+            // arrancado (metricaAnimated). Esta bandera se setea en un solo
+            // lugar: el onUpdate del ST de Apertura cuando crossProgress >= 1.
+            // Antes la cometa dependía de localP (vía B), que se desincronizaba
+            // del contador (vía A) cuando un ScrollTrigger.refresh() re-evaluaba
+            // los STs en momentos distintos al cargar assets. Ahora cometa y
+            // contador comparten la misma variable determinista.
+            if (!metricaAnimated) {
+                cometPath.style.strokeDasharray = `0 ${cometLength}`;
+                return;
+            }
             // Trackinner quieto: la Métrica no se desplaza horizontalmente
             gsap.set(trackInner, { x: 0 });
             // Cometa: primera mitad (0 → 0.40). La segunda mitad (0.40 → 1.0)
@@ -658,16 +728,29 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--shift-mc',
-        start: 'top top',
-        end: 'bottom top',
+        // Starts contiguos: el Shift arranca exactamente donde termina
+        // el pin de Métrica. Lectura del DOM vía calculateShiftLayout().
+        start: () => calculateShiftLayout().shiftStart,
+        end: () => calculateShiftLayout().shiftEnd,
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
+            // [FIX] Mismo problema que Métrica: obj(0) interno del refresh
+            // haría saltar la cometa (2ª mitad) y el trackInner.x. El guard
+            // descarta el frame espurio; el _updateAll(2) final del refresh
+            // dispara el onUpdate real con scrollY restaurado.
+            if (ScrollTrigger.isRefreshing) return;
             const localP = self.progress;
 
             // 1. Desplazamiento horizontal del track
-            gsap.set(trackInner, { x: -localP * window.innerWidth });
+            //    Fórmula dinámica: parte de 0 (Métrica en foco, como la
+            //    deja su pin) y llega a -max(viewport, contexto.offsetWidth)
+            //    para alinear el borde derecho del panel Contexto con el
+            //    borde derecho del viewport. Si el Contexto ya cabe, el
+            //    target es -window.innerWidth (no se desplaza de más).
+            const finalX = -Math.max(window.innerWidth, contextoEl.offsetWidth);
+            gsap.set(trackInner, { x: localP * finalX });
 
             // 2. Cometa: segunda mitad (0.40 → 1.0)
             updateCometTrail(0.40 + localP * 0.60);
@@ -695,12 +778,56 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         }
     });
 
-    // NOTA: en sub-pasos siguientes se añadirá el pin de Contexto
-    // sobre .cs-pin-spacer--contexto, que controlará el pintado palabra
-    // por palabra y el scroll del texto dentro de la máscara.
+    // ============================================
+    // Sub-paso 6 — Pin de Contexto (pintado + text-scroll)
+    // Pino el .cs-pin-spacer--contexto (200vh de alto). pinType NO
+    // se especifica — default 'transform' de GSAP, igual que los
+    // pins de Métrica y Shift. scrub: 1 para coherencia con
+    // Apertura, Métrica y Shift (todos usan el mismo lag).
+    // Mientras está pineado:
+    //   - el párrafo se pinta de gris oscuro a gris claro palabra
+    //     por palabra (ola continua con frente)
+    //   - textTrack.y desplaza el texto hacia arriba; la última
+    //     línea queda visible al final del rango (progress = 1)
+    //   - el primer 35% del rango (SCROLL_THRESHOLD) reserva el
+    //     texto quieto; el 65% final ejecuta el scroll
+    // renderContexto() ya existía del modelo anterior; este ST
+    // solo lo conecta al pin. La salida hacia Decisiones se
+    // implementa en un prompt posterior.
+    // ============================================
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--contexto',
+        // Contiguo con el fin del Shift (calculado del DOM).
+        // El end se queda en 'bottom top' (equivale a start + altura del trigger).
+        start: () => calculateShiftLayout().contextoStart,
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            // [FIX] Mismo problema que Métrica/Shift: obj(0) interno del
+            // refresh haría saltar la opacity de la cometa y el pintado
+            // del texto. El guard descarta el frame espurio.
+            if (ScrollTrigger.isRefreshing) return;
+            // Cometa muere al entrar a Contexto: se desvanece en los
+            // primeros 5% del pin. Reversa: al volver, reaparece.
+            const FADE_DURATION = 0.05; // ajustable
+            const cometOpacity = Math.max(0, 1 - self.progress / FADE_DURATION);
+            gsap.set('.cs-metrica__comet', { opacity: cometOpacity });
+            renderContexto(self.progress);
+        }
+    });
 
     // initScrollPhase() se llama AQUÍ (al final) para que todas las
     // declaraciones (metricaNumber, trackInner, animateMetrica, resetMetrica)
     // estén en scope cuando ScrollTrigger dispare onUpdate durante su init.
     initScrollPhase();
+
+    // ============================================
+    // Sub-paso 5 — Recalcular altura del Shift en refresh y resize
+    // El refreshInit reaplica la altura (sobrevive a GSAP). El resize
+    // dispara refresh para re-evaluar todos los STs.
+    // ============================================
+    ScrollTrigger.addEventListener('refreshInit', calculateShiftLayout);
+    window.addEventListener('resize', () => ScrollTrigger.refresh());
 }
