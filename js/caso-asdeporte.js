@@ -963,6 +963,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         st.trigger && st.trigger.className &&
         st.trigger.className.includes('pin-spacer--decisiones-titulos')
     );
+    // Curva ease-out para el reveal del verde: entra RÁPIDO y termina LENTO.
+    // Se aplica SOLO al clip-path — el track se queda lineal.
+    const clipEase = gsap.parseEase('power2.out');
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1',
@@ -973,18 +976,19 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
-            // 1. Track inner: movimiento sutil (30vw total) para dinamizar
-            //    los títulos detrás del verde. Como el verde es opaco y cubre
-            //    el panel de títulos + page bg, no se expone fondo en ningún progress.
+            // 1. Track inner: LINEAL con self.progress. Movimiento sutil (30vw
+            //    total) para dinamizar los títulos detrás del verde. Como el
+            //    verde es opaco y cubre el panel de títulos + page bg, no se
+            //    expone fondo en ningún progress.
             gsap.set(trackInner, {
                 x: decisionesFinalX - self.progress * window.innerWidth * 0.3
             });
             // 2. Clip-path del panel verde (capa fija, sibling del track):
-            //    100% → 0%. El panel es independiente del track, así que el
-            //    verde se ENCIME sobre los títulos revelándose de derecha
-            //    a izquierda, sin viajar con ellos.
+            //    100% → 0% con curva ease-out. El verde entra RÁPIDO al inicio
+            //    y termina LENTO. El track no se acopla — sigue lineal arriba.
+            const clipProgress = clipEase(self.progress);
             gsap.set(decision1Panel, {
-                clipPath: `inset(0 0 0 ${(1 - self.progress) * 100}%)`
+                clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
             });
         }
     });
