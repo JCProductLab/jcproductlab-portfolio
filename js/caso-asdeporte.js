@@ -1018,4 +1018,105 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set(decision1Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
         }
     });
+
+    // ============================================
+    // Gate 4 — Expansión de la imagen, cierre pantalla verde
+    // Pino .cs-pin-spacer--decision-1-expansion. Contiguo al final del
+    // pin de la cortina (Gate 2). La imagen crece a viewport completo
+    // y el texto sale a la izquierda. Dos fases sobre self.progress:
+    //   - Fase 1 (0 → 0.5): imagen crece SOLO a la izquierda (right
+    //     anclado a 80px). Texto sale 100vw a la izquierda + fade.
+    //   - Fase 2 (0.5 → 1.0): imagen se expande a los 4 extremos
+    //     (inset: 0). border-radius → 0.
+    // Header siempre visible (z:100 > panel z:3 > media z:1).
+    // La imagen se expande con propiedades de LAYOUT (no transform),
+    // dejando intacto el transform: translateX(0) que dejó Gate 3
+    // (ver comentario de coordinación arriba).
+    // ============================================
+
+    // Captura del ST de la cortina para anclar el start al final real
+    // (post pinSpacing). Mismo patrón que la cortina usó con 7a.
+    const cortinaST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.className &&
+        st.trigger.className.includes('pin-spacer--decision-1') &&
+        !st.trigger.className.includes('expansion')
+    );
+
+    // headerH: lee el token --cs-header-height del :root (css/variables.css:92).
+    // Fuente determinista del codebase, no literal hardcodeado.
+    const headerH = parseFloat(
+        getComputedStyle(document.documentElement)
+            .getPropertyValue('--cs-header-height')
+    );
+    const margin = 80;
+    // Flag del setup auto→numérico. Persiste en el closure del ST.
+    // Es seguro: los inline styles que setea persisten tras salir del
+    // rango, y el onUpdate resetea las propiedades animadas cada frame
+    // en re-entrada. No necesita reset.
+    let gate4Initialized = false;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-1-expansion',
+        start: () => cortinaST ? cortinaST.end : 0,
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+
+            // Setup idempotente: convierte left/bottom de auto a numérico
+            // y width/height a auto para que las edges definan el tamaño.
+            // Solo corre la primera vez (después los Fase sets manejan
+            // todo cada frame).
+            if (!gate4Initialized) {
+                gsap.set(decision1Media, {
+                    left: window.innerWidth / 2,
+                    bottom: margin,
+                    width: 'auto',
+                    height: 'auto'
+                });
+                gate4Initialized = true;
+            }
+
+            const p = self.progress;
+            const vw = window.innerWidth;
+
+            if (p <= 0.5) {
+                // FASE 1: imagen crece SOLO a la izquierda.
+                // Texto (label + título) acoplado al borde izquierdo de la imagen:
+                // se mueve al mismo ritmo que la imagen hacia la IZQUIERDA,
+                // manteniendo 40px de separación constante (gap real del layout).
+                // En f1=0 → textX=0 (reposo, sin salto).
+                // En f1=1 → textX=80-vw/2 (negativo, texto sale por la izquierda).
+                const f1 = p / 0.5;
+                const f1e = clipEase(f1);
+
+                const newLeft = vw / 2 + (margin - vw / 2) * f1e;
+                const textX = newLeft - vw / 2;  // = (margin - vw/2) * f1e
+
+                gsap.set(decision1Media, {
+                    left: newLeft,
+                    right: margin,
+                    top: headerH + margin,
+                    bottom: margin,
+                    borderRadius: 24
+                });
+                gsap.set(decision1Label, { x: textX, opacity: 1 - f1e });
+                gsap.set(decision1Title, { x: textX, opacity: 1 - f1e });
+            } else {
+                // FASE 2: imagen se expande a los 4 extremos. border-radius → 0.
+                const f2 = (p - 0.5) / 0.5;
+                const f2e = clipEase(f2);
+
+                gsap.set(decision1Media, {
+                    top: (headerH + margin) * (1 - f2e),
+                    right: margin * (1 - f2e),
+                    left: margin * (1 - f2e),
+                    bottom: margin * (1 - f2e),
+                    borderRadius: 24 * (1 - f2e)
+                });
+            }
+        }
+    });
 }
