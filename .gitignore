@@ -60,3 +60,6 @@ d1-*.png
 *.png
 .DS_Store
 .DS_Store
+
+*.jpeg
+.*.jpeg

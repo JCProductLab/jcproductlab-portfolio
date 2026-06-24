@@ -1119,4 +1119,42 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // Gate 2a v4 (raíz) — Cortina vertical + permanencia de "El Problema"
+    // Solución de raíz: .cs-problema es capa fija (position:fixed; inset:0)
+    // por CSS. El pin-spacer provee la altura de scroll. El ST pinea el
+    // spacer (patrón canónico de los 6 pines aprobados). El onUpdate
+    // anima SOLO transform: y de los dos planos — sin top, sin zIndex,
+    // sin onLeave. El salto se elimina de raíz porque la sección ya no
+    // tiene flow position a la que caer.
+    //
+    // Rango: 3vh = 1vh cortina (ease power2.out) + 2vh permanencia.
+    // ============================================
+
+    const expansionST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.className &&
+        st.trigger.className.includes('pin-spacer--decision-1-expansion')
+    );
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-1-problema',
+        start: () => expansionST ? expansionST.end : 0,
+        end: () => '+=' + (window.innerHeight * 3),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const scrolled = self.progress * (vh * 3);
+
+            // CORTINA: primer 1/3 del rango (0 → vh). Resto = permanencia (saturado en 1).
+            const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
+            const eased = gsap.parseEase('power2.out')(curtainP);
+
+            gsap.set('.cs-decision', { y: -eased * vh });   // 0 → -vh
+            gsap.set('.cs-problema', { y: vh - eased * vh }); // vh → 0
+        }
+    });
 }

@@ -134,4 +134,79 @@
         object-fit: cover;
     }
 
+    /* Altura del pin-spacer de "El Problema" (Decisión 1 interna).
+       Provee la altura de scroll para el ST de la cortina + permanencia. */
+    .cs-pin-spacer--decision-1-problema { height: 100vh; }
+
+    /* ============================================
+       PROBLEMA — Sección interna de Decisión 1
+       Grid 2×2 de cards con título centrado.
+       Capa fija sobre el viewport (patrón canónico del stage):
+       position:fixed + inset:0 la mantiene en viewport sin depender
+       de su posición de flujo. z-index: 4 la pone sobre el stage (z:1)
+       y sobre el panel verde (z:3). El ST solo anima su transform: y.
+       ============================================ */
+
+    .cs-problema {
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--color-primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Estado de reposo: fuera del viewport por abajo.
+           Coincide EXACTAMENTE con el y que el onUpdate aplica a progress=0
+           (y = vh - eased*vh = vh con eased=0). Sin salto cuando el ST
+           toma el control. El onUpdate sobreescribe este valor durante
+           el rango activo del pin; fuera del rango, este transform
+           mantiene la sección escondida. */
+        transform: translateY(100vh);
+    }
+
+    .cs-problema__content {
+        width: 80%;
+        margin-inline: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cs-problema__title {
+        margin-bottom: 160px;
+        text-align: center;
+    }
+
+    .cs-problema__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 80px;
+        row-gap: 80px;
+        width: 100%;
+    }
+
+    .cs-problema__card {
+        background-color: var(--color-bg);
+        border-radius: 24px;
+        padding: 48px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 48px;
+    }
+
+    .cs-problema__bullet {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: var(--color-accent);
+        flex-shrink: 0;
+        margin-top: 0.15em; /* alinea con la primera línea del texto */
+    }
+
+    /* .cs-problema__text hereda tipografía de .cs-body-xl — no se redefine */
+
 }
