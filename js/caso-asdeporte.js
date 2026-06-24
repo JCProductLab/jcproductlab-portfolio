@@ -959,6 +959,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // ============================================
 
     const decision1Panel = document.querySelector('.cs-decision');
+    const decision1Label = document.querySelector('.cs-decision__label');
+    const decision1Title = document.querySelector('.cs-decision__title');
+    const decision1Media = document.querySelector('.cs-decision__media');
     const decisionesTitulosST = ScrollTrigger.getAll().find(st =>
         st.trigger && st.trigger.className &&
         st.trigger.className.includes('pin-spacer--decisiones-titulos')
@@ -966,6 +969,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // Curva ease-out para el reveal del verde: entra RÁPIDO y termina LENTO.
     // Se aplica SOLO al clip-path — el track se queda lineal.
     const clipEase = gsap.parseEase('power2.out');
+    // Normaliza self.progress al tramo [start, end] de un elemento.
+    // Clamp a [0, 1] para que fuera del rango devuelva 0 o 1.
+    const subProgress = (p, start, end) =>
+        Math.max(0, Math.min(1, (p - start) / (end - start)));
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1',
@@ -990,6 +997,25 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set(decision1Panel, {
                 clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
             });
+            // 3. Gate 3 — Cascada de contenido (label → título → imagen).
+            //    Cada elemento entra en su sub-rango con ease-out (clipEase).
+            //    translateX va de 400px → 0; opacity de 0 → 1.
+            //    Estado final (progress=1): opacity 1, translateX 0 = maqueta.
+            //
+            //    ⚠️ COORDINACIÓN CON GATE 4 (expansión de la imagen):
+            //    El gsap.set de .cs-decision__media deja un transform inline
+            //    (x: 0 al final). Gate 4 animará el width/height de la imagen
+            //    para expandirla a viewport completo y PROBABLEMENTE también
+            //    usará transform. Debe COORDINAR con este transform (no
+            //    pisarlo ciegamente), si no la entrada se rompe al construir
+            //    la expansión. Opciones: usar clearProps antes de Gate 4,
+            //    o componer transforms (x + scale en el mismo set).
+            const labelP = clipEase(subProgress(self.progress, 0.50, 0.80));
+            const titleP = clipEase(subProgress(self.progress, 0.58, 0.90));
+            const mediaP = clipEase(subProgress(self.progress, 0.66, 1.00));
+            gsap.set(decision1Label, { opacity: labelP, x: 400 * (1 - labelP) });
+            gsap.set(decision1Title, { opacity: titleP, x: 400 * (1 - titleP) });
+            gsap.set(decision1Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
         }
     });
 }

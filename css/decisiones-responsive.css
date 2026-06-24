@@ -93,6 +93,21 @@
 
     /* Título — reusa .cs-decision-title (token existente: clamp 3-6rem, weight 500). */
 
+    /* ============================================
+       GATE 3 — Estado inicial del contenido
+       Los tres elementos arrancan desplazados 400px a la derecha y
+       transparentes. El ST de la cortina los interpola a su posición
+       final en cascada dentro de la segunda mitad del pin (label 0.50→0.80,
+       título 0.58→0.90, imagen 0.66→1.00).
+       Estado final (ya validado en la maqueta): opacity 1, translateX 0.
+       ============================================ */
+    .cs-decision__label,
+    .cs-decision__title,
+    .cs-decision__media {
+        opacity: 0;
+        transform: translateX(400px);
+    }
+
     /* Media — bloque independiente en mitad derecha.
        Tamaño actual = estado inicial; el contenedor puede crecer a width/height 100%
        del viewport en una fase futura sin reestructurar el DOM.
