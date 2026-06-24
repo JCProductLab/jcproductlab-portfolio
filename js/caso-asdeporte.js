@@ -641,15 +641,27 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         const shiftStart = aperturaEnd + metricaHeight;
         const shiftEnd = shiftStart + pinHeightPx;
         const contextoStart = shiftEnd;
+        // Posición final del track inner cuando 7a termina (track.x en progress=1).
+        // Misma fórmula que 7a usa internamente en su onUpdate, pero expuesta
+        // aquí para que el ST de la cortina (sub-paso 7b) la lea del módulo
+        // sin recalcular offsetWidth por frame.
+        const decisionesFinalX = -(window.innerWidth + contextoEl.offsetWidth);
         return {
             pinHeightPx, contextoWidth, overflow,
             metricaStart,
-            shiftStart, shiftEnd, contextoStart
+            shiftStart, shiftEnd, contextoStart,
+            decisionesFinalX
         };
     }
 
     // Aplicar ANTES de crear el ST del Shift, para que GSAP lea la altura correcta.
     calculateShiftLayout();
+
+    // Variable de módulo: pre-calculada en refreshInit (sub-paso 5, línea ~925).
+    // El ST de la cortina (sub-paso 7b) lee este valor en cada onUpdate SIN
+    // recalcular window.innerWidth ni contextoEl.offsetWidth — eso evita
+    // los saltos post-refresh que causaba recalcular por frame.
+    let decisionesFinalX = calculateShiftLayout().decisionesFinalX;
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--metrica',
@@ -922,6 +934,58 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // El refreshInit reaplica la altura (sobrevive a GSAP). El resize
     // dispara refresh para re-evaluar todos los STs.
     // ============================================
-    ScrollTrigger.addEventListener('refreshInit', calculateShiftLayout);
+    ScrollTrigger.addEventListener('refreshInit', () => {
+        const layout = calculateShiftLayout();
+        // Mantener sincronizada la variable de módulo que consume el ST
+        // de la cortina (sub-paso 7b).
+        decisionesFinalX = layout.decisionesFinalX;
+    });
     window.addEventListener('resize', () => ScrollTrigger.refresh());
+
+    // ============================================
+    // Sub-paso 7b — Cortina de Decisión 1
+    // Pino .cs-pin-spacer--decision-1. Mientras está pineado:
+    //   - trackInner.x interpola desde decisionesFinalX (donde 7a lo dejó)
+    //     hasta decisionesFinalX - window.innerWidth: trae .cs-decision
+    //     (4º panel del track) al viewport, desplazando
+    //     .cs-decisiones-titulos fuera por la izquierda.
+    //   - .cs-decision__bg interpola clip-path inset(0 0 0 100% → 0):
+    //     el verde se revela de derecha a izquierda.
+    // decisionesFinalX viene del módulo (pre-calculado en refreshInit).
+    // NO se recalcula window.innerWidth ni contextoEl.offsetWidth por frame.
+    // start/end anclados a la cadena vía decisionesTitulosST.end.
+    // Sin onLeave: el onUpdate aplica el estado final que persiste via
+    // inline styles (mismo patrón que 7a).
+    // ============================================
+
+    const decision1Panel = document.querySelector('.cs-decision');
+    const decisionesTitulosST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.className &&
+        st.trigger.className.includes('pin-spacer--decisiones-titulos')
+    );
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-1',
+        start: () => decisionesTitulosST ? decisionesTitulosST.end : 0,
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            // 1. Track inner: movimiento sutil (30vw total) para dinamizar
+            //    los títulos detrás del verde. Como el verde es opaco y cubre
+            //    el panel de títulos + page bg, no se expone fondo en ningún progress.
+            gsap.set(trackInner, {
+                x: decisionesFinalX - self.progress * window.innerWidth * 0.3
+            });
+            // 2. Clip-path del panel verde (capa fija, sibling del track):
+            //    100% → 0%. El panel es independiente del track, así que el
+            //    verde se ENCIME sobre los títulos revelándose de derecha
+            //    a izquierda, sin viajar con ellos.
+            gsap.set(decision1Panel, {
+                clipPath: `inset(0 0 0 ${(1 - self.progress) * 100}%)`
+            });
+        }
+    });
 }

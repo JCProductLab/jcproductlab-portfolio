@@ -28,6 +28,12 @@
 
    --color-bg-modal: #3d3d3d;
 
+   --color-decision-bg: #006635;
+   /* Decision panel background — full-screen green panel for each decision intro */
+
+   --color-decision-label: #85FFC4;
+   /* Decision panel label — light mint green on the decision green background */
+
    --color-text-secondary: #c0c0c0;
    /* Secondary text — metadata, descriptions, hints */
 

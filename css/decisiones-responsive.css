@@ -42,4 +42,77 @@
        100vh = un viewport de scroll para la interpolación de la escalera. */
     .cs-pin-spacer--decisiones-titulos { height: 100vh; }
 
+    /* Altura del pin-spacer de la cortina Decisión 1.
+       100vh = un viewport de scroll para la interpolación de la cortina. */
+    .cs-pin-spacer--decision-1 { height: 100vh; }
+
+    /* ============================================
+       DECISIÓN — Panel verde de entrada (1, 2 o 3)
+       Capa fija sobre el viewport (sibling del .cs-horizontal-track dentro
+       del .cs-horizontal-stage). Independiente del track: el verde se ENCIMA
+       sobre los títulos del índice sin viajar con ellos.
+       Estado final estático (sin animación).
+       Desktop only — media se expandirá a viewport completo en prompts futuros
+       mediante cambios de position/size sin reestructurar el DOM.
+       ============================================ */
+
+    .cs-decision {
+        position: absolute;            /* relativo al stage (que es fixed) */
+        inset: 0;
+        z-index: 3;                     /* sobre track (z:2), bajo header (z:100) */
+        overflow: hidden;
+        color: var(--color-secondary);
+        clip-path: inset(0 0 0 100%);   /* estado inicial: panel invisible */
+    }
+
+    /* Fondo verde dedicado — hijo aparte del root, sin clip-path propio.
+       El clip-path del panel (arriba) recorta al __bg junto con el contenido. */
+    .cs-decision__bg {
+        position: absolute;
+        inset: 0;
+        background-color: var(--color-decision-bg);
+        z-index: 0;
+    }
+
+    /* Bloque de contenido (label + título) — anclado abajo-izquierda, 50% izquierdo. */
+    .cs-decision__content {
+        position: absolute;
+        left: 80px;
+        bottom: 80px;
+        width: calc(50% - 80px - 40px);
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Label — reusa .cs-label para tipografía, solo se sobreescribe el color. */
+    .cs-decision__label {
+        color: var(--color-decision-label);
+    }
+
+    /* Título — reusa .cs-decision-title (token existente: clamp 3-6rem, weight 500). */
+
+    /* Media — bloque independiente en mitad derecha.
+       Tamaño actual = estado inicial; el contenedor puede crecer a width/height 100%
+       del viewport en una fase futura sin reestructurar el DOM.
+       top = header + 80px de respiro entre el header y la imagen. */
+    .cs-decision__media {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 80px);
+        right: 80px;
+        width: calc(50% - 80px);
+        height: calc(100% - var(--cs-header-height) - 160px);
+        z-index: 1;
+        overflow: hidden;
+        border-radius: 24px;
+    }
+
+    .cs-decision__media-img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
 }

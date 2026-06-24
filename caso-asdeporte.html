@@ -311,6 +311,7 @@
         <div class="cs-pin-spacer cs-pin-spacer--shift-mc" data-phase="shift-mc"></div>
         <div class="cs-pin-spacer cs-pin-spacer--contexto" data-phase="contexto"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decisiones-titulos" data-phase="decisiones-titulos"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--decision-1" data-phase="decision-1"></div>
 
         <!-- ============================================ -->
         <!-- TRACK HORIZONTAL — Panel 1: Métrica · Panel 2: Contexto -->
@@ -506,13 +507,38 @@
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 3</h3>
                     </div>
                     <p class="cs-body-xxl cs-decisiones-titulos__subtitle">La transparencia es la herramienta de conversión más subutilizada.</p>
-                    <hr class="divider--horizontal">
                 </li>
 
             </ol>
 
         </section>
+
           </div>
+        </div>
+
+        <!-- Panel 4 — DECISIÓN 1 (capa fija sobre viewport, sibling del track).
+             Estado final estático: layout 50/50 con label+título abajo-izquierda
+             y media a la derecha. El bloque media se expandirá a viewport
+             completo en prompts futuros (mismo DOM, sin reestructurar).
+             Posición: absolute, inset 0, z-index 3 — independiente del track
+             para que el verde se ENCIME sobre los títulos (persiana). -->
+        <section class="cs-decision" aria-label="Decisión 1 del caso">
+
+            <div class="cs-decision__bg" aria-hidden="true"></div>
+
+            <div class="cs-decision__content">
+                <span class="cs-label cs-decision__label">[ Decisión 1 ]</span>
+                <h3 class="cs-decision-title cs-decision__title">No se construye lealtad sobre una experiencia rota.</h3>
+            </div>
+
+            <div class="cs-decision__media">
+                <img class="cs-decision__media-img"
+                     src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80"
+                     alt="" aria-hidden="true">
+            </div>
+
+        </section>
+
         </div>
 
     </main>
