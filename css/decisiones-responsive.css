@@ -175,7 +175,7 @@
     }
 
     .cs-problema__title {
-        margin-bottom: 160px;
+        margin-bottom: 80px;
         text-align: center;
     }
 
@@ -194,13 +194,13 @@
         display: flex;
         flex-direction: row;
         align-items: flex-start;
-        gap: 48px;
+        gap: 24px;
     }
 
     .cs-problema__bullet {
         display: inline-block;
-        width: 16px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         background-color: var(--color-accent);
         flex-shrink: 0;
