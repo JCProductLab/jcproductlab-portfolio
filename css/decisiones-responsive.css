@@ -14,7 +14,7 @@
         flex: 0 0 100vw;
         width: 100vw;
         height: 100vh;
-        padding: calc(var(--cs-header-height) + 60px) clamp(2rem, 6vw, 8rem) 80px;
+        padding: calc(var(--cs-header-height) + 80px) clamp(2rem, 6vw, 8rem) 80px;
     }
 
     /* Lista con espaciado de 56px entre items (definido en decisiones.css).
@@ -245,7 +245,7 @@
     /* ============================================
        LA DECISIÓN — Maqueta estática (Gate C)
        Capas separadas para animar en Gate D sin pelearse:
-       - title: absolute top/left 80px, fuera del stage
+       - title: absolute top 80px debajo del header, fuera del stage
        - stage: flex-center del viewport, agrupa ring + media
        - media: contenedor con overflow:hidden + border-radius (clave Gate D)
        - img: width/height 100% + object-fit:cover (en Gate D escalará)
@@ -253,14 +253,17 @@
        ============================================ */
     .cs-decision-mc__title {
         position: absolute;
-        top: 80px;
+        top: calc(var(--cs-header-height) + 80px);
         left: 80px;
         margin: 0;
     }
 
     .cs-decision-mc__stage {
         position: absolute;
-        inset: 0;
+        top: var(--cs-header-height);
+        right: 0;
+        bottom: 0;
+        left: 0;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -268,18 +271,18 @@
 
     .cs-decision-mc__ring {
         position: absolute;
-        width: 580px;
-        height: 380px;
+        width: 754px;
+        height: 480px;
         border: 1px dashed var(--color-accent);
-        border-radius: 50%;
+        border-radius: 232px;
         background: transparent;
         transform: rotate(-32deg);
     }
 
     .cs-decision-mc__media {
         position: relative;
-        width: 280px;
-        height: 370px;
+        width: 400px;
+        height: 560px;
         overflow: hidden;
         border-radius: 20px;
     }
