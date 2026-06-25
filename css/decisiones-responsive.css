@@ -138,6 +138,10 @@
        Provee la altura de scroll para el ST de la cortina + permanencia. */
     .cs-pin-spacer--decision-1-problema { height: 100vh; }
 
+    /* Altura del pin-spacer de "La Decisión" (Decisión 1 interna, fase 2).
+       Provee la altura de scroll para el ST de la cortina + futuras animaciones internas. */
+    .cs-pin-spacer--decision-1-ladecision { height: 100vh; }
+
     /* ============================================
        PROBLEMA — Sección interna de Decisión 1
        Grid 2×2 de cards con título centrado.
@@ -150,7 +154,7 @@
     .cs-problema {
         position: fixed;
         inset: 0;
-        z-index: 4;
+        z-index: 6;
         width: 100%;
         height: 100vh;
         background-color: var(--color-primary);
@@ -218,5 +222,73 @@
     }
 
     /* .cs-problema__text hereda tipografía de .cs-body-xl — no se redefine */
+
+    /* ============================================
+       LA DECISIÓN — Sección interna de Decisión 1 (fase 2)
+       Capa fija sobre el viewport (mismo patrón que .cs-problema).
+       z-index:5 la pone sobre El Problema (z:4) y sobre el stage (z:1).
+       Estado de reposo: fuera del viewport por abajo (translateY 100vh).
+       Coincide EXACTAMENTE con el y que el onUpdate aplica a progress=0
+       (y = vh - eased*vh = vh con eased=0). Sin salto cuando el ST
+       toma el control.
+       ============================================ */
+    .cs-decision-mc {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--color-primary);
+        transform: translateY(100vh);
+    }
+
+    /* ============================================
+       LA DECISIÓN — Maqueta estática (Gate C)
+       Capas separadas para animar en Gate D sin pelearse:
+       - title: absolute top/left 80px, fuera del stage
+       - stage: flex-center del viewport, agrupa ring + media
+       - media: contenedor con overflow:hidden + border-radius (clave Gate D)
+       - img: width/height 100% + object-fit:cover (en Gate D escalará)
+       - ring: óvalo punteado, capa independiente con rotate inicial
+       ============================================ */
+    .cs-decision-mc__title {
+        position: absolute;
+        top: 80px;
+        left: 80px;
+        margin: 0;
+    }
+
+    .cs-decision-mc__stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .cs-decision-mc__ring {
+        position: absolute;
+        width: 580px;
+        height: 380px;
+        border: 1px dashed var(--color-accent);
+        border-radius: 50%;
+        background: transparent;
+        transform: rotate(-32deg);
+    }
+
+    .cs-decision-mc__media {
+        position: relative;
+        width: 280px;
+        height: 370px;
+        overflow: hidden;
+        border-radius: 20px;
+    }
+
+    .cs-decision-mc__img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
 }

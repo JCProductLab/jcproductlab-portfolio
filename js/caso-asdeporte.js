@@ -1165,6 +1165,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.cs-decision', { y: -eased * vh });   // 0 → -vh
             gsap.set('.cs-problema', { y: vh - eased * vh }); // vh → 0
 
+            // La Decisión: en y:0 solo cuando El Problema cubre el viewport (cortina saturada).
+            // Función pura de curtainP → bidireccional, sin callbacks. El snap y:100vh→y:0
+            // ocurre cuando El Problema está a y:0 cubriendo todo → invisible.
+            gsap.set('.cs-decision-mc', { y: curtainP >= 1 ? 0 : '100vh' });
+
             // CASCADA: tramo [0.25, 0.50] del progress global (vh → 2vh).
             // Cada nodo entra desde y:400, opacity:0 → y:0, opacity:1.
             // step = 1/3 del rango de cascada, espaciado = step/2 (50% overlap).
@@ -1190,6 +1195,47 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     opacity: localEased
                 });
             }
+        }
+    });
+
+    // ============================================
+    // Gate B — Cortina vertical de "La Decisión"
+    // Réplica del patrón de Gate 2a: .cs-decision-mc es capa fija
+    // (position:fixed; inset:0) por CSS. El pin-spacer provee la altura
+    // de scroll. El ST pinea el spacer. El onUpdate anima SOLO
+    // transform: y de los dos planos: .cs-problema sale arriba,
+    // .cs-decision-mc entra desde abajo, pegadas, ease power2.out.
+    //
+    // Rango: 4vh = 1vh cortina (ease power2.out) + 3vh margen para
+    // futuras animaciones internas de Gate D (ajustable).
+    // Anclado a problemaST.end para contigüidad exacta.
+    // ============================================
+
+    const problemaST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.className &&
+        st.trigger.className.includes('pin-spacer--decision-1-problema')
+    );
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-1-ladecision',
+        start: () => problemaST ? problemaST.end : 0,
+        end: () => '+=' + (window.innerHeight * 4),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const PIN_LENGTH_VH = 4;
+            const scrolled = self.progress * (vh * PIN_LENGTH_VH);
+
+            // CORTINA: primer 1/4 del rango (0 → vh). Resto = permanencia (saturado en 1).
+            const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
+            const eased = gsap.parseEase('power2.out')(curtainP);
+
+            // SOLO El Problema sube. La Decisión queda quieta en y:0 (gestionada por
+            // el onUpdate de problemaST vía curtainP). La Decisión NO se anima aquí.
+            gsap.set('.cs-problema', { y: -eased * vh });     // 0 → -vh (sale arriba)
         }
     });
 }
