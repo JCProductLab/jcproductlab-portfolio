@@ -1129,7 +1129,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // sin onLeave. El salto se elimina de raíz porque la sección ya no
     // tiene flow position a la que caer.
     //
-    // Rango: 3vh = 1vh cortina (ease power2.out) + 2vh permanencia.
+    // Rango: 4vh = 1vh cortina (ease power2.out) + 1vh cascada + 2vh respiro.
     // ============================================
 
     const expansionST = ScrollTrigger.getAll().find(st =>
@@ -1137,24 +1137,59 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         st.trigger.className.includes('pin-spacer--decision-1-expansion')
     );
 
+    // Captura única de los 5 nodos de la cascada (título + 4 cards).
+    // gsap.utils.toArray respeta el document order, que coincide con el
+    // orden visual (grid 2-col, row-by-row: top-left, top-right,
+    // bot-left, bot-right).
+    const problemaTitle = document.querySelector('.cs-problema__title');
+    const problemaCards = gsap.utils.toArray('.cs-problema__card');
+    const problemaNodes = problemaTitle ? [problemaTitle, ...problemaCards] : problemaCards;
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1-problema',
         start: () => expansionST ? expansionST.end : 0,
-        end: () => '+=' + (window.innerHeight * 3),
+        end: () => '+=' + (window.innerHeight * 4),
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
             const vh = window.innerHeight;
-            const scrolled = self.progress * (vh * 3);
+            const PIN_LENGTH_VH = 4;
+            const scrolled = self.progress * (vh * PIN_LENGTH_VH);
 
-            // CORTINA: primer 1/3 del rango (0 → vh). Resto = permanencia (saturado en 1).
+            // CORTINA: primer 1/4 del rango (0 → vh). Resto = permanencia (saturado en 1).
             const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
             const eased = gsap.parseEase('power2.out')(curtainP);
 
             gsap.set('.cs-decision', { y: -eased * vh });   // 0 → -vh
             gsap.set('.cs-problema', { y: vh - eased * vh }); // vh → 0
+
+            // CASCADA: tramo [0.25, 0.50] del progress global (vh → 2vh).
+            // Cada nodo entra desde y:400, opacity:0 → y:0, opacity:1.
+            // step = 1/3 del rango de cascada, espaciado = step/2 (50% overlap).
+            // nodo 1 (título):   cascadeP [0, 1/3]
+            // nodo 2 (top-left):  cascadeP [1/6, 1/2]
+            // nodo 3 (top-right): cascadeP [1/3, 2/3]
+            // nodo 4 (bot-left):  cascadeP [1/2, 5/6]
+            // nodo 5 (bot-right): cascadeP [2/3, 1]
+            const CASCADE_START = 0.25;
+            const CASCADE_END = 0.50;
+            const STEP = 1 / 3;
+            const cascadeP = gsap.utils.clamp(0, 1,
+                (self.progress - CASCADE_START) / (CASCADE_END - CASCADE_START)
+            );
+
+            for (let i = 0; i < problemaNodes.length; i++) {
+                const nodeStart = i * STEP / 2;
+                const nodeEnd = nodeStart + STEP;
+                const localP = gsap.utils.clamp(0, 1, (cascadeP - nodeStart) / STEP);
+                const localEased = gsap.parseEase('power2.out')(localP);
+                gsap.set(problemaNodes[i], {
+                    y: 400 * (1 - localEased),
+                    opacity: localEased
+                });
+            }
         }
     });
 }

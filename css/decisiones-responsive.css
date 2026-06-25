@@ -207,6 +207,16 @@
         margin-top: 0.15em; /* alinea con la primera línea del texto */
     }
 
+    /* Estado inicial declarativo de la cascada (Gate 2b).
+       Coincide con lo que el onUpdate escribe cuando la cascada aún
+       no ha iniciado (y: 400, opacity: 0). Sin flash si el JS no corre. */
+    .cs-problema__title,
+    .cs-problema__card {
+        transform: translateY(400px);
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
     /* .cs-problema__text hereda tipografía de .cs-body-xl — no se redefine */
 
 }
