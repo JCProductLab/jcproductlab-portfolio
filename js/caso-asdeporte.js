@@ -160,28 +160,27 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 // apertura sale por arriba (y: 0 → -100vh). animateMetrica()
                 // se dispara al final del cruce, cuando la métrica se ancla.
                 //
-                // Reset: dispara SOLO al inicio de una entrada forward al cruce
-                // (crossProgress cruza 0 desde abajo en dirección +1), NO en
-                // la reversa. Esto garantiza que la métrica mantenga su "25%",
-                // flecha y texto intactos durante toda la reversa. El reset es
-                // invisible — ocurre cuando la métrica está en y: 100vh.
+                // Reset y disparo (consolidados en una sola rama de reset):
+                //   - Forward: dispara animateMetrica() al cruzar 0.85 (panel
+                //     casi anclado, KPI ya dentro del viewport).
+                //   - Reverse: resetea solo cuando el panel ya salió del
+                //     viewport (crossProgress < 0.1 → panel a y > 90vh, KPI
+                //     debajo del viewport). Invisible para el usuario.
+                //   - Mientras el panel está a la vista (0.1 ≤ crossProgress
+                //     ≤ 1.0) en cualquier dirección, el 25% + flecha + texto
+                //     permanecen intactos — el reset nunca ocurre "a la vista".
                 if (progress >= 0.75) {
                     const crossProgress = (progress - 0.75) / 0.25;
                     gsap.set(metrica, { y: (1 - crossProgress) * window.innerHeight });
                     gsap.set(apertura, { y: -crossProgress * window.innerHeight });
 
-                    if (crossProgress >= 1 && !metricaAnimated) {
-                        // Forward: la métrica se ancla al final del cruce.
+                    if (crossProgress >= 0.85 && !metricaAnimated) {
+                        // Forward: la métrica está casi anclada, arranca el conteo.
                         metricaAnimated = true;
                         animateMetrica();
-                    } else if (crossProgress <= 0.05 && metricaAnimated && self.direction === 1) {
-                        // Forward entry: el usuario entra al cruce después de
-                        // un reverse. La métrica aún tiene "25%" del ciclo
-                        // anterior — reset invisible: el KPI está en el centro
-                        // vertical del panel (~50vh desde el top), y a
-                        // crossProgress <= 0.05 el panel está a y >= 95vh, con
-                        // el KPI debajo del viewport. La tolerancia amplia
-                        // (0.05) absorbe los saltos de frame del smooth scroll.
+                    } else if (self.direction === -1 && crossProgress < 0.1 && metricaAnimated) {
+                        // Reversa con panel fuera de vista: reset invisible
+                        // para re-disparar en el próximo forward.
                         resetMetrica();
                     }
                 } else {
@@ -280,12 +279,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         tl
             .to(metricaNumber, { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0)
             .add(() => {
-                // 2. Contador arranca 0.3s después del inicio del fade in
+                // 2. Contador arranca al inicio del fade in (sin delay)
                 const counter = { value: 0 };
                 gsap.to(counter, {
                     value: 25,
                     duration: 0.8,
-                    ease: 'power2.out',
+                    ease: 'power3.out',
                     onUpdate: () => {
                         metricaNumber.textContent = Math.round(counter.value) + '%';
                     },
@@ -326,7 +325,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                             }, 0);
                     }
                 });
-            }, 0.3);
+            }, 0);
     }
 
     // ============================================
