@@ -264,27 +264,31 @@
         right: 0;
         bottom: 0;
         left: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
     .cs-decision-mc__ring {
         position: absolute;
+        top: 50%;
+        left: 50%;
         width: 754px;
         height: 480px;
         border: 1px dashed var(--color-accent);
         border-radius: 232px;
         background: transparent;
+        z-index: 2;
         transform: rotate(-32deg);
     }
 
     .cs-decision-mc__media {
-        position: relative;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 400px;
         height: 560px;
         overflow: hidden;
         border-radius: 20px;
+        z-index: 1;
     }
 
     .cs-decision-mc__img {
@@ -292,6 +296,52 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    /* Overlay oscuro DENTRO del media: cobertura uniforme al 100% para
+       legibilidad del texto claro. Crece y se recorta con el media
+       (inset:0 + overflow:hidden del padre). */
+    .cs-decision-mc__media::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+    }
+
+    /* ============================================
+       LA DECISIÓN — Texto central (Gate D)
+       Split automático por línea vía JS tras fonts.ready.
+       Estado inicial oculto (opacity:0) para evitar flash antes del split.
+       ============================================ */
+    .cs-decision-mc__text-wrap {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        width: 50%;
+        max-width: 720px;
+        text-align: center;
+        opacity: 0;
+        padding: 0 24px;
+    }
+
+    /* Marker class — sin estilos de tipografía para no sobreescribir
+       a .cs-body-xxl (que provee font-family, font-size, font-weight,
+       line-height). Solo ajustes específicos del contexto. */
+    .cs-decision-mc__text {
+        color: var(--color-secondary);
+        text-transform: none;
+        margin: 0;
+    }
+
+    .cs-decision-mc__word {
+        color: inherit;
+        display: inline-block;
+        will-change: transform, opacity;
+        transform: translateX(20px);
+        opacity: 0;
     }
 
 }

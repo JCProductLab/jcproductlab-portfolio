@@ -1216,6 +1216,105 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         st.trigger.className.includes('pin-spacer--decision-1-problema')
     );
 
+    // ============================================
+    // Gate D — Animaciones internas de "La Decisión"
+    // Piggyback en el onUpdate del decisionMCST (mismo ST que Gate B).
+    // Captura única de los 3 elementos (img, ring, text).
+    // El text usa split manual por offsetTop (mismo patrón que
+    // about-section-reveal.js:66-113), ejecutado tras document.fonts.ready
+    // para que la fuente Sora esté cargada al medir las líneas.
+    // ============================================
+
+    const decisionImg = document.querySelector('.cs-decision-mc__img');
+    const decisionMedia = document.querySelector('.cs-decision-mc__media');
+    const decisionRing = document.querySelector('.cs-decision-mc__ring');
+    const decisionText = document.querySelector('.cs-decision-mc__text');
+    const decisionTextWrap = document.querySelector('.cs-decision-mc__text-wrap');
+    const ORIGINAL_TEXT = decisionText ? decisionText.textContent : '';
+
+    // Líneas vigentes — reasignada tras cada (re-)split.
+    let decisionTextLines = [];
+
+    // Split manual: tokeniza por palabra, envuelve en spans, agrupa por offsetTop.
+    // Idempotente: data-line-split-ready evita re-trabajo si ya se ejecutó.
+    const splitDecisionText = (p) => {
+        if (!p) return [];
+
+        if (p.dataset.lineSplitReady === 'true') {
+            const words = Array.from(p.querySelectorAll('.cs-decision-mc__word'));
+            const groups = {};
+            words.forEach((w) => {
+                const i = w.dataset.lineIndex;
+                (groups[i] ||= []).push(w);
+            });
+            return Object.keys(groups)
+                .sort((a, b) => +a - +b)
+                .map((k) => groups[k]);
+        }
+
+        const tokens = p.textContent.replace(/\s+/g, ' ').trim().split(' ');
+        if (!tokens.length) return [];
+
+        p.textContent = '';
+        tokens.forEach((word, idx) => {
+            if (idx > 0) p.appendChild(document.createTextNode(' '));
+            const span = document.createElement('span');
+            span.className = 'cs-decision-mc__word';
+            span.textContent = word;
+            span.style.display = 'inline-block';
+            span.style.willChange = 'transform, opacity';
+            p.appendChild(span);
+        });
+
+        const wordEls = Array.from(p.querySelectorAll('.cs-decision-mc__word'));
+        const lineMap = new Map();
+        wordEls.forEach((el) => {
+            const top = Math.round(el.offsetTop);
+            if (!lineMap.has(top)) lineMap.set(top, []);
+            lineMap.get(top).push(el);
+        });
+
+        const sortedTops = Array.from(lineMap.keys()).sort((a, b) => a - b);
+        const lines = sortedTops.map((top, i) => {
+            const words = lineMap.get(top);
+            words.forEach((w) => (w.dataset.lineIndex = String(i)));
+            return words;
+        });
+
+        p.dataset.lineSplitReady = 'true';
+        return lines;
+    };
+
+    // Split inicial: espera a que las fuentes (Sora) estén cargadas antes
+    // de medir offsetTop. Mientras tanto, decisionTextLines queda vacío
+    // y el onUpdate simplemente no anima texto (el text-wrap está en
+    // opacity:0 por CSS, no se ve nada roto).
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            decisionTextLines = splitDecisionText(decisionText);
+            ScrollTrigger.refresh();
+        });
+    } else {
+        decisionTextLines = splitDecisionText(decisionText);
+    }
+
+    // Re-split en resize (debounced). NO fuerza estado inicial — las líneas
+    // nuevas nacen en su reposo CSS (translateX 20px, opacity 0). El primer
+    // onUpdate post-refresh escribe el estado correcto según el progress.
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (!decisionText) return;
+            decisionText.dataset.lineSplitReady = 'false';
+            Array.from(decisionText.querySelectorAll('.cs-decision-mc__word'))
+                .forEach(w => w.remove());
+            decisionText.textContent = ORIGINAL_TEXT;
+            decisionTextLines = splitDecisionText(decisionText);
+            ScrollTrigger.refresh();
+        }, 200);
+    });
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1-ladecision',
         start: () => problemaST ? problemaST.end : 0,
@@ -1236,6 +1335,81 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // SOLO El Problema sube. La Decisión queda quieta en y:0 (gestionada por
             // el onUpdate de problemaST vía curtainP). La Decisión NO se anima aquí.
             gsap.set('.cs-problema', { y: -eased * vh });     // 0 → -vh (sale arriba)
+
+            // ── Gate D: animaciones internas de La Decisión ────────────────
+            // Rango de animaciones: progress 0.25 → 0.50.
+            // Imagen en 2 fases (horizontal → full-bleed), óvalo con scale+rotación+fade,
+            // texto arranca más tarde (0.35).
+
+            // ── Imagen: contenedor .media crece en UN SOLO movimiento (ambos ejes a la vez) ──
+            // 400×560 → 100vw×100vh en progress 0.25→0.50. Border-radius 20→0.
+            if (decisionMedia) {
+                const IMG_START = 0.25;
+                const IMG_END   = 0.50;
+                const imgP = gsap.utils.clamp(0, 1, (self.progress - IMG_START) / (IMG_END - IMG_START));
+                const imgE = gsap.parseEase('power1.inOut')(imgP);
+
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const INIT_W = 400;
+                const INIT_H = 560;
+                const BORDER_RADIUS = 20;
+
+                const newW = INIT_W + (vw - INIT_W) * imgE;
+                const newH = INIT_H + (vh - INIT_H) * imgE;
+                const newBR = BORDER_RADIUS * (1 - imgE);
+
+                gsap.set(decisionMedia, {
+                    width: newW + 'px',
+                    height: newH + 'px',
+                    borderRadius: newBR + 'px',
+                });
+            }
+
+            // ── Óvalo: scale 1.0 → 2.75, rotation -32° → 328° (vuelta completa).
+            //    Opacity se mantiene en 1 mientras scale va de 1.0 a 2.0; a partir
+            //    de scale 2.0, fade 1→0 sincronizado con el scale (no con progress
+            //    arbitrario). Centrado vía x/y (compone con rotation/scale). ────────
+            if (decisionRing) {
+                const ringP = gsap.utils.clamp(0, 1, (self.progress - 0.25) / 0.25);
+                const ringEased = gsap.parseEase('power1.inOut')(ringP);
+                const ringScale = 1.0 + (2.75 - 1.0) * ringEased;
+                const ringRotation = -32 + 360 * ringP;
+                // Fade atado al scale: 1 hasta scale 2.3, luego 1→0 de 2.3 a 2.75
+                const ringOpacity = gsap.utils.clamp(0, 1, 1 - Math.max(0, ringScale - 2.3) / (2.75 - 2.3));
+                // Centrado: x = -754/2 = -377, y = -480/2 = -240
+                gsap.set(decisionRing, {
+                    x: -377,
+                    y: -240,
+                    scale: ringScale,
+                    rotation: ringRotation,
+                    opacity: ringOpacity,
+                });
+            }
+
+            // ── Texto: cascada por línea con stagger 50% ──────────────────
+            // Rango del texto: progress 0.35 → 0.475. Container opacity = textP.
+            // Cada línea: x: 20→0, opacity: 0→1, ease power2.out.
+            // STEP = 2/(N+1) garantiza que la última línea termina en textP=1.
+            if (decisionTextWrap) {
+                const textP = gsap.utils.clamp(0, 1, (self.progress - 0.35) / 0.125);
+                gsap.set(decisionTextWrap, { opacity: textP });
+
+                if (decisionTextLines.length) {
+                    const N = decisionTextLines.length;
+                    const STEP = 2 / (N + 1);
+                    for (let i = 0; i < N; i++) {
+                        const line = decisionTextLines[i];
+                        const nodeStart = i * STEP / 2;
+                        const localP = gsap.utils.clamp(0, 1, (textP - nodeStart) / STEP);
+                        const localEased = gsap.parseEase('power2.out')(localP);
+                        gsap.set(line, {
+                            x: 20 * (1 - localEased),
+                            opacity: localEased
+                        });
+                    }
+                }
+            }
         }
     });
 }
