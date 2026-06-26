@@ -276,7 +276,7 @@
         border-radius: 232px;
         background: transparent;
         z-index: 2;
-        transform: rotate(-32deg);
+        transform: rotate(0deg);
     }
 
     .cs-decision-mc__media {

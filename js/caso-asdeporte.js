@@ -1337,14 +1337,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.cs-problema', { y: -eased * vh });     // 0 → -vh (sale arriba)
 
             // ── Gate D: animaciones internas de La Decisión ────────────────
-            // Rango de animaciones: progress 0.25 → 0.50.
-            // Imagen en 2 fases (horizontal → full-bleed), óvalo con scale+rotación+fade,
-            // texto arranca más tarde (0.35).
+            // Imagen y óvalo arrancan en progress 0 (junto con la persiana) y corren
+            // hasta 0.50. Texto arranca más tarde (0.20) para que el grueso de su
+            // entrada sea visible después de la persiana.
 
             // ── Imagen: contenedor .media crece en UN SOLO movimiento (ambos ejes a la vez) ──
-            // 400×560 → 100vw×100vh en progress 0.25→0.50. Border-radius 20→0.
+            // 400×560 → 100vw×100vh en progress 0→0.50. Border-radius 20→0.
             if (decisionMedia) {
-                const IMG_START = 0.25;
+                const IMG_START = 0;
                 const IMG_END   = 0.50;
                 const imgP = gsap.utils.clamp(0, 1, (self.progress - IMG_START) / (IMG_END - IMG_START));
                 const imgE = gsap.parseEase('power1.inOut')(imgP);
@@ -1366,15 +1366,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 });
             }
 
-            // ── Óvalo: scale 1.0 → 2.75, rotation -32° → 328° (vuelta completa).
-            //    Opacity se mantiene en 1 mientras scale va de 1.0 a 2.0; a partir
-            //    de scale 2.0, fade 1→0 sincronizado con el scale (no con progress
-            //    arbitrario). Centrado vía x/y (compone con rotation/scale). ────────
+            // ── Óvalo: scale 1.0 → 2.75, rotation 0° → 360° (vuelta completa).
+            //    Opacity se mantiene en 1 mientras scale va de 1.0 a 2.3; a partir
+            //    de scale 2.3, fade 1→0 sincronizado con el scale. Centrado vía x/y. ───
             if (decisionRing) {
-                const ringP = gsap.utils.clamp(0, 1, (self.progress - 0.25) / 0.25);
+                const ringP = gsap.utils.clamp(0, 1, (self.progress - 0) / 0.50);
                 const ringEased = gsap.parseEase('power1.inOut')(ringP);
                 const ringScale = 1.0 + (2.75 - 1.0) * ringEased;
-                const ringRotation = -32 + 360 * ringP;
+                const ringRotation = 0 + 360 * ringP;
                 // Fade atado al scale: 1 hasta scale 2.3, luego 1→0 de 2.3 a 2.75
                 const ringOpacity = gsap.utils.clamp(0, 1, 1 - Math.max(0, ringScale - 2.3) / (2.75 - 2.3));
                 // Centrado: x = -754/2 = -377, y = -480/2 = -240
@@ -1392,7 +1391,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // Cada línea: x: 20→0, opacity: 0→1, ease power2.out.
             // STEP = 2/(N+1) garantiza que la última línea termina en textP=1.
             if (decisionTextWrap) {
-                const textP = gsap.utils.clamp(0, 1, (self.progress - 0.35) / 0.125);
+                const textP = gsap.utils.clamp(0, 1, (self.progress - 0.20) / 0.275);
                 gsap.set(decisionTextWrap, { opacity: textP });
 
                 if (decisionTextLines.length) {
