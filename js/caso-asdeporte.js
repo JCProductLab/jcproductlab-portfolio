@@ -528,6 +528,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // columna izquierda vía renderContextoEntrada (rango 0.55 → 0.75).
     const contextoArrow = document.querySelector('.cs-contexto__arrow');
 
+    // Offset horizontal compartido entre el pre-posicionamiento del ST de
+    // Métrica (x inicial en onUpdate) y la animación de entrada en
+    // renderContextoEntrada. Mantener ambos sitios en el mismo valor evita
+    // un salto visible en el frame de traspaso Métrica→Shift.
+    const CONTEXTO_ENTER_OFFSET = 160;
+
     // Función de easing power2.out personalizada
     function power2Out(t) {
         return 1 - Math.pow(1 - t, 2);
@@ -588,7 +594,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const easedProgress = power2Out(localProgress);
             gsap.set(el, {
                 opacity: easedProgress,
-                x: 60 * (1 - easedProgress)
+                x: CONTEXTO_ENTER_OFFSET * (1 - easedProgress)
             });
         });
     }
@@ -710,8 +716,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // aparezcan prematuramente. La flecha (contextoArrow) también
             // se incluye para que esté en un estado conocido al entrar al
             // pin de Shift.
+            // Mismo offset que CONTEXTO_ENTER_OFFSET (definido arriba) —
+            // alinear ambos valores evita un salto en el frame de traspaso
+            // Métrica→Shift.
             [contextoLabel, contextoTitle, contextoMedia, contextoTags, contextoArrow].forEach(el => {
-                if (el) gsap.set(el, { opacity: 0, x: 120 });
+                if (el) gsap.set(el, { opacity: 0, x: CONTEXTO_ENTER_OFFSET });
             });
         },
         onLeaveBack: () => {
