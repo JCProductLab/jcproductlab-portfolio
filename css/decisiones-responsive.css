@@ -344,4 +344,137 @@
         opacity: 0;
     }
 
+    /* ============================================
+       EL RAZONAMIENTO — Gate 1 (maqueta estática, Pantalla 1)
+       Sub-sección que sigue a La Decisión dentro de Decisión 1.
+       Sigue el patrón canónico de "capa fija sobre viewport" usado
+       por .cs-decision-mc y .cs-problema (.position: fixed; inset: 0).
+
+       ── ESTADO DE MAQUETA (Gate 1) ──
+       La sección es position:fixed pero SIN transform: translateY(100vh).
+       Está visible para validar el layout. El gate de animación
+       posterior agregará el estado de reposo (off-screen abajo) y
+       la lógica de entrada/salida sincronizada con el pin.
+
+       ── ARQUITECTURA DE DOS CAPAS (separadas desde Gate 1) ──
+       - .cs-razonamiento__fixed: capa fija (label + métricas). No se
+         traslada. En gates futuros las métricas aparecen/desaparecen
+         con fade en la misma posición.
+       - .cs-razonamiento__rail: capa móvil (riel de descriptores).
+         En gates futuros el contenedor se traslada verticalmente con
+         scroll para traer cada descriptor al centro del viewport.
+
+       Gate 1 = maqueta estática de Pantalla 1 (dato 90.8%).
+       Sin ScrollTrigger, sin transforms, sin opacity:0.
+       ============================================ */
+
+    /* Pin-spacer: provee la altura de scroll. SIN ScrollTrigger todavía
+       (el JS no toca este selector en Gate 1). */
+    .cs-pin-spacer--decision-1-razonamiento { height: 100vh; }
+
+    /* Sección raíz — capa fija sobre viewport (patrón de .cs-decision-mc).
+       z-index:4 la pone entre el track (z:1) y El Problema (z:6).
+       ESTADO DE MAQUETA: SIN transform: translateY(100vh) — visible. */
+    .cs-razonamiento {
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--color-primary);
+        color: var(--color-secondary);
+    }
+
+    /* CAPA FIJA — contenedor del label y las métricas.
+       Flex column con gap:144px garantiza que la métrica está
+       exactamente a 144px bajo el bottom del label, sin asumir
+       la altura del label (que puede cambiar si se ajusta font-size).
+       left: 80px ancla el label a la misma posición que
+       .cs-decision-mc__title (coherencia con las otras etiquetas
+       de Decisión 1). La métrica se desplaza otros 120px a la
+       derecha dentro del flex column (ver .cs-razonamiento__metric)
+       para aterrizar a 200px absolutos del borde izquierdo. */
+    .cs-razonamiento__fixed {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 80px);
+        left: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 144px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Label — reusa .cs-decision-text (mismo token que "El problema"
+       y "La decisión"). Hereda Plus Jakarta Sans weight 200, color
+       blanco y font-size clamp(2.5rem, 3.5vw, 3rem). Solo se anula
+       el margin para no interferir con el flex gap del contenedor. */
+    .cs-razonamiento__label {
+        margin: 0;
+    }
+
+    /* Métrica — bloque flex (checkmark + valor numérico).
+       font-size declarada aquí para que el check (sibling) herede
+       el mismo tamaño que .cs-headline aplica al valor numérico, y
+       así su width/height en em escalen proporcionales al número.
+       El valor numérico lleva la clase .cs-headline, que provee
+       Plus Jakarta Sans weight 500, line-height 1.1, letter-spacing
+       -0.04em y color blanco. Mismo clamp en ambos para coherencia.
+
+       align-self: flex-start evita que el bloque se estire al ancho
+       del contenedor flex (que viene dado por el label). margin-left:
+       120px desplaza la métrica 120px a la derecha dentro del flex
+       column para que aterrice a 200px absolutos del borde izquierdo
+       (80px del contenedor + 120px de margen), mientras el gap de
+       144px del flex column sigue gobernando la distancia vertical
+       al label sin asumir su altura. */
+    .cs-razonamiento__metric {
+        align-self: flex-start;
+        margin-left: 120px;
+        display: flex;
+        align-items: center;
+        gap: 0.35em;
+        font-size: clamp(4rem, 10vw, 9rem);
+    }
+
+    /* Checkmark — ícono Phosphor (ph-check), font-based.
+       Tamaño en em controla font-size del glifo: escala proporcional
+       al font-size del contenedor .cs-razonamiento__metric. */
+    .cs-razonamiento__check {
+        font-size: 0.65em;
+        color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    /* Valor numérico — hereda toda la tipografía de .cs-headline
+       (Plus Jakarta Sans, weight 500, line-height 1.1, color blanco).
+       Esta clase BEM queda como marker de hook para gates futuros. */
+
+    /* CAPA MÓVIL (riel) — contenedor de descriptores derechos.
+       Cubre el viewport para que sus hijos se posicionen respecto a él.
+       En gates futuros se trasladará verticalmente con scroll. */
+    .cs-razonamiento__rail {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+    }
+
+    /* Descriptor — contenedor right-aligned con margen derecho de 360px.
+       El contenedor ocupa el 40% del ancho del viewport y su borde
+       derecho se ancla a 360px del borde derecho de la ventana.
+       El texto dentro se mantiene text-align:left (default LTR).
+       La tipografía (Sora, regular, clamp 1.5rem-2.5vw-2rem,
+       line-height 1.5, color gris secundario) viene de .cs-body-xxl.
+       POSICIÓN VERTICAL PROVISIONAL — solo para validar layout
+       horizontal en Gate 1. El gate del riel define la posición
+       vertical real vía translateY. NO tratar este top como definitivo. */
+    .cs-razonamiento__descriptor {
+        position: absolute;
+        top: 50%;
+        right: 200px;
+        width: 35%;
+        margin: 0;
+        text-align: left;
+    }
+
 }

@@ -315,6 +315,7 @@
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-expansion" data-phase="decision-1-expansion"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-problema" data-phase="decision-1-problema"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-ladecision" data-phase="decision-1-ladecision"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--decision-1-razonamiento" data-phase="decision-1-razonamiento"></div>
 
         <!-- ============================================ -->
         <!-- TRACK HORIZONTAL — Panel 1: Métrica · Panel 2: Contexto -->
@@ -592,6 +593,44 @@
                 <div class="cs-decision-mc__text-wrap">
                     <p class="cs-decision-mc__text cs-body-xxl">Propuse mover Tribu fuera del MVP y redirigir todos esos recursos al motor de búsqueda y al flujo de pago. En una sala donde el CEO ya imaginaba la campaña de lanzamiento, esa propuesta generó un silencio que se sintió muy largo.</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- EL RAZONAMIENTO — Sub-sección de Decisión 1        -->
+        <!-- Gate 1: maqueta estática Pantalla 1 (dato 90.8%).  -->
+        <!-- Sigue a "La Decisión" dentro de Decisión 1.        -->
+        <!-- Arquitectura de DOS CAPAS como contenedores        -->
+        <!-- distintos desde el origen:                         -->
+        <!--   - .cs-razonamiento__fixed: capa fija con label   -->
+        <!--     y métricas apiladas (no se traslada).          -->
+        <!--   - .cs-razonamiento__rail: capa móvil (riel) con  -->
+        <!--     los descriptores derechos apilados.            -->
+        <!-- SIN ScrollTrigger todavía — el pin-spacer           -->
+        <!-- .cs-pin-spacer--decision-1-razonamiento existe     -->
+        <!-- como contenedor vacío. El gate de animación        -->
+        <!-- posterior lo gobernará.                             -->
+        <!-- ============================================ -->
+        <section class="cs-razonamiento" aria-label="El razonamiento de Decisión 1">
+
+            <!-- CAPA FIJA — label + métricas apiladas.
+                 Esta capa NO se traslada. Las 3 métricas comparten
+                 la misma posición vertical; gates futuros agregarán
+                 fade in/out para alternar la métrica visible. -->
+            <div class="cs-razonamiento__fixed">
+                <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
+                <div class="cs-razonamiento__metric" data-screen="1">
+                    <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
+                    <span class="cs-headline cs-razonamiento__metric-value">90.8%</span>
+                </div>
+            </div>
+
+            <!-- CAPA MÓVIL (riel) — descriptores derechos apilados.
+                 En gates futuros este contenedor se trasladará
+                 verticalmente con scroll. En Gate 1 es estática
+                 (solo se valida el layout horizontal). -->
+            <div class="cs-razonamiento__rail">
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">De usuarios abandonaba antes de completar una inscripción. No tenía sentido invertir en funcionalidad social cuando la caja registradora tenía una fuga de ese tamaño.</p>
             </div>
         </section>
 
