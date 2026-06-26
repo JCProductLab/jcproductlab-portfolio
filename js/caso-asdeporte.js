@@ -929,6 +929,27 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const offsetPx = (1 - self.progress) * initialTranslates[i];
                 item.style.transform = `translateX(${offsetPx}px)`;
             });
+
+            // 5. Fade out de Contexto — rápido en la primera mitad
+            //    (progress 0→0.5 → opacity 1→0), invisible desde 0.5
+            //    hasta el final. La salida a la izquierda del track
+            //    continúa durante todo el rango, pero Contexto deja de
+            //    ser visible a mitad del recorrido.
+            gsap.set('.cs-contexto', {
+                opacity: Math.max(0, 1 - self.progress * 2)
+            });
+
+            // 6. Entrada de la etiqueta "[ Decisiones clave ]" — solo en
+            //    el tramo final (progress 0.7 → 1.0) para que se ancle
+            //    cuando el panel ya está casi alineado, sin viajar de
+            //    más con el track. Misma gramática que la cascada de
+            //    Contexto: offset CONTEXTO_ENTER_OFFSET + power2Out.
+            const labelP = Math.max(0, Math.min(1, (self.progress - 0.7) / 0.3));
+            const labelEased = power2Out(labelP);
+            gsap.set('.cs-decisiones-titulos__label', {
+                opacity: labelEased,
+                x: CONTEXTO_ENTER_OFFSET * (1 - labelEased)
+            });
         }
     });
 
