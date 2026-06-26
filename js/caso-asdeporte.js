@@ -1041,7 +1041,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             //    o componer transforms (x + scale en el mismo set).
             const labelP = clipEase(subProgress(self.progress, 0.50, 0.80));
             const titleP = clipEase(subProgress(self.progress, 0.58, 0.90));
-            const mediaP = clipEase(subProgress(self.progress, 0.66, 1.00));
+            // Entrada de la imagen: power1.out (en lugar de clipEase/power2.out).
+            // power1.out = 1-(1-t)² desacelera más suave: su último 10% aporta
+            // ~19% del recorrido (vs <1% de power2.out), eliminando el "tramo
+            // muerto" al final de la entrada que causaba el "atorón" antes de
+            // que la expansión tomara el relevo.
+            const mediaP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.66, 1.00));
             gsap.set(decision1Label, { opacity: labelP, x: 400 * (1 - labelP) });
             gsap.set(decision1Title, { opacity: titleP, x: 400 * (1 - titleP) });
             gsap.set(decision1Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
