@@ -1167,7 +1167,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // sin onLeave. El salto se elimina de raíz porque la sección ya no
     // tiene flow position a la que caer.
     //
-    // Rango: 4vh = 1vh cortina (ease power2.out) + 1vh cascada + 2vh respiro.
+    // Rango: 3vh = 1vh cortina (ease power2.out) + 1vh cascada + 1vh respiro.
+    // (antes 4vh: el respiro de 2vh se sentía como "atorón" antes de la
+    // persiana de Gate B).
     // ============================================
 
     const expansionST = ScrollTrigger.getAll().find(st =>
@@ -1186,17 +1188,17 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1-problema',
         start: () => expansionST ? expansionST.end : 0,
-        end: () => '+=' + (window.innerHeight * 4),
+        end: () => '+=' + (window.innerHeight * 3),
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
             const vh = window.innerHeight;
-            const PIN_LENGTH_VH = 4;
+            const PIN_LENGTH_VH = 3;
             const scrolled = self.progress * (vh * PIN_LENGTH_VH);
 
-            // CORTINA: primer 1/4 del rango (0 → vh). Resto = permanencia (saturado en 1).
+            // CORTINA: primer 1/3 del rango (0 → vh). Resto = permanencia (saturado en 1).
             const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
             const eased = gsap.parseEase('power2.out')(curtainP);
 
@@ -1208,7 +1210,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // ocurre cuando El Problema está a y:0 cubriendo todo → invisible.
             gsap.set('.cs-decision-mc', { y: curtainP >= 1 ? 0 : '100vh' });
 
-            // CASCADA: tramo [0.25, 0.50] del progress global (vh → 2vh).
+            // CASCADA: tramo [1/3, 2/3] del progress global (vh → 2vh).
             // Cada nodo entra desde y:400, opacity:0 → y:0, opacity:1.
             // step = 1/3 del rango de cascada, espaciado = step/2 (50% overlap).
             // nodo 1 (título):   cascadeP [0, 1/3]
@@ -1216,8 +1218,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // nodo 3 (top-right): cascadeP [1/3, 2/3]
             // nodo 4 (bot-left):  cascadeP [1/2, 5/6]
             // nodo 5 (bot-right): cascadeP [2/3, 1]
-            const CASCADE_START = 0.25;
-            const CASCADE_END = 0.50;
+            const CASCADE_START = 1 / 3;
+            const CASCADE_END = 2 / 3;
             const STEP = 1 / 3;
             const cascadeP = gsap.utils.clamp(0, 1,
                 (self.progress - CASCADE_START) / (CASCADE_END - CASCADE_START)
