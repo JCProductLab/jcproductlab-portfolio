@@ -1140,8 +1140,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(decision1Title, { x: textX, opacity: 1 - f1e });
             } else {
                 // FASE 2: imagen se expande a los 4 extremos. border-radius → 0.
+                // Ease power1.out (en lugar de clipEase/power2.out) para eliminar
+                // el "tramo muerto" del final: la imagen llega a full-bleed con
+                // movimiento perceptible hasta el último frame, sin flotar.
+                // Mismo fix que la entrada→expansión (misma causa raíz).
                 const f2 = (p - 0.5) / 0.5;
-                const f2e = clipEase(f2);
+                const f2e = gsap.parseEase('power1.out')(f2);
 
                 gsap.set(decision1Media, {
                     top: (headerH + margin) * (1 - f2e),
