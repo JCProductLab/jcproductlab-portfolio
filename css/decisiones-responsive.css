@@ -374,7 +374,12 @@
 
     /* Sección raíz — capa fija sobre viewport (patrón de .cs-decision-mc).
        z-index:4 la pone entre el track (z:1) y El Problema (z:6).
-       ESTADO DE MAQUETA: SIN transform: translateY(100vh) — visible. */
+       Estado de reposo: fuera del viewport por abajo (translateY 100vh).
+       Coincide EXACTAMENTE con el y que el onUpdate aplica a entryP=0
+       (y = vh - eased*vh = vh con eased=0). Sin salto cuando el ST
+       toma el control. El onUpdate sobreescribe este valor durante
+       el rango activo del pin; fuera del rango, este transform
+       mantiene la sección escondida. */
     .cs-razonamiento {
         position: fixed;
         inset: 0;
@@ -383,6 +388,7 @@
         height: 100vh;
         background-color: var(--color-primary);
         color: var(--color-secondary);
+        transform: translateY(100vh);
     }
 
     /* CAPA FIJA — contenedor del label y las métricas.
@@ -459,15 +465,24 @@
         z-index: 2;
     }
 
-    /* Descriptor — contenedor right-aligned con margen derecho de 360px.
-       El contenedor ocupa el 40% del ancho del viewport y su borde
-       derecho se ancla a 360px del borde derecho de la ventana.
+    /* Descriptor — contenedor right-aligned con margen derecho de 200px.
+       El contenedor ocupa el 35% del ancho del viewport y su borde
+       derecho se ancla a 200px del borde derecho de la ventana
+       (ajuste manual de Cesar sobre maqueta de Gate 1).
        El texto dentro se mantiene text-align:left (default LTR).
        La tipografía (Sora, regular, clamp 1.5rem-2.5vw-2rem,
        line-height 1.5, color gris secundario) viene de .cs-body-xxl.
-       POSICIÓN VERTICAL PROVISIONAL — solo para validar layout
-       horizontal en Gate 1. El gate del riel define la posición
-       vertical real vía translateY. NO tratar este top como definitivo. */
+       Ancla de reposo vertical: top:50% del riel. NO es provisional.
+       El riel (.cs-razonamiento__rail) se traslada con translateY
+       atado al progress del scroll del pin (Gate 2, JS
+       caso-asdeporte.js). El top:50% define dónde está el descriptor
+       cuando el riel está en su rest frame (progress=0.5 del ST):
+       el centro del descriptor coincide con el centro del viewport
+       (rail.y = -dh/2, donde dh = descriptor.offsetHeight medido en
+       runtime). En progress=0 el rail está a +0.5vh (descriptor
+       completamente debajo del viewport); en progress=1 está a
+       -0.5vh - dh (descriptor completamente encima). Recorrido
+       total: vh + dh, lineal. */
     .cs-razonamiento__descriptor {
         position: absolute;
         top: 50%;

@@ -1451,4 +1451,175 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // Gate 2 — El Razonamiento (Pantalla 1)
+    // El pin tiene DOS sub-tramos en el mismo ScrollTrigger:
+    //
+    //   ENTRADA (relevo vertical, primer 50% del progress):
+    //     - .cs-decision-mc: y:0 → y:-100vh (sale arriba como bloque)
+    //     - .cs-razonamiento: y:+100vh → y:0 (entra desde abajo)
+    //     - Acoplados con el mismo eased (power1.out). Easing "pase de
+    //       fluidez": power2.out deja los finales casi inmóviles y
+    //       choca con el arranque del riel. power1.out decelera suave
+    //       sin atorón.
+    //     - La Decisión NO se modifica: su ST terminó, queda en y:0
+    //       (estado dejado por la cortina de El Problema). El ST de
+    //       Razonamiento la traslada pasivamente con gsap.set en su
+    //       propio onUpdate.
+    //
+    //   CONTENIDO (riel + fade, segundo 50% del progress):
+    //     - .cs-razonamiento__rail: y:+0.5*vh → y:-0.5*vh-dh
+    //       (descriptor barre de borde inferior a superior, limpieza
+    //       completa del viewport). Rango vh+dh, lineal.
+    //     - .cs-razonamiento__metric[data-screen="1"]: triángulo de
+    //       opacidad 0→1→0 con pico en contentP=0.5 (descriptor
+    //       centrado).
+    //     - .cs-razonamiento__label: opacity 1 durante todo el pin
+    //       (no se anima).
+    //
+    // Rango total del pin: ENTRY_VH + CONTENT_VH = 3vh. ENTRY_VH=1.5
+    // es deliberado (no 100): el relevo debe sentirse como las otras
+    // cortinas de la página (~1vh), no consumir el 98% del pin antes
+    // de que arranque el primer dato. El swap completo se produce
+    // igual porque la fórmula usa vh constante, no la distancia de
+    // scroll — cualquier ENTRY_VH ≥ 1vh completa el relevo.
+    //
+    // Anclaje: contiguo al final REAL del pin de La Decisión
+    // (ladeciST.end, leído vía ScrollTrigger.getAll().find()) — mismo
+    // patrón que ladeci:1360 con problemaST y todos los pines de la
+    // cadena. No se usa 'top top' ni 'bottom top' literales.
+    //
+    // Solo Pantalla 1. Cuando se agreguen Pantallas 2 y 3 en gates
+    // futuros, el contenido se extiende a un switch por tramos de
+    // progress dentro del sub-tramo CONTENT.
+    // ============================================
+
+    const ENTRY_VH = 1.5;
+    const CONTENT_VH = 1.5;
+    const PIN_LENGTH_VH = ENTRY_VH + CONTENT_VH; // 3
+
+    const ladeciST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.className &&
+        st.trigger.className.includes('pin-spacer--decision-1-ladecision')
+    );
+
+    const razonRail = document.querySelector('.cs-razonamiento__rail');
+    const razonMetric = document.querySelector('.cs-razonamiento__metric[data-screen="1"]');
+    const razonDescriptor = document.querySelector('.cs-razonamiento__descriptor[data-screen="1"]');
+
+    // Altura del descriptor: medida UNA vez en setup y re-medida en
+    // cada onRefresh del ST (init + resize + recreate). onRefresh se
+    // dispara DESPUÉS de refreshInit y ANTES del _updateAll(2) final,
+    // así el primer onUpdate post-refresh ya usa la altura nueva.
+    // Si el descriptor no existe (edge de init), el fallback da 0
+    // y el rango del riel colapsa a vh — no debería pasar, pero el
+    // guard evita un crash.
+    let razonDescriptorHeight = razonDescriptor ? razonDescriptor.offsetHeight : 0;
+
+    // Estado inicial — ANTES del create() para que el primer frame
+    // post-init muestre el reposo de Gate 2: riel con descriptor
+    // debajo del viewport, métrica invisible, label visible. El
+    // rest-state de la sección (.cs-razonamiento translateY 100vh)
+    // vive en CSS; La Decisión está en y:0 por la cortina de El
+    // Problema que ya corrió. Mismo patrón que
+    // metricaNumber.textContent='0%' en caso-asdeporte.js:247 antes
+    // del ST de Métrica.
+    if (razonRail) {
+        gsap.set(razonRail, { y: window.innerHeight * 0.5 });
+    }
+    if (razonMetric) {
+        gsap.set(razonMetric, { opacity: 0 });
+    }
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-1-razonamiento',
+        // Contiguo con el final REAL de La Decisión. Lectura dinámica
+        // post pinSpacing — si ladeciST no existe (edge de init), el
+        // fallback a 0 evita romper.
+        start: () => ladeciST ? ladeciST.end : 0,
+        // 3vh total: 1.5vh de entrada (relevo) + 1.5vh de contenido
+        // (riel + fade). Patrón de altura coherente con La Decisión
+        // (+= 4vh) y El Problema (+= 3vh).
+        end: () => '+=' + (window.innerHeight * PIN_LENGTH_VH),
+        pin: true,
+        pinSpacing: true,
+        // Coherencia con los 8 pines de la página. scrub:1 es
+        // smoothing temporal; la linealidad de la animación se logra
+        // en el onUpdate usando self.progress directo sin ease.
+        scrub: 1,
+        // Re-medir la altura del descriptor y re-aplicar el init del
+        // riel en cada refresh (init + resize + ScrollTrigger.refresh
+        // manual). Garantiza que un resize deje tanto el rango del
+        // riel (vh+dh) como la posición inicial del riel (0.5*newVh)
+        // coherentes con el nuevo viewport. Sin el re-set, el riel
+        // arrastra el y del viewport anterior (bug de 180px en
+        // viewports 1920×1080 → 3840×2160 detectado en diagnóstico).
+        onRefresh: () => {
+            if (razonDescriptor) {
+                razonDescriptorHeight = razonDescriptor.offsetHeight;
+            }
+            if (razonRail) {
+                gsap.set(razonRail, { y: window.innerHeight * 0.5 });
+            }
+        },
+        onUpdate: (self) => {
+            // [FIX] Mismo guard que los 8 pines previos: descarta el
+            // obj(0) espurio que ScrollTrigger dispara internamente
+            // durante _refreshAll(). Sin esto, el riel saltaría a su
+            // estado final en cada resize/refresh. Patrón idéntico a
+            // ladeci:1366, problema:1196, etc.
+            if (ScrollTrigger.isRefreshing) return;
+
+            const vh = window.innerHeight;
+            const dh = razonDescriptorHeight;
+            const ENTRY_FRACTION = ENTRY_VH / PIN_LENGTH_VH; // 0.5
+
+            if (self.progress <= ENTRY_FRACTION) {
+                // ── ENTRADA: relevo vertical ──
+                //   progress=0   → La Decisión y:0, Razonamiento y:+vh
+                //   progress=0.5*PIN → ambos en y:0 (cruce en el centro)
+                //   progress=ENTRY_FRACTION
+                //                 → La Decisión y:-vh, Razonamiento y:0
+                // Acople en espejo: ambos usan el mismo eased.
+                // power1.out (no power2.out): power2.out deja los
+                // finales casi inmóviles y choca con el arranque del
+                // riel ("atorón"). power1.out decelera suave.
+                const entryP = self.progress / ENTRY_FRACTION;     // 0 → 1
+                const eased = gsap.parseEase('power1.out')(entryP);
+
+                gsap.set('.cs-decision-mc', { y: -eased * vh });         // 0 → -vh
+                gsap.set('.cs-razonamiento', { y: vh - eased * vh });    // +vh → 0
+            } else {
+                // ── CONTENIDO: riel + fade de métrica ──
+                //   contentP=0   → rail y:+0.5*vh, descriptor top en vh
+                //                   (borde inferior, body COMPLETO abajo)
+                //   contentP=0.5 → rail y:-0.5*dh, descriptor centrado
+                //                   (centro = centro del viewport)
+                //   contentP=1   → rail y:-0.5*vh-dh, descriptor top en
+                //                   -dh (body COMPLETO arriba del viewport)
+                // Lineal: fórmula 0.5*vh - contentP*(vh+dh). La
+                // sensación de fluidez la da scrub:1 (smoothing
+                // temporal), no la curva de interpolación.
+                const contentP = (self.progress - ENTRY_FRACTION) / (1 - ENTRY_FRACTION); // 0 → 1
+
+                if (razonRail) {
+                    gsap.set(razonRail, { y: 0.5 * vh - contentP * (vh + dh) });
+                }
+
+                // Métrica: triángulo de opacidad atado a contentP.
+                //   contentP=0    → 0
+                //   contentP=0.25 → 0.5
+                //   contentP=0.5  → 1 (coincide con el centrado)
+                //   contentP=0.75 → 0.5
+                //   contentP=1    → 0
+                // Fórmula: 1 - |contentP - 0.5| * 2. Lineal.
+                if (razonMetric) {
+                    gsap.set(razonMetric, {
+                        opacity: 1 - Math.abs(contentP - 0.5) * 2
+                    });
+                }
+            }
+        }
+    });
 }
