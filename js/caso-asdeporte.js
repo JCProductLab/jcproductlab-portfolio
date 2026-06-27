@@ -1495,9 +1495,27 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // progress dentro del sub-tramo CONTENT.
     // ============================================
 
-    const ENTRY_VH = 1.5;
+    const ENTRY_VH = 0.75;
     const CONTENT_VH = 1.5;
-    const PIN_LENGTH_VH = ENTRY_VH + CONTENT_VH; // 3
+    const PIN_LENGTH_VH = ENTRY_VH + CONTENT_VH; // 2.25
+    // Solape: el content arranca antes de que el entry termine, de modo
+    // que el riel ya esté en movimiento mientras la sección todavía
+    // completa su deceleración de entrada. Sin solape, en el cruce
+    // entry→content hay un "cold start" del riel (de 0 a -2*(vh+dh)
+    // de golpe) y la sección se queda quieta — combinación que el ojo
+    // percibe como un freeze + restart (el "atorón" del pase de fluidez).
+    // Con solape, el riel nace por debajo del viewport (descriptor
+    // aún no visible) y ya está en movimiento cuando el descriptor
+    // entra. El ojo nunca ve un punto muerto.
+    // entry:    [0, 0.333] (sigue corriendo de 0 a 0.333, se detiene ahí)
+    // content:  [0.30, 1] (arranca 10% antes del fin del entry)
+    // solape:   [0.30, 0.333] — entry y content corren en paralelo.
+    // La proporción "10% antes del fin del entry" se mantiene
+    // independiente de ENTRY_VH: CONTENT_START = ENTRY_FRACTION * 0.9.
+    const CONTENT_START = 0.30;
+    // 0.30 / 1 = 30% del progress total: la rama content arranca
+    // cuando el ST lleva 30% (mitad del sub-tramo ENTRY).
+    const ENTRY_FRACTION = ENTRY_VH / PIN_LENGTH_VH; // 0.3333
 
     const ladeciST = ScrollTrigger.getAll().find(st =>
         st.trigger && st.trigger.className &&
@@ -1573,51 +1591,132 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             const vh = window.innerHeight;
             const dh = razonDescriptorHeight;
-            const ENTRY_FRACTION = ENTRY_VH / PIN_LENGTH_VH; // 0.5
 
+            // ── ENTRADA: relevo vertical ──
+            // Corre de progress 0 a ENTRY_FRACTION (0.5). power1.out
+            // decelera la salida de La Decisión y la entrada de
+            // Razonamiento. El riel queda fijo a 0.5*vh en este
+            // sub-tramo (sub-fix del init obsoleto, ver más abajo).
             if (self.progress <= ENTRY_FRACTION) {
-                // ── ENTRADA: relevo vertical ──
-                //   progress=0   → La Decisión y:0, Razonamiento y:+vh
-                //   progress=0.5*PIN → ambos en y:0 (cruce en el centro)
-                //   progress=ENTRY_FRACTION
-                //                 → La Decisión y:-vh, Razonamiento y:0
-                // Acople en espejo: ambos usan el mismo eased.
-                // power1.out (no power2.out): power2.out deja los
-                // finales casi inmóviles y choca con el arranque del
-                // riel ("atorón"). power1.out decelera suave.
                 const entryP = self.progress / ENTRY_FRACTION;     // 0 → 1
                 const eased = gsap.parseEase('power1.out')(entryP);
 
                 gsap.set('.cs-decision-mc', { y: -eased * vh });         // 0 → -vh
                 gsap.set('.cs-razonamiento', { y: vh - eased * vh });    // +vh → 0
-            } else {
-                // ── CONTENIDO: riel + fade de métrica ──
-                //   contentP=0   → rail y:+0.5*vh, descriptor top en vh
-                //                   (borde inferior, body COMPLETO abajo)
-                //   contentP=0.5 → rail y:-0.5*dh, descriptor centrado
-                //                   (centro = centro del viewport)
-                //   contentP=1   → rail y:-0.5*vh-dh, descriptor top en
-                //                   -dh (body COMPLETO arriba del viewport)
-                // Lineal: fórmula 0.5*vh - contentP*(vh+dh). La
-                // sensación de fluidez la da scrub:1 (smoothing
-                // temporal), no la curva de interpolación.
-                const contentP = (self.progress - ENTRY_FRACTION) / (1 - ENTRY_FRACTION); // 0 → 1
+
+                // Sub-fix del init obsoleto del riel. El init
+                // gsap.set(rail, {y: innerHeight*0.5}) corre antes
+                // de que el layout esté estable, por lo que el
+                // innerHeight es pre-layout y el riel queda en un
+                // valor stale (ej. 849.6 en vez de 1080 para vh=2160).
+                // El onRefresh no lo corrige porque tampoco ve el
+                // vh actualizado (sólo re-firesa con resize del
+                // window, no con reflow interno de layout).
+                // Escribir el riel EN CADA frame del onUpdate con
+                // window.innerHeight actual elimina la dependencia
+                // del init vh. En el rango del solape, la rama
+                // content sobreescribe este valor (gsap.set posterior
+                // gana), así que la única contribución al movimiento
+                // del riel durante el solape es la del content
+                // (lineal, como debe ser).
+                if (razonRail) {
+                    gsap.set(razonRail, { y: 0.5 * vh });
+                }
+            }
+
+            // ── CONTENT: riel + fade de métrica ──
+            // Corre de progress CONTENT_START (0.45) a 1. Se
+            // superpone con el entry en [0.45, 0.5]. El riel sigue
+            // lineal (mismo scan de lectura que la versión anterior
+            // validada por el diagnóstico).
+            if (self.progress >= CONTENT_START) {
+                const contentP = (self.progress - CONTENT_START) / (1 - CONTENT_START); // 0 → 1
 
                 if (razonRail) {
                     gsap.set(razonRail, { y: 0.5 * vh - contentP * (vh + dh) });
                 }
 
-                // Métrica: triángulo de opacidad atado a contentP.
-                //   contentP=0    → 0
-                //   contentP=0.25 → 0.5
-                //   contentP=0.5  → 1 (coincide con el centrado)
-                //   contentP=0.75 → 0.5
-                //   contentP=1    → 0
-                // Fórmula: 1 - |contentP - 0.5| * 2. Lineal.
+                // Métrica: decoupled del contentP crudo del riel.
+                // Sigue el recorrido VISIBLE del descriptor en el
+                // viewport (de borde inferior → centro → borde
+                // superior), no el contentP que arranca antes de que
+                // el descriptor sea visible.
+                //
+                // La posición real del descriptor en viewport =
+                // Razonamiento.y + railY + 0.5*vh. Durante el
+                // solape, Razonamiento.y aún se está moviendo
+                // (decelerando desde vh hasta 0 vía power1.out), así
+                // que el descriptor cruza el borde inferior un poco
+                // después de CONTENT_START (en progress ≈ 0.453 para
+                // vh=1080, similar para otros vh).
+                //
+                // metricP = (vh - descriptorTopInViewport) / vh:
+                //   descriptor en borde inferior → 0
+                //   descriptor centrado            → 0.5
+                //   descriptor en borde superior  → 1
+                //   Clamp [0, 1] para que metricP nunca salga del
+                //   rango (en particular, < 0 cuando el descriptor
+                //   está debajo del viewport — el clamp lo lleva a
+                //   0 y la opacity es exactamente 0).
                 if (razonMetric) {
-                    gsap.set(razonMetric, {
-                        opacity: 1 - Math.abs(contentP - 0.5) * 2
-                    });
+                    const railY = 0.5 * vh - contentP * (vh + dh);
+                    let descriptorTopInViewport;
+                    if (self.progress <= ENTRY_FRACTION) {
+                        // Solape: Razonamiento.y es animado por el
+                        // entry, el riel por el content. La posición
+                        // visible del descriptor incluye ambas
+                        // contribuciones.
+                        const entryP = self.progress / ENTRY_FRACTION;
+                        const eased = gsap.parseEase('power1.out')(entryP);
+                        const razonamientoY = vh - eased * vh;
+                        descriptorTopInViewport = razonamientoY + railY + 0.5 * vh;
+                    } else {
+                        // Post-entry: Razonamiento.y = 0 (su ST ya
+                        // no anima la sección). Sólo aporta el riel.
+                        descriptorTopInViewport = 0 + railY + 0.5 * vh;
+                    }
+                    // metricP recorre el viaje VISIBLE del descriptor:
+                    //   0 = descriptor en borde inferior del viewport
+                    //   0.5 = descriptor centrado
+                    //   1 = descriptor en borde superior (sale del viewport)
+                    //   Clamp [0, 1] para que metricP nunca salga del
+                    //   rango (en particular, < 0 cuando el descriptor
+                    //   está debajo del viewport — el clamp lo lleva a
+                    //   0 y la opacity es exactamente 0).
+                    const metricP = Math.max(0, Math.min(1, (vh - descriptorTopInViewport) / vh));
+
+                    // Curva de opacidad ASIMÉTRICA sobre metricP:
+                    //   [0, METRIC_FADE_IN_END)    : fade in 0 → 1
+                    //     (descriptor entra y llega al cuarto inferior)
+                    //   [METRIC_FADE_IN_END, METRIC_FADE_OUT_START]
+                    //                                : meseta opacity = 1
+                    //     (descriptor cruza el centro hasta ~90% del
+                    //     recorrido — la métrica "aguanta" el peak
+                    //     mientras el ojo lee el descriptor)
+                    //   (METRIC_FADE_OUT_START, 1]  : fade out 1 → 0
+                    //     (último 10% del recorrido del descriptor)
+                    // El fade out se retrasa hasta metricP=0.9 para
+                    // evitar el "fade out prematuro" del triángulo
+                    // simétrico (que caía a 0.5 cuando el descriptor
+                    // aún estaba en el centro). El fade in se queda
+                    // en el primer cuarto del recorrido: la métrica
+                    // llega a 1 antes que el descriptor llegue al
+                    // centro, de modo que la lectura del dato coincide
+                    // con la presencia plena del descriptor.
+                    const METRIC_FADE_IN_END = 0.25;
+                    const METRIC_FADE_OUT_START = 0.90;
+                    let opacity;
+                    if (metricP < METRIC_FADE_IN_END) {
+                        // Fade in lineal: 0 → 1 sobre [0, 0.25]
+                        opacity = metricP / METRIC_FADE_IN_END;
+                    } else if (metricP <= METRIC_FADE_OUT_START) {
+                        // Meseta: 1 sobre [0.25, 0.90]
+                        opacity = 1;
+                    } else {
+                        // Fade out lineal: 1 → 0 sobre [0.90, 1.0]
+                        opacity = (1 - metricP) / (1 - METRIC_FADE_OUT_START);
+                    }
+                    gsap.set(razonMetric, { opacity });
                 }
             }
         }
