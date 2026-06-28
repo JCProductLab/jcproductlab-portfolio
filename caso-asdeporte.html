@@ -615,8 +615,10 @@
 
             <!-- CAPA FIJA — label + métricas apiladas.
                  Esta capa NO se traslada. Las 3 métricas comparten
-                 la misma posición vertical; gates futuros agregarán
-                 fade in/out para alternar la métrica visible. -->
+                 la misma posición vertical; el JS controla la opacity
+                 de cada una con fade gradual. NUNCA coexisten
+                 visibles: m1 → m2 → m3 con un pequeño hueco entre
+                 cada par en el cruce de los textos. -->
             <div class="cs-razonamiento__fixed">
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
@@ -627,15 +629,23 @@
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
                     <span class="cs-headline cs-razonamiento__metric-value">65%</span>
                 </div>
+                <div class="cs-razonamiento__metric" data-screen="3">
+                    <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
+                    <span class="cs-headline cs-razonamiento__metric-value">5%</span>
+                </div>
             </div>
 
             <!-- CAPA MÓVIL (riel) — descriptores derechos apilados.
-                 En gates futuros este contenedor se trasladará
-                 verticalmente con scroll. En Gate 1 es estática
-                 (solo se valida el layout horizontal). -->
+                 El riel se traslada verticalmente con scroll. Los
+                 descriptores comparten el mismo solape mínimo: cuando
+                 el anterior sale por arriba, el siguiente entra por
+                 abajo. Hay un gap de 1.3*vh + 120 + dh entre cada
+                 par, validado para solape sin hueco y sin convivencia
+                 a media altura. -->
             <div class="cs-razonamiento__rail">
                 <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">De usuarios abandonaba antes de completar una inscripción. No tenía sentido invertir en funcionalidad social cuando la caja registradora tenía una fuga de ese tamaño.</p>
                 <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">De los tickets de soporte eran por fallos en pagos. Cero tickets pedían mejoras sociales.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Tasa de interacción de &lsquo;Tribu&rsquo;. La mayoría de los atletas ya usaba Strava para rendimiento y WhatsApp para comunidad. No teníamos una comunidad, teníamos un pueblo fantasma.</p>
             </div>
         </section>
 

@@ -494,4 +494,19 @@
         top: var(--razon-desc2-top, 135.56%);
     }
 
+    /* Descriptor 3 (Pantalla 3, dato 5%): apilado DEBAJO del
+       descriptor 2 con el MISMO STEP que separa d1 de d2
+       (desc3TopRel = desc2TopRel + STEP). Sin acumulación de
+       términos vh, sin gap inflado. Por construcción, gap 2→3
+       ≡ gap 1→2 y el cruce 2→3 tiene el mismo solape mínimo
+       que el 1→2. El top es dinámico (var --razon-desc3-top).
+       Para vh=2160, dh1=144: 2.1*2160 + 240 + 2*144 = 5064px
+       = 234.4%. Default CSS = 332% (pre-fix, seguro) por si
+       el JS no alcanza a escribir el custom property.
+       El recorrido del riel (PIN_LENGTH_VH) se ajusta para que
+       el dato 3 quede centrado y legible al final del pin. */
+    .cs-razonamiento__descriptor[data-screen="3"] {
+        top: var(--razon-desc3-top, 332%);
+    }
+
 }

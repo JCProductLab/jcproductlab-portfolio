@@ -1544,26 +1544,43 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // a un switch por tramos de progress.
     // ============================================
 
-    // PIN_LENGTH_VH para el recorrido del riel con gap aumentado
-    // 120px sobre el v3. El descriptor 2 está a top = 1.3*vh + 120
-    // + dh1 (en px). Recorrido: desde railY = 0.5*vh (d1 en borde
-    // inferior) hasta railY = -(1.3*vh + 120) - dh2 (d2
-    // completamente fuera). Recorrido = 1.8*vh + 120 + dh2.
-    // PIN_LENGTH_VH = 1.8 + 120/vh + dh2/vh.
-    // Para vh=2160, dh2=96: PIN_LENGTH_VH = 1.8 + 0.0556 + 0.0444 = 1.900.
-    // El setProperty --razon-desc2-top: top = 1.3*vh + 120 + dh1
-    // (en px). Para vh=2160, dh1=144: 2808 + 120 = 2928px.
-    // El JS calcula el valor exacto en cada init (dependiente de
-    // vh y dh1). El CSS tiene un default seguro (135.56%).
+    // PIN_LENGTH_VH para el recorrido del riel con Pantalla 3
+    // (datos 90.8%, 65%, 5%). El recorrido cubre desde el inicio
+    // (d1 en borde inferior) hasta el dato 3 CENTRADO en el
+    // viewport (no se sale completamente; su salida se construirá
+    // después con la conclusión).
+    //
+    // FIX: posiciones incrementales y uniformes. STEP = desplazamiento
+    // validado entre d1→d2 (incluye el gap +120px y la altura dh1).
+    //   desc1_topRel = 0.5*vh
+    //   STEP         = desc2_topRel − desc1_topRel = 0.8*vh + 120 + dh1
+    //   desc2_topRel = desc1_topRel + STEP = 1.3*vh + 120 + dh1  (validado, intacto)
+    //   desc3_topRel = desc2_topRel + STEP = 2.1*vh + 240 + 2*dh1
+    // Por construcción, gap 2→3 ≡ gap 1→2. Sin acumulación de términos vh.
+    //   End railY (d3 centrado) = 0.5*vh - desc3_topRel
+    //   Recorrido = 0.5*vh - End = desc3_topRel = 2.1*vh + 240 + 2*dh1
+    //   PIN_LENGTH_VH = 2.1 + 240/vh + 2*dh1/vh
+    // Para vh=2160, dh1=144: PIN_LENGTH_VH = 2.1 + 0.111 + 0.133 = 2.344.
+    // Para vh=2160, dh1=144: STEP = 1728 + 120 + 144 = 1992px; recorrido = 5064px.
+    // El setProperty --razon-desc2-top: top = desc1TopPx + STEP.
+    // El setProperty --razon-desc3-top: top = desc2TopPx + STEP.
+    // El JS calcula los valores exactos en cada init (dependientes de
+    // vh, dh1). El CSS tiene defaults seguros (135.56% y 332%).
     const _razonDesc1 = document.querySelector('.cs-razonamiento__descriptor[data-screen="1"]');
     const _razonDesc2 = document.querySelector('.cs-razonamiento__descriptor[data-screen="2"]');
+    const _razonDesc3 = document.querySelector('.cs-razonamiento__descriptor[data-screen="3"]');
     const _dh1 = _razonDesc1 ? _razonDesc1.offsetHeight : 0;
     const _dh2 = _razonDesc2 ? _razonDesc2.offsetHeight : 0;
-    const _dhMax = Math.max(_dh1, _dh2);
-    const PIN_LENGTH_VH = 1.8 + (120 / window.innerHeight) + (_dh2 / window.innerHeight);
+    const _dh3 = _razonDesc3 ? _razonDesc3.offsetHeight : 0;
+    const _dhMax = Math.max(_dh1, _dh2, _dh3);
     const _razonVh = window.innerHeight;
-    const _desc2TopPx = (1.3 * _razonVh) + 120 + _dh1;
+    const _desc1TopPx = 0.5 * _razonVh;
+    const _stepPx = 0.8 * _razonVh + 120 + _dh1;
+    const _desc2TopPx = _desc1TopPx + _stepPx;
+    const _desc3TopPx = _desc2TopPx + _stepPx;
+    const PIN_LENGTH_VH = (2.1 * _razonVh + 240 + 2 * _dh1) / _razonVh;
     document.documentElement.style.setProperty('--razon-desc2-top', _desc2TopPx + 'px');
+    document.documentElement.style.setProperty('--razon-desc3-top', _desc3TopPx + 'px');
     // ============================================
 
     const ladeciST = ScrollTrigger.getAll().find(st =>
@@ -1574,8 +1591,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const razonRail = document.querySelector('.cs-razonamiento__rail');
     const razonMetric1 = document.querySelector('.cs-razonamiento__metric[data-screen="1"]');
     const razonMetric2 = document.querySelector('.cs-razonamiento__metric[data-screen="2"]');
+    const razonMetric3 = document.querySelector('.cs-razonamiento__metric[data-screen="3"]');
     const razonDescriptor = document.querySelector('.cs-razonamiento__descriptor[data-screen="1"]');
     const razonDescriptor2 = document.querySelector('.cs-razonamiento__descriptor[data-screen="2"]');
+    const razonDescriptor3 = document.querySelector('.cs-razonamiento__descriptor[data-screen="3"]');
 
     // Altura del descriptor: medida UNA vez en setup y re-medida en
     // cada onRefresh del ST (init + resize + recreate). onRefresh se
@@ -1602,6 +1621,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     }
     if (razonMetric2) {
         gsap.set(razonMetric2, { opacity: 0 });
+    }
+    if (razonMetric3) {
+        gsap.set(razonMetric3, { opacity: 0 });
     }
 
     ScrollTrigger.create({
@@ -1702,30 +1724,35 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(razonRail, { y: railY });
             }
 
-            // FADE GRADUAL restaurado para ambas métricas (misma curva
-            // asimétrica que Pantalla 1). Cada métrica está atada a
-            // la posición de SU descriptor en el viewport:
+            // FADE GRADUAL restaurado para las TRES métricas (misma curva
+            // asimétrica que Pantalla 1). Cada métrica está atada a la
+            // posición de SU descriptor en el viewport:
             //   metricP_1 = (vh - desc1TopInViewport) / vh
             //   metricP_2 = (vh - desc2TopInViewport) / vh
-            // Donde desc1TopInViewport = railY + 0.5*vh y
-            // desc2TopInViewport = railY + 1.3*vh + 120 + dh1.
+            //   metricP_3 = (vh - desc3TopInViewport) / vh
+            // Donde:
+            //   desc1TopInViewport = railY + 0.5*vh
+            //   desc2TopInViewport = railY + 1.3*vh + 120 + dh1
+            //   desc3TopInViewport = railY + 2.1*vh + 240 + 2*dh1
             // La curva asimétrica (idéntica a la validada en Pantalla 1):
             //   fade in: 0 → 1 sobre metricP [0, 0.25]
             //   meseta: 1 sobre [0.25, 0.9]
             //   fade out: 1 → 0 sobre [0.9, 1.0]
-            // Cada métrica se sincroniza con su descriptor:
-            //   métrica 1: plena cuando d1 centrado, fade out cuando d1 sale
-            //   métrica 2: fade in cuando d2 entra, plena cuando d2 centrado
-            // RESTRICCIÓN "NUNCA visibles a la vez": el gap entre las
-            // dos curvas (offset de ~0.144*vh en metricP) hace que en
-            // la zona del cruce (railY ≈ -0.5*vh), métrica 1 llega a
-            // 0 justo antes de que métrica 2 empiece su fade in. La
-            // función if fuerza a 0 a la métrica 2 mientras currentRailY
-            // > -0.5*vh, garantizando que ambas están en 0
-            // simultáneamente (un pequeño "hueco" donde el ojo no ve
-            // ningún número, en el límite entre el fade out de 1 y
-            // el fade in de 2).
-            const _switchRailY = -0.5 * vh;  // cruce de textos
+            // RESTRICCIÓN "NUNCA visibles a la vez": cada transición
+            // usa un offset (~0.144*vh en metricP) que hace que la
+            // métrica saliente llegue a 0 justo antes de que la entrante
+            // empiece su fade in. La función if fuerza a 0 a la métrica
+            // entrante hasta que la saliente alcance 0, garantizando
+            // un pequeño "hueco" donde el ojo no ve ningún número.
+            // Cruce 1→2: m2 forzado a 0 hasta railY <= -0.5*vh (donde m1 llega a 0).
+            // Cruce 2→3: m3 forzado a 0 hasta railY <= -(1.3*vh + 120 + dh1)
+            //                     (donde m2 llega a 0, en d2_top=0). El switch 2→3
+            //                     está anclado a la posición de d2 (sin cambios), no
+            //                     de d3 — la curva de fade de m3 es la misma forma que
+            //                     la de m2, solo corrida en el tiempo. El re-acercamiento
+            //                     de d3 al d2 no afecta este umbral.
+            const _switchRailY_12 = -0.5 * vh;  // cruce de textos 1→2
+            const _switchRailY_23 = -1.3 * vh - 120 - _dh1;  // cruce de textos 2→3
             const computeOpacity = (metricP) => {
                 const FADE_IN_END = 0.25;
                 const FADE_OUT_START = 0.90;
@@ -1742,18 +1769,27 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (razonMetric2) {
                 // La métrica 2 está a 0 mientras currentRailY > -0.5*vh
                 // (antes del cruce de textos). Cuando currentRailY <=
-                // -0.5*vh, la métrica 2 empieza su fade in natural
-                // (desde metricP_2=0). Esto garantiza que las dos
-                // métricas no coexistan a opacity > 0
-                // simultáneamente: en el límite railY = -0.5*vh,
-                // métrica 1 = 0 y métrica 2 = 0 (un pequeño "hueco"
-                // donde el número no se ve).
-                if (railY > _switchRailY) {
+                // -0.5*vh, la métrica 2 empieza su fade in natural.
+                if (railY > _switchRailY_12) {
                     gsap.set(razonMetric2, { opacity: 0 });
                 } else {
                     const desc2TopInViewport = railY + 1.3 * vh + 120 + _dh1;
                     const metricP_2 = Math.max(0, Math.min(1, (vh - desc2TopInViewport) / vh));
                     gsap.set(razonMetric2, { opacity: computeOpacity(metricP_2) });
+                }
+            }
+            if (razonMetric3) {
+                // La métrica 3 está a 0 mientras currentRailY > -1.3*vh - 120
+                // - dh1 (antes del cruce de textos 2→3). Cuando
+                // currentRailY <= ese threshold (donde d2_top=0 y m2=0),
+                // la métrica 3 empieza su fade in natural. Garantiza
+                // NUNCA coexistencia con m2.
+                if (railY > _switchRailY_23) {
+                    gsap.set(razonMetric3, { opacity: 0 });
+                } else {
+                    const desc3TopInViewport = railY + 2.1 * vh + 240 + 2 * _dh1;
+                    const metricP_3 = Math.max(0, Math.min(1, (vh - desc3TopInViewport) / vh));
+                    gsap.set(razonMetric3, { opacity: computeOpacity(metricP_3) });
                 }
             }
         }
