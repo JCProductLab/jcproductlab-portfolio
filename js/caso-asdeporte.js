@@ -1578,7 +1578,102 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const _stepPx = 0.8 * _razonVh + 120 + _dh1;
     const _desc2TopPx = _desc1TopPx + _stepPx;
     const _desc3TopPx = _desc2TopPx + _stepPx;
-    const PIN_LENGTH_VH = (2.1 * _razonVh + 240 + 2 * _dh1) / _razonVh;
+    // Gate 4:声明 de la conclusión (necesaria antes del bloque
+    // PIN_LENGTH_VH para medir su altura en el init).
+    const razonConclusion = document.querySelector('.cs-razonamiento__conclusion');
+    // Gate 4 (continuación): label. Se mantiene visible (opacity 1)
+    // durante las 3 pantallas de dato; su fade out es responsabilidad
+    // del onUpdate (ventana [0.98, 1.0], ver bloque PIN_LENGTH_VH).
+    const razonLabel = document.querySelector('.cs-razonamiento__label');
+
+    // PIN_LENGTH_VH extendido con FASE 2 (conclusión).
+    //
+    // Estructura del pin de Razonamiento (post Gate 4):
+    //   Fase 1: riel barre d1→d2→d3 (datos 90.8%, 65%, 5%).
+    //           Recorrido = desc3_topRel (original validado, sin
+    //           cambios en este gate). Termina con d3 top en vh/2
+    //           (d3 centrado en maqueta). Inalterado: cruces 1→2
+    //           y 2→3 con STEP, switches, fades.
+    //   Fase 2 (NUEVA — Gate 4): d3 sale por arriba + conclusión entra
+    //           desde abajo.
+    //             - riel recorrido para que d3 salga completamente
+    //               (d3_bottom = 0, partiendo de d3 centrado en
+    //               vh/2): vh/2 + dh3.
+    //             - conclusión arranca asomando apenas (concOffset
+    //               = 0, top visual inicial = vh) y sube a su
+    //               posición de lectura. Recorrido = vh - baseTop
+    //               + concHeight/2.
+    //             - recorrido_fase2 = MAX de los dos (ambos terminan
+    //               al mismo tiempo en localP=1).
+    //             - concOffset = 0 (asomando) elimina pantalla vacía
+    //               entre la salida de d3 y la entrada de conc.
+    //               concOffset > 0 causa un gap porque la conc
+    //               tarda en hacerse visible (su recorrido de
+    //               entrada es largo: ~1200px para llegar a
+    //               asomar). Solape resultante: ~2% del pin,
+    //               con d3 saliendo por arriba y conc asomando
+    //               por abajo simultáneamente. Mismo patrón que
+    //               cruces entre datos: texto saliente arriba +
+    //               entrante abajo, sin pantalla vacía, sin
+    //               convivencia a media altura.
+    //             - métrica 3 hace su fade out natural (curva
+    //               asimétrica sobre metricP_3, igual que m1/m2).
+    //               Fade out completo cuando d3_topInVp cruza 0
+    //               (~50% de fase 2, antes de que d3 salga).
+    //
+    // PIN_LENGTH_VH = (recorrido_fase1 + recorrido_fase2) / vh
+    //
+    // Para vh=2160, dh1=dh3=144, concHeight=333:
+    //   recorrido_fase1 = desc3_topRel = 5064
+    //   riel_recorrido_fase2 = 1080 + 144 = 1224
+    //   conc_recorrido_fase2 = 2160 - 1120.5 + 0 + 166.5 = 1206
+    //   recorrido_fase2 = max(1224, 1206) = 1224
+    //   PIN_LENGTH_VH = (5064 + 1224) / 2160 = 2.911
+    // (Antes del Gate 4: PIN_LENGTH_VH = 2.344. Recorrido extra: 1224.)
+    const _recorridoFase1Px = 2.1 * _razonVh + 240 + 2 * _dh1;  // = desc3_topRel
+    const _rielRecorridoFase2Px = 0.5 * _razonVh + _dh3;
+    const _conclusionHeaderHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')) || 81;
+    const _conclusionBaseTopInit = _conclusionHeaderHeight + (_razonVh - _conclusionHeaderHeight) / 2;
+    // Altura de la conclusión: medida una vez al init (concHeight es
+    // estable — no cambia durante el pin). Si el elemento no existe,
+    // fallback 333 (≈ font-size 96px × 6 líneas, valor típico).
+    const _conclusionHeightInit = razonConclusion ? razonConclusion.offsetHeight : 333;
+    // concOffsetPx = distancia del TOP VISUAL inicial de la conc
+    // al borde INFERIOR del viewport. Positivo = off-bottom (conc
+    // escondida al inicio de fase 2, "entra desde abajo"). 0 =
+    // asomando apenas (conc toca el borde, sube inmediatamente a
+    // visible). Elegido = 0 para eliminar pantalla vacía: con
+    // concOffset > 0 la conc tarda demasiado en hacerse visible
+    // y queda un gap entre que d3 sale y la conc entra. Con =0,
+    // la conc está asomando apenas desde el primer frame de fase 2
+    // y se vuelve visible al ~1.5% de fase 2 (justo antes de que
+    // d3 termine de salir). Solape resultante: ~2% del pin.
+    // Esto es menor que el solape de los cruces entre datos
+    // (~6% del pin, calculado para vh=2160 dh1=144), pero es
+    // la mejor relación sin sacrificar la legibilidad de la
+    // conc (si concOffset < 0 la conc entra con parte del cuerpo
+    // ya visible antes de empezar a moverse).
+    const _concOffsetPx = 0;
+    const _concRecorridoFase2Px = _razonVh - _conclusionBaseTopInit + _concOffsetPx + _conclusionHeightInit / 2;
+    const _recorridoFase2Px = Math.max(_rielRecorridoFase2Px, _concRecorridoFase2Px);
+    const _conclusionEntryStartRatio = _recorridoFase1Px / (_recorridoFase1Px + _recorridoFase2Px);
+    const PIN_LENGTH_VH = (_recorridoFase1Px + _recorridoFase2Px) / _razonVh;
+    // Gate 4 (continuación): ventana del fade out del label.
+    //   El label "[ El razonamiento ]" persiste opacity 1 durante
+    //   las 3 pantallas de dato (mismo patrón validado para m1/m2/m3
+    //   en meseta: opacity 1 mientras el descriptor está legible).
+    //   Arranca su fade out cuando la métrica 5% completa su fade
+    //   out (metricP_3 = 1.0, que ocurre en contentP ≈
+    //   (0.5*vh + desc3_topRel) / recorrido_total = 0.9771 para
+    //   vh=2160, dh1=144). Usamos 0.98 (ligeramente después, por
+    //   la regla del usuario "DESPUÉS de que el 5% esté en 0").
+    //   Completa al final del pin (1.0) → label invisible cuando
+    //   la conclusión queda centrada. Duración ≈ 2% del pin
+    //   (≈126px de scroll a vh=2160, ~126ms a scrub:1). Curva
+    //   lineal, consistente con los fades de las métricas (no
+    //   un corte abrupto).
+    const _labelFadeStartRatio = 0.98;
+    const _labelFadeEndRatio = 1.0;
     document.documentElement.style.setProperty('--razon-desc2-top', _desc2TopPx + 'px');
     document.documentElement.style.setProperty('--razon-desc3-top', _desc3TopPx + 'px');
     // ============================================
@@ -1595,6 +1690,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const razonDescriptor = document.querySelector('.cs-razonamiento__descriptor[data-screen="1"]');
     const razonDescriptor2 = document.querySelector('.cs-razonamiento__descriptor[data-screen="2"]');
     const razonDescriptor3 = document.querySelector('.cs-razonamiento__descriptor[data-screen="3"]');
+    // razonConclusion ya está declarado arriba (antes de PIN_LENGTH_VH).
 
     // Altura del descriptor: medida UNA vez en setup y re-medida en
     // cada onRefresh del ST (init + resize + recreate). onRefresh se
@@ -1605,6 +1701,19 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // guard evita un crash.
     let razonDescriptorHeight = razonDescriptor ? razonDescriptor.offsetHeight : 0;
 
+    // Top base de la conclusión (sin offset de animación) — calculado
+    // desde la fórmula CSS: calc(--cs-header-height + (100vh - --cs-header-height)/2).
+    // Para vh=1080, header=81: 81 + (1080-81)/2 = 580.5. NO se lee del
+    // CSS computado porque después del init state (gsap.set top: baseTop + vh)
+    // el inline style sobreescribe el top computado, y re-leerlo
+    // devolvería el valor off-bottom en lugar del base. _conclusionHeaderHeight
+    // ya está declarado arriba (en el bloque de PIN_LENGTH_VH). Animamos
+    // la conclusión con `top` (no con `transform: translateY`) porque el
+    // CSS ya usa `transform: translate(-50%, -50%)` para centrado;
+    // añadir un transformY desde GSAP sobrescribiría ese translate.
+    // `top` respeta el transform original.
+    let conclusionBaseTopPx = _conclusionHeaderHeight + (window.innerHeight - _conclusionHeaderHeight) / 2;
+
     // Estado inicial — ANTES del create() para que el primer frame
     // post-init muestre el reposo de Gate 2: riel con descriptor
     // debajo del viewport, métrica invisible, label visible. El
@@ -1613,6 +1722,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // Problema que ya corrió. Mismo patrón que
     // metricaNumber.textContent='0%' en caso-asdeporte.js:247 antes
     // del ST de Métrica.
+    //
+    // Gate 4 — Conclusión: inicial state la pone off-bottom (top:
+    // baseTop + vh). Permanece off-bottom durante TODA la fase 1
+    // (cruces 1→2, 2→3 y centrado de d3). En la fase 2 (último 24.5%
+    // del pin), el onUpdate interpola su top desde off-bottom a su
+    // posición de lectura (top = baseTop, centrada bajo el header).
     if (razonRail) {
         gsap.set(razonRail, { y: window.innerHeight * 0.5 });
     }
@@ -1624,6 +1739,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     }
     if (razonMetric3) {
         gsap.set(razonMetric3, { opacity: 0 });
+    }
+    if (razonConclusion) {
+        // Initial state off-bottom: top = baseTop + recorridoFase2
+        // (conc queda off-bottom por concOffset + concHeight/2 al
+        // inicio del pin, listo para entrar durante la fase 2).
+        gsap.set(razonConclusion, { top: (conclusionBaseTopPx + _recorridoFase2Px) + 'px' });
     }
 
     ScrollTrigger.create({
@@ -1655,6 +1776,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (razonRail) {
                 gsap.set(razonRail, { y: window.innerHeight * 0.5 });
             }
+            // Gate 4: recalcular baseTop desde la fórmula + nuevo vh
+            // (no leer de getComputedStyle porque el inline top ya
+            // está sobreescrito con el off-bottom del init state).
+            conclusionBaseTopPx = _conclusionHeaderHeight + (window.innerHeight - _conclusionHeaderHeight) / 2;
         },
         onUpdate: (self) => {
             // [FIX] Mismo guard que los 8 pines previos: descarta el
@@ -1791,6 +1916,58 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     const metricP_3 = Math.max(0, Math.min(1, (vh - desc3TopInViewport) / vh));
                     gsap.set(razonMetric3, { opacity: computeOpacity(metricP_3) });
                 }
+            }
+
+            // ── GATE 4 — Entrada de la conclusión (fase 2) ─────────
+            // Mientras contentP < conclusionEntryStart (≈0.7554):
+            //   la conclusión está en su rest state off-bottom
+            //   (top = baseTop + vh), no visible. Cubre las fases
+            //   1→2, 2→3 y el centrado de d3 sin afectar a los
+            //   cruces validados.
+            //
+            // Durante la fase 2 (contentP ∈ [entryStart, 1]):
+            //   la conclusión sube linealmente desde off-bottom
+            //   hasta su posición de lectura (top = baseTop, centrada
+            //   bajo el header). localP = 0 → top = baseTop + vh
+            //   (off-bottom), localP = 1 → top = baseTop (centrada).
+            //
+            // SIN gesto de la frase final: cuerpo + frase final
+            // entran juntos como bloque centrado. La recolocación
+            // de la frase final al centro y su crecimiento con
+            // scale se construye en el gate siguiente (Gate 5).
+            if (razonConclusion) {
+                // Initial state: top = baseTop + recorridoFase2
+                // (conc arranca off-bottom por concOffset px, sube
+                // linealmente hasta su posición de lectura).
+                // localP = 0 → top = concInitialTop (off-bottom)
+                // localP = 1 → top = conclusionBaseTopPx (centrada)
+                const concInitialTop = conclusionBaseTopPx + _recorridoFase2Px;
+                if (contentP < _conclusionEntryStartRatio) {
+                    gsap.set(razonConclusion, { top: concInitialTop + 'px' });
+                } else {
+                    const localP = (contentP - _conclusionEntryStartRatio) / (1 - _conclusionEntryStartRatio);
+                    const conclusionTopPx = concInitialTop - _recorridoFase2Px * localP;
+                    gsap.set(razonConclusion, { top: conclusionTopPx + 'px' });
+                }
+            }
+
+            // ── GATE 4 (continuación): fade out del label ─────────
+            // El label "[ El razonamiento ]" persiste opacity 1
+            // durante las 3 pantallas de dato. Hace fade out
+            // gradual (linear ramp, mismo estilo que las métricas)
+            // cuando el 5% completa su fade out (contentP ≥
+            // _labelFadeStartRatio). Completa al final del pin
+            // (contentP ≥ _labelFadeEndRatio), quedando invisible
+            // cuando la conclusión queda centrada. Curva lineal
+            // 1 → 0 sobre la ventana [_labelFadeStartRatio,
+            // _labelFadeEndRatio].
+            if (razonLabel) {
+                let labelOpacity = 1;
+                if (contentP > _labelFadeStartRatio) {
+                    const labelProgress = (contentP - _labelFadeStartRatio) / (_labelFadeEndRatio - _labelFadeStartRatio);
+                    labelOpacity = Math.max(0, Math.min(1, 1 - labelProgress));
+                }
+                gsap.set(razonLabel, { opacity: labelOpacity });
             }
         }
     });
