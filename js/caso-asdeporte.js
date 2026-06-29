@@ -1585,6 +1585,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // durante las 3 pantallas de dato; su fade out es responsabilidad
     // del onUpdate (ventana [0.98, 1.0], ver bloque PIN_LENGTH_VH).
     const razonLabel = document.querySelector('.cs-razonamiento__label');
+    // Gate 5: cuerpo y frase final de la conclusión. Animados por
+    // separado durante el gesto final (fase 3): el cuerpo sube y
+    // sale, la frase final se recoloca al centro del viewport y
+    // crece con scale hasta saturar sin cortarse.
+    const razonBody = document.querySelector('.cs-razonamiento__conclusion-body');
+    const razonFinal = document.querySelector('.cs-razonamiento__conclusion-final');
 
     // PIN_LENGTH_VH extendido con FASE 2 (conclusión).
     //
@@ -1656,8 +1662,51 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const _concOffsetPx = 0;
     const _concRecorridoFase2Px = _razonVh - _conclusionBaseTopInit + _concOffsetPx + _conclusionHeightInit / 2;
     const _recorridoFase2Px = Math.max(_rielRecorridoFase2Px, _concRecorridoFase2Px);
-    const _conclusionEntryStartRatio = _recorridoFase1Px / (_recorridoFase1Px + _recorridoFase2Px);
-    const PIN_LENGTH_VH = (_recorridoFase1Px + _recorridoFase2Px) / _razonVh;
+    // Gate 5: FASE 3 — gesto final (cuerpo sale + frase final
+    // se recoloca al centro y crece).
+    //   recorrido_fase3 = 0.7*vh. Da tiempo para que el cuerpo
+    //   recorra su bodyExitDistance (~1320 para vh=2160) y la
+    //   frase final alcance scaleFinal. El cuerpo sale
+    //   completamente a ~localP 0.87; el último 13% del gesto
+    //   es la frase final sola creciendo hasta saturar
+    //   (golpe dramático en soledad, intencional).
+    //   Lineal con scrub. Sin scattering.
+    const _recorridoFase3Px = 0.7 * _razonVh;
+    const _recorridoFaseTotalPx = _recorridoFase1Px + _recorridoFase2Px + _recorridoFase3Px;
+    // Ratio donde el dato 3 queda centrado en el viewport
+    // (d3_topInVp = vh/2, marca el inicio de la fase 2 = d3 sale
+    // + conc entra). Se calcula sobre el recorrido TOTAL del pin
+    // (incluyendo fase 3), no sobre el recorrido pre-fase3.
+    // Sin esto, con la fase 3 añadida, el entry de la conc
+    // se comprimía a un instante.
+    const _conclusionEntryStartRatio = _recorridoFase1Px / _recorridoFaseTotalPx;
+    // Fin del entry de la conclusión (también inicio del gesto fase 3).
+    // Se necesita explícito porque con la fase 3 añadida, el rango
+    // del localP del entry ya no es [0, 1] sino [0, entryEndRatio].
+    // Sin esta corrección, el entry termina ANTES de su recorrido
+    // y la conc queda off-bottom al inicio del gesto.
+    const _conclusionEntryEndRatio = (_recorridoFase1Px + _recorridoFase2Px) / _recorridoFaseTotalPx;
+    const _gestureStartRatio = _conclusionEntryEndRatio;
+    const PIN_LENGTH_VH = _recorridoFaseTotalPx / _razonVh;
+    // Constantes del gesto, re-calculadas en init y onRefresh:
+    //   _bodyExitDistance: cuántos px sube el cuerpo para salir
+    //     completamente por arriba del viewport.
+    //   _finalToCenterDeltaX/Y: cuánto hay que trasladar la frase
+    //     final para que su centro (natural) coincida con (vw/2, vh/2).
+    //   _finalTargetScale: scale final = min(cap por ancho 92% de vw,
+    //     cap por alto 100% de vh). Satura el viewport sin cortarse.
+    let _bodyExitDistance = 0;
+    let _finalToCenterDeltaX = 0;
+    let _finalToCenterDeltaY = 0;
+    let _finalTargetScale = 1;
+    // Flag: true cuando ya se midieron las constantes del gesto
+    // en el primer frame del gesto (conc centrada). Evita re-medir
+    // cada frame (caro: getBoundingClientRect × 3). Se resetea a
+    // false cuando el usuario sale del rango del gesto (scrub
+    // reverso), para que un nuevo scrub hacia el gesto re-mida
+    // las constantes con la conc centrada de nuevo.
+    let _gestureInitialized = false;
+    const FINAL_SCALE_VW_RATIO = 0.92;
     // Gate 4 (continuación): ventana del fade out del label.
     //   El label "[ El razonamiento ]" persiste opacity 1 durante
     //   las 3 pantallas de dato (mismo patrón validado para m1/m2/m3
@@ -1747,6 +1796,67 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.set(razonConclusion, { top: (conclusionBaseTopPx + _recorridoFase2Px) + 'px' });
     }
 
+    // Gate 5: medir constantes del gesto (bodyExitDistance,
+    // deltaX/Y, scaleFinal). Se hace AL INICIO del gesto, NO
+    // en init, porque en init la conc está off-bottom y la
+    // medición del final sería incorrecta (su centro estaría
+    // a varios píxeles del real). Al inicio del gesto, la conc
+    // ya está centrada en su posición de lectura y la medición
+    // del final es correcta.
+    function computeGestureConstants() {
+        if (!razonFinal) return;
+        const vh = window.innerHeight;
+        const vw = window.innerWidth;
+        // Medir el TEXTO del final, no el <p>. El <p> ocupa el
+        // ancho completo del bloque 65% (= 2496 a 1920w) por su
+        // display:block, mientras que el texto "arreglando el
+        // pago."" es solo ~660px. Si usáramos el ancho del <p>,
+        // el scale sería ~1.4× y el texto solo llenaría ~24% de vw
+        // (no saturaría). Usando Range API para medir el texto
+        // real, el scale satura correctamente a 92% de vw.
+        const textRange = document.createRange();
+        textRange.selectNodeContents(razonFinal);
+        const finalTextRect = textRange.getBoundingClientRect();
+        const finalTextWidth = finalTextRect.width || 1;   // evita div/0
+        const finalTextHeight = finalTextRect.height || 1;
+        // Scale final: min del cap por ancho (92% de vw = 8% total
+        // de margen) y el cap por alto (100% de vh). El binding
+        // depende del texto — para texto ancho y corto siempre es
+        // el ancho.
+        const scaleByWidth = (vw * FINAL_SCALE_VW_RATIO) / finalTextWidth;
+        const scaleByHeight = vh / finalTextHeight;
+        const scaleFinal = Math.min(scaleByWidth, scaleByHeight);
+        _finalTargetScale = scaleFinal;
+        // Delta X para centrar el TEXTO (no el <p>). El texto es
+        // más estrecho que el <p> (text-align: right) y está
+        // anclado al borde DERECHO del <p>. Tras el scale, el texto
+        // sigue anclado al borde derecho del <p> escalado. Para
+        // que el centro del texto termine en vw/2:
+        //   textCenterAfter = (elementRightScaled + dx) - (textWidth * scale) / 2
+        //   ⇒ dx = vw/2 - elementRightScaled + (textWidth * scale) / 2
+        //   donde elementRightScaled = vw/2 + (elementWidth / 2) * scale
+        //   (escala desde el centro del <p> = vw/2).
+        //   Simplificando: dx = ((textWidth - elementWidth) / 2) * scale
+        //   Para textWidth < elementWidth (texto más estrecho que
+        //   <p>), dx es NEGATIVO: hay que mover el <p> a la
+        //   izquierda para que el texto (anclado a su derecha)
+        //   quede centrado en el viewport.
+        const razonFinalRect = razonFinal.getBoundingClientRect();
+        const elementWidth = razonFinalRect.width;
+        _finalToCenterDeltaX = ((finalTextWidth - elementWidth) / 2) * scaleFinal;
+        // Delta Y: el texto es 1 línea, su centro es básicamente
+        // el centro de su bounding box. Fórmula simple: centrar el
+        // centro del texto en vh/2.
+        const finalTextCenterY = finalTextRect.top + finalTextHeight / 2;
+        _finalToCenterDeltaY = vh / 2 - finalTextCenterY;
+        // Body exit: el cuerpo debe salir completamente por arriba
+        // del viewport. Distancia = bodyBottom + buffer.
+        if (razonBody) {
+            const bodyRect = razonBody.getBoundingClientRect();
+            _bodyExitDistance = bodyRect.bottom + 50;  // 50px buffer
+        }
+    }
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1-razonamiento',
         // Contiguo con el final REAL de La Decisión. Lectura dinámica
@@ -1780,6 +1890,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // (no leer de getComputedStyle porque el inline top ya
             // está sobreescrito con el off-bottom del init state).
             conclusionBaseTopPx = _conclusionHeaderHeight + (window.innerHeight - _conclusionHeaderHeight) / 2;
+            // Gate 5: re-medir las constantes del gesto (dependen
+            // de vh, vw, y del layout actual del cuerpo y final).
+            // Sin re-medir, el scale y los deltas arrastrarían los
+            // valores del viewport anterior tras un resize.
+            computeGestureConstants();
         },
         onUpdate: (self) => {
             // [FIX] Mismo guard que los 8 pines previos: descarta el
@@ -1944,10 +2059,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const concInitialTop = conclusionBaseTopPx + _recorridoFase2Px;
                 if (contentP < _conclusionEntryStartRatio) {
                     gsap.set(razonConclusion, { top: concInitialTop + 'px' });
-                } else {
-                    const localP = (contentP - _conclusionEntryStartRatio) / (1 - _conclusionEntryStartRatio);
+                } else if (contentP < _conclusionEntryEndRatio) {
+                    const localP = (contentP - _conclusionEntryStartRatio) / (_conclusionEntryEndRatio - _conclusionEntryStartRatio);
                     const conclusionTopPx = concInitialTop - _recorridoFase2Px * localP;
                     gsap.set(razonConclusion, { top: conclusionTopPx + 'px' });
+                } else {
+                    // Conc ya centrada en su posición de lectura.
+                    // Mantener explícitamente (defensivo contra scrub reverso).
+                    gsap.set(razonConclusion, { top: conclusionBaseTopPx + 'px' });
                 }
             }
 
@@ -1967,7 +2086,67 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     const labelProgress = (contentP - _labelFadeStartRatio) / (_labelFadeEndRatio - _labelFadeStartRatio);
                     labelOpacity = Math.max(0, Math.min(1, 1 - labelProgress));
                 }
+                // Gate 5: el label debe estar invisible durante TODO
+                // el gesto (cuerpo saliendo + frase final moviéndose/
+                // creciendo). Override: si el gesto está activo, el
+                // label se fuerza a 0. Snap al inicio del gesto.
+                if (contentP > _gestureStartRatio) {
+                    labelOpacity = 0;
+                }
                 gsap.set(razonLabel, { opacity: labelOpacity });
+            }
+
+            // ── GATE 5: GESTO FINAL (fase 3) ─────────────────────
+            // Simultáneo:
+            //   - Cuerpo (.cs-razonamiento__conclusion-body) sube
+            //     translateY y sale por arriba. bodyExitDistance
+            //     cubre el bottom + 50px de buffer. Sale a
+            //     localP ≈ 0.87 (suficiente para que la frase
+            //     final quede sola en el último 13% del gesto).
+            //   - Frase final (.cs-razonamiento__conclusion-final)
+            //     se recoloca al centro del viewport (translate
+            //     deltaX/deltaY) y crece con scale desde 1 hasta
+            //     scaleFinal. Saturación: el texto llena el 92% de
+            //     vw (o el 100% de vh, lo que sea menor).
+            // Transform-origin: 50% 50% del propio elemento (default).
+            // Orden CSS: scale primero, luego translate — el centro
+            // del elemento viaja linealmente del natural al
+            // (vw/2, vh/2) sin deriva lateral por el scale.
+            // Reset defensivo cuando contentP < _gestureStartRatio
+            // (para scrub reverso): cuerpo a y:0, final a x:0 y:0
+            // scale:1.
+            if (contentP > _gestureStartRatio) {
+                // Medir constantes del gesto EN EL PRIMER FRAME
+                // del gesto (conc ya centrada, body y final en su
+                // posición de lectura). Una sola vez por gesto:
+                // _gestureInitialized evita re-medir cada frame.
+                if (!_gestureInitialized) {
+                    computeGestureConstants();
+                    _gestureInitialized = true;
+                }
+                const localP = (contentP - _gestureStartRatio) / (1 - _gestureStartRatio);
+                if (razonBody) {
+                    gsap.set(razonBody, { y: -_bodyExitDistance * localP });
+                }
+                if (razonFinal) {
+                    const s = 1 + (_finalTargetScale - 1) * localP;
+                    gsap.set(razonFinal, {
+                        x: _finalToCenterDeltaX * localP,
+                        y: _finalToCenterDeltaY * localP,
+                        scale: s,
+                    });
+                }
+            } else {
+                // Reset del flag: si el usuario hace scrub reverso
+                // y vuelve a entrar al gesto, se re-medirán las
+                // constantes con la conc ya centrada de nuevo.
+                _gestureInitialized = false;
+                if (razonBody) {
+                    gsap.set(razonBody, { y: 0 });
+                }
+                if (razonFinal) {
+                    gsap.set(razonFinal, { x: 0, y: 0, scale: 1 });
+                }
             }
         }
     });
