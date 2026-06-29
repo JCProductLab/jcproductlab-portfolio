@@ -647,6 +647,37 @@
                 <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">De los tickets de soporte eran por fallos en pagos. Cero tickets pedían mejoras sociales.</p>
                 <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Tasa de interacción de &lsquo;Tribu&rsquo;. La mayoría de los atletas ya usaba Strava para rendimiento y WhatsApp para comunidad. No teníamos una comunidad, teníamos un pueblo fantasma.</p>
             </div>
+
+            <!-- ============================================ -->
+            <!-- CAPA CONCLUSIÓN — Cuarta y última pantalla        -->
+            <!-- ROMPE el patrón de las 3 pantallas de dato: no usa -->
+            <!-- __fixed (label+métricas) ni __rail (descriptores). -->
+            <!-- Es una tercera capa, sibling de ambas, con su propio -->
+            <!-- contenedor independiente.                         -->
+            <!--                                                  -->
+            <!-- El cuerpo y la frase final son NODOS SEPARADOS    -->
+            <!-- desde la maqueta. La frase final "arreglando el   -->
+            <!-- pago." es un <p> propio, NO parte del párrafo del -->
+            <!-- cuerpo, porque su gesto posterior (recolocarse al  -->
+            <!-- centro y crecer con scale) requiere que sea un    -->
+            <!-- nodo independiente animable por sí solo.          -->
+            <!--                                                  -->
+            <!-- ESTADO DE MAQUETA (Gate 4):                       -->
+            <!-- - HTML y CSS estáticos, sin animación.            -->
+            <!-- - Sin opacity:0, sin transforms, sin ScrollTrigger -->
+            <!-- - El contenedor se posiciona dentro de la sección -->
+            <!--   .cs-razonamiento (position:absolute) en su      -->
+            <!--   posición de lectura.                            -->
+            <!-- - El gate de animación agregará: entrada del      -->
+            <!--   cuerpo, salida de la frase inicial (off-right), -->
+            <!--   recolocación de la frase al centro, scale, y    -->
+            <!--   salida sincronizada con la cortina de Decisión 2 -->
+            <!--   (que ya tiene su propio pin).                   -->
+            <!-- ============================================ -->
+            <div class="cs-razonamiento__conclusion">
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;El argumento se cerró solo. No podíamos competir en un terreno que ya habíamos perdido. Primero había que ganarse el derecho de hablar con el usuario&hellip;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">arreglando el pago.&rdquo;</p>
+            </div>
         </section>
 
     </main>

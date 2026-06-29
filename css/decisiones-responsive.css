@@ -509,4 +509,101 @@
         top: var(--razon-desc3-top, 332%);
     }
 
+    /* ============================================
+       EL RAZONAMIENTO — Gate 4 (maqueta estática,
+       Pantalla 4: Conclusión)
+
+       Capa independiente, sibling de __fixed y __rail.
+       ROMPE el patrón de las 3 pantallas de dato:
+       no usa la columna derecha (35%) ni la capa de
+       métricas. Es un bloque CENTRADO propio.
+
+       ── ESTADO DE MAQUETA (Gate 4) ──
+       HTML y CSS estáticos, sin animación, sin
+       opacity:0, sin transforms, sin ScrollTrigger.
+       Visible en su posición de lectura para validar
+       layout contra razonamiento-04.jpg.
+
+       El gate de animación posterior agregará:
+       - entrada del cuerpo (la frase final nace con
+         posición provisional alineada a la derecha)
+       - recolocación de la frase final al centro y
+         crecimiento con scale
+       - salida sincronizada con la cortina de
+         Decisión 2 (que ya tiene su propio pin)
+       ============================================ */
+
+    /* CAPA CONCLUSIÓN — contenedor independiente,
+       third sibling de __fixed y __rail dentro de
+       .cs-razonamiento. ROMPE el patrón de las 3
+       pantallas de dato: no usa la columna derecha
+       (35%) ni la capa de métricas. Es un bloque
+       CENTRADO propio.
+
+       Centrado HORIZONTAL: width:65% del viewport,
+       left:50% + translateX(-50%) ancla el bloque
+       al eje vertical del viewport.
+
+       Centrado VERTICAL: medido desde el BORDE
+       INFERIOR DEL HEADER (no el centro absoluto
+       del viewport). El header ocupa la franja
+       superior (--cs-header-height); el centro del
+       bloque vive en la mitad del área debajo de
+       él. Fórmula del top:
+         top = header + (100vh - header) / 2
+       Con translate(-50%, -50%) el BLOQUE completo
+       (cuerpo arriba + frase final abajo) queda
+       centrado en ese punto.
+
+       z-index:3 lo pone por encima de __fixed (z:1)
+       y __rail (z:2) sin alterar la composición de
+       los datos. pointer-events:none evita que el
+       bloque bloquee clicks en elementos
+       interactivos de las otras capas (defensivo). */
+    .cs-razonamiento__conclusion {
+        position: absolute;
+        top: calc(var(--cs-header-height) + (100vh - var(--cs-header-height)) / 2);
+        left: 50%;
+        width: 65%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    /* Cuerpo de la conclusión — bloque principal del
+       texto, alineado a la izquierda (default LTR).
+       Hereda la familia de .cs-body-xxl-italic
+       (Sora, cursiva, line-height 1.1) y la usa como
+       tipografía base del proyecto. Font-size se
+       sobreescribe para coincidir con razonamiento-04.jpg
+       (≈ 96px a 1920w): clamp(2.5rem, 5vw, 6rem) —
+       el 5vw preferred da 96px a 1920 (lo que pide
+       la maqueta), y el cap 6rem lo congela a 96px
+       en viewports 4K donde 5vw sería 192px. Color
+       a --color-secondary (blanco) para máximo
+       contraste contra el fondo --color-primary
+       (negro) de la sección. */
+    .cs-razonamiento__conclusion-body {
+        margin: 0;
+        text-align: left;
+        color: var(--color-secondary);
+    }
+
+    /* Frase final "arreglando el pago." — ELEMENTO
+       SEPARADO en el HTML (no parte del cuerpo) por
+       su gesto posterior. POSICIÓN INICIAL DEL GESTO:
+       alineada a la DERECHA del bloque de 65%, debajo
+       del cuerpo. Mismo font-size que el cuerpo
+       (clamp 2.5rem-5vw-6rem) para que compartan
+       escala tipográfica en la maqueta. Separación
+       del cuerpo via margin-top de aprox. 0.5em
+       (≈ media línea a 96px). El gate de animación
+       la recolocará al centro y la hará crecer con
+       scale. NO tratar como posición final. */
+    .cs-razonamiento__conclusion-final {
+        margin: 0;
+        text-align: right;
+        color: var(--color-secondary);
+    }
+
 }
