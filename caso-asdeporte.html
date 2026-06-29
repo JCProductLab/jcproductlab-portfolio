@@ -526,7 +526,7 @@
              completo en prompts futuros (mismo DOM, sin reestructurar).
              Posición: absolute, inset 0, z-index 3 — independiente del track
              para que el verde se ENCIME sobre los títulos (persiana). -->
-        <section class="cs-decision" aria-label="Decisión 1 del caso">
+        <section class="cs-decision" data-dec="1" aria-label="Decisión 1 del caso">
 
             <div class="cs-decision__bg" aria-hidden="true"></div>
 
@@ -550,7 +550,7 @@
         <!-- Grid 2x2 de cards con título centrado.         -->
         <!-- Vive FUERA del stage horizontal (scroll vertical). -->
         <!-- ============================================ -->
-        <section class="cs-problema" aria-label="El problema del caso">
+        <section class="cs-problema" data-dec="1" aria-label="El problema del caso">
             <div class="cs-problema__content">
                 <h3 class="cs-decision-text cs-problema__title">[ El problema ]</h3>
                 <div class="cs-problema__grid">
@@ -580,7 +580,7 @@
         <!-- Maqueta estática del estado inicial (Gate C). Animaciones -->
         <!-- internas de imagen/óvalo/texto son Gate D. -->
         <!-- ============================================ -->
-        <section class="cs-decision-mc" aria-label="La decisión del caso">
+        <section class="cs-decision-mc" data-dec="1" aria-label="La decisión del caso">
             <h3 class="cs-decision-text cs-decision-mc__title">[ La decisión ]</h3>
 
             <div class="cs-decision-mc__stage">
@@ -611,7 +611,7 @@
         <!-- como contenedor vacío. El gate de animación        -->
         <!-- posterior lo gobernará.                             -->
         <!-- ============================================ -->
-        <section class="cs-razonamiento" aria-label="El razonamiento de Decisión 1">
+        <section class="cs-razonamiento" data-dec="1" aria-label="El razonamiento de Decisión 1">
 
             <!-- CAPA FIJA — label + métricas apiladas.
                  Esta capa NO se traslada. Las 3 métricas comparten

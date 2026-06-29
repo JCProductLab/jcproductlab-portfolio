@@ -987,10 +987,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // inline styles (mismo patrón que 7a).
     // ============================================
 
-    const decision1Panel = document.querySelector('.cs-decision');
-    const decision1Label = document.querySelector('.cs-decision__label');
-    const decision1Title = document.querySelector('.cs-decision__title');
-    const decision1Media = document.querySelector('.cs-decision__media');
+    const decision1Panel = document.querySelector('.cs-decision[data-dec="1"]');
+    const decision1Label = document.querySelector('.cs-decision[data-dec="1"] .cs-decision__label');
+    const decision1Title = document.querySelector('.cs-decision[data-dec="1"] .cs-decision__title');
+    const decision1Media = document.querySelector('.cs-decision[data-dec="1"] .cs-decision__media');
     const decisionesTitulosST = ScrollTrigger.getAll().find(st =>
         st.trigger && st.trigger.className &&
         st.trigger.className.includes('pin-spacer--decisiones-titulos')
@@ -1071,9 +1071,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // Captura del ST de la cortina para anclar el start al final real
     // (post pinSpacing). Mismo patrón que la cortina usó con 7a.
     const cortinaST = ScrollTrigger.getAll().find(st =>
-        st.trigger && st.trigger.className &&
-        st.trigger.className.includes('pin-spacer--decision-1') &&
-        !st.trigger.className.includes('expansion')
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-1')
     );
 
     // headerH: lee el token --cs-header-height del :root (css/variables.css:92).
@@ -1173,16 +1172,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // ============================================
 
     const expansionST = ScrollTrigger.getAll().find(st =>
-        st.trigger && st.trigger.className &&
-        st.trigger.className.includes('pin-spacer--decision-1-expansion')
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-1-expansion')
     );
 
     // Captura única de los 5 nodos de la cascada (título + 4 cards).
     // gsap.utils.toArray respeta el document order, que coincide con el
     // orden visual (grid 2-col, row-by-row: top-left, top-right,
     // bot-left, bot-right).
-    const problemaTitle = document.querySelector('.cs-problema__title');
-    const problemaCards = gsap.utils.toArray('.cs-problema__card');
+    const problemaTitle = document.querySelector('.cs-problema[data-dec="1"] .cs-problema__title');
+    const problemaCards = gsap.utils.toArray('.cs-problema[data-dec="1"] .cs-problema__card');
     const problemaNodes = problemaTitle ? [problemaTitle, ...problemaCards] : problemaCards;
 
     ScrollTrigger.create({
@@ -1202,13 +1201,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
             const eased = gsap.parseEase('power2.out')(curtainP);
 
-            gsap.set('.cs-decision', { y: -eased * vh });   // 0 → -vh
-            gsap.set('.cs-problema', { y: vh - eased * vh }); // vh → 0
+            gsap.set('.cs-decision[data-dec="1"]', { y: -eased * vh });   // 0 → -vh
+            gsap.set('.cs-problema[data-dec="1"]', { y: vh - eased * vh }); // vh → 0
 
             // La Decisión: en y:0 solo cuando El Problema cubre el viewport (cortina saturada).
             // Función pura de curtainP → bidireccional, sin callbacks. El snap y:100vh→y:0
             // ocurre cuando El Problema está a y:0 cubriendo todo → invisible.
-            gsap.set('.cs-decision-mc', { y: curtainP >= 1 ? 0 : '100vh' });
+            gsap.set('.cs-decision-mc[data-dec="1"]', { y: curtainP >= 1 ? 0 : '100vh' });
 
             // CASCADA: tramo [1/3, 2/3] del progress global (vh → 2vh).
             // Cada nodo entra desde y:400, opacity:0 → y:0, opacity:1.
@@ -1252,8 +1251,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // ============================================
 
     const problemaST = ScrollTrigger.getAll().find(st =>
-        st.trigger && st.trigger.className &&
-        st.trigger.className.includes('pin-spacer--decision-1-problema')
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-1-problema')
     );
 
     // ============================================
@@ -1265,11 +1264,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // para que la fuente Sora esté cargada al medir las líneas.
     // ============================================
 
-    const decisionImg = document.querySelector('.cs-decision-mc__img');
-    const decisionMedia = document.querySelector('.cs-decision-mc__media');
-    const decisionRing = document.querySelector('.cs-decision-mc__ring');
-    const decisionText = document.querySelector('.cs-decision-mc__text');
-    const decisionTextWrap = document.querySelector('.cs-decision-mc__text-wrap');
+    const decisionImg = document.querySelector('.cs-decision-mc[data-dec="1"] .cs-decision-mc__img');
+    const decisionMedia = document.querySelector('.cs-decision-mc[data-dec="1"] .cs-decision-mc__media');
+    const decisionRing = document.querySelector('.cs-decision-mc[data-dec="1"] .cs-decision-mc__ring');
+    const decisionText = document.querySelector('.cs-decision-mc[data-dec="1"] .cs-decision-mc__text');
+    const decisionTextWrap = document.querySelector('.cs-decision-mc[data-dec="1"] .cs-decision-mc__text-wrap');
     const ORIGINAL_TEXT = decisionText ? decisionText.textContent : '';
 
     // Líneas vigentes — reasignada tras cada (re-)split.
@@ -1374,7 +1373,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             // SOLO El Problema sube. La Decisión queda quieta en y:0 (gestionada por
             // el onUpdate de problemaST vía curtainP). La Decisión NO se anima aquí.
-            gsap.set('.cs-problema', { y: -eased * vh });     // 0 → -vh (sale arriba)
+            gsap.set('.cs-problema[data-dec="1"]', { y: -eased * vh });     // 0 → -vh (sale arriba)
 
             // ── Gate D: animaciones internas de La Decisión ────────────────
             // Imagen y óvalo arrancan en progress 0 (junto con la persiana) y corren
@@ -1476,11 +1475,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const relP = (self.progress - 0.5) / 0.5;  // 0 → 1 dentro del respiro
                 const eased = gsap.parseEase('power1.out')(relP);
 
-                gsap.set('.cs-decision-mc', { y: -eased * vh });         // 0 → -vh
-                gsap.set('.cs-razonamiento', { y: vh - eased * vh });    // +vh → 0
+                gsap.set('.cs-decision-mc[data-dec="1"]', { y: -eased * vh });         // 0 → -vh
+                gsap.set('.cs-razonamiento[data-dec="1"]', { y: vh - eased * vh });    // +vh → 0
 
                 // Sub-fix: rail a su init value con vh actual.
-                const razonRailEl = document.querySelector('.cs-razonamiento__rail');
+                const razonRailEl = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__rail');
                 if (razonRailEl) {
                     gsap.set(razonRailEl, { y: 0.5 * vh });
                 }
@@ -1566,9 +1565,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // El setProperty --razon-desc3-top: top = desc2TopPx + STEP.
     // El JS calcula los valores exactos en cada init (dependientes de
     // vh, dh1). El CSS tiene defaults seguros (135.56% y 332%).
-    const _razonDesc1 = document.querySelector('.cs-razonamiento__descriptor[data-screen="1"]');
-    const _razonDesc2 = document.querySelector('.cs-razonamiento__descriptor[data-screen="2"]');
-    const _razonDesc3 = document.querySelector('.cs-razonamiento__descriptor[data-screen="3"]');
+    const _razonDesc1 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__descriptor[data-screen="1"]');
+    const _razonDesc2 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__descriptor[data-screen="2"]');
+    const _razonDesc3 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__descriptor[data-screen="3"]');
     const _dh1 = _razonDesc1 ? _razonDesc1.offsetHeight : 0;
     const _dh2 = _razonDesc2 ? _razonDesc2.offsetHeight : 0;
     const _dh3 = _razonDesc3 ? _razonDesc3.offsetHeight : 0;
@@ -1580,17 +1579,17 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const _desc3TopPx = _desc2TopPx + _stepPx;
     // Gate 4:声明 de la conclusión (necesaria antes del bloque
     // PIN_LENGTH_VH para medir su altura en el init).
-    const razonConclusion = document.querySelector('.cs-razonamiento__conclusion');
+    const razonConclusion = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__conclusion');
     // Gate 4 (continuación): label. Se mantiene visible (opacity 1)
     // durante las 3 pantallas de dato; su fade out es responsabilidad
     // del onUpdate (ventana [0.98, 1.0], ver bloque PIN_LENGTH_VH).
-    const razonLabel = document.querySelector('.cs-razonamiento__label');
+    const razonLabel = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__label');
     // Gate 5: cuerpo y frase final de la conclusión. Animados por
     // separado durante el gesto final (fase 3): el cuerpo sube y
     // sale, la frase final se recoloca al centro del viewport y
     // crece con scale hasta saturar sin cortarse.
-    const razonBody = document.querySelector('.cs-razonamiento__conclusion-body');
-    const razonFinal = document.querySelector('.cs-razonamiento__conclusion-final');
+    const razonBody = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__conclusion-body');
+    const razonFinal = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__conclusion-final');
 
     // PIN_LENGTH_VH extendido con FASE 2 (conclusión).
     //
@@ -1728,17 +1727,17 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // ============================================
 
     const ladeciST = ScrollTrigger.getAll().find(st =>
-        st.trigger && st.trigger.className &&
-        st.trigger.className.includes('pin-spacer--decision-1-ladecision')
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-1-ladecision')
     );
 
-    const razonRail = document.querySelector('.cs-razonamiento__rail');
-    const razonMetric1 = document.querySelector('.cs-razonamiento__metric[data-screen="1"]');
-    const razonMetric2 = document.querySelector('.cs-razonamiento__metric[data-screen="2"]');
-    const razonMetric3 = document.querySelector('.cs-razonamiento__metric[data-screen="3"]');
-    const razonDescriptor = document.querySelector('.cs-razonamiento__descriptor[data-screen="1"]');
-    const razonDescriptor2 = document.querySelector('.cs-razonamiento__descriptor[data-screen="2"]');
-    const razonDescriptor3 = document.querySelector('.cs-razonamiento__descriptor[data-screen="3"]');
+    const razonRail = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__rail');
+    const razonMetric1 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__metric[data-screen="1"]');
+    const razonMetric2 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__metric[data-screen="2"]');
+    const razonMetric3 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__metric[data-screen="3"]');
+    const razonDescriptor = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__descriptor[data-screen="1"]');
+    const razonDescriptor2 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__descriptor[data-screen="2"]');
+    const razonDescriptor3 = document.querySelector('.cs-razonamiento[data-dec="1"] .cs-razonamiento__descriptor[data-screen="3"]');
     // razonConclusion ya está declarado arriba (antes de PIN_LENGTH_VH).
 
     // Altura del descriptor: medida UNA vez en setup y re-medida en
@@ -2147,6 +2146,38 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 if (razonFinal) {
                     gsap.set(razonFinal, { x: 0, y: 0, scale: 1 });
                 }
+            }
+        },
+        // Blindaje para duplicación: cleanup al salir del pin.
+        // El onLeave se dispara cuando el scroll sale del rango del
+        // pin (post progress=1). Limpia los transforms inline que el
+        // gesto (Gate 5) dejó en el cuerpo y la frase final. Sin este
+        // clearProps, los inline styles de scale 5.41 + translate
+        // -4989px del final del gesto persistirían sobre el section
+        // y romperían la futura cortina de Decisión 2 (que necesita
+        // cubrir limpiamente el section de Decisión 1).
+        //
+        // Idempotencia: el clearProps es seguro de ejecutarse múltiples
+        // veces (elimina la propiedad, no la pone a un valor). Si
+        // onLeave se dispara y luego onLeaveBack (no definido aquí)
+        // o re-entrada, el onUpdate resetea a estado natural en la
+        // rama `else` (líneas 2143-2148), sobrescribiendo cualquier
+        // estado residual.
+        //
+        // Por qué NO necesitamos onLeaveBack: el onUpdate rama `else`
+        // ya hace `gsap.set(razonBody, { y: 0 })` y
+        // `gsap.set(razonFinal, { x: 0, y: 0, scale: 1 })` cuando
+        // contentP < _gestureStartRatio (línea 2142). En scrub reverso
+        // DENTRO del pin, el onUpdate corre primero y resetea los
+        // transforms antes de que se ejecute cualquier onLeaveBack.
+        // El onLeaveBack se ejecutaría DESPUÉS del onUpdate de re-entrada
+        // y como es clearProps (no set), no interfiere.
+        onLeave: () => {
+            if (razonBody) {
+                gsap.set(razonBody, { clearProps: 'transform' });
+            }
+            if (razonFinal) {
+                gsap.set(razonFinal, { clearProps: 'transform' });
             }
         }
     });
