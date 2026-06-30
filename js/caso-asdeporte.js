@@ -1710,18 +1710,40 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     //   El label "[ El razonamiento ]" persiste opacity 1 durante
     //   las 3 pantallas de dato (mismo patrón validado para m1/m2/m3
     //   en meseta: opacity 1 mientras el descriptor está legible).
-    //   Arranca su fade out cuando la métrica 5% completa su fade
-    //   out (metricP_3 = 1.0, que ocurre en contentP ≈
-    //   (0.5*vh + desc3_topRel) / recorrido_total = 0.9771 para
-    //   vh=2160, dh1=144). Usamos 0.98 (ligeramente después, por
-    //   la regla del usuario "DESPUÉS de que el 5% esté en 0").
-    //   Completa al final del pin (1.0) → label invisible cuando
-    //   la conclusión queda centrada. Duración ≈ 2% del pin
-    //   (≈126px de scroll a vh=2160, ~126ms a scrub:1). Curva
-    //   lineal, consistente con los fades de las métricas (no
-    //   un corte abrupto).
-    const _labelFadeStartRatio = 0.98;
-    const _labelFadeEndRatio = 1.0;
+    //
+    //   Inicio del fade: cuando la métrica 5% (data-screen=3) llega
+    //   a opacity 0. La fórmula del m3 fade out es
+    //     metricP_3 = (vh - desc3TopInViewport) / vh
+    //     desc3TopInViewport = railY + 2.1*vh + 240 + 2*_dh1
+    //   y m3=0 cuando desc3TopInViewport ≤ 0, es decir cuando
+    //     railY ≤ -(2.1*vh + 240 + 2*_dh1)
+    //   y como railY = 0.5*vh - contentP * recorrido,
+    //     contentP_m3zero = (2.6*vh + 240 + 2*_dh1) / recorrido
+    //   Medido en runtime (1920x1080): m3 llega a 0 en contentP ≈ 0.7738.
+    //   Medido en runtime (1440x900):  m3 llega a 0 en contentP ≈ 0.7769.
+    //
+    //   Fin del fade: antes de que el texto de la conclusión cruce la
+    //   altura del label en el viewport. El label vive en la zona
+    //   superior izquierda (top: header+80 = 161, height: ~53,
+    //   bottom ≈ 214). Hay dos casos según viewport:
+    //     - 1920x1080: la conclusión se asienta a concVisualTop = 331
+    //       (bien debajo del label, 117px de margen). El body la cruza
+    //       con translateY durante el gesto: bodyTop = 214 ocurre en
+    //       contentP ≈ 0.8590 (medido).
+    //     - 1440x900: la conclusión es más alta (concHeight=582) y se
+    //       asienta a concVisualTop = 213 (ya en el borde del label).
+    //       El container top cruza el label en contentP ≈ 0.8422.
+    //   Unificado: END = 0.83. Garantiza margen ANTES del cruce en
+    //   ambos viewports (margen 0.029 en 1920x1080 y 0.0122 en
+    //   1440x900). El label está invisible antes de que la conclusión
+    //   llegue a su altura — no hay encimado.
+    //
+    //   Ventana nueva: [_labelFadeStartRatio, _labelFadeEndRatio] =
+    //   [≈0.7738, 0.83]. Ancho: ~5.6% del pin (vs. ventana previa
+    //   [0.8422, 1.0] = 15.8%). Curva lineal, consistente con los
+    //   fades de las métricas — transición gradual, no snap.
+    const _labelFadeStartRatio = (2.6 * _razonVh + 240 + 2 * _dh1) / _recorridoFaseTotalPx;
+    const _labelFadeEndRatio = 0.83;
     document.documentElement.style.setProperty('--razon-desc2-top', _desc2TopPx + 'px');
     document.documentElement.style.setProperty('--razon-desc3-top', _desc3TopPx + 'px');
     // ============================================
@@ -2071,24 +2093,35 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             // ── GATE 4 (continuación): fade out del label ─────────
             // El label "[ El razonamiento ]" persiste opacity 1
-            // durante las 3 pantallas de dato. Hace fade out
-            // gradual (linear ramp, mismo estilo que las métricas)
-            // cuando el 5% completa su fade out (contentP ≥
-            // _labelFadeStartRatio). Completa al final del pin
-            // (contentP ≥ _labelFadeEndRatio), quedando invisible
-            // cuando la conclusión queda centrada. Curva lineal
-            // 1 → 0 sobre la ventana [_labelFadeStartRatio,
-            // _labelFadeEndRatio].
+            // durante las 3 pantallas de dato. Se desvanece GRADUAL
+            // (lineal, sin snap) en una ventana CORTA calibrada en
+            // runtime:
+            //   Inicio (_labelFadeStartRatio): cuando la métrica 5%
+            //   llega a opacity 0 (medido: ≈0.7738 en 1920×1080,
+            //   ≈0.7769 en 1440×900).
+            //   Fin (_labelFadeEndRatio = 0.83): antes de que el
+            //   texto de la conclusión cruce la altura del label
+            //   (medido: bodyTop=214 en 1920×1080 a p≈0.8590;
+            //   concTop=214 en 1440×900 a p≈0.8422). Margen
+            //   pequeño en ambos casos para que el label esté
+            //   invisible ANTES del cruce.
+            //   Ancho: ~5.6% del pin (vs. ~15.8% de la ventana
+            //   previa [_gestureStartRatio, 1.0]). Transición
+            //   gradual — el ojo percibe un fade continuo.
             if (razonLabel) {
                 let labelOpacity = 1;
                 if (contentP > _labelFadeStartRatio) {
                     const labelProgress = (contentP - _labelFadeStartRatio) / (_labelFadeEndRatio - _labelFadeStartRatio);
                     labelOpacity = Math.max(0, Math.min(1, 1 - labelProgress));
                 }
-                // Gate 5: el label debe estar invisible durante TODO
+                // Blindaje: el label debe estar invisible durante TODO
                 // el gesto (cuerpo saliendo + frase final moviéndose/
-                // creciendo). Override: si el gesto está activo, el
-                // label se fuerza a 0. Snap al inicio del gesto.
+                // creciendo). Override de seguridad: si el gesto está
+                // activo, el label se fuerza a 0. Redundante con la
+                // nueva ventana [_labelFadeStartRatio, 0.83] (que ya
+                // llega a 0 antes del gesto), pero preservado como
+                // red de seguridad por si el cálculo del END varía
+                // en un viewport atípico.
                 if (contentP > _gestureStartRatio) {
                     labelOpacity = 0;
                 }
@@ -2148,36 +2181,42 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
             }
         },
-        // Blindaje para duplicación: cleanup al salir del pin.
-        // El onLeave se dispara cuando el scroll sale del rango del
-        // pin (post progress=1). Limpia los transforms inline que el
-        // gesto (Gate 5) dejó en el cuerpo y la frase final. Sin este
-        // clearProps, los inline styles de scale 5.41 + translate
-        // -4989px del final del gesto persistirían sobre el section
-        // y romperían la futura cortina de Decisión 2 (que necesita
-        // cubrir limpiamente el section de Decisión 1).
+        // Persistencia off-screen post-gesto: tras scrollar fuera
+        // del pin del Razonamiento, el cuerpo y la frase final
+        // quedan a y:-2*window.innerHeight (off-screen por encima
+        // del viewport) para que NO reaparezcan en sus posiciones
+        // CSS naturales (cuerpo en y≈954 al centro, frase final en
+        // y≈1204 a la derecha en su tamaño de maqueta).
         //
-        // Idempotencia: el clearProps es seguro de ejecutarse múltiples
-        // veces (elimina la propiedad, no la pone a un valor). Si
-        // onLeave se dispara y luego onLeaveBack (no definido aquí)
-        // o re-entrada, el onUpdate resetea a estado natural en la
-        // rama `else` (líneas 2143-2148), sobrescribiendo cualquier
-        // estado residual.
+        // Por qué NO clearProps: clearProps elimina el inline
+        // transform y devuelve al estado CSS natural — donde el
+        // cuerpo es visible en el centro y la frase final es visible
+        // a la derecha en tamaño pequeño. El gesture deja el
+        // body/final con translateY/scale no-naturales (off-screen).
+        // Necesitamos PRESERVAR ese off-screen, no volver al natural.
         //
-        // Por qué NO necesitamos onLeaveBack: el onUpdate rama `else`
-        // ya hace `gsap.set(razonBody, { y: 0 })` y
-        // `gsap.set(razonFinal, { x: 0, y: 0, scale: 1 })` cuando
-        // contentP < _gestureStartRatio (línea 2142). En scrub reverso
-        // DENTRO del pin, el onUpdate corre primero y resetea los
+        // Por qué -2*window.innerHeight: viewport-relativo, siempre
+        // off-screen para cualquier viewport razonable (1080-2160+).
+        // El body a y=-2*vh queda en viewport-y = 954-4320 = -3366
+        // (para vh=2160); la frase final en 1204-4320 = -3116.
+        // Ambos bien fuera del viewport (que va de y=0 a y=vh).
+        //
+        // Por qué NO onLeaveBack: el else branch del onUpdate
+        // (líneas 2142-2148) resetea a y:0 cuando
+        // contentP < _gestureStartRatio. En scrub reverso DENTRO
+        // del pin, el onUpdate corre primero y resetea los
         // transforms antes de que se ejecute cualquier onLeaveBack.
-        // El onLeaveBack se ejecutaría DESPUÉS del onUpdate de re-entrada
-        // y como es clearProps (no set), no interfiere.
+        // El onLeaveBack se ejecutaría DESPUÉS del onUpdate de
+        // re-entrada y como solo es un safety net (el onUpdate ya
+        // reseteó), no interfiere con el render.
         onLeave: () => {
+            // Persiste el cuerpo off-screen (subió y salió durante
+            // el gesto final, debe quedarse fuera). La frase final
+            // NO se toca: debe PERMANECER en su estado del gesto
+            // (saturada, centrada en el viewport) como cierre
+            // dramático. La futura cortina de Decisión 2 la cubrirá.
             if (razonBody) {
-                gsap.set(razonBody, { clearProps: 'transform' });
-            }
-            if (razonFinal) {
-                gsap.set(razonFinal, { clearProps: 'transform' });
+                gsap.set(razonBody, { y: -2 * window.innerHeight });
             }
         }
     });
