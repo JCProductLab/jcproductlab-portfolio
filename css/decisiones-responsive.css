@@ -50,6 +50,14 @@
        100vh = un viewport de scroll para las dos fases de la expansión. */
     .cs-pin-spacer--decision-1-expansion { height: 100vh; }
 
+    /* Altura del pin-spacer de la cortina Decisión 2.
+       100vh = un viewport de scroll para la interpolación de la cortina. */
+    .cs-pin-spacer--decision-2 { height: 100vh; }
+
+    /* Altura del pin-spacer de la expansión Decisión 2.
+       100vh = un viewport de scroll para las dos fases de la expansión. */
+    .cs-pin-spacer--decision-2-expansion { height: 100vh; }
+
     /* ============================================
        DECISIÓN — Panel verde de entrada (1, 2 o 3)
        Capa fija sobre el viewport (sibling del .cs-horizontal-track dentro
@@ -67,6 +75,20 @@
         overflow: hidden;
         color: var(--color-secondary);
         clip-path: inset(0 0 0 100%);   /* estado inicial: panel invisible */
+    }
+
+    /* Decisión 2 — Override de posición/z-index.
+       La cortina-2 vive FUERA del stage (hermana del Razonamiento en
+       <main>), no dentro. Por eso position:fixed (no absolute como
+       cortina-1 que se anclaba al stage) y z-index:5 a nivel de
+       documento: queda por encima del Razonamiento (z:4) y al mismo
+       nivel que .cs-decision-mc (z:5). Sin este override, heredaría
+       position:absolute + z:3 de la regla base, quedaría atrapada
+       en el stage (z:1) y NO podría cubrir el Razonamiento. */
+    .cs-decision[data-dec="2"] {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
     }
 
     /* Fondo verde dedicado — hijo aparte del root, sin clip-path propio.

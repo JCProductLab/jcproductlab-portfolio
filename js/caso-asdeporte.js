@@ -2220,4 +2220,158 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // DECISIÓN 2 — Cortina (réplica de la cortina-1)
+    // Pino .cs-pin-spacer--decision-2. Contiguo al final del pin del
+    // Razonamiento de Decisión 1. Anclado vía razonamiento1ST.end.
+    //
+    // UBICACIÓN EN EL ARCHIVO: al final de la función, DESPUÉS del ST
+    // del Razonamiento-1. Esto es crítico: la captura de
+    // `razonamiento1ST` se hace con ScrollTrigger.getAll().find() en
+    // el momento de crear este ST. Si se creara antes que el ST del
+    // Razonamiento-1, la captura devolvería undefined y el start
+    // caería al fallback (0), rompiendo el anclaje.
+    //
+    // DIFERENCIAS con cortina-1:
+    //   - Vive FUERA del stage (es hermana del Razonamiento en <main>),
+    //     position:fixed + z:5 a nivel de documento (ver override en
+    //     decisiones-responsive.css). Por eso NO anima el track: el
+    //     track es del stage, no de Decisión 2.
+    //   - El clip-path del verde + cascada de contenido (Gate 3) son
+    //     idénticos a cortina-1. Mismo clipEase, mismas ventanas de
+    //     sub-progress (label 0.50→0.80, título 0.58→0.90, media
+    //     0.66→1.00 con power1.out).
+    //   - Variables y queries sufijadas (decision2*). Scope del closure
+    //     independiente del de cortina-1 — el estado mutable (clip-path
+    //     inline, transform de label/título/media) NO se contamina.
+    // ============================================
+
+    const decision2Panel = document.querySelector('.cs-decision[data-dec="2"]');
+    const decision2Label = document.querySelector('.cs-decision[data-dec="2"] .cs-decision__label');
+    const decision2Title = document.querySelector('.cs-decision[data-dec="2"] .cs-decision__title');
+    const decision2Media = document.querySelector('.cs-decision[data-dec="2"] .cs-decision__media');
+
+    // Captura del ST del Razonamiento-1 para anclar el start al final
+    // real (post pinSpacing). Mismo patrón que la cortina-1 usó con
+    // decisionesTitulosST, y que la expansión-1 usó con cortinaST.
+    // Solo funciona si este código corre DESPUÉS de crear el ST del
+    // Razonamiento-1 (ver comentario de ubicación arriba).
+    const razonamiento1ST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-1-razonamiento')
+    );
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-2',
+        start: () => razonamiento1ST ? razonamiento1ST.end : 0,
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+
+            // 1. Clip-path del panel verde (capa fija, fuera del stage):
+            //    100% → 0% con curva ease-out. Idéntico a cortina-1.
+            const clipProgress = clipEase(self.progress);
+            gsap.set(decision2Panel, {
+                clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
+            });
+
+            // 2. Gate 3 — Cascada de contenido (label → título → imagen).
+            //    Mismas ventanas que cortina-1. Mismos easings.
+            const labelP = clipEase(subProgress(self.progress, 0.50, 0.80));
+            const titleP = clipEase(subProgress(self.progress, 0.58, 0.90));
+            const mediaP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.66, 1.00));
+            gsap.set(decision2Label, { opacity: labelP, x: 400 * (1 - labelP) });
+            gsap.set(decision2Title, { opacity: titleP, x: 400 * (1 - titleP) });
+            gsap.set(decision2Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
+        }
+    });
+
+    // ============================================
+    // DECISIÓN 2 — Expansión (réplica de la expansión-1)
+    // Pino .cs-pin-spacer--decision-2-expansion. Contiguo al final del
+    // pin de la cortina-2. Misma lógica de dos fases (imagen crece a
+    // la izquierda en fase 1, full-bleed en fase 2).
+    //
+    // DIFERENCIAS con expansión-1:
+    //   - Anclada a cortina2ST.end (no a cortinaST.end).
+    //   - Usa decision2Media en lugar de decision1Media.
+    //   - Flag independiente: gate4Initialized2. CRÍTICO: la
+    //     expansión-1 y la expansión-2 son closures separados; si
+    //     compartieran flag, el setup auto→numérico de una podría
+    //     saltar en la otra y romper la primera frame de la
+    //     expansión opuesta. Mismo principio de scope que
+    //     razonLabel, trackInner, etc.
+    // ============================================
+
+    // Captura del ST de la cortina-2 para anclar el start al final real.
+    const cortina2ST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-2')
+    );
+
+    // Flag del setup auto→numérico de la expansión-2. Scope propio.
+    let gate4Initialized2 = false;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-2-expansion',
+        start: () => cortina2ST ? cortina2ST.end : 0,
+        end: 'bottom top',
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+
+            // Setup idempotente: convierte left/bottom de auto a numérico
+            // y width/height a auto. Scope propio (gate4Initialized2),
+            // NO comparte con la expansión-1.
+            if (!gate4Initialized2) {
+                gsap.set(decision2Media, {
+                    left: window.innerWidth / 2,
+                    bottom: margin,
+                    width: 'auto',
+                    height: 'auto'
+                });
+                gate4Initialized2 = true;
+            }
+
+            const p = self.progress;
+            const vw = window.innerWidth;
+
+            if (p <= 0.5) {
+                // FASE 1: imagen crece SOLO a la izquierda.
+                const f1 = p / 0.5;
+                const f1e = clipEase(f1);
+
+                const newLeft = vw / 2 + (margin - vw / 2) * f1e;
+                const textX = newLeft - vw / 2;
+
+                gsap.set(decision2Media, {
+                    left: newLeft,
+                    right: margin,
+                    top: headerH + margin,
+                    bottom: margin,
+                    borderRadius: 24
+                });
+                gsap.set(decision2Label, { x: textX, opacity: 1 - f1e });
+                gsap.set(decision2Title, { x: textX, opacity: 1 - f1e });
+            } else {
+                // FASE 2: imagen se expande a los 4 extremos. border-radius → 0.
+                const f2 = (p - 0.5) / 0.5;
+                const f2e = gsap.parseEase('power1.out')(f2);
+
+                gsap.set(decision2Media, {
+                    top: (headerH + margin) * (1 - f2e),
+                    right: margin * (1 - f2e),
+                    left: margin * (1 - f2e),
+                    bottom: margin * (1 - f2e),
+                    borderRadius: 24 * (1 - f2e)
+                });
+            }
+        }
+    });
 }

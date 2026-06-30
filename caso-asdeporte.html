@@ -316,6 +316,8 @@
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-problema" data-phase="decision-1-problema"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-ladecision" data-phase="decision-1-ladecision"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-razonamiento" data-phase="decision-1-razonamiento"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--decision-2" data-phase="decision-2"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--decision-2-expansion" data-phase="decision-2-expansion"></div>
 
         <!-- ============================================ -->
         <!-- TRACK HORIZONTAL — Panel 1: Métrica · Panel 2: Contexto -->
@@ -678,6 +680,34 @@
                 <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;El argumento se cerró solo. No podíamos competir en un terreno que ya habíamos perdido. Primero había que ganarse el derecho de hablar con el usuario&hellip;</p>
                 <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">arreglando el pago.&rdquo;</p>
             </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- DECISIÓN 2 — Cortina (placeholder).            -->
+        <!-- Sigue Opción A del diagnóstico: vive FUERA    -->
+        <!-- del stage, como hermana del Razonamiento en   -->
+        <!-- <main>. position:fixed + z:5 (doc-level) le  -->
+        <!-- permite cubrir el Razonamiento de Decisión 1  -->
+        <!-- (z:4) sin ser atrapada por el stage (z:1).    -->
+        <!-- Misma estructura interna que cortina-1 (bg,   -->
+        <!-- content, media). El usuario pondrá el        -->
+        <!-- contenido real después.                       -->
+        <!-- ============================================ -->
+        <section class="cs-decision" data-dec="2" aria-label="Decisión 2 del caso">
+
+            <div class="cs-decision__bg" aria-hidden="true"></div>
+
+            <div class="cs-decision__content">
+                <span class="cs-label cs-decision__label">[ Decisión 2 ]</span>
+                <h3 class="cs-decision-title cs-decision__title">[Decisión 2 placeholder]</h3>
+            </div>
+
+            <div class="cs-decision__media">
+                <img class="cs-decision__media-img"
+                     src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80"
+                     alt="" aria-hidden="true">
+            </div>
+
         </section>
 
     </main>
