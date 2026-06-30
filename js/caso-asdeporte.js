@@ -2262,6 +2262,31 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         st.trigger.classList.contains('cs-pin-spacer--decision-1-razonamiento')
     );
 
+    // ── Salida de razonFinal durante la cortina-2 ──
+    // La frase final del Razonamiento (Decisión 1) está saturada y
+    // centrada al inicio de este ST (scale ≈5.41, x ≈_finalToCenterDeltaX).
+    // Mientras el verde entra desde la derecha, la frase final sale
+    // por la izquierda con fade out, sincronizada con el clip-path.
+    //
+    // OPTION-1 (acoplamiento controlado): el onUpdate de la cortina-2
+    // anima razonFinal. Decisión: la cortina-2 es la responsable de
+    // limpiar el espacio para su entrada. razonFinal es el ÚNICO
+    // elemento de Decisión 1 visible al inicio de este ST, y la
+    // salida es un efecto visual de la entrada de la cortina-2.
+    //
+    // DISTANCIA: vw * 2. A 1920w con scale 5.41, el texto visual mide
+    // ~3570px de ancho. Moverlo solo vw (1920px) lo dejaría ~54% fuera
+    // del viewport, todavía visible. vw * 2 (3840px) lo saca COMPLETO
+    // por la izquierda con margen.
+    //
+    // SCRUB REVERSO: al volver al Razonamiento, el progress de la
+    // cortina-2 baja a 0 y razonFinal regresa a x = originalX,
+    // opacity = 1. El Razonamiento (progress 1) reescala a su estado
+    // saturado. El punto de transición (scrollY = razonamiento1ST.end)
+    // queda visualmente continuo: ambos STs coinciden en el mismo x.
+    let razonFinalExitOriginalX = 0;
+    let razonFinalExitCaptured = false;
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-2',
         start: () => razonamiento1ST ? razonamiento1ST.end : 0,
@@ -2272,21 +2297,84 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
 
-            // 1. Clip-path del panel verde (capa fija, fuera del stage):
-            //    100% → 0% con curva ease-out. Idéntico a cortina-1.
-            const clipProgress = clipEase(self.progress);
+            // ── Aceleración local del progreso (v3) ──
+            // Para que el verde entre MÁS RÁPIDO sin tocar clipEase
+            // (compartida con cortina-1), aplicamos sqrt al self.progress
+            // localmente. sqrt comprime la primera mitad del progreso y
+            // expande la segunda:
+            //   self.progress 0.10 → localProgress 0.316 → clipEase ≈ 0.55
+            //   self.progress 0.25 → localProgress 0.500 → clipEase = 0.75
+            //   self.progress 0.50 → localProgress 0.707 → clipEase ≈ 0.93
+            //   self.progress 1.00 → localProgress 1.000 → clipEase = 1.00
+            // El verde "atrapa" la frase casi en su sitio.
+            //
+            // clipEase INTACTA: la cortina-1 de Decisión 1 sigue usando
+            // clipEase(self.progress) sin sqrt — su velocidad de entrada
+            // es IDÉNTICA a antes (verificado en runtime).
+            const localProgress = Math.sqrt(self.progress);
+
+            // 1. Clip-path del panel verde (entrada acelerada vía localProgress).
+            const clipProgress = clipEase(localProgress);
             gsap.set(decision2Panel, {
                 clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
             });
 
-            // 2. Gate 3 — Cascada de contenido (label → título → imagen).
-            //    Mismas ventanas que cortina-1. Mismos easings.
-            const labelP = clipEase(subProgress(self.progress, 0.50, 0.80));
-            const titleP = clipEase(subProgress(self.progress, 0.58, 0.90));
-            const mediaP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.66, 1.00));
+            // 2. Gate 3 — Cascada de contenido (también acelerada para
+            //    coherencia con el verde). Mismas ventanas internas
+            //    (0.50-0.80, 0.58-0.90, 0.66-1.00) pero aplicadas al
+            //    localProgress en vez de self.progress. Sin esto, la
+            //    cascada quedaría rezagada respecto al verde y habría
+            //    un momento de "panel verde vacío" antes de que aparezcan
+            //    label/título/media.
+            const labelP = clipEase(subProgress(localProgress, 0.50, 0.80));
+            const titleP = clipEase(subProgress(localProgress, 0.58, 0.90));
+            const mediaP = gsap.parseEase('power1.out')(subProgress(localProgress, 0.66, 1.00));
             gsap.set(decision2Label, { opacity: labelP, x: 400 * (1 - labelP) });
             gsap.set(decision2Title, { opacity: titleP, x: 400 * (1 - titleP) });
             gsap.set(decision2Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
+
+            // 3. Salida de razonFinal (frase final del Razonamiento de D1).
+            //    Scopeada a [data-dec="1"] — la query global
+            //    `.cs-razonamiento__conclusion-final` (sin scope) podría
+            //    matchear también la frase final de Decisión 2 cuando se
+            //    construya. Mismo patrón de scope que decision2*.
+            //
+            //    Captura lazy: en el primer frame activo, leemos la x
+            //    actual del transform (la que el Razonamiento dejó vía
+            //    _finalToCenterDeltaX, típicamente ≈-4966px a 1920w).
+            //    En frames posteriores usamos esa x como ancla.
+            //
+            //    CALIBRACIÓN v3:
+            //    - Movimiento MÁS LENTO: distancia vw * 0.5 (antes vw * 0.9).
+            //      La frase casi se queda en su sitio, desplazándose apenas.
+            //      A progress 0.5, el right edge del texto queda en ~49%
+            //      del viewport (vs ~28% en v2 y 17% en v1).
+            //    - Easing del movimiento: clipEase(localProgress) — usa el
+            //      localProgress acelerado para que el movimiento de la
+            //      frase esté en fase con el verde que la alcanza.
+            //    - Fade: sqrt curve que llega a 0 a self.progress 0.6.
+            //      Usa self.progress DIRECTO (sin sqrt) para que el fade
+            //      complete al mismo ritmo temporal que en v2, coherente
+            //      con la instrucción "se desvanece antes de salir".
+            if (razonFinal) {
+                if (!razonFinalExitCaptured) {
+                    const computedTransform = getComputedStyle(razonFinal).transform;
+                    const matrixMatch = computedTransform.match(/matrix\(([^)]+)\)/);
+                    if (matrixMatch) {
+                        const values = matrixMatch[1].split(',').map(parseFloat);
+                        razonFinalExitOriginalX = values[4]; // tx (5to valor)
+                    }
+                    razonFinalExitCaptured = true;
+                }
+                const exitProgress = clipEase(localProgress);
+                const vw = window.innerWidth;
+                // Fade: sqrt(linear) — rápido al inicio, llega a 0 a self.progress 0.6.
+                const fadeProgress = Math.pow(Math.min(1, self.progress / 0.6), 0.5);
+                gsap.set(razonFinal, {
+                    x: razonFinalExitOriginalX - vw * 0.5 * exitProgress,
+                    opacity: 1 - fadeProgress
+                });
+            }
         }
     });
 
