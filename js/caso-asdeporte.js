@@ -3155,4 +3155,69 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // DECISIÓN 3 — El Problema 3 (réplica de El Problema 2)
+    // Pino .cs-pin-spacer--decision-3-problema. Contiguo al final del
+    // pin de la expansión-3. Anclado vía expansion3ST.end.
+    //
+    // DIFERENCIAS con El Problema 2:
+    //   - Anclado a expansion3ST.end.
+    //   - Queries scopeadas a [data-dec="3"].
+    //   - Variables sufijadas (problema3*).
+    //   - .cs-decision-mc[data-dec="3"] todavía NO existe en el DOM
+    //     activo de esta fase (se construye en Task 2, ya existe en
+    //     el DOM, solo está fuera de flujo hasta que este gate y el
+    //     de La Decisión 3 la gobiernen).
+    // ============================================
+
+    const expansion3ST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-3-expansion')
+    );
+
+    const problema3Title = document.querySelector('.cs-problema[data-dec="3"] .cs-problema__title');
+    const problema3Cards = gsap.utils.toArray('.cs-problema[data-dec="3"] .cs-problema__card');
+    const problema3Nodes = problema3Title ? [problema3Title, ...problema3Cards] : problema3Cards;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-3-problema',
+        start: () => expansion3ST ? expansion3ST.end : 0,
+        end: () => '+=' + (window.innerHeight * 2),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const PIN_LENGTH_VH = 2;
+            const scrolled = self.progress * (vh * PIN_LENGTH_VH);
+
+            const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
+            const eased = gsap.parseEase('power2.out')(curtainP);
+
+            gsap.set('.cs-decision[data-dec="3"]', { y: -eased * vh });
+            gsap.set('.cs-problema[data-dec="3"]', { y: vh - eased * vh });
+
+            gsap.set('.cs-decision-mc[data-dec="3"]', { y: curtainP >= 1 ? 0 : '100vh' });
+
+            const CASCADE_START = 1 / 2;
+            const CASCADE_END = 1;
+            const STEP = 1 / 3;
+            const cascadeP = gsap.utils.clamp(0, 1,
+                (self.progress - CASCADE_START) / (CASCADE_END - CASCADE_START)
+            );
+
+            for (let i = 0; i < problema3Nodes.length; i++) {
+                const nodeStart = i * STEP / 2;
+                const nodeEnd = nodeStart + STEP;
+                const localP = gsap.utils.clamp(0, 1, (cascadeP - nodeStart) / STEP);
+                const localEased = gsap.parseEase('power2.out')(localP);
+                gsap.set(problema3Nodes[i], {
+                    y: 400 * (1 - localEased),
+                    opacity: localEased
+                });
+            }
+        }
+    });
 }
