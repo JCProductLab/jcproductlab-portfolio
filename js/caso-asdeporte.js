@@ -3083,4 +3083,76 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // DECISIÓN 3 — Expansión (réplica de la expansión-2)
+    // Pino .cs-pin-spacer--decision-3-expansion. Contiguo al final del
+    // pin de la cortina-3. Misma lógica de dos fases.
+    //
+    // DIFERENCIAS con expansión-2:
+    //   - Anclada a cortina3ST.end.
+    //   - Usa decision3Media.
+    //   - Flag independiente: gate4Initialized3.
+    // ============================================
+
+    const cortina3ST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-3')
+    );
+
+    let gate4Initialized3 = false;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-3-expansion',
+        start: () => cortina3ST ? cortina3ST.end : 0,
+        end: () => '+=' + (window.innerHeight * 0.8),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+
+            if (!gate4Initialized3) {
+                gsap.set(decision3Media, {
+                    left: window.innerWidth / 2,
+                    bottom: margin,
+                    width: 'auto',
+                    height: 'auto'
+                });
+                gate4Initialized3 = true;
+            }
+
+            const p = self.progress;
+            const vw = window.innerWidth;
+
+            if (p <= 0.7) {
+                const f1 = p / 0.7;
+                const f1e = clipEase(f1);
+
+                const newLeft = vw / 2 + (margin - vw / 2) * f1e;
+                const textX = newLeft - vw / 2;
+
+                gsap.set(decision3Media, {
+                    left: newLeft,
+                    right: margin,
+                    top: headerH + margin,
+                    bottom: margin,
+                    borderRadius: 24
+                });
+                gsap.set(decision3Label, { x: textX, opacity: 1 - f1e });
+                gsap.set(decision3Title, { x: textX, opacity: 1 - f1e });
+            } else {
+                const f2 = (p - 0.7) / 0.3;
+                const f2e = gsap.parseEase('power1.out')(f2);
+
+                gsap.set(decision3Media, {
+                    top: (headerH + margin) * (1 - f2e),
+                    right: margin * (1 - f2e),
+                    left: margin * (1 - f2e),
+                    bottom: margin * (1 - f2e),
+                    borderRadius: 24 * (1 - f2e)
+                });
+            }
+        }
+    });
 }
