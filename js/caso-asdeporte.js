@@ -2999,4 +2999,88 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // DECISIÓN 3 — Cortina (réplica de la cortina-2)
+    // Pino .cs-pin-spacer--decision-3. Contiguo al final del pin del
+    // Razonamiento de Decisión 2. Anclado vía razonamiento2ST.end.
+    //
+    // UBICACIÓN EN EL ARCHIVO: al final de la función, DESPUÉS del ST
+    // del Razonamiento-2. La captura de `razonamiento2ST` con
+    // ScrollTrigger.getAll().find() debe encontrar el ST ya creado.
+    //
+    // DIFERENCIAS con cortina-2: ninguna en la lógica, solo sufijo 3
+    // en vez de 2. Vive FUERA del stage igual que cortina-2 (ver
+    // override .cs-decision[data-dec="3"] en decisiones-responsive.css).
+    //
+    // Asume la responsabilidad de sacar razon2Final (frase final del
+    // Razonamiento 2) — mismo patrón "OPTION-1: acoplamiento
+    // controlado" que cortina-2 usa con razonFinal (D1).
+    // ============================================
+
+    const decision3Panel = document.querySelector('.cs-decision[data-dec="3"]');
+    const decision3Label = document.querySelector('.cs-decision[data-dec="3"] .cs-decision__label');
+    const decision3Title = document.querySelector('.cs-decision[data-dec="3"] .cs-decision__title');
+    const decision3Media = document.querySelector('.cs-decision[data-dec="3"] .cs-decision__media');
+
+    // Captura del ST del Razonamiento-2 para anclar el start al final real.
+    const razonamiento2ST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-2-razonamiento')
+    );
+
+    // ── Salida de razon2Final durante la cortina-3 ──
+    // Réplica exacta del bloque de salida de razonFinal en cortina-2.
+    // razon2Final ya está declarado como const en el bloque de
+    // Razonamiento 2 (mismo scope de función) — no hace falta
+    // re-querySelector.
+    let razon2FinalExitOriginalX = 0;
+    let razon2FinalExitCaptured = false;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-3',
+        start: () => razonamiento2ST ? razonamiento2ST.end : 0,
+        end: () => '+=' + (window.innerHeight * 4.73),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+
+            const clipProgress = clipEase(self.progress);
+            gsap.set(decision3Panel, {
+                clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
+            });
+
+            const labelP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.25, 0.70));
+            const titleP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.33, 0.72));
+            const mediaP = gsap.parseEase('none')(subProgress(self.progress, 0.45, 1.0));
+            gsap.set(decision3Label, { opacity: labelP, x: 860 * (1 - labelP) });
+            gsap.set(decision3Title, { opacity: titleP, x: 800 * (1 - titleP) });
+            gsap.set(decision3Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
+
+            if (razon2Final) {
+                if (!razon2FinalExitCaptured) {
+                    const inlineStyle = razon2Final.style.transform;
+                    let tx = 0;
+                    const matrixMatch = inlineStyle.match(/matrix\(([^)]+)\)/);
+                    if (matrixMatch) {
+                        tx = parseFloat(matrixMatch[1].split(',')[4]);
+                    } else {
+                        const translateMatch = inlineStyle.match(/translate\(\s*([-\d.]+)/);
+                        if (translateMatch) {
+                            tx = parseFloat(translateMatch[1]);
+                        }
+                    }
+                    razon2FinalExitOriginalX = tx;
+                    razon2FinalExitCaptured = true;
+                }
+                const vw = window.innerWidth;
+                gsap.set(razon2Final, {
+                    x: razon2FinalExitOriginalX - self.progress * vw * 0.3,
+                    opacity: 1 - self.progress
+                });
+            }
+        }
+    });
 }
