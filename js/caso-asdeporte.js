@@ -1006,7 +1006,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1',
         start: () => decisionesTitulosST ? decisionesTitulosST.end : 0,
-        end: 'bottom top',
+        // Pin explícito de 6.5vh. ANTES usaba 'bottom top' con CSS
+        // height:100vh, lo que daba 9.17vh de ST (el cálculo de
+        // ScrollTrigger para 'bottom top' no es simplemente
+        // start + trigger_height — incluye el offset de pinSpacing).
+        // Para forzar exactamente 6.5vh de pin, uso '+=' con la altura
+        // en px. Así el clip-path verde y la cascada ocurren en un
+        // rango controlado y predecible.
+        end: () => '+=' + (window.innerHeight * 6.5),
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -1031,6 +1038,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             //    translateX va de 400px → 0; opacity de 0 → 1.
             //    Estado final (progress=1): opacity 1, translateX 0 = maqueta.
             //
+            //    CALIBRACIÓN v3 (aceleración local a cortina-1):
+            //    Pin acortado de 9.17vh a 6.5vh (ver CSS .cs-pin-spacer--decision-1).
+            //    Ventanas reescaladas al nuevo pin: la cascada ahora empieza
+            //    a progress 0.25 (antes 0.50) y termina cerca de 0.90
+            //    (antes 1.00), eliminando el grueso del scroll muerto.
+            //    Label y title usan width ~0.22 (como propuso el plan).
+            //    Media usa width ~0.45 para que su easing power1.out
+            //    complete antes del final del pin (necesita más recorrido
+            //    para que el último 10% no quede cortado).
+            //
             //    ⚠️ COORDINACIÓN CON GATE 4 (expansión de la imagen):
             //    El gsap.set de .cs-decision__media deja un transform inline
             //    (x: 0 al final). Gate 4 animará el width/height de la imagen
@@ -1039,16 +1056,52 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             //    pisarlo ciegamente), si no la entrada se rompe al construir
             //    la expansión. Opciones: usar clearProps antes de Gate 4,
             //    o componer transforms (x + scale en el mismo set).
-            const labelP = clipEase(subProgress(self.progress, 0.50, 0.80));
-            const titleP = clipEase(subProgress(self.progress, 0.58, 0.90));
+            // Fix C (cortina-1): label y título con power1.out (1-(1-t)²)
+            // en lugar de clipEase/power2.out. Razón: el ease cúbico del
+            // clipEase asentaba el título en su posición final (left=80)
+            // antes de que el panel verde revelara esa zona, dejando el
+            // borde izquierdo del título tapado por la persiana hasta
+            // p≥0.70. power1.out desacelera antes, manteniendo el texto
+            // más a la derecha mientras el panel abre. La media sigue
+            // con su propio ease (no se toca en este fix).
+            //
+            // Calibración de velocidad (entrada más lenta):
+            // Label 0.25→0.55 → 0.25→0.70. El label ahora se mueve HASTA
+            // el final del reveal del panel (p≈0.70), en vez de detenerse
+            // a mitad de camino (p=0.55) y quedar quieto detrás de la
+            // persiana. Mismo tratamiento que recibió el título: la
+            // ventana se extiende hasta coincidir con el punto donde el
+            // panel verde termina de revelar la zona left<80. Ease y
+            // offset (800) sin cambios. El título (0.33→0.72) y la
+            // media (0.45→0.90) NO cambian. El solape label-media
+            // (0.45-0.70) crece a 0.25 de progress — aceptable: la
+            // media entra fade+slide lento, no compite visualmente
+            // con el label, y el orden de cascada (label → título →
+            // media) se mantiene.
+            const labelP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.25, 0.70));
+            const titleP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.33, 0.72));
             // Entrada de la imagen: power1.out (en lugar de clipEase/power2.out).
             // power1.out = 1-(1-t)² desacelera más suave: su último 10% aporta
             // ~19% del recorrido (vs <1% de power2.out), eliminando el "tramo
             // muerto" al final de la entrada que causaba el "atorón" antes de
             // que la expansión tomara el relevo.
-            const mediaP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.66, 1.00));
-            gsap.set(decision1Label, { opacity: labelP, x: 400 * (1 - labelP) });
-            gsap.set(decision1Title, { opacity: titleP, x: 400 * (1 - titleP) });
+            // Window 0.45→0.90 (width 0.45) para que el easing complete
+            // sin quedar cortado al final del pin más corto.
+            // Entrada de la imagen a velocidad constante (lineal, 'none').
+            // Antes usaba power1.out, que desaceleraba al final y daba
+            // sensación de "arrastre lento" antes del empalme con la
+            // expansión. Lineal mantiene la velocidad constante de
+            // principio a fin: la imagen llega al final de su recorrido
+            // SIN desaceleración, listo para que el crecimiento (Fase 1)
+            // tome el relevo. La velocidad de entrada es Δx/Δp = 400,
+            // sin curva. La ventana (0.45→1.0) y el offset (400) son
+            // los mismos — solo cambia el ease.
+            const mediaP = gsap.parseEase('none')(subProgress(self.progress, 0.45, 1.0));
+            // Label y título entran desde 800px (antes 400px) para que el
+            // texto completo sea visible al inicio de la cascada sin
+            // cortarse por el borde derecho. La imagen sigue en 400px.
+            gsap.set(decision1Label, { opacity: labelP, x: 860 * (1 - labelP) });
+            gsap.set(decision1Title, { opacity: titleP, x: 800 * (1 - titleP) });
             gsap.set(decision1Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
         }
     });
@@ -1123,7 +1176,23 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 // En f1=0 → textX=0 (reposo, sin salto).
                 // En f1=1 → textX=80-vw/2 (negativo, texto sale por la izquierda).
                 const f1 = p / 0.5;
-                const f1e = clipEase(f1);
+                // Ease de FASE 1: power1.out (antes clipEase=power3.out).
+                // Razón: clipEase desacelera a ~0 al final de FASE 1, y
+                // FASE 2 usa power1.out que arranca desde 0. Dos curvas
+                // que se encuentran en velocidad ~0 alrededor de p=0.5
+                // causan una pausa perceptible. power1.out tiene velocidad
+                // residual > 0 al final, empalmando suave con FASE 2.
+                // Mismo fix que resolvió el "atorón" en el Razonamiento.
+                // Crecimiento de la imagen a velocidad constante (lineal, 'none').
+                // Antes era power1.out, que desaceleraba a ~0 al final de Fase 1
+                // y dejaba la sensación de "termina lento" justo antes de pasar a
+                // Fase 2. Con lineal, la velocidad es constante durante toda la
+                // Fase 1. Trade-off conocido: la juntura Fase 1→Fase 2 pasa de
+                // un empalme suave (factor 1.7×) a un salto más notorio (factor
+                // ~9× estimado), porque Fase 2 con lineal arranca más lento que
+                // Fase 1 con lineal. Se acepta el salto a cambio de velocidad
+                // constante. La imagen ya no flota al final de cada fase.
+                const f1e = gsap.parseEase('none')(f1);
 
                 const newLeft = vw / 2 + (margin - vw / 2) * f1e;
                 const textX = newLeft - vw / 2;  // = (margin - vw/2) * f1e
@@ -1139,12 +1208,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(decision1Title, { x: textX, opacity: 1 - f1e });
             } else {
                 // FASE 2: imagen se expande a los 4 extremos. border-radius → 0.
-                // Ease power1.out (en lugar de clipEase/power2.out) para eliminar
-                // el "tramo muerto" del final: la imagen llega a full-bleed con
-                // movimiento perceptible hasta el último frame, sin flotar.
-                // Mismo fix que la entrada→expansión (misma causa raíz).
+                // Ease lineal ('none') para velocidad constante: la imagen
+                // llega a full-bleed sin flotar al final (antes con
+                // power1.out desaceleraba a ~0 en el último 10% del
+                // crecimiento). Combinado con Fase 1 también lineal, todo
+                // el crecimiento es velocidad constante. Trade-off: el
+                // empalme Fase 1→Fase 2 pasa de suave (power1.out vs
+                // power1.out) a un salto más notorio (lineal Fase 1 vs
+                // lineal Fase 2). Se acepta por pedido del usuario.
                 const f2 = (p - 0.5) / 0.5;
-                const f2e = gsap.parseEase('power1.out')(f2);
+                const f2e = gsap.parseEase('none')(f2);
 
                 gsap.set(decision1Media, {
                     top: (headerH + margin) * (1 - f2e),
@@ -2238,13 +2311,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     //     position:fixed + z:5 a nivel de documento (ver override en
     //     decisiones-responsive.css). Por eso NO anima el track: el
     //     track es del stage, no de Decisión 2.
-    //   - El clip-path del verde + cascada de contenido (Gate 3) son
-    //     idénticos a cortina-1. Mismo clipEase, mismas ventanas de
-    //     sub-progress (label 0.50→0.80, título 0.58→0.90, media
-    //     0.66→1.00 con power1.out).
+    //   - RÉPLICA exacta de cortina-1 en clip-path del panel, cascada
+    //     de contenido (label/título/media), ventanas, eases y offsets.
+    //     Antes tenía una aceleración local sqrt y ventanas más tardías
+    //     (label 0.50→0.80, título 0.58→0.90, media 0.66→1.00); ahora
+    //     coincide con cortina-1 (label 0.25→0.70, título 0.33→0.72,
+    //     media 0.45→1.00). Eases: power1.out para label/título,
+    //     lineal ('none') para media. Offsets: 860/800/400.
     //   - Variables y queries sufijadas (decision2*). Scope del closure
     //     independiente del de cortina-1 — el estado mutable (clip-path
     //     inline, transform de label/título/media) NO se contamina.
+    //   - Salida de razonFinal (frase final del Razonamiento de D1)
+    //     sincronizada con el clip-path del verde. Antes usaba
+    //     localProgress (acelerado por sqrt); ahora usa self.progress
+    //     directo para coincidir con la nueva velocidad del verde.
     // ============================================
 
     const decision2Panel = document.querySelector('.cs-decision[data-dec="2"]');
@@ -2290,47 +2370,38 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-2',
         start: () => razonamiento1ST ? razonamiento1ST.end : 0,
-        end: 'bottom top',
+        // Pin explícito de 6.5vh (réplica de cortina-1).
+        // ANTES usaba 'bottom top' con CSS height:100vh, lo que daba
+        // 100vh de pin y hacía la animación 15× más lenta.
+        end: () => '+=' + (window.innerHeight * 6.5),
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
 
-            // ── Aceleración local del progreso (v3) ──
-            // Para que el verde entre MÁS RÁPIDO sin tocar clipEase
-            // (compartida con cortina-1), aplicamos sqrt al self.progress
-            // localmente. sqrt comprime la primera mitad del progreso y
-            // expande la segunda:
-            //   self.progress 0.10 → localProgress 0.316 → clipEase ≈ 0.55
-            //   self.progress 0.25 → localProgress 0.500 → clipEase = 0.75
-            //   self.progress 0.50 → localProgress 0.707 → clipEase ≈ 0.93
-            //   self.progress 1.00 → localProgress 1.000 → clipEase = 1.00
-            // El verde "atrapa" la frase casi en su sitio.
-            //
-            // clipEase INTACTA: la cortina-1 de Decisión 1 sigue usando
-            // clipEase(self.progress) sin sqrt — su velocidad de entrada
-            // es IDÉNTICA a antes (verificado en runtime).
-            const localProgress = Math.sqrt(self.progress);
-
-            // 1. Clip-path del panel verde (entrada acelerada vía localProgress).
-            const clipProgress = clipEase(localProgress);
+            // 1. Clip-path del panel verde. Mismo ease y mismo argumento
+            //    que cortina-1 (clipEase sobre self.progress directo, sin
+            //    sqrt). La cortina-2 ya no acelera localmente; ahora se
+            //    comporta idénticamente a cortina-1.
+            const clipProgress = clipEase(self.progress);
             gsap.set(decision2Panel, {
                 clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
             });
 
-            // 2. Gate 3 — Cascada de contenido (también acelerada para
-            //    coherencia con el verde). Mismas ventanas internas
-            //    (0.50-0.80, 0.58-0.90, 0.66-1.00) pero aplicadas al
-            //    localProgress en vez de self.progress. Sin esto, la
-            //    cascada quedaría rezagada respecto al verde y habría
-            //    un momento de "panel verde vacío" antes de que aparezcan
-            //    label/título/media.
-            const labelP = clipEase(subProgress(localProgress, 0.50, 0.80));
-            const titleP = clipEase(subProgress(localProgress, 0.58, 0.90));
-            const mediaP = gsap.parseEase('power1.out')(subProgress(localProgress, 0.66, 1.00));
-            gsap.set(decision2Label, { opacity: labelP, x: 400 * (1 - labelP) });
-            gsap.set(decision2Title, { opacity: titleP, x: 400 * (1 - titleP) });
+            // 2. Gate 3 — Cascada de contenido, RÉPLICA de cortina-1
+            //    (mismas ventanas, mismos eases, mismos offsets):
+            //      Label:    ventana 0.25→0.70, ease power1.out, offset 860
+            //      Título:   ventana 0.33→0.72, ease power1.out, offset 800
+            //      Media:    ventana 0.45→1.00, ease lineal ('none'),    offset 400
+            //    La media usa ease lineal (no power1.out como en la v3
+            //    anterior) para que la entrada sea a velocidad constante
+            //    y se empalme limpiamente con la Fase 1 de la expansión-2.
+            const labelP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.25, 0.70));
+            const titleP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.33, 0.72));
+            const mediaP = gsap.parseEase('none')(subProgress(self.progress, 0.45, 1.0));
+            gsap.set(decision2Label, { opacity: labelP, x: 860 * (1 - labelP) });
+            gsap.set(decision2Title, { opacity: titleP, x: 800 * (1 - titleP) });
             gsap.set(decision2Media, { opacity: mediaP, x: 400 * (1 - mediaP) });
 
             // 3. Salida de razonFinal (frase final del Razonamiento de D1).
@@ -2339,40 +2410,37 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             //    matchear también la frase final de Decisión 2 cuando se
             //    construya. Mismo patrón de scope que decision2*.
             //
-            //    Captura lazy: en el primer frame activo, leemos la x
-            //    actual del transform (la que el Razonamiento dejó vía
-            //    _finalToCenterDeltaX, típicamente ≈-4966px a 1920w).
-            //    En frames posteriores usamos esa x como ancla.
-            //
-            //    CALIBRACIÓN v3:
-            //    - Movimiento MÁS LENTO: distancia vw * 0.5 (antes vw * 0.9).
-            //      La frase casi se queda en su sitio, desplazándose apenas.
-            //      A progress 0.5, el right edge del texto queda en ~49%
-            //      del viewport (vs ~28% en v2 y 17% en v1).
-            //    - Easing del movimiento: clipEase(localProgress) — usa el
-            //      localProgress acelerado para que el movimiento de la
-            //      frase esté en fase con el verde que la alcanza.
-            //    - Fade: sqrt curve que llega a 0 a self.progress 0.6.
-            //      Usa self.progress DIRECTO (sin sqrt) para que el fade
-            //      complete al mismo ritmo temporal que en v2, coherente
-            //      con la instrucción "se desvanece antes de salir".
+            //    Réplica del trackInner de cortina-1: mismo easing (lineal
+            //    'none'), misma distancia (vw * 0.3), mismo fade (lineal
+            //    1 - self.progress). La frase se mueve como un paralaje
+            //    detrás del verde, idéntica velocidad que el trackInner
+            //    de cortina-1. La captura de x original se hace en el
+            //    primer frame (lazy) sin getComputedStyle.
             if (razonFinal) {
                 if (!razonFinalExitCaptured) {
-                    const computedTransform = getComputedStyle(razonFinal).transform;
-                    const matrixMatch = computedTransform.match(/matrix\(([^)]+)\)/);
+                    // Captura lazy: leer la x del transform inline que el
+                    // Razonamiento dejó vía _finalToCenterDeltaX. El
+                    // Razonamiento usa formato `translate(xpx, ypx) scale(...)`
+                    // en el style inline, NO `matrix(...)`. Parseamos
+                    // ambos formatos para máxima robustez.
+                    const inlineStyle = razonFinal.style.transform;
+                    let tx = 0;
+                    const matrixMatch = inlineStyle.match(/matrix\(([^)]+)\)/);
                     if (matrixMatch) {
-                        const values = matrixMatch[1].split(',').map(parseFloat);
-                        razonFinalExitOriginalX = values[4]; // tx (5to valor)
+                        tx = parseFloat(matrixMatch[1].split(',')[4]);
+                    } else {
+                        const translateMatch = inlineStyle.match(/translate\(\s*([-\d.]+)/);
+                        if (translateMatch) {
+                            tx = parseFloat(translateMatch[1]);
+                        }
                     }
+                    razonFinalExitOriginalX = tx;
                     razonFinalExitCaptured = true;
                 }
-                const exitProgress = clipEase(localProgress);
                 const vw = window.innerWidth;
-                // Fade: sqrt(linear) — rápido al inicio, llega a 0 a self.progress 0.6.
-                const fadeProgress = Math.pow(Math.min(1, self.progress / 0.6), 0.5);
                 gsap.set(razonFinal, {
-                    x: razonFinalExitOriginalX - vw * 0.5 * exitProgress,
-                    opacity: 1 - fadeProgress
+                    x: razonFinalExitOriginalX - self.progress * vw * 0.3,
+                    opacity: 1 - self.progress
                 });
             }
         }
@@ -2458,6 +2526,97 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     left: margin * (1 - f2e),
                     bottom: margin * (1 - f2e),
                     borderRadius: 24 * (1 - f2e)
+                });
+            }
+        }
+    });
+
+    // ============================================
+    // DECISIÓN 2 — El Problema 2 (réplica de El Problema 1)
+    // Pino .cs-pin-spacer--decision-2-problema. Contiguo al final del
+    // pin de la expansión-2. Anclado vía expansion2ST.end.
+    //
+    // UBICACIÓN EN EL ARCHIVO: al final de la función, DESPUÉS del ST
+    // de la expansión-2. Crítico: la captura de `expansion2ST` con
+    // ScrollTrigger.getAll().find() debe encontrar el ST ya creado. Si
+    // se creara antes, la captura devolvería undefined y el start
+    // caería al fallback (0), rompiendo el anclaje.
+    //
+    // DIFERENCIAS con El Problema 1:
+    //   - Anclado a expansion2ST.end (no a expansionST.end).
+    //   - Queries scopeadas a [data-dec="2"]: .cs-problema[data-dec="2"],
+    //     .cs-decision[data-dec="2"], .cs-decision-mc[data-dec="2"].
+    //   - Variables sufijadas (problema2*).
+    //   - Sin flag de estado mutable propio: el ST de El Problema no usa
+    //     ningún let de closure tipo gate4Initialized. Es self-contained
+    //     por frame (el onUpdate recalcula todo desde self.progress).
+    //   - .cs-decision-mc[data-dec="2"] todavía NO existe (se construirá
+    //     después); el gsap.set sobre ese selector es no-op silencioso.
+    //     Cuando se construya La Decisión 2, el gsap.set ya la estará
+    //     gobernando automáticamente.
+    //
+    // LÓGICA idéntica a El Problema 1:
+    //   - Cortina: primer 1/3 del rango (0 → vh). ease power2.out.
+    //     .cs-decision[data-dec="2"] sale de 0 a -vh (arriba).
+    //     .cs-problema[data-dec="2"] entra de vh a 0 (abajo → centro).
+    //   - Cascada: tramo [1/3, 2/3] del progress global.
+    //     Título + 4 cards, stagger STEP/2, STEP=1/3 del rango de cascada.
+    //   - Respiro: último 1/3 (saturado en 1).
+    // ============================================
+
+    const expansion2ST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-2-expansion')
+    );
+
+    // Captura única de los 5 nodos de la cascada (título + 4 cards).
+    // gsap.utils.toArray respeta el document order (grid 2-col, row-by-row).
+    const problema2Title = document.querySelector('.cs-problema[data-dec="2"] .cs-problema__title');
+    const problema2Cards = gsap.utils.toArray('.cs-problema[data-dec="2"] .cs-problema__card');
+    const problema2Nodes = problema2Title ? [problema2Title, ...problema2Cards] : problema2Cards;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-2-problema',
+        start: () => expansion2ST ? expansion2ST.end : 0,
+        end: () => '+=' + (window.innerHeight * 3),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const PIN_LENGTH_VH = 3;
+            const scrolled = self.progress * (vh * PIN_LENGTH_VH);
+
+            // CORTINA: primer 1/3 del rango (0 → vh). Resto = permanencia.
+            const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
+            const eased = gsap.parseEase('power2.out')(curtainP);
+
+            gsap.set('.cs-decision[data-dec="2"]', { y: -eased * vh });     // 0 → -vh (sale arriba)
+            gsap.set('.cs-problema[data-dec="2"]', { y: vh - eased * vh }); // vh → 0 (entra desde abajo)
+
+            // La Decisión 2: en y:0 solo cuando El Problema 2 cubre el viewport.
+            // (Selector no-op por ahora — La Decisión 2 se construirá después.
+            // Cuando exista, este set ya la estará gobernando.)
+            gsap.set('.cs-decision-mc[data-dec="2"]', { y: curtainP >= 1 ? 0 : '100vh' });
+
+            // CASCADA: tramo [1/3, 2/3] del progress global.
+            // Mismo STEP=1/3 y offset STEP/2 que El Problema 1.
+            const CASCADE_START = 1 / 3;
+            const CASCADE_END = 2 / 3;
+            const STEP = 1 / 3;
+            const cascadeP = gsap.utils.clamp(0, 1,
+                (self.progress - CASCADE_START) / (CASCADE_END - CASCADE_START)
+            );
+
+            for (let i = 0; i < problema2Nodes.length; i++) {
+                const nodeStart = i * STEP / 2;
+                const nodeEnd = nodeStart + STEP;
+                const localP = gsap.utils.clamp(0, 1, (cascadeP - nodeStart) / STEP);
+                const localEased = gsap.parseEase('power2.out')(localP);
+                gsap.set(problema2Nodes[i], {
+                    y: 400 * (1 - localEased),
+                    opacity: localEased
                 });
             }
         }

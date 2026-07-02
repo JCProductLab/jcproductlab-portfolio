@@ -43,8 +43,12 @@
     .cs-pin-spacer--decisiones-titulos { height: 100vh; }
 
     /* Altura del pin-spacer de la cortina Decisión 1.
-       100vh = un viewport de scroll para la interpolación de la cortina. */
-    .cs-pin-spacer--decision-1 { height: 100vh; }
+       6.5vh = el pin dura ~6.5vh de scroll (antes 9.17vh / 100vh).
+       Acortado para eliminar scroll muerto: la cascada ahora empieza
+       a progress 0.25 y termina cerca de 0.90, dejando un respiro
+       mínimo al final. Ver caso-asdeporte.js:1042-1052 para las
+       nuevas ventanas de cascada. */
+    .cs-pin-spacer--decision-1 { height: 6.5vh; }
 
     /* Altura del pin-spacer de la expansión Decisión 1 (Gate 4).
        100vh = un viewport de scroll para las dos fases de la expansión. */
@@ -57,6 +61,11 @@
     /* Altura del pin-spacer de la expansión Decisión 2.
        100vh = un viewport de scroll para las dos fases de la expansión. */
     .cs-pin-spacer--decision-2-expansion { height: 100vh; }
+
+    /* Altura del pin-spacer de "El Problema" de Decisión 2.
+       100vh = un viewport de scroll para la cortina + cascada + respiro.
+       (El ST de El Problema usa '+=' 3*vh internamente.) */
+    .cs-pin-spacer--decision-2-problema { height: 100vh; }
 
     /* ============================================
        DECISIÓN — Panel verde de entrada (1, 2 o 3)
@@ -110,6 +119,26 @@
         display: flex;
         flex-direction: column;
         gap: 24px;
+    }
+
+    /* Cortina-1: ajuste fino del left. El bloque se corre 16px a la derecha
+       (de 80 a 96) para alinear el destino del label/título con el borde
+       derecho de revelado del panel verde en p≈0.70. Antes, con left=80,
+       el label/título terminaban exactamente en el borde del reveal del
+       panel (con un blip de 2-3 px de clip residual). Con left=96, el
+       destino del contenido está un poco más a la derecha, eliminando
+       ese blip sin tocar las ventanas ni el offset del motion. */
+    .cs-decision[data-dec="1"] .cs-decision__content {
+        left: 96px;
+    }
+
+    /* Cortina-2: igualar posición del contenido a cortina-1 (left:96).
+       Sin este override, cortina-2 hereda left:80px de la regla base,
+       creando una diferencia sutil de 16px en la posición de reposo
+       del label/título que el ojo percibe como "algo no está igual"
+       entre ambas cortinas. */
+    .cs-decision[data-dec="2"] .cs-decision__content {
+        left: 96px;
     }
 
     /* Label — reusa .cs-label para tipografía, solo se sobreescribe el color. */

@@ -318,6 +318,7 @@
         <div class="cs-pin-spacer cs-pin-spacer--decision-1-razonamiento" data-phase="decision-1-razonamiento"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decision-2" data-phase="decision-2"></div>
         <div class="cs-pin-spacer cs-pin-spacer--decision-2-expansion" data-phase="decision-2-expansion"></div>
+        <div class="cs-pin-spacer cs-pin-spacer--decision-2-problema" data-phase="decision-2-problema"></div>
 
         <!-- ============================================ -->
         <!-- TRACK HORIZONTAL — Panel 1: Métrica · Panel 2: Contexto -->
@@ -708,6 +709,39 @@
                      alt="" aria-hidden="true">
             </div>
 
+        </section>
+
+        <!-- ============================================ -->
+        <!-- EL PROBLEMA 2 — Primera parte interna de Decisión 2 -->
+        <!-- Réplica del patrón validado de El Problema 1.    -->
+        <!-- Misma estructura: título + grid 2×2 de 4 cards. -->
+        <!-- El contenido es placeholder idéntico al de D1;   -->
+        <!-- el usuario lo reemplaza después.                -->
+        <!-- Vive FUERA del stage, position:fixed + z:6     -->
+        <!-- (heredado de la regla base .cs-problema).       -->
+        <!-- ============================================ -->
+        <section class="cs-problema" data-dec="2" aria-label="El problema de Decisión 2">
+            <div class="cs-problema__content">
+                <h3 class="cs-decision-text cs-problema__title">[ El problema ]</h3>
+                <div class="cs-problema__grid">
+                    <div class="cs-problema__card">
+                        <span class="cs-problema__bullet" aria-hidden="true"></span>
+                        <p class="large-paragraph cs-problema__text">Marketing tenía meses construyendo la narrativa y el CEO veía en "Tribu", LA RED SOCIAL interna de atletas.</p>
+                    </div>
+                    <div class="cs-problema__card">
+                        <span class="cs-problema__bullet" aria-hidden="true"></span>
+                        <p class="large-paragraph cs-problema__text">Era la gran apuesta estratégica para dejar de ser una ticketera y convertirse en una comunidad deportiva.</p>
+                    </div>
+                    <div class="cs-problema__card">
+                        <span class="cs-problema__bullet" aria-hidden="true"></span>
+                        <p class="large-paragraph cs-problema__text">El roadmap destinaba el 40% del presupuesto de desarrollo a feeds sociales y gamificación.</p>
+                    </div>
+                    <div class="cs-problema__card">
+                        <span class="cs-problema__bullet" aria-hidden="true"></span>
+                        <p class="large-paragraph cs-problema__text">Era una idea emocionalmente atractiva y políticamente respaldada. Nadie en la mesa la había cuestionado.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
     </main>
