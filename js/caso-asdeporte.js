@@ -2787,7 +2787,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // Clon exacto del Razonamiento 1. Variables con
     // prefijo _r2 o sufijo 2. Custom props propias:
     // --razon2-desc2-top / --razon2-desc3-top.
-    // razon2Final NO tiene exit animation (sin D3 todavía).
+    // La salida de razon2Final vive ahora en la Cortina D3
+    // (mismo patrón que D1→D2).
     // ============================================
 
     const _r2desc1 = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="1"]');
