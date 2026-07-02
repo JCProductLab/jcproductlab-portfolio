@@ -66,6 +66,18 @@
        100vh = un viewport de scroll para la cortina + cascada + respiro.
        (El ST de El Problema usa '+=' 3*vh internamente.) */
     .cs-pin-spacer--decision-2-problema { height: 100vh; }
+    .cs-pin-spacer--decision-2-ladecision  { height: 100vh; }
+    .cs-pin-spacer--decision-2-razonamiento { height: 100vh; }
+
+    /* Descriptores de Razonamiento 2 — usan custom props propias
+       para no pisarse con las de Razonamiento 1. El JS escribe
+       --razon2-desc2-top y --razon2-desc3-top en cada init. */
+    .cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="2"] {
+        top: var(--razon2-desc2-top, 135.56%);
+    }
+    .cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="3"] {
+        top: var(--razon2-desc3-top, 332%);
+    }
 
     /* ============================================
        DECISIÓN — Panel verde de entrada (1, 2 o 3)
