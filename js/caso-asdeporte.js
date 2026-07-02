@@ -2781,4 +2781,222 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // Gate 2 D2 — El Razonamiento 2
+    // Clon exacto del Razonamiento 1. Variables con
+    // prefijo _r2 o sufijo 2. Custom props propias:
+    // --razon2-desc2-top / --razon2-desc3-top.
+    // razon2Final NO tiene exit animation (sin D3 todavía).
+    // ============================================
+
+    const _r2desc1 = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="1"]');
+    const _r2desc2 = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="2"]');
+    const _r2desc3 = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="3"]');
+    const _r2dh1   = _r2desc1 ? _r2desc1.offsetHeight : 0;
+    const _r2dh2   = _r2desc2 ? _r2desc2.offsetHeight : 0;
+    const _r2dh3   = _r2desc3 ? _r2desc3.offsetHeight : 0;
+    const _r2razonVh    = window.innerHeight;
+    const _r2desc1TopPx = 0.5 * _r2razonVh;
+    const _r2stepPx     = 0.8 * _r2razonVh + 120 + _r2dh1;
+    const _r2desc2TopPx = _r2desc1TopPx + _r2stepPx;
+    const _r2desc3TopPx = _r2desc2TopPx + _r2stepPx;
+
+    const razon2Conclusion = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__conclusion');
+    const razon2Label      = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__label');
+    const razon2Body       = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__conclusion-body');
+    const razon2Final      = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__conclusion-final');
+
+    const _r2recorridoFase1Px      = 2.1 * _r2razonVh + 240 + 2 * _r2dh1;
+    const _r2rielRecorridoFase2Px  = 0.5 * _r2razonVh + _r2dh3;
+    const _r2conclusionHeaderHeight = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+    ) || 81;
+    const _r2conclusionBaseTopInit  = _r2conclusionHeaderHeight + (_r2razonVh - _r2conclusionHeaderHeight) / 2;
+    const _r2conclusionHeightInit   = razon2Conclusion ? razon2Conclusion.offsetHeight : 333;
+    const _r2concOffsetPx           = 0;
+    const _r2concRecorridoFase2Px   = _r2razonVh - _r2conclusionBaseTopInit + _r2concOffsetPx + _r2conclusionHeightInit / 2;
+    const _r2recorridoFase2Px       = Math.max(_r2rielRecorridoFase2Px, _r2concRecorridoFase2Px);
+    const _r2recorridoFase3Px       = 0.7 * _r2razonVh;
+    const _r2recorridoFaseTotalPx   = _r2recorridoFase1Px + _r2recorridoFase2Px + _r2recorridoFase3Px;
+    const _r2conclusionEntryStartRatio = _r2recorridoFase1Px / _r2recorridoFaseTotalPx;
+    const _r2conclusionEntryEndRatio   = (_r2recorridoFase1Px + _r2recorridoFase2Px) / _r2recorridoFaseTotalPx;
+    const _r2gestureStartRatio         = _r2conclusionEntryEndRatio;
+    const PIN_LENGTH_VH2               = _r2recorridoFaseTotalPx / _r2razonVh;
+
+    let _r2bodyExitDistance    = 0;
+    let _r2finalToCenterDeltaX = 0;
+    let _r2finalToCenterDeltaY = 0;
+    let _r2finalTargetScale    = 1;
+    let _r2gestureInitialized  = false;
+
+    const _r2labelFadeStartRatio = (2.6 * _r2razonVh + 240 + 2 * _r2dh1) / _r2recorridoFaseTotalPx;
+    const _r2labelFadeEndRatio   = 0.83;
+
+    document.documentElement.style.setProperty('--razon2-desc2-top', _r2desc2TopPx + 'px');
+    document.documentElement.style.setProperty('--razon2-desc3-top', _r2desc3TopPx + 'px');
+
+    const ladeciST2 = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-2-ladecision')
+    );
+
+    const razon2Rail       = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__rail');
+    const razon2Metric1    = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__metric[data-screen="1"]');
+    const razon2Metric2    = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__metric[data-screen="2"]');
+    const razon2Metric3    = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__metric[data-screen="3"]');
+    const razon2Descriptor  = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="1"]');
+    const razon2Descriptor2 = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="2"]');
+    const razon2Descriptor3 = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__descriptor[data-screen="3"]');
+
+    let razon2DescriptorHeight = razon2Descriptor ? razon2Descriptor.offsetHeight : 0;
+    let conclusion2BaseTopPx   = _r2conclusionHeaderHeight + (window.innerHeight - _r2conclusionHeaderHeight) / 2;
+
+    if (razon2Rail)    { gsap.set(razon2Rail,    { y: window.innerHeight * 0.5 }); }
+    if (razon2Metric1) { gsap.set(razon2Metric1, { opacity: 0 }); }
+    if (razon2Metric2) { gsap.set(razon2Metric2, { opacity: 0 }); }
+    if (razon2Metric3) { gsap.set(razon2Metric3, { opacity: 0 }); }
+    if (razon2Conclusion) {
+        gsap.set(razon2Conclusion, { top: (conclusion2BaseTopPx + _r2recorridoFase2Px) + 'px' });
+    }
+
+    function computeGesture2Constants() {
+        if (!razon2Final) return;
+        const vh = window.innerHeight;
+        const vw = window.innerWidth;
+        const textRange = document.createRange();
+        textRange.selectNodeContents(razon2Final);
+        const finalTextRect   = textRange.getBoundingClientRect();
+        const finalTextWidth  = finalTextRect.width  || 1;
+        const finalTextHeight = finalTextRect.height || 1;
+        const scaleByWidth  = (vw * FINAL_SCALE_VW_RATIO) / finalTextWidth;
+        const scaleByHeight = vh / finalTextHeight;
+        _r2finalTargetScale = Math.min(scaleByWidth, scaleByHeight);
+        const razon2FinalRect = razon2Final.getBoundingClientRect();
+        _r2finalToCenterDeltaX = ((finalTextWidth - razon2FinalRect.width) / 2) * _r2finalTargetScale;
+        const finalTextCenterY = finalTextRect.top + finalTextHeight / 2;
+        _r2finalToCenterDeltaY = vh / 2 - finalTextCenterY;
+        if (razon2Body) {
+            const bodyRect = razon2Body.getBoundingClientRect();
+            _r2bodyExitDistance = bodyRect.bottom + 50;
+        }
+    }
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-2-razonamiento',
+        start: () => ladeciST2 ? ladeciST2.end : 0,
+        end: () => '+=' + (window.innerHeight * PIN_LENGTH_VH2),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onRefresh: () => {
+            if (razon2Descriptor) {
+                razon2DescriptorHeight = razon2Descriptor.offsetHeight;
+            }
+            if (razon2Rail) {
+                gsap.set(razon2Rail, { y: window.innerHeight * 0.5 });
+            }
+            conclusion2BaseTopPx = _r2conclusionHeaderHeight + (window.innerHeight - _r2conclusionHeaderHeight) / 2;
+            computeGesture2Constants();
+        },
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh       = window.innerHeight;
+            const recorrido = PIN_LENGTH_VH2 * vh;
+            const contentP  = self.progress;
+
+            const railY = 0.5 * vh - contentP * recorrido;
+
+            if (razon2Rail) {
+                gsap.set(razon2Rail, { y: 0.5 * vh });
+                gsap.set(razon2Rail, { y: railY });
+            }
+
+            const _r2switchRailY_12 = -0.5 * vh;
+            const _r2switchRailY_23 = -1.3 * vh - 120 - _r2dh1;
+
+            const computeOpacity2 = (metricP) => {
+                const FADE_IN_END    = 0.25;
+                const FADE_OUT_START = 0.90;
+                if (metricP < FADE_IN_END)     return metricP / FADE_IN_END;
+                if (metricP <= FADE_OUT_START) return 1;
+                return (1 - metricP) / (1 - FADE_OUT_START);
+            };
+
+            if (razon2Metric1) {
+                const desc1TopInViewport = railY + 0.5 * vh;
+                const metricP_1 = Math.max(0, Math.min(1, (vh - desc1TopInViewport) / vh));
+                gsap.set(razon2Metric1, { opacity: computeOpacity2(metricP_1) });
+            }
+            if (razon2Metric2) {
+                if (railY > _r2switchRailY_12) {
+                    gsap.set(razon2Metric2, { opacity: 0 });
+                } else {
+                    const desc2TopInViewport = railY + 1.3 * vh + 120 + _r2dh1;
+                    const metricP_2 = Math.max(0, Math.min(1, (vh - desc2TopInViewport) / vh));
+                    gsap.set(razon2Metric2, { opacity: computeOpacity2(metricP_2) });
+                }
+            }
+            if (razon2Metric3) {
+                if (railY > _r2switchRailY_23) {
+                    gsap.set(razon2Metric3, { opacity: 0 });
+                } else {
+                    const desc3TopInViewport = railY + 2.1 * vh + 240 + 2 * _r2dh1;
+                    const metricP_3 = Math.max(0, Math.min(1, (vh - desc3TopInViewport) / vh));
+                    gsap.set(razon2Metric3, { opacity: computeOpacity2(metricP_3) });
+                }
+            }
+
+            if (razon2Conclusion) {
+                const concInitialTop = conclusion2BaseTopPx + _r2recorridoFase2Px;
+                if (contentP < _r2conclusionEntryStartRatio) {
+                    gsap.set(razon2Conclusion, { top: concInitialTop + 'px' });
+                } else if (contentP < _r2conclusionEntryEndRatio) {
+                    const localP = (contentP - _r2conclusionEntryStartRatio) /
+                                   (_r2conclusionEntryEndRatio - _r2conclusionEntryStartRatio);
+                    gsap.set(razon2Conclusion, { top: (concInitialTop - _r2recorridoFase2Px * localP) + 'px' });
+                } else {
+                    gsap.set(razon2Conclusion, { top: conclusion2BaseTopPx + 'px' });
+                }
+            }
+
+            if (razon2Label) {
+                let labelOpacity = 1;
+                if (contentP > _r2labelFadeStartRatio) {
+                    const labelProgress = (contentP - _r2labelFadeStartRatio) /
+                                          (_r2labelFadeEndRatio - _r2labelFadeStartRatio);
+                    labelOpacity = Math.max(0, Math.min(1, 1 - labelProgress));
+                }
+                if (contentP > _r2gestureStartRatio) { labelOpacity = 0; }
+                gsap.set(razon2Label, { opacity: labelOpacity });
+            }
+
+            if (contentP > _r2gestureStartRatio) {
+                if (!_r2gestureInitialized) {
+                    computeGesture2Constants();
+                    _r2gestureInitialized = true;
+                }
+                const localP = (contentP - _r2gestureStartRatio) / (1 - _r2gestureStartRatio);
+                if (razon2Body) {
+                    gsap.set(razon2Body, { y: -_r2bodyExitDistance * localP });
+                }
+                if (razon2Final) {
+                    gsap.set(razon2Final, {
+                        x: _r2finalToCenterDeltaX * localP,
+                        y: _r2finalToCenterDeltaY * localP,
+                        scale: 1 + (_r2finalTargetScale - 1) * localP,
+                    });
+                }
+            } else {
+                _r2gestureInitialized = false;
+                if (razon2Body)  { gsap.set(razon2Body,  { y: 0 }); }
+                if (razon2Final) { gsap.set(razon2Final, { x: 0, y: 0, scale: 1 }); }
+            }
+        },
+        onLeave: () => {
+            if (razon2Body) {
+                gsap.set(razon2Body, { y: -2 * window.innerHeight });
+            }
+        }
+    });
 }
