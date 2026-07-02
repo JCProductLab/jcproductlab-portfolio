@@ -3220,4 +3220,174 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // Gate B D3 — Cortina vertical de "La Decisión 3"
+    // Gate D D3 — Animaciones internas de La Decisión 3
+    // Clon exacto de Gate B D2 + Gate D D2.
+    // Anclado a problemaST3.end.
+    // ============================================
+
+    const problemaST3 = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-3-problema')
+    );
+
+    const decisionImg3     = document.querySelector('.cs-decision-mc[data-dec="3"] .cs-decision-mc__img');
+    const decisionMedia3   = document.querySelector('.cs-decision-mc[data-dec="3"] .cs-decision-mc__media');
+    const decisionRing3    = document.querySelector('.cs-decision-mc[data-dec="3"] .cs-decision-mc__ring');
+    const decisionText3    = document.querySelector('.cs-decision-mc[data-dec="3"] .cs-decision-mc__text');
+    const decisionTextWrap3 = document.querySelector('.cs-decision-mc[data-dec="3"] .cs-decision-mc__text-wrap');
+    const ORIGINAL_TEXT3   = decisionText3 ? decisionText3.textContent : '';
+
+    let decisionTextLines3 = [];
+
+    const splitDecisionText3 = (p) => {
+        if (!p) return [];
+        if (p.dataset.lineSplitReady === 'true') {
+            const words = Array.from(p.querySelectorAll('.cs-decision-mc__word'));
+            const groups = {};
+            words.forEach((w) => {
+                const i = w.dataset.lineIndex;
+                (groups[i] ||= []).push(w);
+            });
+            return Object.keys(groups)
+                .sort((a, b) => +a - +b)
+                .map((k) => groups[k]);
+        }
+        const tokens = p.textContent.replace(/\s+/g, ' ').trim().split(' ');
+        if (!tokens.length) return [];
+        p.textContent = '';
+        tokens.forEach((word, idx) => {
+            if (idx > 0) p.appendChild(document.createTextNode(' '));
+            const span = document.createElement('span');
+            span.className = 'cs-decision-mc__word';
+            span.textContent = word;
+            span.style.display = 'inline-block';
+            span.style.willChange = 'transform, opacity';
+            p.appendChild(span);
+        });
+        const wordEls = Array.from(p.querySelectorAll('.cs-decision-mc__word'));
+        const lineMap = new Map();
+        wordEls.forEach((el) => {
+            const top = Math.round(el.offsetTop);
+            if (!lineMap.has(top)) lineMap.set(top, []);
+            lineMap.get(top).push(el);
+        });
+        const sortedTops = Array.from(lineMap.keys()).sort((a, b) => a - b);
+        const lines = sortedTops.map((top, i) => {
+            const words = lineMap.get(top);
+            words.forEach((w) => (w.dataset.lineIndex = String(i)));
+            return words;
+        });
+        p.dataset.lineSplitReady = 'true';
+        return lines;
+    };
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            decisionTextLines3 = splitDecisionText3(decisionText3);
+            ScrollTrigger.refresh();
+        });
+    } else {
+        decisionTextLines3 = splitDecisionText3(decisionText3);
+    }
+
+    let resizeTimer3;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer3);
+        resizeTimer3 = setTimeout(() => {
+            if (!decisionText3) return;
+            decisionText3.dataset.lineSplitReady = 'false';
+            Array.from(decisionText3.querySelectorAll('.cs-decision-mc__word'))
+                .forEach(w => w.remove());
+            decisionText3.textContent = ORIGINAL_TEXT3;
+            decisionTextLines3 = splitDecisionText3(decisionText3);
+            ScrollTrigger.refresh();
+        }, 200);
+    });
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-3-ladecision',
+        start: () => problemaST3 ? problemaST3.end : 0,
+        end: () => '+=' + (window.innerHeight * 4),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const PIN_LENGTH_VH = 4;
+            const scrolled = self.progress * (vh * PIN_LENGTH_VH);
+
+            const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
+            const eased = gsap.parseEase('power2.out')(curtainP);
+
+            gsap.set('.cs-problema[data-dec="3"]', { y: -eased * vh });
+
+            if (decisionMedia3) {
+                const IMG_START = 0;
+                const IMG_END   = 0.50;
+                const imgP = gsap.utils.clamp(0, 1, (self.progress - IMG_START) / (IMG_END - IMG_START));
+                const imgE = gsap.parseEase('power1.inOut')(imgP);
+                const vw = window.innerWidth;
+                const INIT_W = 400;
+                const INIT_H = 560;
+                const BORDER_RADIUS = 20;
+                const newW = INIT_W + (vw - INIT_W) * imgE;
+                const newH = INIT_H + (vh - INIT_H) * imgE;
+                const newBR = BORDER_RADIUS * (1 - imgE);
+                gsap.set(decisionMedia3, {
+                    width: newW + 'px',
+                    height: newH + 'px',
+                    borderRadius: newBR + 'px',
+                });
+            }
+
+            if (decisionRing3) {
+                const ringP = gsap.utils.clamp(0, 1, (self.progress - 0) / 0.50);
+                const ringEased = gsap.parseEase('power1.inOut')(ringP);
+                const ringScale = 1.0 + (2.75 - 1.0) * ringEased;
+                const ringRotation = 360 * ringP;
+                const ringOpacity = gsap.utils.clamp(0, 1, 1 - Math.max(0, ringScale - 2.3) / (2.75 - 2.3));
+                gsap.set(decisionRing3, {
+                    x: -377,
+                    y: -240,
+                    scale: ringScale,
+                    rotation: ringRotation,
+                    opacity: ringOpacity,
+                });
+            }
+
+            if (decisionTextWrap3) {
+                const textP = gsap.utils.clamp(0, 1, (self.progress - 0.20) / 0.275);
+                gsap.set(decisionTextWrap3, { opacity: textP });
+                if (decisionTextLines3.length) {
+                    const N = decisionTextLines3.length;
+                    const STEP = 2 / (N + 1);
+                    for (let i = 0; i < N; i++) {
+                        const line = decisionTextLines3[i];
+                        const nodeStart = i * STEP / 2;
+                        const localP = gsap.utils.clamp(0, 1, (textP - nodeStart) / STEP);
+                        const localEased = gsap.parseEase('power2.out')(localP);
+                        gsap.set(line, {
+                            x: 20 * (1 - localEased),
+                            opacity: localEased
+                        });
+                    }
+                }
+            }
+
+            if (self.progress >= 0.5) {
+                const relP = (self.progress - 0.5) / 0.5;
+                const easedRel = gsap.parseEase('power1.out')(relP);
+                gsap.set('.cs-decision-mc[data-dec="3"]', { y: -easedRel * vh });
+                gsap.set('.cs-razonamiento[data-dec="3"]', { y: vh - easedRel * vh });
+                const razon3RailEl = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__rail');
+                if (razon3RailEl) {
+                    gsap.set(razon3RailEl, { y: 0.5 * vh });
+                }
+            }
+        }
+    });
 }
