@@ -1548,6 +1548,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     gsap.set(razonRailEl, { y: 0.5 * vh });
                 }
             }
+        },
+        // Guard contra scrub abandonado: ver comentario equivalente en el
+        // ST de "La Decisión 2" (mismo mecanismo, mismo root cause).
+        onLeaveBack: () => {
+            gsap.set('.cs-decision-mc[data-dec="1"]', { y: '100vh' });
+            gsap.set('.cs-razonamiento[data-dec="1"]', { y: '100vh' });
+        },
+        onLeave: () => {
+            gsap.set('.cs-decision-mc[data-dec="1"]', { y: '-100vh' });
+            gsap.set('.cs-razonamiento[data-dec="1"]', { y: 0 });
         }
     });
 
@@ -2779,6 +2789,24 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     gsap.set(razon2RailEl, { y: 0.5 * vh });
                 }
             }
+        },
+        // Guard contra scrub abandonado: si el scroll salta rápido (Home,
+        // scrollbar, fling) fuera del rango de este ST antes de que el
+        // tween con scrub:1 llegue a su destino, el onUpdate deja de
+        // llamarse y el último transform inline queda congelado a mitad
+        // de camino — .cs-razonamiento[data-dec="2"] no tiene ningún otro
+        // ST que lo corrija en secciones anteriores (Apertura, Contexto,
+        // índice, cortina/expansión/problema de D2), así que se queda
+        // visible y fijo sobre esas secciones. onLeaveBack/onLeave fuerzan
+        // el estado de reposo exacto al salir del rango en cualquier
+        // dirección, sin depender de que el tween haya terminado.
+        onLeaveBack: () => {
+            gsap.set('.cs-decision-mc[data-dec="2"]', { y: '100vh' });
+            gsap.set('.cs-razonamiento[data-dec="2"]', { y: '100vh' });
+        },
+        onLeave: () => {
+            gsap.set('.cs-decision-mc[data-dec="2"]', { y: '-100vh' });
+            gsap.set('.cs-razonamiento[data-dec="2"]', { y: 0 });
         }
     });
 
@@ -3389,6 +3417,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     gsap.set(razon3RailEl, { y: 0.5 * vh });
                 }
             }
+        },
+        // Guard contra scrub abandonado: ver comentario equivalente en el
+        // ST de "La Decisión 2" (mismo mecanismo, mismo root cause).
+        onLeaveBack: () => {
+            gsap.set('.cs-decision-mc[data-dec="3"]', { y: '100vh' });
+            gsap.set('.cs-razonamiento[data-dec="3"]', { y: '100vh' });
+        },
+        onLeave: () => {
+            gsap.set('.cs-decision-mc[data-dec="3"]', { y: '-100vh' });
+            gsap.set('.cs-razonamiento[data-dec="3"]', { y: 0 });
         }
     });
 
