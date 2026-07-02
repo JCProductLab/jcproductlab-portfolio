@@ -79,6 +79,22 @@
         top: var(--razon2-desc3-top, 332%);
     }
 
+    .cs-pin-spacer--decision-3             { height: 100vh; }
+    .cs-pin-spacer--decision-3-expansion   { height: 80vh; }
+    .cs-pin-spacer--decision-3-problema    { height: 100vh; }
+    .cs-pin-spacer--decision-3-ladecision  { height: 100vh; }
+    .cs-pin-spacer--decision-3-razonamiento { height: 100vh; }
+
+    /* Descriptores de Razonamiento 3 — usan custom props propias
+       para no pisarse con las de Razonamiento 1/2. El JS escribe
+       --razon3-desc2-top y --razon3-desc3-top en cada init. */
+    .cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="2"] {
+        top: var(--razon3-desc2-top, 135.56%);
+    }
+    .cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="3"] {
+        top: var(--razon3-desc3-top, 332%);
+    }
+
     /* ============================================
        DECISIÓN — Panel verde de entrada (1, 2 o 3)
        Capa fija sobre el viewport (sibling del .cs-horizontal-track dentro
@@ -150,6 +166,19 @@
        del label/título que el ojo percibe como "algo no está igual"
        entre ambas cortinas. */
     .cs-decision[data-dec="2"] .cs-decision__content {
+        left: 96px;
+    }
+
+    /* Decisión 3 — mismo override que Decisión 2: la cortina-3 vive
+       FUERA del stage (hermana del Razonamiento en <main>), por eso
+       position:fixed (no absolute) y z-index:5 a nivel de documento. */
+    .cs-decision[data-dec="3"] {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+    }
+
+    .cs-decision[data-dec="3"] .cs-decision__content {
         left: 96px;
     }
 
