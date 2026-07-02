@@ -3390,4 +3390,222 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    // ============================================
+    // Gate 2 D3 — El Razonamiento 3
+    // Clon exacto del Razonamiento 2. Variables con
+    // prefijo _r3 o sufijo 3. Custom props propias:
+    // --razon3-desc2-top / --razon3-desc3-top.
+    // razon3Final NO tiene exit animation (sin D4 todavía).
+    // ============================================
+
+    const _r3desc1 = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="1"]');
+    const _r3desc2 = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="2"]');
+    const _r3desc3 = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="3"]');
+    const _r3dh1   = _r3desc1 ? _r3desc1.offsetHeight : 0;
+    const _r3dh2   = _r3desc2 ? _r3desc2.offsetHeight : 0;
+    const _r3dh3   = _r3desc3 ? _r3desc3.offsetHeight : 0;
+    const _r3razonVh    = window.innerHeight;
+    const _r3desc1TopPx = 0.5 * _r3razonVh;
+    const _r3stepPx     = 0.8 * _r3razonVh + 120 + _r3dh1;
+    const _r3desc2TopPx = _r3desc1TopPx + _r3stepPx;
+    const _r3desc3TopPx = _r3desc2TopPx + _r3stepPx;
+
+    const razon3Conclusion = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__conclusion');
+    const razon3Label      = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__label');
+    const razon3Body       = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__conclusion-body');
+    const razon3Final      = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__conclusion-final');
+
+    const _r3recorridoFase1Px      = 2.1 * _r3razonVh + 240 + 2 * _r3dh1;
+    const _r3rielRecorridoFase2Px  = 0.5 * _r3razonVh + _r3dh3;
+    const _r3conclusionHeaderHeight = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+    ) || 81;
+    const _r3conclusionBaseTopInit  = _r3conclusionHeaderHeight + (_r3razonVh - _r3conclusionHeaderHeight) / 2;
+    const _r3conclusionHeightInit   = razon3Conclusion ? razon3Conclusion.offsetHeight : 333;
+    const _r3concOffsetPx           = 0;
+    const _r3concRecorridoFase2Px   = _r3razonVh - _r3conclusionBaseTopInit + _r3concOffsetPx + _r3conclusionHeightInit / 2;
+    const _r3recorridoFase2Px       = Math.max(_r3rielRecorridoFase2Px, _r3concRecorridoFase2Px);
+    const _r3recorridoFase3Px       = 0.7 * _r3razonVh;
+    const _r3recorridoFaseTotalPx   = _r3recorridoFase1Px + _r3recorridoFase2Px + _r3recorridoFase3Px;
+    const _r3conclusionEntryStartRatio = _r3recorridoFase1Px / _r3recorridoFaseTotalPx;
+    const _r3conclusionEntryEndRatio   = (_r3recorridoFase1Px + _r3recorridoFase2Px) / _r3recorridoFaseTotalPx;
+    const _r3gestureStartRatio         = _r3conclusionEntryEndRatio;
+    const PIN_LENGTH_VH3               = _r3recorridoFaseTotalPx / _r3razonVh;
+
+    let _r3bodyExitDistance    = 0;
+    let _r3finalToCenterDeltaX = 0;
+    let _r3finalToCenterDeltaY = 0;
+    let _r3finalTargetScale    = 1;
+    let _r3gestureInitialized  = false;
+
+    const _r3labelFadeStartRatio = (2.6 * _r3razonVh + 240 + 2 * _r3dh1) / _r3recorridoFaseTotalPx;
+    const _r3labelFadeEndRatio   = 0.83;
+
+    document.documentElement.style.setProperty('--razon3-desc2-top', _r3desc2TopPx + 'px');
+    document.documentElement.style.setProperty('--razon3-desc3-top', _r3desc3TopPx + 'px');
+
+    const ladeciST3 = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--decision-3-ladecision')
+    );
+
+    const razon3Rail       = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__rail');
+    const razon3Metric1    = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__metric[data-screen="1"]');
+    const razon3Metric2    = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__metric[data-screen="2"]');
+    const razon3Metric3    = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__metric[data-screen="3"]');
+    const razon3Descriptor  = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="1"]');
+    const razon3Descriptor2 = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="2"]');
+    const razon3Descriptor3 = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__descriptor[data-screen="3"]');
+
+    let razon3DescriptorHeight = razon3Descriptor ? razon3Descriptor.offsetHeight : 0;
+    let conclusion3BaseTopPx   = _r3conclusionHeaderHeight + (window.innerHeight - _r3conclusionHeaderHeight) / 2;
+
+    if (razon3Rail)    { gsap.set(razon3Rail,    { y: window.innerHeight * 0.5 }); }
+    if (razon3Metric1) { gsap.set(razon3Metric1, { opacity: 0 }); }
+    if (razon3Metric2) { gsap.set(razon3Metric2, { opacity: 0 }); }
+    if (razon3Metric3) { gsap.set(razon3Metric3, { opacity: 0 }); }
+    if (razon3Conclusion) {
+        gsap.set(razon3Conclusion, { top: (conclusion3BaseTopPx + _r3recorridoFase2Px) + 'px' });
+    }
+
+    function computeGesture3Constants() {
+        if (!razon3Final) return;
+        const vh = window.innerHeight;
+        const vw = window.innerWidth;
+        const textRange = document.createRange();
+        textRange.selectNodeContents(razon3Final);
+        const finalTextRect   = textRange.getBoundingClientRect();
+        const finalTextWidth  = finalTextRect.width  || 1;
+        const finalTextHeight = finalTextRect.height || 1;
+        const scaleByWidth  = (vw * FINAL_SCALE_VW_RATIO) / finalTextWidth;
+        const scaleByHeight = vh / finalTextHeight;
+        _r3finalTargetScale = Math.min(scaleByWidth, scaleByHeight);
+        const razon3FinalRect = razon3Final.getBoundingClientRect();
+        _r3finalToCenterDeltaX = ((finalTextWidth - razon3FinalRect.width) / 2) * _r3finalTargetScale;
+        const finalTextCenterY = finalTextRect.top + finalTextHeight / 2;
+        _r3finalToCenterDeltaY = vh / 2 - finalTextCenterY;
+        if (razon3Body) {
+            const bodyRect = razon3Body.getBoundingClientRect();
+            _r3bodyExitDistance = bodyRect.bottom + 50;
+        }
+    }
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--decision-3-razonamiento',
+        start: () => ladeciST3 ? ladeciST3.end : 0,
+        end: () => '+=' + (window.innerHeight * PIN_LENGTH_VH3),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onRefresh: () => {
+            if (razon3Descriptor) {
+                razon3DescriptorHeight = razon3Descriptor.offsetHeight;
+            }
+            if (razon3Rail) {
+                gsap.set(razon3Rail, { y: window.innerHeight * 0.5 });
+            }
+            conclusion3BaseTopPx = _r3conclusionHeaderHeight + (window.innerHeight - _r3conclusionHeaderHeight) / 2;
+            computeGesture3Constants();
+        },
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh       = window.innerHeight;
+            const recorrido = PIN_LENGTH_VH3 * vh;
+            const contentP  = self.progress;
+
+            const railY = 0.5 * vh - contentP * recorrido;
+
+            if (razon3Rail) {
+                gsap.set(razon3Rail, { y: 0.5 * vh });
+                gsap.set(razon3Rail, { y: railY });
+            }
+
+            const _r3switchRailY_12 = -0.5 * vh;
+            const _r3switchRailY_23 = -1.3 * vh - 120 - _r3dh1;
+
+            const computeOpacity3 = (metricP) => {
+                const FADE_IN_END    = 0.25;
+                const FADE_OUT_START = 0.90;
+                if (metricP < FADE_IN_END)     return metricP / FADE_IN_END;
+                if (metricP <= FADE_OUT_START) return 1;
+                return (1 - metricP) / (1 - FADE_OUT_START);
+            };
+
+            if (razon3Metric1) {
+                const desc1TopInViewport = railY + 0.5 * vh;
+                const metricP_1 = Math.max(0, Math.min(1, (vh - desc1TopInViewport) / vh));
+                gsap.set(razon3Metric1, { opacity: computeOpacity3(metricP_1) });
+            }
+            if (razon3Metric2) {
+                if (railY > _r3switchRailY_12) {
+                    gsap.set(razon3Metric2, { opacity: 0 });
+                } else {
+                    const desc2TopInViewport = railY + 1.3 * vh + 120 + _r3dh1;
+                    const metricP_2 = Math.max(0, Math.min(1, (vh - desc2TopInViewport) / vh));
+                    gsap.set(razon3Metric2, { opacity: computeOpacity3(metricP_2) });
+                }
+            }
+            if (razon3Metric3) {
+                if (railY > _r3switchRailY_23) {
+                    gsap.set(razon3Metric3, { opacity: 0 });
+                } else {
+                    const desc3TopInViewport = railY + 2.1 * vh + 240 + 2 * _r3dh1;
+                    const metricP_3 = Math.max(0, Math.min(1, (vh - desc3TopInViewport) / vh));
+                    gsap.set(razon3Metric3, { opacity: computeOpacity3(metricP_3) });
+                }
+            }
+
+            if (razon3Conclusion) {
+                const concInitialTop = conclusion3BaseTopPx + _r3recorridoFase2Px;
+                if (contentP < _r3conclusionEntryStartRatio) {
+                    gsap.set(razon3Conclusion, { top: concInitialTop + 'px' });
+                } else if (contentP < _r3conclusionEntryEndRatio) {
+                    const localP = (contentP - _r3conclusionEntryStartRatio) /
+                                   (_r3conclusionEntryEndRatio - _r3conclusionEntryStartRatio);
+                    gsap.set(razon3Conclusion, { top: (concInitialTop - _r3recorridoFase2Px * localP) + 'px' });
+                } else {
+                    gsap.set(razon3Conclusion, { top: conclusion3BaseTopPx + 'px' });
+                }
+            }
+
+            if (razon3Label) {
+                let labelOpacity = 1;
+                if (contentP > _r3labelFadeStartRatio) {
+                    const labelProgress = (contentP - _r3labelFadeStartRatio) /
+                                          (_r3labelFadeEndRatio - _r3labelFadeStartRatio);
+                    labelOpacity = Math.max(0, Math.min(1, 1 - labelProgress));
+                }
+                if (contentP > _r3gestureStartRatio) { labelOpacity = 0; }
+                gsap.set(razon3Label, { opacity: labelOpacity });
+            }
+
+            if (contentP > _r3gestureStartRatio) {
+                if (!_r3gestureInitialized) {
+                    computeGesture3Constants();
+                    _r3gestureInitialized = true;
+                }
+                const localP = (contentP - _r3gestureStartRatio) / (1 - _r3gestureStartRatio);
+                if (razon3Body) {
+                    gsap.set(razon3Body, { y: -_r3bodyExitDistance * localP });
+                }
+                if (razon3Final) {
+                    gsap.set(razon3Final, {
+                        x: _r3finalToCenterDeltaX * localP,
+                        y: _r3finalToCenterDeltaY * localP,
+                        scale: 1 + (_r3finalTargetScale - 1) * localP,
+                    });
+                }
+            } else {
+                _r3gestureInitialized = false;
+                if (razon3Body)  { gsap.set(razon3Body,  { y: 0 }); }
+                if (razon3Final) { gsap.set(razon3Final, { x: 0, y: 0, scale: 1 }); }
+            }
+        },
+        onLeave: () => {
+            if (razon3Body) {
+                gsap.set(razon3Body, { y: -2 * window.innerHeight });
+            }
+        }
+    });
 }
