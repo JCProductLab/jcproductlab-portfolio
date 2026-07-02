@@ -51,16 +51,16 @@
     .cs-pin-spacer--decision-1 { height: 6.5vh; }
 
     /* Altura del pin-spacer de la expansión Decisión 1 (Gate 4).
-       100vh = un viewport de scroll para las dos fases de la expansión. */
-    .cs-pin-spacer--decision-1-expansion { height: 100vh; }
+       80vh = ~0.8vh de scroll para las dos fases de la expansión. */
+    .cs-pin-spacer--decision-1-expansion { height: 80vh; }
 
     /* Altura del pin-spacer de la cortina Decisión 2.
        100vh = un viewport de scroll para la interpolación de la cortina. */
     .cs-pin-spacer--decision-2 { height: 100vh; }
 
     /* Altura del pin-spacer de la expansión Decisión 2.
-       100vh = un viewport de scroll para las dos fases de la expansión. */
-    .cs-pin-spacer--decision-2-expansion { height: 100vh; }
+       80vh = ~0.8vh de scroll para las dos fases de la expansión. */
+    .cs-pin-spacer--decision-2-expansion { height: 80vh; }
 
     /* Altura del pin-spacer de "El Problema" de Decisión 2.
        100vh = un viewport de scroll para la cortina + cascada + respiro.

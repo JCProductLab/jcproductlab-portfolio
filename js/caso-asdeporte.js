@@ -1006,14 +1006,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1',
         start: () => decisionesTitulosST ? decisionesTitulosST.end : 0,
-        // Pin explícito de 6.5vh. ANTES usaba 'bottom top' con CSS
-        // height:100vh, lo que daba 9.17vh de ST (el cálculo de
-        // ScrollTrigger para 'bottom top' no es simplemente
-        // start + trigger_height — incluye el offset de pinSpacing).
-        // Para forzar exactamente 6.5vh de pin, uso '+=' con la altura
-        // en px. Así el clip-path verde y la cascada ocurren en un
-        // rango controlado y predecible.
-        end: () => '+=' + (window.innerHeight * 6.5),
+        // Pin de 4.73vh = 6.5 × (0.40/0.55). La imagen entra en window
+        // [0.45, 1.0] (width 0.55): entry scroll = 0.55 × 4.73 = 2.6vh,
+        // idéntico a los 0.40 × 6.5 = 2.6vh del pin anterior con window
+        // [0.45, 0.85]. La imagen llega exactamente en p=1.0 → Gate 4
+        // (expansión) arranca sin pausa.
+        end: () => '+=' + (window.innerHeight * 4.73),
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -1082,20 +1080,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const titleP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.33, 0.72));
             // Entrada de la imagen: power1.out (en lugar de clipEase/power2.out).
             // power1.out = 1-(1-t)² desacelera más suave: su último 10% aporta
-            // ~19% del recorrido (vs <1% de power2.out), eliminando el "tramo
-            // muerto" al final de la entrada que causaba el "atorón" antes de
-            // que la expansión tomara el relevo.
-            // Window 0.45→0.90 (width 0.45) para que el easing complete
-            // sin quedar cortado al final del pin más corto.
-            // Entrada de la imagen a velocidad constante (lineal, 'none').
-            // Antes usaba power1.out, que desaceleraba al final y daba
-            // sensación de "arrastre lento" antes del empalme con la
-            // expansión. Lineal mantiene la velocidad constante de
-            // principio a fin: la imagen llega al final de su recorrido
-            // SIN desaceleración, listo para que el crecimiento (Fase 1)
-            // tome el relevo. La velocidad de entrada es Δx/Δp = 400,
-            // sin curva. La ventana (0.45→1.0) y el offset (400) son
-            // los mismos — solo cambia el ease.
+            // Imagen: lineal ('none'), window [0.45, 1.0]. El pin se
+            // acortó a 4.73vh para que la imagen llegue exactamente en
+            // p=1.0 con la misma velocidad de entrada (2.6vh de scroll).
+            // Sin zona muerta entre entrada y expansión.
             const mediaP = gsap.parseEase('none')(subProgress(self.progress, 0.45, 1.0));
             // Label y título entran desde 800px (antes 400px) para que el
             // texto completo sea visible al inicio de la cascada sin
@@ -1144,7 +1132,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1-expansion',
         start: () => cortinaST ? cortinaST.end : 0,
-        end: 'bottom top',
+        // Pin de 0.8vh para la expansión. Equilibrio entre velocidad
+        // y respiración: suficientemente rápido para no sentirse lento,
+        // suficientemente lento para que las dos fases se lean.
+        end: () => '+=' + (window.innerHeight * 0.8),
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -1168,14 +1159,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const p = self.progress;
             const vw = window.innerWidth;
 
-            if (p <= 0.5) {
+            if (p <= 0.7) {
                 // FASE 1: imagen crece SOLO a la izquierda.
                 // Texto (label + título) acoplado al borde izquierdo de la imagen:
                 // se mueve al mismo ritmo que la imagen hacia la IZQUIERDA,
                 // manteniendo 40px de separación constante (gap real del layout).
                 // En f1=0 → textX=0 (reposo, sin salto).
                 // En f1=1 → textX=80-vw/2 (negativo, texto sale por la izquierda).
-                const f1 = p / 0.5;
+                // Split 70/30: Fase 1 ocupa 70% del scroll (más respiración
+                // para el crecimiento principal), Fase 2 (full-bleed) el 30% final.
+                const f1 = p / 0.7;
                 // Ease de FASE 1: power1.out (antes clipEase=power3.out).
                 // Razón: clipEase desacelera a ~0 al final de FASE 1, y
                 // FASE 2 usa power1.out que arranca desde 0. Dos curvas
@@ -1216,7 +1209,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 // empalme Fase 1→Fase 2 pasa de suave (power1.out vs
                 // power1.out) a un salto más notorio (lineal Fase 1 vs
                 // lineal Fase 2). Se acepta por pedido del usuario.
-                const f2 = (p - 0.5) / 0.5;
+                // Split 70/30: Fase 2 arranca a p=0.7 y termina a p=1.0.
+                const f2 = (p - 0.7) / 0.3;
                 const f2e = gsap.parseEase('none')(f2);
 
                 gsap.set(decision1Media, {
@@ -1260,17 +1254,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-1-problema',
         start: () => expansionST ? expansionST.end : 0,
-        end: () => '+=' + (window.innerHeight * 3),
+        // Pin 2vh: 1vh cortina + 1vh cascada. Se eliminó el respiro de
+        // 1vh (antes pin=3vh) que dejaba pantalla congelada antes de
+        // que Gate B (La Decisión) arrancara.
+        end: () => '+=' + (window.innerHeight * 2),
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
             const vh = window.innerHeight;
-            const PIN_LENGTH_VH = 3;
+            const PIN_LENGTH_VH = 2;
             const scrolled = self.progress * (vh * PIN_LENGTH_VH);
 
-            // CORTINA: primer 1/3 del rango (0 → vh). Resto = permanencia (saturado en 1).
+            // CORTINA: primer 1/2 del rango (0 → vh). Saturada en p=0.5.
             const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
             const eased = gsap.parseEase('power2.out')(curtainP);
 
@@ -1282,16 +1279,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // ocurre cuando El Problema está a y:0 cubriendo todo → invisible.
             gsap.set('.cs-decision-mc[data-dec="1"]', { y: curtainP >= 1 ? 0 : '100vh' });
 
-            // CASCADA: tramo [1/3, 2/3] del progress global (vh → 2vh).
-            // Cada nodo entra desde y:400, opacity:0 → y:0, opacity:1.
-            // step = 1/3 del rango de cascada, espaciado = step/2 (50% overlap).
-            // nodo 1 (título):   cascadeP [0, 1/3]
-            // nodo 2 (top-left):  cascadeP [1/6, 1/2]
-            // nodo 3 (top-right): cascadeP [1/3, 2/3]
-            // nodo 4 (bot-left):  cascadeP [1/2, 5/6]
-            // nodo 5 (bot-right): cascadeP [2/3, 1]
-            const CASCADE_START = 1 / 3;
-            const CASCADE_END = 2 / 3;
+            // CASCADA: tramo [1/2, 1] del progress (vh → 2vh). Llena el pin
+            // exactamente — sin respiro al final. Stagger y eases idénticos.
+            const CASCADE_START = 1 / 2;
+            const CASCADE_END = 1;
             const STEP = 1 / 3;
             const cascadeP = gsap.utils.clamp(0, 1,
                 (self.progress - CASCADE_START) / (CASCADE_END - CASCADE_START)
@@ -2370,10 +2361,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-2',
         start: () => razonamiento1ST ? razonamiento1ST.end : 0,
-        // Pin explícito de 6.5vh (réplica de cortina-1).
-        // ANTES usaba 'bottom top' con CSS height:100vh, lo que daba
-        // 100vh de pin y hacía la animación 15× más lenta.
-        end: () => '+=' + (window.innerHeight * 6.5),
+        // Pin de 4.73vh (réplica de cortina-1). Mismo razonamiento:
+        // entry scroll imagen = 0.55 × 4.73 = 2.6vh, imagen llega en p=1.0,
+        // expansión-2 arranca sin pausa.
+        end: () => '+=' + (window.innerHeight * 4.73),
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -2389,14 +2380,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 clipPath: `inset(0 0 0 ${(1 - clipProgress) * 100}%)`
             });
 
-            // 2. Gate 3 — Cascada de contenido, RÉPLICA de cortina-1
-            //    (mismas ventanas, mismos eases, mismos offsets):
-            //      Label:    ventana 0.25→0.70, ease power1.out, offset 860
-            //      Título:   ventana 0.33→0.72, ease power1.out, offset 800
-            //      Media:    ventana 0.45→1.00, ease lineal ('none'),    offset 400
-            //    La media usa ease lineal (no power1.out como en la v3
-            //    anterior) para que la entrada sea a velocidad constante
-            //    y se empalme limpiamente con la Fase 1 de la expansión-2.
+            // 2. Gate 3 — Cascada de contenido, RÉPLICA de cortina-1.
+            //    Imagen: [0.45, 1.0], lineal. Pin 4.73vh → entrada = 2.6vh.
             const labelP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.25, 0.70));
             const titleP = gsap.parseEase('power1.out')(subProgress(self.progress, 0.33, 0.72));
             const mediaP = gsap.parseEase('none')(subProgress(self.progress, 0.45, 1.0));
@@ -2475,7 +2460,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-2-expansion',
         start: () => cortina2ST ? cortina2ST.end : 0,
-        end: 'bottom top',
+        // Pin de 0.8vh para la expansión. Equilibrio entre velocidad
+        // y respiración: suficientemente rápido para no sentirse lento,
+        // suficientemente lento para que las dos fases se lean.
+        end: () => '+=' + (window.innerHeight * 0.8),
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -2498,9 +2486,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const p = self.progress;
             const vw = window.innerWidth;
 
-            if (p <= 0.5) {
+            if (p <= 0.7) {
                 // FASE 1: imagen crece SOLO a la izquierda.
-                const f1 = p / 0.5;
+                // Split 70/30: Fase 1 ocupa 70% del scroll, Fase 2 (full-bleed) el 30% final.
+                const f1 = p / 0.7;
                 const f1e = clipEase(f1);
 
                 const newLeft = vw / 2 + (margin - vw / 2) * f1e;
@@ -2517,7 +2506,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(decision2Title, { x: textX, opacity: 1 - f1e });
             } else {
                 // FASE 2: imagen se expande a los 4 extremos. border-radius → 0.
-                const f2 = (p - 0.5) / 0.5;
+                // Split 70/30: Fase 2 arranca a p=0.7 y termina a p=1.0.
+                const f2 = (p - 0.7) / 0.3;
                 const f2e = gsap.parseEase('power1.out')(f2);
 
                 gsap.set(decision2Media, {
@@ -2578,17 +2568,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--decision-2-problema',
         start: () => expansion2ST ? expansion2ST.end : 0,
-        end: () => '+=' + (window.innerHeight * 3),
+        // Pin 2vh: 1vh cortina + 1vh cascada. Misma corrección que
+        // El Problema 1 — elimina el respiro de 1vh que congelaba la
+        // pantalla antes de que La Decisión 2 arrancara.
+        end: () => '+=' + (window.innerHeight * 2),
         pin: true,
         pinSpacing: true,
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
             const vh = window.innerHeight;
-            const PIN_LENGTH_VH = 3;
+            const PIN_LENGTH_VH = 2;
             const scrolled = self.progress * (vh * PIN_LENGTH_VH);
 
-            // CORTINA: primer 1/3 del rango (0 → vh). Resto = permanencia.
+            // CORTINA: primer 1/2 del rango (0 → vh). Saturada en p=0.5.
             const curtainP = gsap.utils.clamp(0, 1, scrolled / vh);
             const eased = gsap.parseEase('power2.out')(curtainP);
 
@@ -2596,14 +2589,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.cs-problema[data-dec="2"]', { y: vh - eased * vh }); // vh → 0 (entra desde abajo)
 
             // La Decisión 2: en y:0 solo cuando El Problema 2 cubre el viewport.
-            // (Selector no-op por ahora — La Decisión 2 se construirá después.
-            // Cuando exista, este set ya la estará gobernando.)
             gsap.set('.cs-decision-mc[data-dec="2"]', { y: curtainP >= 1 ? 0 : '100vh' });
 
-            // CASCADA: tramo [1/3, 2/3] del progress global.
-            // Mismo STEP=1/3 y offset STEP/2 que El Problema 1.
-            const CASCADE_START = 1 / 3;
-            const CASCADE_END = 2 / 3;
+            // CASCADA: tramo [1/2, 1] del progress — llena el pin sin respiro.
+            const CASCADE_START = 1 / 2;
+            const CASCADE_END = 1;
             const STEP = 1 / 3;
             const cascadeP = gsap.utils.clamp(0, 1,
                 (self.progress - CASCADE_START) / (CASCADE_END - CASCADE_START)
