@@ -57,9 +57,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             // ── Salida de razon3Final (0.00 → 0.20) ──
             // translateY puro, SIN tocar opacity (restricción del doc).
+            const exitP = clamp01(p1 / 0.20);
             if (razon3Final) {
-                const exitP = clamp01(p1 / 0.20);
                 gsap.set(razon3Final, { y: -exitP * vh });
+            }
+
+            // ── Revelado del contenedor .rs-mosaico (0.00 → 0.20) ──
+            // Mismo rango que la salida de razon3Final: patrón de "relevo"
+            // (entra desde y:100vh mientras el saliente sale hacia -vh).
+            if (rsMosaicoSection) {
+                gsap.set(rsMosaicoSection, { y: (1 - exitP) * vh });
             }
 
             // ── Entrada de [ RESULTADO ] + título (0.10 → 0.25) ──
@@ -80,6 +87,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const gridP = clamp01((p1 - 0.20) / (0.65 - 0.20));
             const gridEased = gsap.parseEase('power2.out')(gridP);
             rsCards.forEach((card) => {
+                // La card central promovida ya no es parte del grid: evita
+                // pelear con el transform del bloque de aislamiento.
+                if (card === rsCenterCard && rsCenterPromoted) return;
                 const size = card.dataset.size;
                 const offset = RS_CARD_OFFSET[size] || RS_CARD_OFFSET.short;
                 gsap.set(card, {
@@ -92,6 +102,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsCenterCard) {
                 if (p1 >= 0.80) {
                     if (!rsCenterPromoted) {
+                        // getBoundingClientRect() es relativo al viewport; estas
+                        // coordenadas solo son correctas para un elemento
+                        // position:fixed porque .rs-mosaico ya está en
+                        // translateY(0) en este punto (ver revelado 0.00→0.20
+                        // más arriba) — sin ese y:0, el transform del ancestro
+                        // rompería el containing block de fixed.
                         rsCenterRect = rsCenterCard.getBoundingClientRect();
                         gsap.set(rsCenterCard, {
                             position: 'fixed',
