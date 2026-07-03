@@ -22,40 +22,124 @@
         position: absolute;
         top: calc(var(--cs-header-height) + 80px);
         left: 50%;
-        transform: translate(-50%, 60px);
-        opacity: 0;
+        /* Estado de reposo: oculto debajo del viewport (sin fade — el
+           reveal es puro translateY, ver resultado.js). El offset real
+           se mide y aplica por JS; este valor es solo el fallback antes
+           del primer onUpdate. */
+        transform: translate(-50%, 100vh);
         text-align: center;
         display: flex;
         flex-direction: column;
         gap: 24px;
-        will-change: transform, opacity;
-    }
-
-    .rs-mosaico__intro-label {
-        color: var(--color-accent);
-        letter-spacing: 0.05em;
+        will-change: transform;
     }
 
     .rs-mosaico__grid {
         position: absolute;
         inset: 0;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 24px;
-        padding: calc(var(--cs-header-height) + 200px) 80px 80px;
-        align-items: end;
+        /* Proporciones EXACTAS del diseño de referencia (no aspect-ratio
+           genérico): col1/3/5 = 464×718, col2/4 = 432×374 (par apilado).
+           --rs-scale = "px reales por unidad de referencia": el
+           elemento más alto de la composición es la pareja corta
+           (374+374+32 de gap = 780 unidades) y se hace coincidir EXACTO
+           con el espacio entre el header y el borde inferior de la
+           pantalla — todo lo demás escala desde ahí, manteniendo las
+           proporciones dadas sin importar la resolución. */
+        /* × 0.9025 (0.95 × 0.95): dos reducciones del 5% acumuladas —
+           todas las medidas escalan desde esta misma variable, así que
+           se achican juntas manteniendo las proporciones. */
+        --rs-scale: calc((100vh - var(--cs-header-height)) / 780 * 0.9025);
+        --rs-tall-w: calc(var(--rs-scale) * 464);
+        --rs-tall-h: calc(var(--rs-scale) * 718);
+        --rs-short-w: calc(var(--rs-scale) * 432);
+        --rs-short-h: calc(var(--rs-scale) * 374);
+        --rs-gap: calc(var(--rs-scale) * 32);
+        grid-template-columns:
+            var(--rs-tall-w) var(--rs-short-w) var(--rs-tall-w)
+            var(--rs-short-w) var(--rs-tall-w);
+        /* Alto de fila EXPLÍCITO (nunca "auto"): con filas "auto", si el
+           contenido no cabe exacto en el alto disponible, el navegador
+           COMPRIME las filas para que quepan igual — eso rompió el gap
+           de 32px en un intento anterior (confirmado con
+           getBoundingClientRect: filas comprimidas, ~23px de solape en
+           vez de 32px de gap). Con alto FIJO, el gap entre la pareja
+           corta de col2/4 queda garantizado siempre. */
+        grid-template-rows: var(--rs-short-h) var(--rs-short-h);
+        gap: var(--rs-gap);
+        /* Sin padding lateral (el desborde horizontal es intencional:
+           col1/5 deben quedar cortadas por los bordes). padding-top
+           exacto al header, padding-bottom 0: el contenido (780
+           unidades escaladas) llena EXACTO el espacio entre el header y
+           el borde inferior por construcción de --rs-scale. */
+        padding: var(--cs-header-height) 0 0;
+        /* align-items:center (no "end"): la pareja corta de col2/4 (780
+           unidades) es más alta que la card alta de esa misma fila-span
+           (718 unidades) — con "end" todo se apilaba pegado al fondo;
+           con "center" la card alta queda centrada dentro del espacio
+           de sus 2 filas y la pareja corta sobresale un poco arriba y
+           abajo, igual que en mosaico.jpg. */
+        align-items: center;
+        align-content: center;
+        /* justify-content:center: el grid resultante puede ser más
+           ancho que el contenedor — esto centra el desborde para que
+           sangre por igual a ambos lados. */
+        justify-content: center;
     }
 
     .rs-mosaico__card {
         position: relative;
         border-radius: 24px;
         overflow: hidden;
-        opacity: 0;
-        will-change: transform, opacity;
+        /* Sin opacity: el reveal es puro translateY (la card arranca
+           debajo del viewport y sube), ver resultado.js. Sin
+           will-change: mantener 7 capas de composición promovidas todo
+           el tiempo (incluso en reposo) es parte de lo que contribuye al
+           glitch de repintado GPU cuando la card central pasa a
+           position:fixed cubriendo casi toda la pantalla — GSAP ya
+           gestiona la aceleración por hardware solo mientras anima
+           (force3D automático), no hace falta forzarlo de forma
+           permanente por CSS. */
+        /* contain:paint aísla el pintado de cada card en su propia caja:
+           nada de su contenido puede pintarse fuera de sus límites, y
+           nada de fuera puede "sangrar" sobre ella — mitigación dirigida
+           al síntoma reportado (el layout mide 32px de gap correctamente,
+           pero visualmente una card parece pintarse sobre el espacio de
+           su vecina). */
+        contain: paint;
     }
 
-    .rs-mosaico__card[data-size="short"] { aspect-ratio: 1 / 1; }
-    .rs-mosaico__card[data-size="tall"] { aspect-ratio: 3 / 4; grid-row: span 2; }
+    /* Tamaño explícito por tipo (no aspect-ratio genérico): reproduce
+       exactamente 464×718 / 432×374 a cualquier escala. */
+    .rs-mosaico__card[data-size="tall"] {
+        width: var(--rs-tall-w);
+        height: var(--rs-tall-h);
+    }
+    .rs-mosaico__card[data-size="short"] {
+        width: var(--rs-short-w);
+        height: var(--rs-short-h);
+    }
+
+    /* Columna Y FILA 100% explícitas por card — nada queda en "auto".
+       Antes solo se fijaba grid-column (por data-col) y la fila se
+       auto-ubicaba: el algoritmo de auto-placement usa un cursor de
+       fila ÚNICO Y COMPARTIDO entre TODAS las columnas que solo avanza
+       hacia adelante (nunca retrocede) a medida que procesa las cards
+       en orden de DOM. Como las cards de col 2/4 (2 cortas cada una)
+       están intercaladas entre las cards altas de col 1/3/5, el cursor
+       avanzaba de fila en fila y cada card alta terminaba en una fila
+       distinta (col1 en fila 1-2, col3 en fila 2-3, col5 en fila 3-4)
+       en vez de las 3 en fila 1-2 — y las parejas de col 2/4 quedaban
+       en filas que ni siquiera coincidían entre sí (de ahí el
+       solapamiento visible en mosaico-bug-2.jpg). Fijar grid-row en
+       cada card elimina el auto-placement de raíz. */
+    .rs-mosaico__card[data-col="1"] { grid-column: 1; grid-row: 1 / span 2; }
+    .rs-mosaico__card[data-col="2"][data-row="1"] { grid-column: 2; grid-row: 1; }
+    .rs-mosaico__card[data-col="2"][data-row="2"] { grid-column: 2; grid-row: 2; }
+    .rs-mosaico__card[data-col="3"] { grid-column: 3; grid-row: 1 / span 2; }
+    .rs-mosaico__card[data-col="4"][data-row="1"] { grid-column: 4; grid-row: 1; }
+    .rs-mosaico__card[data-col="4"][data-row="2"] { grid-column: 4; grid-row: 2; }
+    .rs-mosaico__card[data-col="5"] { grid-column: 5; grid-row: 1 / span 2; }
 
     .rs-mosaico__card-img {
         display: block;
