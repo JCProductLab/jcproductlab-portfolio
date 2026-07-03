@@ -29,6 +29,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsMosaicoSection = document.querySelector('.rs-mosaico');
     const rsIntro          = document.querySelector('.rs-mosaico__intro');
 
+    const rsCards = gsap.utils.toArray('.rs-mosaico__card');
+
+    // Offset inicial de entrada por tamaño de card — las "tall" arrancan
+    // más abajo que las "short", por eso via a mayor velocidad relativa
+    // en el mismo rango de progreso (v_tall > v_short del doc).
+    const RS_CARD_OFFSET = { short: 220, tall: 420 };
+
     const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
     ScrollTrigger.create({
@@ -62,11 +69,29 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const outP = clamp01((p1 - 0.55) / 0.15);
                 gsap.set(rsIntro, { y: -outP * vh, opacity: 1 - outP });
             }
+
+            // ── Mosaico: aparición + parallax diferenciado (0.20 → 0.65) ──
+            // Todas las cards convergen exactamente a offset 0 en p1=0.65.
+            const gridP = clamp01((p1 - 0.20) / (0.65 - 0.20));
+            const gridEased = gsap.parseEase('power2.out')(gridP);
+            rsCards.forEach((card) => {
+                const size = card.dataset.size;
+                const offset = RS_CARD_OFFSET[size] || RS_CARD_OFFSET.short;
+                gsap.set(card, {
+                    y: offset * (1 - gridEased),
+                    opacity: gridEased,
+                });
+            });
         },
         onLeaveBack: () => {
             if (razon3Final) { gsap.set(razon3Final, { y: 0 }); }
             if (rsIntro)     { gsap.set(rsIntro, { y: 60, opacity: 0 }); }
             if (rsMosaicoSection) { gsap.set(rsMosaicoSection, { y: '100vh' }); }
+            rsCards.forEach((card) => {
+                const size = card.dataset.size;
+                const offset = RS_CARD_OFFSET[size] || RS_CARD_OFFSET.short;
+                gsap.set(card, { y: offset, opacity: 0 });
+            });
         },
         onLeave: () => {
             if (rsMosaicoSection) { gsap.set(rsMosaicoSection, { y: 0 }); }
