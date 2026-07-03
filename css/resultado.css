@@ -1,0 +1,15 @@
+/* ============================================
+   RESULTADO — Estilos base (mobile/tablet pendiente)
+   Fases 1-5 post-Decisiones. Ver resultado-responsive.css
+   para el maquetado completo de desktop.
+   ============================================ */
+
+.rs-mosaico,
+.rs-metricas,
+.rs-usuarios,
+.rs-testimonio,
+.rs-cierre {
+    position: relative;
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+}

@@ -1,0 +1,66 @@
+@media (min-width: 1200px) {
+
+    /* ============================================
+       FASE 1 — Mosaico y expansión
+       ============================================ */
+
+    .cs-pin-spacer--rs-mosaico { height: 350vh; }
+
+    .rs-mosaico {
+        position: fixed;
+        inset: 0;
+        z-index: 7;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        /* Estado de reposo: oculto, coincide con el valor que el onLeaveBack
+           del ST aplica y con el primer frame antes de que el JS corra. */
+        transform: translateY(100vh);
+    }
+
+    .rs-mosaico__intro {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 80px);
+        left: 50%;
+        transform: translate(-50%, 60px);
+        opacity: 0;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        will-change: transform, opacity;
+    }
+
+    .rs-mosaico__intro-label {
+        color: var(--color-accent);
+        letter-spacing: 0.05em;
+    }
+
+    .rs-mosaico__grid {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 24px;
+        padding: calc(var(--cs-header-height) + 200px) 80px 80px;
+        align-items: end;
+    }
+
+    .rs-mosaico__card {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    .rs-mosaico__card[data-size="short"] { aspect-ratio: 1 / 1; }
+    .rs-mosaico__card[data-size="tall"] { aspect-ratio: 3 / 4; grid-row: span 2; }
+
+    .rs-mosaico__card-img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
