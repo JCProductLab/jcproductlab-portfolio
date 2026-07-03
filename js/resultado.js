@@ -52,9 +52,36 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsGroupOffset = { short: 0, tall: 0 };
     let rsIntroEntryOffset = 0;
 
+    // p1 en el que arranca la entrada de las cards. Se calcula (no es
+    // una constante adivinada) a partir de en qué punto el texto
+    // [ RESULTADO ] + título entra al último tercio de SU PROPIO
+    // recorrido en pantalla — el texto avanza primero, y las imágenes
+    // solo empiezan a subir cuando el texto ya está saliendo, para que
+    // nunca se crucen. 0.20 es el valor por defecto (si no hay intro).
+    let rsCardsStartP1 = 0.20;
+
     const rsCenterCard = document.querySelector('.rs-mosaico__card--center');
     let rsCenterPromoted = false;
     let rsCenterRect = null;
+
+    // Vecinas de la card central: mientras esta crece hacia pantalla
+    // completa, col1+col2 (grupo izquierdo) y col4+col5 (grupo derecho)
+    // deben EMPUJARSE hacia afuera, no quedarse congeladas cubiertas —
+    // ver resultado-a-09 a resultado-a-14. Cada grupo se traslada en
+    // bloque (mismo `x` para sus 2 miembros) para conservar su propio
+    // gap entre sí, y el "líder" de cada grupo (col2/col4, las
+    // vecinas INMEDIATAS de la central) es el que define cuánto: su
+    // borde más cercano a la central siempre queda separado por el
+    // mismo gap que YA existe en reposo (medido en vivo, no
+    // hardcodeado — el gap real depende de --rs-scale).
+    const rsCol1 = document.querySelector('.rs-mosaico__card[data-col="1"]');
+    const rsCol2Cards = gsap.utils.toArray('.rs-mosaico__card[data-col="2"]');
+    const rsCol4Cards = gsap.utils.toArray('.rs-mosaico__card[data-col="4"]');
+    const rsCol5 = document.querySelector('.rs-mosaico__card[data-col="5"]');
+    let rsPushGapLeft = 0;
+    let rsPushGapRight = 0;
+    let rsCol2RightNatural = 0;
+    let rsCol4LeftNatural = 0;
 
     // razon3Final llega a este ST YA transformado por el gesto GATE 5 del
     // Razonamiento 3 (scale ~4x + reposicionado al centro del viewport,
@@ -130,8 +157,32 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // su transform — pero solo tiene sentido medir una vez que el
             // layout real (grid ya resuelto) está disponible.
             if (!rsEntryOffsetsCaptured) {
+                let rsIntroRestTop = 0;
                 if (rsIntro) {
-                    rsIntroEntryOffset = vh - rsIntro.offsetTop + RS_ENTRY_BUFFER;
+                    rsIntroRestTop = rsIntro.offsetTop;
+                    rsIntroEntryOffset = vh - rsIntroRestTop + RS_ENTRY_BUFFER;
+
+                    // ── Cuándo arrancan las cards (calculado, no adivinado) ──
+                    // El texto recorre linealmente (mismo travelP de más
+                    // abajo) desde y=rsIntroEntryOffset (abajo del viewport)
+                    // hasta y=-vh (afuera por arriba). Se resuelve esa recta
+                    // para encontrar el travelP en el que el borde superior
+                    // del texto (rsIntroRestTop + y) cruza vh/3 — el último
+                    // tercio de la pantalla, en dirección de salida (el
+                    // texto sube, así que "último tercio" = el de arriba).
+                    // Ese punto, mapeado de vuelta a p1, es el arranque de
+                    // las cards: el texto avanza primero y las imágenes
+                    // solo empiezan a subir cuando el texto ya está saliendo.
+                    const introTravelDistance = rsIntroEntryOffset + vh;
+                    const yAtTopThird = (vh / 3) - rsIntroRestTop;
+                    const travelPAtTopThird = clamp01(
+                        (rsIntroEntryOffset - yAtTopThird) / introTravelDistance
+                    );
+                    rsCardsStartP1 = clamp01(0.10 + travelPAtTopThird * 0.60);
+                    // Colchón: las cards siempre necesitan un tramo mínimo
+                    // de progreso para su propia entrada antes de llegar
+                    // asentadas a p1=0.65.
+                    rsCardsStartP1 = Math.min(rsCardsStartP1, 0.45);
                 }
                 // Offset único por grupo: se toma el offsetTop MÁS CHICO
                 // (la card más "alta" en pantalla) de cada size — así el
@@ -182,7 +233,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
             }
 
-            // ── Mosaico: entrada desde abajo, parallax diferenciado (0.20 → 0.65) ──
+            // ── Mosaico: entrada desde abajo, parallax diferenciado
+            // (rsCardsStartP1 → 0.65) ──
+            // El arranque ya NO es un 0.20 fijo: es el punto (calculado
+            // arriba) en el que el texto entra a su último tercio de
+            // recorrido, para que el texto avance primero y las cards
+            // solo empiecen a subir cuando el texto ya se está yendo.
             // Todas las cards de un mismo grupo (short/tall) convergen
             // JUNTAS a offset 0 en p1=0.65, moviéndose siempre a la misma
             // velocidad entre sí (offset compartido, ver captura arriba)
@@ -190,7 +246,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // vs tall), nunca entre cards del mismo grupo. Puro
             // translateY, sin fade: arrancan completamente debajo del
             // viewport.
-            const gridP = clamp01((p1 - 0.20) / (0.65 - 0.20));
+            const gridP = clamp01((p1 - rsCardsStartP1) / (0.65 - rsCardsStartP1));
             const gridEased = gsap.parseEase('power2.out')(gridP);
             rsCards.forEach((card) => {
                 // La card central promovida ya no es parte del grid: evita
@@ -220,6 +276,15 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                             margin: 0,
                             zIndex: 20,
                         });
+                        // Gap real ya renderizado entre la central y sus
+                        // vecinas inmediatas (col2/col4) — se mide en vivo
+                        // (getBoundingClientRect) en vez de asumir 32px,
+                        // porque el gap CSS está escalado por --rs-scale
+                        // y varía según la pantalla.
+                        rsCol2RightNatural = rsCol2Cards[0].getBoundingClientRect().right;
+                        rsCol4LeftNatural = rsCol4Cards[0].getBoundingClientRect().left;
+                        rsPushGapLeft = rsCenterRect.left - rsCol2RightNatural;
+                        rsPushGapRight = rsCol4LeftNatural - (rsCenterRect.left + rsCenterRect.width);
                         rsCenterPromoted = true;
                         forceRepaint();
                     }
@@ -236,6 +301,25 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                         height: newHeight,
                         borderRadius: 24 * (1 - scaleEased),
                     });
+
+                    // ── Empuje de las vecinas (col1/2 a la izquierda,
+                    // col4/5 a la derecha) ──
+                    // El borde de cada grupo más cercano a la central
+                    // debe quedar SIEMPRE separado por rsPushGapLeft/Right
+                    // (el gap real medido arriba) del borde actual
+                    // (creciente) de la central — despejando la
+                    // traslación x necesaria desde la posición NATURAL
+                    // (sin transform) de cada grupo. En scaleEased=0 esto
+                    // da x=0 (ya están a esa distancia por el propio
+                    // grid); en scaleEased=1 (central a pantalla
+                    // completa) el grupo queda empujado totalmente fuera
+                    // del viewport, no solo tapado.
+                    const shiftLeft  = newLeft - rsPushGapLeft - rsCol2RightNatural;
+                    const shiftRight = (newLeft + newWidth) + rsPushGapRight - rsCol4LeftNatural;
+                    if (rsCol1) gsap.set(rsCol1, { x: shiftLeft });
+                    rsCol2Cards.forEach((c) => gsap.set(c, { x: shiftLeft }));
+                    rsCol4Cards.forEach((c) => gsap.set(c, { x: shiftRight }));
+                    if (rsCol5) gsap.set(rsCol5, { x: shiftRight });
                 } else if (rsCenterPromoted) {
                     // Reversa: si el usuario sube antes de p1=0.80, se
                     // restaura el layout normal del grid. clearProps (NO
@@ -247,6 +331,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     gsap.set(rsCenterCard, {
                         clearProps: 'position,top,left,width,height,margin,zIndex,borderRadius',
                     });
+                    // Deshace el empuje de las vecinas junto con la
+                    // reversa de la central.
+                    if (rsCol1) gsap.set(rsCol1, { x: 0 });
+                    rsCol2Cards.forEach((c) => gsap.set(c, { x: 0 }));
+                    rsCol4Cards.forEach((c) => gsap.set(c, { x: 0 }));
+                    if (rsCol5) gsap.set(rsCol5, { x: 0 });
                     rsCenterPromoted = false;
                     rsCenterRect = null;
                     forceRepaint();
@@ -274,6 +364,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsCenterCard, {
                     clearProps: 'position,top,left,width,height,margin,zIndex,borderRadius',
                 });
+                if (rsCol1) gsap.set(rsCol1, { x: 0 });
+                rsCol2Cards.forEach((c) => gsap.set(c, { x: 0 }));
+                rsCol4Cards.forEach((c) => gsap.set(c, { x: 0 }));
+                if (rsCol5) gsap.set(rsCol5, { x: 0 });
                 rsCenterPromoted = false;
                 rsCenterRect = null;
                 forceRepaint();
