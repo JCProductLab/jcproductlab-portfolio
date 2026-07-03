@@ -179,6 +179,7 @@
         left: 80px;
         opacity: 0;
         will-change: transform, opacity;
+        width: 24%;
     }
 
     .rs-metricas__card {

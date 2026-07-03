@@ -422,6 +422,17 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         RS_DIAG_START + RS_DIAG_CARD_STAGGER * 2,
     ];
 
+    // Toda esta fase corre por progreso de scroll (scrub), no por reloj —
+    // no hay un timer real en ningún lado del archivo. RS_TITLE_DELAY es
+    // una pausa proporcional al inicio del rango de entrada del título
+    // (pensada para "sentirse" como ~1.5s a un ritmo de scroll cómodo de
+    // lectura en una sección pineada); RS_TITLE_SPAN es el mismo ancho de
+    // rango que ya tenía (0.20) — solo se desplaza el inicio, la duración/
+    // velocidad propia de la entrada no cambia. 100% reversible al hacer
+    // scroll hacia atrás, igual que el resto de la fase.
+    const RS_TITLE_DELAY = 0.10;
+    const RS_TITLE_SPAN  = 0.20;
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--rs-metricas',
         start: () => rsMosaicoST ? rsMosaicoST.end : 0,
@@ -458,9 +469,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsMetricasSection, { y: (1 - exitP) * vh });
             }
 
-            // ── Entrada del título (0.00 → 0.20) ──
+            // ── Entrada del título (RS_TITLE_DELAY → RS_TITLE_DELAY + RS_TITLE_SPAN) ──
             if (rsMetricasTitle) {
-                const inEased = gsap.parseEase('power2.out')(clamp01(p2 / 0.20));
+                const inEased = gsap.parseEase('power2.out')(clamp01((p2 - RS_TITLE_DELAY) / RS_TITLE_SPAN));
                 gsap.set(rsMetricasTitle, { x: 200 * (1 - inEased), opacity: inEased });
 
                 // ── Cierre de escena: fade-out del título (0.90 → 1.00) ──
