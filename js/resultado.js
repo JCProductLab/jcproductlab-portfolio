@@ -414,7 +414,15 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const RS_DIAG_START = 0.15;
     const RS_DIAG_END   = 0.90;
     const RS_DIAG_SPAN  = RS_DIAG_END - RS_DIAG_START;
-    const RS_DIAG_CARD_STAGGER = RS_DIAG_SPAN * 0.25;
+    // Con colchón mínimo de origen/destino (ver forEach de cards más abajo)
+    // cada card queda visible en pantalla durante TODO su localP 0→1, así
+    // que la ventana donde las 3 se ven a la vez mide exactamente
+    // RS_DIAG_SPAN - 4*STAGGER. Un stagger de 1/6 del rango dej a esa
+    // ventana en ~25% del rango total (generosa y sostenida, no un
+    // instante) — coincide con resultado-b-05/06.jpg, donde ambas capturas
+    // muestran las 3 tarjetas en pantalla a la vez, no una carrera de
+    // relevos.
+    const RS_DIAG_CARD_STAGGER = RS_DIAG_SPAN / 6;
     const RS_DIAG_CARD_SPAN    = RS_DIAG_SPAN - 2 * RS_DIAG_CARD_STAGGER;
     const RS_DIAG_CARD_STARTS = [
         RS_DIAG_START,
@@ -491,10 +499,21 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const cardW = card.offsetWidth || 380;
                 const cardH = card.offsetHeight || 260;
 
+                // Colchón mínimo (no sobrante): a t=0 la card queda EXACTO
+                // oculta abajo (top=vh) y a t=1 EXACTO oculta arriba
+                // (bottom=0, top=-cardH) — antes había colchón extra y
+                // asimétrico (+cardH en el origen, +vw/+vh en el destino)
+                // que limitaba la ventana visible de cada card a solo
+                // ~50% de su propio localP (confirmado analíticamente:
+                // t∈(0.181,0.681) con los valores viejos). Con colchón
+                // mínimo la card está en pantalla en TODO t∈(0,1), lo que
+                // habilita el solape triple entre cards vecinas. Coincide
+                // además con resultado-b-05.jpg, donde la tarjeta "+30%"
+                // se ve recortada justo en el borde, no con margen de más.
                 const originX = -cardW;
-                const originY = vh + cardH;
-                const destX   = vw + cardW;
-                const destY   = -cardH - vh;
+                const originY = vh;
+                const destX   = vw;
+                const destY   = -cardH;
 
                 const x = originX + (destX - originX) * localP;
                 const y = originY + (destY - originY) * localP;
@@ -517,8 +536,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsMetricasSection)   { gsap.set(rsMetricasSection, { y: '100vh' }); }
             rsMetricasCards.forEach((card) => {
                 const cardW = card.offsetWidth || 380;
-                const cardH = card.offsetHeight || 260;
-                gsap.set(card, { x: -cardW, y: window.innerHeight + cardH, opacity: 0 });
+                // y coincide con el nuevo originY mínimo (vh, no vh+cardH)
+                // del onUpdate — misma convención de "recién oculta".
+                gsap.set(card, { x: -cardW, y: window.innerHeight, opacity: 0 });
             });
         },
         onLeave: () => {
