@@ -256,9 +256,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(card, { y: offset * (1 - gridEased) });
             });
 
-            // ── Aislamiento + escala exponencial de la card central (0.80 → 1.00) ──
+            // ── Aislamiento + escala exponencial de la card central
+            // (0.65 → 1.00) ──
+            // Arranca EXACTO donde termina la entrada de las cards
+            // (gridEased llega a 1 en p1=0.65) — antes había un tramo
+            // de "respiro" (0.65→0.80) sin ningún cambio, que se sentía
+            // como que la animación se congelaba a mitad de camino. Sin
+            // pausa: la central empieza a crecer en el mismo instante
+            // en que el mosaico termina de asentarse.
             if (rsCenterCard) {
-                if (p1 >= 0.80) {
+                if (p1 >= 0.65) {
                     if (!rsCenterPromoted) {
                         // getBoundingClientRect() es relativo al viewport; estas
                         // coordenadas solo son correctas para un elemento
@@ -288,7 +295,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                         rsCenterPromoted = true;
                         forceRepaint();
                     }
-                    const scaleP = clamp01((p1 - 0.80) / 0.20);
+                    const scaleP = clamp01((p1 - 0.65) / 0.35);
                     const scaleEased = gsap.parseEase('power2.in')(scaleP);
                     const newTop    = rsCenterRect.top * (1 - scaleEased);
                     const newLeft   = rsCenterRect.left * (1 - scaleEased);
@@ -321,7 +328,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     rsCol4Cards.forEach((c) => gsap.set(c, { x: shiftRight }));
                     if (rsCol5) gsap.set(rsCol5, { x: shiftRight });
                 } else if (rsCenterPromoted) {
-                    // Reversa: si el usuario sube antes de p1=0.80, se
+                    // Reversa: si el usuario sube antes de p1=0.65, se
                     // restaura el layout normal del grid. clearProps (NO
                     // width/height:'100%' fijo): un width/height inline
                     // le gana a la regla CSS aspect-ratio:3/4 que hace
