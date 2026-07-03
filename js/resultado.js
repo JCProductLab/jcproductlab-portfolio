@@ -515,8 +515,47 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const destX   = vw;
                 const destY   = -cardH;
 
-                const x = originX + (destX - originX) * localP;
-                const y = originY + (destY - originY) * localP;
+                // ── Trayectoria en arco (Bezier cuadrática) en vez de
+                // línea recta ──
+                // P0/P2 son EXACTAMENTE origin/dest de siempre (no se
+                // tocan): el colchón mínimo y el timing de solape triple
+                // ya verificados dependen de esos dos puntos, el arco solo
+                // curva el camino intermedio. P1 (punto de control) se
+                // desplaza perpendicular a la línea recta P0→P2, hacia
+                // abajo-derecha (BOW_FACTOR de la longitud de la
+                // diagonal) — un pequeño "envión" antes de la subida.
+                const dx = destX - originX;
+                const dy = destY - originY;
+                const diagLen = Math.sqrt(dx * dx + dy * dy) || 1;
+                const midX = (originX + destX) / 2;
+                const midY = (originY + destY) / 2;
+                const BOW_FACTOR = 0.18;
+                const p1X = midX + (-dy / diagLen) * (BOW_FACTOR * diagLen);
+                const p1Y = midY + (dx / diagLen) * (BOW_FACTOR * diagLen);
+
+                const t = localP;
+                const mt = 1 - t;
+                const x = mt * mt * originX + 2 * mt * t * p1X + t * t * destX;
+                const y = mt * mt * originY + 2 * mt * t * p1Y + t * t * destY;
+
+                // Rotación derivada de la tangente de la curva (no un
+                // rango inventado aparte): la desviación entre el ángulo
+                // de la tangente en t y el ángulo de la línea recta base
+                // — así la card se inclina siguiendo la forma real del
+                // arco. La tangente de un Bezier cuadrático en t=0 apunta
+                // hacia P1 (no hacia la cuerda base) y en t=1 apunta desde
+                // P1 — o sea, la desviación NO llega a 0° sola en los
+                // extremos. Como la card debe quedar como puro translate
+                // (sin rotar) exactamente en origin/dest — ahí es donde
+                // vive el colchón mínimo ya verificado — se multiplica por
+                // una envolvente que fuerza 0° en t=0 y t=1 y máximo en
+                // t=0.5, sin alterar la forma de la curva en el resto.
+                const tanX = 2 * mt * (p1X - originX) + 2 * t * (destX - p1X);
+                const tanY = 2 * mt * (p1Y - originY) + 2 * t * (destY - p1Y);
+                const baseAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+                const tanAngle  = Math.atan2(tanY, tanX) * (180 / Math.PI);
+                const rotationEnvelope = 4 * t * (1 - t);
+                const rotation  = (tanAngle - baseAngle) * rotationEnvelope;
 
                 // localP ya viene clamp01: 0 antes de arrancar (en el
                 // origen, fuera de pantalla) y 1 tras llegar al destino
@@ -527,7 +566,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 // responsable real de ocultarlas.
                 const opacity = (localP > 0 && localP < 1) ? 1 : 0;
 
-                gsap.set(card, { x, y, opacity });
+                gsap.set(card, { x, y, rotation, opacity });
             });
         },
         onLeaveBack: () => {
@@ -538,7 +577,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const cardW = card.offsetWidth || 380;
                 // y coincide con el nuevo originY mínimo (vh, no vh+cardH)
                 // del onUpdate — misma convención de "recién oculta".
-                gsap.set(card, { x: -cardW, y: window.innerHeight, opacity: 0 });
+                gsap.set(card, { x: -cardW, y: window.innerHeight, rotation: 0, opacity: 0 });
             });
         },
         onLeave: () => {
