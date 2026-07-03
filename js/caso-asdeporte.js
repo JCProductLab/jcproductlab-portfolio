@@ -1539,7 +1539,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const relP = (self.progress - 0.5) / 0.5;  // 0 → 1 dentro del respiro
                 const eased = gsap.parseEase('power1.out')(relP);
 
-                gsap.set('.cs-decision-mc[data-dec="1"]', { y: -eased * vh });         // 0 → -vh
+                // Distancia real de salida de .cs-decision-mc: NO es vh.
+                // .cs-decision-mc__media se centra dentro de .cs-decision-mc__stage
+                // (top: header, no top:0), así que al crecer a 100vh su
+                // centro queda header/2 más abajo que el centro real del
+                // viewport — al salir solo -vh, el borde inferior de la
+                // imagen queda a +header/2 (un remanente visible arriba).
+                // Confirmado con getBoundingClientRect: header=81 → sliver
+                // de 40.5px. La salida real es vh + header/2.
+                const _decisionMcHeaderH = parseFloat(
+                    getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+                ) || 0;
+                const decisionMcExitDist = vh + _decisionMcHeaderH / 2;
+
+                gsap.set('.cs-decision-mc[data-dec="1"]', { y: -eased * decisionMcExitDist }); // 0 → -(vh+header/2)
                 gsap.set('.cs-razonamiento[data-dec="1"]', { y: vh - eased * vh });    // +vh → 0
 
                 // Sub-fix: rail a su init value con vh actual.
@@ -1556,7 +1569,15 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.cs-razonamiento[data-dec="1"]', { y: '100vh' });
         },
         onLeave: () => {
-            gsap.set('.cs-decision-mc[data-dec="1"]', { y: '-100vh' });
+            // Mismo ajuste que en onUpdate: -100vh dejaba un remanente de
+            // header/2 visible (ver comentario arriba). onLeave dispara
+            // cuando el scroll pasa el final del pin — si escribe un valor
+            // distinto al que ya dejó el último onUpdate, reintroduce el
+            // bug (el guard "corrige" hacia el valor viejo, incorrecto).
+            const _headerH = parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+            ) || 0;
+            gsap.set('.cs-decision-mc[data-dec="1"]', { y: -(window.innerHeight + _headerH / 2) });
             gsap.set('.cs-razonamiento[data-dec="1"]', { y: 0 });
         }
     });
@@ -2782,7 +2803,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (self.progress >= 0.5) {
                 const relP = (self.progress - 0.5) / 0.5;
                 const easedRel = gsap.parseEase('power1.out')(relP);
-                gsap.set('.cs-decision-mc[data-dec="2"]', { y: -easedRel * vh });
+                // Ver comentario detallado en el ST equivalente de "La
+                // Decisión 1": .cs-decision-mc__media se centra dentro de
+                // .cs-decision-mc__stage (top: header, no top:0) — al
+                // crecer a 100vh su centro queda header/2 más abajo que
+                // el centro real del viewport, así que salir solo -vh deja
+                // un remanente de header/2 visible arriba. Salida real:
+                // vh + header/2.
+                const _decisionMc2HeaderH = parseFloat(
+                    getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+                ) || 0;
+                const decisionMc2ExitDist = vh + _decisionMc2HeaderH / 2;
+                gsap.set('.cs-decision-mc[data-dec="2"]', { y: -easedRel * decisionMc2ExitDist });
                 gsap.set('.cs-razonamiento[data-dec="2"]', { y: vh - easedRel * vh });
                 const razon2RailEl = document.querySelector('.cs-razonamiento[data-dec="2"] .cs-razonamiento__rail');
                 if (razon2RailEl) {
@@ -2805,7 +2837,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.cs-razonamiento[data-dec="2"]', { y: '100vh' });
         },
         onLeave: () => {
-            gsap.set('.cs-decision-mc[data-dec="2"]', { y: '-100vh' });
+            // Mismo ajuste que en onUpdate: -100vh dejaba un remanente
+            // visible (ver comentario arriba).
+            const _headerH2 = parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+            ) || 0;
+            gsap.set('.cs-decision-mc[data-dec="2"]', { y: -(window.innerHeight + _headerH2 / 2) });
             gsap.set('.cs-razonamiento[data-dec="2"]', { y: 0 });
         }
     });
@@ -3410,7 +3447,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (self.progress >= 0.5) {
                 const relP = (self.progress - 0.5) / 0.5;
                 const easedRel = gsap.parseEase('power1.out')(relP);
-                gsap.set('.cs-decision-mc[data-dec="3"]', { y: -easedRel * vh });
+                // Ver comentario detallado en el ST equivalente de "La
+                // Decisión 1": .cs-decision-mc__media se centra dentro de
+                // .cs-decision-mc__stage (top: header, no top:0) — al
+                // crecer a 100vh su centro queda header/2 más abajo que
+                // el centro real del viewport, así que salir solo -vh deja
+                // un remanente de header/2 visible arriba. Salida real:
+                // vh + header/2.
+                const _decisionMc3HeaderH = parseFloat(
+                    getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+                ) || 0;
+                const decisionMc3ExitDist = vh + _decisionMc3HeaderH / 2;
+                gsap.set('.cs-decision-mc[data-dec="3"]', { y: -easedRel * decisionMc3ExitDist });
                 gsap.set('.cs-razonamiento[data-dec="3"]', { y: vh - easedRel * vh });
                 const razon3RailEl = document.querySelector('.cs-razonamiento[data-dec="3"] .cs-razonamiento__rail');
                 if (razon3RailEl) {
@@ -3425,7 +3473,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.cs-razonamiento[data-dec="3"]', { y: '100vh' });
         },
         onLeave: () => {
-            gsap.set('.cs-decision-mc[data-dec="3"]', { y: '-100vh' });
+            // Mismo ajuste que en onUpdate: -100vh dejaba un remanente
+            // visible (ver comentario arriba).
+            const _headerH3 = parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')
+            ) || 0;
+            gsap.set('.cs-decision-mc[data-dec="3"]', { y: -(window.innerHeight + _headerH3 / 2) });
             gsap.set('.cs-razonamiento[data-dec="3"]', { y: 0 });
         }
     });
