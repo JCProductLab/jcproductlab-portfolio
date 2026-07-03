@@ -384,4 +384,134 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsMosaicoSection) { gsap.set(rsMosaicoSection, { y: 0 }); }
         }
     });
+
+    // ============================================
+    // FASE 2 — Tránsito diagonal de tarjetas de métricas
+    // Anclado a rsMosaicoST.end (Fase 1).
+    // ============================================
+
+    const rsMosaicoST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--rs-mosaico')
+    );
+
+    const rsMetricasSection   = document.querySelector('.rs-metricas');
+    const rsMetricasTitle     = document.querySelector('.rs-metricas__title');
+    const rsMetricasCards     = gsap.utils.toArray('.rs-metricas__card');
+    const rsMosaicoCenterCard = document.querySelector('.rs-mosaico__card--center');
+
+    // Rango compartido de la diagonal: 0.15 → 0.90 del progreso total.
+    // Desfase de inicio entre cards consecutivas: 25% del rango (ver
+    // spec 2026-07-02-resultado-fase2-design.md, sección "Aclaración
+    // del stagger"). El span de cada card se DERIVA de ese desfase
+    // (no es un 75% independiente) para que la 3ª card termine
+    // exactamente en RS_DIAG_END: con 2 desfases + 1 span == RS_DIAG_SPAN,
+    // así ninguna card se corta ni sobra rango muerto antes del cierre
+    // de escena. (El plan original fijaba span=75%+stagger=25% por
+    // separado, sin esa restricción — la 3ª card terminaba en p2≈1.09,
+    // fuera del rango: confirmado en vivo, seguía en pantalla en p2=1.0
+    // cuando el título ya debía estar apagado.)
+    const RS_DIAG_START = 0.15;
+    const RS_DIAG_END   = 0.90;
+    const RS_DIAG_SPAN  = RS_DIAG_END - RS_DIAG_START;
+    const RS_DIAG_CARD_STAGGER = RS_DIAG_SPAN * 0.25;
+    const RS_DIAG_CARD_SPAN    = RS_DIAG_SPAN - 2 * RS_DIAG_CARD_STAGGER;
+    const RS_DIAG_CARD_STARTS = [
+        RS_DIAG_START,
+        RS_DIAG_START + RS_DIAG_CARD_STAGGER,
+        RS_DIAG_START + RS_DIAG_CARD_STAGGER * 2,
+    ];
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--rs-metricas',
+        start: () => rsMosaicoST ? rsMosaicoST.end : 0,
+        end: () => '+=' + (window.innerHeight * 3.2),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const vw = window.innerWidth;
+            const p2 = self.progress;
+
+            // ── Salida del lienzo de Fase 1 (0.00 → 0.20) ──
+            // .rs-mosaico__card--center ya quedó position:fixed y a
+            // pantalla completa al terminar Fase 1 (promovida en el
+            // bloque de Fase 1 de este mismo archivo) — aquí solo se le
+            // suma un translateY adicional para que se retire hacia
+            // arriba; su position/width/height/top/left quedan intactos
+            // (los dejó Fase 1, no se tocan aquí).
+            if (rsMosaicoCenterCard) {
+                const exitP = clamp01(p2 / 0.20);
+                gsap.set(rsMosaicoCenterCard, { y: -exitP * vh });
+            }
+
+            // ── Revelado del contenedor .rs-metricas (0.00 → 0.20) ──
+            // Mismo patrón de "relevo" que .rs-mosaico en Fase 1: sin esto
+            // el contenedor se queda en su reposo CSS (translateY(100vh),
+            // oculto) durante todo el scrub hacia adelante — onLeaveBack/
+            // onLeave por sí solos no lo revelan en un primer paso hacia
+            // adelante, solo lo esconden/muestran al cruzar los bordes.
+            if (rsMetricasSection) {
+                const exitP = clamp01(p2 / 0.20);
+                gsap.set(rsMetricasSection, { y: (1 - exitP) * vh });
+            }
+
+            // ── Entrada del título (0.00 → 0.20) ──
+            if (rsMetricasTitle) {
+                const inEased = gsap.parseEase('power2.out')(clamp01(p2 / 0.20));
+                gsap.set(rsMetricasTitle, { x: 200 * (1 - inEased), opacity: inEased });
+
+                // ── Cierre de escena: fade-out del título (0.90 → 1.00) ──
+                // Solo después de que la Tarjeta 3 salió por completo
+                // (RS_DIAG_END = 0.90, ver constantes arriba).
+                if (p2 >= 0.90) {
+                    const closeP = clamp01((p2 - 0.90) / 0.10);
+                    gsap.set(rsMetricasTitle, { opacity: 1 - closeP });
+                }
+            }
+
+            // ── Tarjetas: diagonal constante inferior-izq → superior-der,
+            // con stagger (RS_DIAG_CARD_STARTS) ──
+            rsMetricasCards.forEach((card, i) => {
+                const cardStart = RS_DIAG_CARD_STARTS[i];
+                const localP = clamp01((p2 - cardStart) / RS_DIAG_CARD_SPAN);
+                const cardW = card.offsetWidth || 380;
+                const cardH = card.offsetHeight || 260;
+
+                const originX = -cardW;
+                const originY = vh + cardH;
+                const destX   = vw + cardW;
+                const destY   = -cardH - vh;
+
+                const x = originX + (destX - originX) * localP;
+                const y = originY + (destY - originY) * localP;
+
+                // localP ya viene clamp01: 0 antes de arrancar (en el
+                // origen, fuera de pantalla) y 1 tras llegar al destino
+                // (también fuera de pantalla) — .rs-metricas tiene
+                // overflow:hidden, así que ninguno de los dos extremos se
+                // ve; la opacity es una capa de seguridad adicional
+                // (mismo patrón usado en el resto del archivo), no la
+                // responsable real de ocultarlas.
+                const opacity = (localP > 0 && localP < 1) ? 1 : 0;
+
+                gsap.set(card, { x, y, opacity });
+            });
+        },
+        onLeaveBack: () => {
+            if (rsMosaicoCenterCard) { gsap.set(rsMosaicoCenterCard, { y: 0 }); }
+            if (rsMetricasTitle)     { gsap.set(rsMetricasTitle, { x: 200, opacity: 0 }); }
+            if (rsMetricasSection)   { gsap.set(rsMetricasSection, { y: '100vh' }); }
+            rsMetricasCards.forEach((card) => {
+                const cardW = card.offsetWidth || 380;
+                const cardH = card.offsetHeight || 260;
+                gsap.set(card, { x: -cardW, y: window.innerHeight + cardH, opacity: 0 });
+            });
+        },
+        onLeave: () => {
+            if (rsMetricasSection) { gsap.set(rsMetricasSection, { y: 0 }); }
+        }
+    });
 }

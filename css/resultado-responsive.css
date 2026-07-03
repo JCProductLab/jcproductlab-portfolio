@@ -147,4 +147,90 @@
         height: 100%;
         object-fit: cover;
     }
+
+    /* ============================================
+       FASE 2 — Tránsito diagonal de tarjetas de métricas
+       ============================================ */
+
+    .cs-pin-spacer--rs-metricas { height: 320vh; }
+
+    .rs-metricas {
+        position: fixed;
+        inset: 0;
+        /* Mismo nivel que .rs-mosaico: mutuamente excluyentes en el
+           tiempo (nunca conviven en pantalla), sin conflicto de stacking. */
+        z-index: 7;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        /* Estado de reposo: oculto, coincide con el valor que el
+           onLeaveBack del ST aplica y con el primer frame antes de que
+           el JS corra (mismo patrón que .rs-mosaico). */
+        transform: translateY(100vh);
+    }
+
+    /* Tipografía del título viene de .cs-section-title (aplicada en el
+       HTML junto a esta clase) — la misma clase que ya usa el título de
+       Fase 1 ("Cuando la certeza..."), no se reinventa un tamaño nuevo.
+       Esta regla solo pone la posición y el estado de reposo. */
+    .rs-metricas__title {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 80px);
+        left: 80px;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    .rs-metricas__card {
+        /* top:0/left:0 explícitos: el JS solo mueve las cards con
+           transform (x/y), nunca con top/left — sin un top/left fijo y
+           conocido, la posición estática de la card (pre-transform)
+           queda indefinida y el translate(x,y) ya no corresponde a la
+           coordenada absoluta de pantalla que calcula la fórmula de
+           origen/destino en resultado.js. */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 24%;
+        /* Medidas exactas de tarjeta.png: 56px de padding en los 4 lados. */
+        padding: 56px;
+        border-radius: 24px;
+        background: linear-gradient(140deg, var(--color-accent) 0%, var(--color-bg) 50%);
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    /* Tipografía viene de las clases existentes aplicadas en el HTML:
+       .cs-decision-title (número), .cs-body-xxl (label), .large-paragraph
+       (detail) — estas reglas solo aportan lo que esas clases no cubren
+       (espaciado y el `display:block` del span). */
+    .rs-metricas__value {
+        display: inline-flex;
+        align-items: flex-start;
+        margin-bottom: 24px;
+    }
+
+    .rs-metricas__arrow {
+        margin-left: 8px;
+        color: var(--color-accent);
+        font-size: 0.7em;
+        font-weight: 600;
+    }
+
+    /* .cs-body-xxl trae color:var(--color-text-secondary) por defecto;
+       aquí se sobreescribe a --color-secondary (mismo patrón de emparejar
+       una clase reusada con un color específico del componente, como
+       .rs-metricas__detail más abajo). */
+    .rs-metricas__label {
+        color: var(--color-secondary);
+        /* Medida exacta de tarjeta.png: 120px hasta el texto de detalle. */
+        margin-bottom: 120px;
+    }
+
+    /* .large-paragraph no trae color propio (mismo patrón que
+       .modal-rol-proceso__text .large-paragraph en modal-rol-proceso.css):
+       se empareja aquí con el token de texto secundario ya existente. */
+    .rs-metricas__detail {
+        color: var(--color-text-secondary);
+    }
 }
