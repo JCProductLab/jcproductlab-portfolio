@@ -36,7 +36,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // en el mismo rango de progreso (v_tall > v_short del doc).
     const RS_CARD_OFFSET = { short: 220, tall: 420 };
 
+    const rsCenterCard = document.querySelector('.rs-mosaico__card--center');
+    let rsCenterPromoted = false;
+    let rsCenterRect = null;
+
     const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const vw = () => window.innerWidth;
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--rs-mosaico',
@@ -82,6 +87,53 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     opacity: gridEased,
                 });
             });
+
+            // ── Aislamiento + escala exponencial de la card central (0.80 → 1.00) ──
+            if (rsCenterCard) {
+                if (p1 >= 0.80) {
+                    if (!rsCenterPromoted) {
+                        rsCenterRect = rsCenterCard.getBoundingClientRect();
+                        gsap.set(rsCenterCard, {
+                            position: 'fixed',
+                            top: rsCenterRect.top,
+                            left: rsCenterRect.left,
+                            width: rsCenterRect.width,
+                            height: rsCenterRect.height,
+                            margin: 0,
+                            zIndex: 20,
+                        });
+                        rsCenterPromoted = true;
+                    }
+                    const scaleP = clamp01((p1 - 0.80) / 0.20);
+                    const scaleEased = gsap.parseEase('power2.in')(scaleP);
+                    const newTop    = rsCenterRect.top * (1 - scaleEased);
+                    const newLeft   = rsCenterRect.left * (1 - scaleEased);
+                    const newWidth  = rsCenterRect.width + (vw() - rsCenterRect.width) * scaleEased;
+                    const newHeight = rsCenterRect.height + (vh - rsCenterRect.height) * scaleEased;
+                    gsap.set(rsCenterCard, {
+                        top: newTop,
+                        left: newLeft,
+                        width: newWidth,
+                        height: newHeight,
+                        borderRadius: 24 * (1 - scaleEased),
+                    });
+                } else if (rsCenterPromoted) {
+                    // Reversa: si el usuario sube antes de p1=0.80, se
+                    // restaura el layout normal del grid.
+                    gsap.set(rsCenterCard, {
+                        position: 'relative',
+                        top: 'auto',
+                        left: 'auto',
+                        width: '100%',
+                        height: '100%',
+                        margin: 0,
+                        zIndex: 'auto',
+                        borderRadius: 24,
+                    });
+                    rsCenterPromoted = false;
+                    rsCenterRect = null;
+                }
+            }
         },
         onLeaveBack: () => {
             if (razon3Final) { gsap.set(razon3Final, { y: 0 }); }
@@ -92,6 +144,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const offset = RS_CARD_OFFSET[size] || RS_CARD_OFFSET.short;
                 gsap.set(card, { y: offset, opacity: 0 });
             });
+            if (rsCenterCard) {
+                gsap.set(rsCenterCard, {
+                    position: 'relative',
+                    top: 'auto',
+                    left: 'auto',
+                    width: '100%',
+                    height: '100%',
+                    margin: 0,
+                    zIndex: 'auto',
+                    borderRadius: 24,
+                });
+                rsCenterPromoted = false;
+                rsCenterRect = null;
+            }
         },
         onLeave: () => {
             if (rsMosaicoSection) { gsap.set(rsMosaicoSection, { y: 0 }); }
