@@ -624,9 +624,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // adelante — onLeaveBack/onLeave por sí solos no lo revelan en
             // un primer paso hacia adelante, solo lo esconden/muestran al
             // cruzar los bordes del ScrollTrigger.
+            const containerRevealY = (1 - clamp01(p3 / 0.20)) * vh;
             if (rsUsuariosSection) {
-                const revealP = clamp01(p3 / 0.20);
-                gsap.set(rsUsuariosSection, { y: (1 - revealP) * vh });
+                gsap.set(rsUsuariosSection, { y: containerRevealY });
             }
 
             // ── 3.0 Captura lazy del top real del párrafo (una sola vez) ──
@@ -652,11 +652,22 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
 
             // ── 3.1 Título (0.00 → 0.25) ──
+            // Debe moverse SOLO en horizontal (idéntico al título de Fase 2,
+            // "El impacto en el negocio"): un `y: -containerRevealY` cancela
+            // exactamente el translateY que el contenedor .rs-usuarios aplica
+            // sobre sí mismo durante su propio revelado (0.00→0.20, ver
+            // arriba) — sin esto, el título hereda ese movimiento vertical
+            // del padre y se ve entrar desde abajo además de desde la
+            // derecha. Los transforms anidados de puro translate se suman en
+            // pantalla, así que -containerRevealY + containerRevealY = 0: la
+            // posición vertical del título en pantalla queda fija en todo
+            // momento, solo x/opacity animan.
             if (rsUsuariosTitle) {
                 const titleP = clamp01(p3 / 0.25);
                 const titleEased = gsap.parseEase('power2.out')(titleP);
                 gsap.set(rsUsuariosTitle, {
                     x: RS_ENTRY_OFFSET_X * (1 - titleEased),
+                    y: -containerRevealY,
                     opacity: titleEased,
                 });
             }
@@ -696,7 +707,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         },
         onLeaveBack: () => {
             if (rsUsuariosSection) { gsap.set(rsUsuariosSection, { y: '100vh' }); }
-            if (rsUsuariosTitle)   { gsap.set(rsUsuariosTitle, { x: RS_ENTRY_OFFSET_X, opacity: 0 }); }
+            if (rsUsuariosTitle)   { gsap.set(rsUsuariosTitle, { x: RS_ENTRY_OFFSET_X, y: -window.innerHeight, opacity: 0 }); }
             if (rsUsuariosMedia)   { gsap.set(rsUsuariosMedia, { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
             if (rsUsuariosText)    { gsap.set(rsUsuariosText,  { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
         },
