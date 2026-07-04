@@ -234,4 +234,66 @@
     .rs-metricas__detail {
         color: var(--color-text-secondary);
     }
+
+    /* ============================================
+       FASE 3 — Entrada desfasada derecha a izquierda
+       ============================================ */
+
+    .cs-pin-spacer--rs-usuarios { height: 300vh; }
+
+    .rs-usuarios {
+        position: fixed;
+        inset: 0;
+        z-index: 7;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        transform: translateY(100vh);
+    }
+
+    /* Tipografía viene de .cs-section-title (aplicada en el HTML) —
+       mismo patrón que .rs-metricas__title. Esta regla solo pone la
+       posición y el estado de reposo. */
+    .rs-usuarios__title {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 80px);
+        left: 80px;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    .rs-usuarios__media {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 80px);
+        right: 80px;
+        width: 45%;
+        max-width: 780px;
+        border-radius: 24px;
+        overflow: hidden;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    .rs-usuarios__img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+    }
+
+    /* Tipografía viene de .cs-body-xxl (aplicada en el HTML), que trae
+       color: var(--color-text-secondary) por defecto. El `top` de abajo
+       es solo el fallback de primer pintado: el JS (resultado.js) lo
+       fija al valor real una sola vez, midiendo la altura renderizada
+       de .rs-usuarios__media, para que nunca se solape con la imagen
+       en pantallas anchas (donde la imagen llega a max-width:780px). */
+    .rs-usuarios__text {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 580px);
+        right: 80px;
+        width: 45%;
+        max-width: 780px;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
 }
