@@ -584,4 +584,105 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsMetricasSection) { gsap.set(rsMetricasSection, { y: 0 }); }
         }
     });
+
+    // ============================================
+    // FASE 3 — Entrada desfasada derecha a izquierda
+    // Anclado a rsMetricasST.end (Fase 2).
+    // ============================================
+
+    const rsMetricasST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--rs-metricas')
+    );
+
+    const rsUsuariosSection = document.querySelector('.rs-usuarios');
+    const rsUsuariosTitle   = document.querySelector('.rs-usuarios__title');
+    const rsUsuariosMedia   = document.querySelector('.rs-usuarios__media');
+    const rsUsuariosText    = document.querySelector('.rs-usuarios__text');
+
+    const RS_ENTRY_OFFSET_X = 200;
+    // px de aire entre el borde inferior de la imagen y el párrafo.
+    const RS_TEXT_TOP_BUFFER = 40;
+    let rsTextTopCaptured = false;
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--rs-usuarios',
+        start: () => rsMetricasST ? rsMetricasST.end : 0,
+        end: () => '+=' + (window.innerHeight * 3),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const p3 = self.progress;
+
+            // ── 3.0 Captura lazy del top real del párrafo (una sola vez) ──
+            // Mide la altura YA renderizada de .rs-usuarios__media (según
+            // el width:45%/max-width:780px real del viewport) y fija el
+            // `top` del párrafo justo debajo, con buffer. A partir de aquí
+            // el párrafo nunca vuelve a tocar `top`: solo x/y/opacity por
+            // transform (mismo patrón de "top/left fijo, JS solo mueve con
+            // transform" que ya usa .rs-metricas__card) — evita el solape
+            // que tendría un valor fijo adivinado en pantallas anchas.
+            if (!rsTextTopCaptured && rsUsuariosMedia && rsUsuariosText) {
+                const mediaRect = rsUsuariosMedia.getBoundingClientRect();
+                const mediaTop = rsUsuariosMedia.offsetTop;
+                gsap.set(rsUsuariosText, { top: mediaTop + mediaRect.height + RS_TEXT_TOP_BUFFER });
+                rsTextTopCaptured = true;
+            }
+
+            // ── 3.1 Título (0.00 → 0.25) ──
+            if (rsUsuariosTitle) {
+                const titleP = clamp01(p3 / 0.25);
+                const titleEased = gsap.parseEase('power2.out')(titleP);
+                gsap.set(rsUsuariosTitle, {
+                    x: RS_ENTRY_OFFSET_X * (1 - titleEased),
+                    opacity: titleEased,
+                });
+            }
+
+            // ── 3.2a Imagen (0.20 → 0.45) ──
+            if (rsUsuariosMedia) {
+                const mediaP = clamp01((p3 - 0.20) / 0.25);
+                const mediaEased = gsap.parseEase('power2.out')(mediaP);
+                gsap.set(rsUsuariosMedia, {
+                    x: RS_ENTRY_OFFSET_X * (1 - mediaEased),
+                    opacity: mediaEased,
+                });
+            }
+
+            // ── 3.2b Texto (0.45 → 0.70) ──
+            if (rsUsuariosText) {
+                const textP = clamp01((p3 - 0.45) / 0.25);
+                const textEased = gsap.parseEase('power2.out')(textP);
+                gsap.set(rsUsuariosText, {
+                    x: RS_ENTRY_OFFSET_X * (1 - textEased),
+                    opacity: textEased,
+                });
+            }
+
+            // ── 3.3a Salida de la imagen (0.75 → 0.875) ──
+            // El título NO se toca aquí: permanece anclado.
+            if (p3 >= 0.75 && rsUsuariosMedia) {
+                const mediaExitP = clamp01((p3 - 0.75) / 0.125);
+                gsap.set(rsUsuariosMedia, { y: -mediaExitP * vh });
+            }
+
+            // ── 3.3b Salida del párrafo, EN CASCADA tras la imagen (0.875 → 1.00) ──
+            if (p3 >= 0.875 && rsUsuariosText) {
+                const textExitP = clamp01((p3 - 0.875) / 0.125);
+                gsap.set(rsUsuariosText, { y: -textExitP * vh });
+            }
+        },
+        onLeaveBack: () => {
+            if (rsUsuariosSection) { gsap.set(rsUsuariosSection, { y: '100vh' }); }
+            if (rsUsuariosTitle)   { gsap.set(rsUsuariosTitle, { x: RS_ENTRY_OFFSET_X, opacity: 0 }); }
+            if (rsUsuariosMedia)   { gsap.set(rsUsuariosMedia, { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
+            if (rsUsuariosText)    { gsap.set(rsUsuariosText,  { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
+        },
+        onLeave: () => {
+            if (rsUsuariosSection) { gsap.set(rsUsuariosSection, { y: 0 }); }
+        }
+    });
 }
