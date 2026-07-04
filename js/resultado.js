@@ -617,6 +617,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const vh = window.innerHeight;
             const p3 = self.progress;
 
+            // ── Revelado del contenedor .rs-usuarios (0.00 → 0.20) ──
+            // Mismo patrón de "relevo" que .rs-mosaico (Fase 1) y .rs-metricas
+            // (Fase 2): sin esto, el contenedor se queda en su reposo CSS
+            // (translateY(100vh), oculto) durante todo el scrub hacia
+            // adelante — onLeaveBack/onLeave por sí solos no lo revelan en
+            // un primer paso hacia adelante, solo lo esconden/muestran al
+            // cruzar los bordes del ScrollTrigger.
+            if (rsUsuariosSection) {
+                const revealP = clamp01(p3 / 0.20);
+                gsap.set(rsUsuariosSection, { y: (1 - revealP) * vh });
+            }
+
             // ── 3.0 Captura lazy del top real del párrafo (una sola vez) ──
             // Mide la altura YA renderizada de .rs-usuarios__media (según
             // el width:45%/max-width:780px real del viewport) y fija el
@@ -628,7 +640,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (!rsTextTopCaptured && rsUsuariosMedia && rsUsuariosText) {
                 const mediaRect = rsUsuariosMedia.getBoundingClientRect();
                 const mediaTop = rsUsuariosMedia.offsetTop;
-                gsap.set(rsUsuariosText, { top: mediaTop + mediaRect.height + RS_TEXT_TOP_BUFFER });
+                const textRect = rsUsuariosText.getBoundingClientRect();
+                const desiredTop = mediaTop + mediaRect.height + RS_TEXT_TOP_BUFFER;
+                // En viewports de poca altura, el párrafo (4 líneas) puede
+                // no caber completo debajo de la imagen — se limita el top
+                // para que el párrafo siempre termine con el mismo buffer
+                // de aire respecto al borde inferior, en vez de desbordarse.
+                const maxTopForBottomFit = vh - RS_TEXT_TOP_BUFFER - textRect.height;
+                gsap.set(rsUsuariosText, { top: Math.min(desiredTop, maxTopForBottomFit) });
                 rsTextTopCaptured = true;
             }
 
