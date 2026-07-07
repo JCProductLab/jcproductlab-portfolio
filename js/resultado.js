@@ -769,8 +769,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.set(rsImpactoWord, { transformOrigin: `${originXPercent}% ${originYPercent}%` });
 
         // Escala para que "impacto" desborde el viewport ampliamente (portal).
-        const scaleByWidth  = (vw * 1.6) / wordRect.width;
-        const scaleByHeight = (vh * 1.6) / wordRect.height;
+        // Factor 3.0 (no 1.6): la palabra debe crecer hasta que cada letra
+        // individual sea más grande que la pantalla — ver resultado-d-05 a
+        // resultado-d-08, donde "impacto" se ve como letras gigantes que
+        // desbordan masivamente mientras la "p" (transform-origin) queda
+        // centrada en el viewport.
+        const scaleByWidth  = (vw * 3.0) / wordRect.width;
+        const scaleByHeight = (vh * 3.0) / wordRect.height;
         rsPortalTargetScale = Math.max(scaleByWidth, scaleByHeight);
 
         // Delta para que el punto de la "p" (el transform-origin recién fijado)
@@ -791,7 +796,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         scrub: 1,
         onUpdate: (self) => {
             if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
             const p4 = self.progress;
+
+            // ── Revelado del contenedor .rs-testimonio (0.00 → 0.15) ──
+            // Mismo patrón "relevo" que .rs-mosaico (Fase 1) y .rs-metricas
+            // (Fase 2). Sin esto el contenedor se queda en su reposo CSS
+            // (translateY(100vh), oculto) durante todo el scrub hacia
+            // adelante. El fondo oscuro entra primero (queda detrás del
+            // título de Fase 3 porque .rs-testimonio está en z:6), y los
+            // hijos (anillo, testimonio, cierre) animan después.
+            if (rsTestimonioSection) {
+                const revealP = clamp01(p4 / 0.15);
+                gsap.set(rsTestimonioSection, { y: (1 - revealP) * vh });
+            }
 
             // ── 4.1 Fade selectivo de palabras (0.00 → 0.25), "impacto" queda en 1 ──
             const wordFadeP = clamp01(p4 / 0.25);
@@ -801,17 +819,25 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
             });
 
-            // ── 4.1 Anillo: fade-in (0.00→0.25) + rotación/escala (0.00→0.65) ──
-            // Misma fórmula que .cs-decision-mc__ring de "La Decisión".
+            // ── 4.1 Anillo: copia EXACTA de la fórmula de .cs-decision-mc__ring ──
+            // caso-asdeporte.js:1475-1490. Mismo scale 1→2.75 con power1.inOut,
+            // misma rotación 0→360° lineal, mismo fade atado al scale (1 hasta
+            // scale 2.3, luego 1→0 hasta 2.75), mismo centrado x:-377 y:-240
+            // (porque la elipse base es 754×480, no 300×300 como antes).
             if (rsRing) {
                 const ringFadeP = clamp01(p4 / 0.25);
-                const ringOutP  = clamp01((p4 - 0.55) / 0.10);
-                const ringGrowP = clamp01(p4 / 0.65);
-                const ringGrowEased = gsap.parseEase('power1.inOut')(ringGrowP);
+                const ringP = clamp01(p4 / 0.65);
+                const ringEased = gsap.parseEase('power1.inOut')(ringP);
+                const ringScale = 1.0 + (2.75 - 1.0) * ringEased;
+                const ringRotation = 360 * ringP;
+                // Fade atado al scale: 1 hasta scale 2.3, luego 1→0 de 2.3 a 2.75
+                const ringOpacityByScale = clamp01(1 - Math.max(0, ringScale - 2.3) / (2.75 - 2.3));
                 gsap.set(rsRing, {
-                    opacity: ringFadeP * (1 - ringOutP),
-                    scale: 1.0 + (2.75 - 1.0) * ringGrowEased,
-                    rotation: 360 * ringGrowP,
+                    opacity: ringFadeP * ringOpacityByScale,
+                    x: -377,
+                    y: -240,
+                    scale: ringScale,
+                    rotation: ringRotation,
                 });
             }
 
@@ -823,23 +849,53 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
                 const zoomP = clamp01((p4 - 0.20) / 0.45);
                 const zoomEased = gsap.parseEase('power2.in')(zoomP);
+                // Fade-out sincronizado con el anillo (0.55 → 0.65): la
+                // palabra y el anillo desaparecen JUNTOS al final del zoom
+                // para dar paso al testimonio. Sin esto, "impacto" gigante
+                // se queda cubriendo la pantalla mientras el testimonio
+                // intenta aparecer detrás.
+                const impactoFadeP = clamp01((p4 - 0.55) / 0.10);
                 gsap.set(rsImpactoWord, {
                     x: rsPortalDeltaX * zoomEased,
                     y: rsPortalDeltaY * zoomEased,
                     scale: 1 + (rsPortalTargetScale - 1) * zoomEased,
+                    opacity: 1 - impactoFadeP,
                 });
             } else if (rsImpactoWord && rsPortalCaptured) {
-                gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1 });
+                gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1, opacity: 1 });
                 rsPortalCaptured = false;
             }
 
-            // ── 4.2 Testimonio: fade-in (0.50 → 0.65) ──
+            // ── 4.2 Testimonio: fade-in (0.50 → 0.65) con portal effect ──
+            // clip-path:ellipse() sincronizado frame a frame con la forma
+            // del anillo (mismo scale 1→2.75 power1.inOut). El testimonio
+            // se recorta visualmente a la elipse del anillo, creando el
+            // efecto "portal" del spec — el texto solo se ve "a través"
+            // de la forma del anillo. Recalculamos el ringScale aquí
+            // porque el bloque del anillo es independiente.
             if (rsQuote && p4 >= 0.50 && p4 < 0.75) {
                 const quoteInP = clamp01((p4 - 0.50) / 0.15);
-                gsap.set(rsQuote, { opacity: quoteInP });
+                const clipRingP = clamp01(p4 / 0.65);
+                const clipRingEased = gsap.parseEase('power1.inOut')(clipRingP);
+                const clipRingScale = 1.0 + (2.75 - 1.0) * clipRingEased;
+                // Ring base 754×480 con border-radius 232px. El clip-path
+                // usa porcentajes del bounding box del testimonio (que es
+                // full-viewport), así que el 50% base coincide con el
+                // tamaño natural de la elipse del anillo y escala junto
+                // con él.
+                const clipX = clipRingScale * 50;
+                const clipY = clipRingScale * 50;
+                gsap.set(rsQuote, {
+                    opacity: quoteInP,
+                    clipPath: `ellipse(${clipX}% ${clipY}% at 50% 50%)`,
+                });
             }
 
             // ── 4.3 Testimonio: fade-out puro (0.75 → 0.85) ──
+            // El clip-path se mantiene: la elipse del anillo aún existe
+            // (su opacity baja a 0 por ringOpacityByScale), pero el texto
+            // se desvanece sin desplazamiento. Limpia el clip-path al
+            // final para no dejarlo pegado si el usuario navega atrás.
             if (rsQuote && p4 >= 0.75) {
                 const quoteOutP = clamp01((p4 - 0.75) / 0.10);
                 gsap.set(rsQuote, { opacity: 1 - quoteOutP });
@@ -865,15 +921,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         },
         onLeaveBack: () => {
             gsap.set(rsUsuariosWords, { opacity: 1 });
-            if (rsRing) { gsap.set(rsRing, { opacity: 0, scale: 1, rotation: 0 }); }
-            if (rsImpactoWord) { gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1 }); }
+            if (rsRing) {
+                gsap.set(rsRing, { opacity: 0, x: 0, y: 0, scale: 1, rotation: 0 });
+            }
+            if (rsImpactoWord) { gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1, opacity: 1 }); }
             rsPortalCaptured = false;
-            if (rsQuote) { gsap.set(rsQuote, { opacity: 0 }); }
+            if (rsQuote) {
+                gsap.set(rsQuote, { opacity: 0, clipPath: 'ellipse(50% 50% at 50% 50%)' });
+            }
             gsap.set(rsClosingLines, { y: '100%' });
             if (rsCta) {
                 gsap.set(rsCta, { y: 40, opacity: 0 });
                 rsCta.style.pointerEvents = 'none';
             }
+            if (rsTestimonioSection) { gsap.set(rsTestimonioSection, { y: '100vh' }); }
         },
         onLeave: () => {
             // estado final ya aplicado por el propio onUpdate en p4=1: título
