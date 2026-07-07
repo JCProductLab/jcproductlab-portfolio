@@ -301,4 +301,94 @@
         opacity: 0;
         will-change: transform, opacity;
     }
+
+    /* ============================================
+       FASE 4 — Portal de máscara tipográfica y revelación
+       ============================================ */
+
+    .cs-pin-spacer--rs-testimonio { height: 400vh; }
+
+    .rs-usuarios__word { display: inline-block; will-change: opacity; }
+
+    .rs-testimonio {
+        position: fixed;
+        inset: 0;
+        z-index: 7;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .rs-testimonio__ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        height: 300px;
+        margin: -150px 0 0 -150px;
+        border: 2px dashed var(--color-accent);
+        border-radius: 50%;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    .rs-testimonio__quote {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 15%;
+        opacity: 0;
+        will-change: opacity;
+    }
+
+    .rs-testimonio__quote-icon { color: var(--color-accent); font-size: 3rem; margin-bottom: 24px; }
+    .rs-testimonio__quote-text { font-style: italic; text-align: center; }
+
+    .rs-testimonio__closing {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 48px;
+    }
+
+    .rs-testimonio__line-wrap { display: block; overflow: hidden; }
+    .rs-testimonio__line {
+        display: block;
+        transform: translateY(100%);
+        will-change: transform;
+        text-align: center;
+    }
+
+    .rs-testimonio__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 28px;
+        border-radius: 9999px;
+        background: rgba(240, 240, 240, 0.08);
+        color: var(--color-accent);
+        font-weight: var(--semibold);
+        opacity: 0;
+        transform: translateY(40px);
+        will-change: transform, opacity;
+        pointer-events: none;
+    }
+
+    .rs-testimonio__cta-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: var(--color-primary);
+    }
 }
