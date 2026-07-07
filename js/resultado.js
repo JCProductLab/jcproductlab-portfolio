@@ -750,6 +750,26 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
     const rsCta           = document.querySelector('.rs-testimonio__cta');
 
+    // ── Mover el título de Fase 3 fuera de .rs-usuarios ──
+    // El título debe ser visible durante toda la Fase 4 (imagen 01 del
+    // spec) y transformarse en la "p" que actúa como portal hacia el
+    // testimonio. Estando dentro de .rs-usuarios (z:7, position:fixed)
+    // su z-index es LOCAL a ese stacking context — no puede estar sobre
+    // .rs-testimonio (z:8) por más que le pongamos z-index:9999.
+    // Solución: moverlo a <main> antes del ST de Fase 4. Ahora su
+    // position:fixed + z-index:9 es GLOBAL y queda sobre todo.
+    // `rsUsuariosTitle` ya está declarado en el bloque de Fase 3
+    // (línea ~599) y apunta al MISMO elemento (es un nodo, moverlo en
+    // el DOM no rompe la referencia — la variable sigue válida).
+    const rsUsuariosTitleToMove = document.querySelector('.rs-usuarios__title');
+    if (rsUsuariosTitleToMove && rsUsuariosTitleToMove.parentElement.classList.contains('rs-usuarios')) {
+        // Mover al <main> (grandparent de .rs-usuarios). Lo insertamos
+        // al final del <main> — su position:fixed lo posiciona por
+        // coordenadas del viewport, no del contenedor, así que el orden
+        // en el DOM no afecta su ubicación visual.
+        const grandparent = rsUsuariosTitleToMove.parentElement.parentElement;
+        grandparent.appendChild(rsUsuariosTitleToMove);
+    }
     let rsPortalCaptured   = false;
     let rsPortalTargetScale = 1;
     let rsPortalDeltaX     = 0;
@@ -811,11 +831,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsTestimonioSection, { y: (1 - revealP) * vh });
             }
 
-            // ── 4.1 Fade selectivo de palabras (0.00 → 0.25), "impacto" queda en 1 ──
+            // ── 4.1 Aislamiento de "impacto" con efecto de MÁSCARA (0.00 → 0.25) ──
+            // Las otras palabras no se desvanecen con un simple opacity
+            // (queda "pobre" visualmente) sino con un clip-path wipe desde
+            // arriba hacia abajo + opacity. La máscara simula un cierre
+            // de cortina: la palabra se "esconde" detrás de un borde que
+            // baja desde el top, revelando el vacío debajo. "impacto"
+            // queda intacta — será el ancla del zoom posterior.
             const wordFadeP = clamp01(p4 / 0.25);
             rsUsuariosWords.forEach((word) => {
                 if (word.dataset.word !== 'impacto') {
-                    gsap.set(word, { opacity: 1 - wordFadeP });
+                    gsap.set(word, {
+                        opacity: 1 - wordFadeP,
+                        clipPath: `inset(0 0 ${wordFadeP * 100}% 0)`,
+                    });
                 }
             });
 
@@ -920,7 +949,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         },
         onLeaveBack: () => {
-            gsap.set(rsUsuariosWords, { opacity: 1 });
+            gsap.set(rsUsuariosWords, { opacity: 1, clipPath: 'inset(0 0 0% 0)' });
             if (rsRing) {
                 gsap.set(rsRing, { opacity: 0, x: 0, y: 0, scale: 1, rotation: 0 });
             }

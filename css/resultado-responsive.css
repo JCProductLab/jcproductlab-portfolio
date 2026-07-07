@@ -315,7 +315,10 @@
 
     .cs-pin-spacer--rs-testimonio { height: 400vh; }
 
-    .rs-usuarios__word { display: inline-block; will-change: opacity; }
+    .rs-usuarios__word {
+        display: inline-block;
+        will-change: opacity, clip-path;
+    }
 
     .rs-testimonio {
         position: fixed;
