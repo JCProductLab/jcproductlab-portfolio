@@ -602,7 +602,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
     const RS_ENTRY_OFFSET_X = 200;
     // px de aire entre el borde inferior de la imagen y el párrafo.
-    const RS_TEXT_TOP_BUFFER = 40;
+    // El requerimiento es "siempre 120px", sin importar el alto del
+    // viewport — si el párrafo no cabe completo abajo, se permite que
+    // asome por el borde inferior antes que sacrificar ese espacio.
+    const RS_TEXT_TOP_BUFFER = 120;
     let rsTextTopCaptured = false;
 
     // Mecánica IDÉNTICA a la entrada del título de Fase 2 (RS_TITLE_DELAY/
@@ -627,15 +630,20 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const p3 = self.progress;
 
             // ── Revelado del contenedor .rs-usuarios (0.00 → 0.20) ──
-            // Mismo patrón de "relevo" que .rs-mosaico (Fase 1) y .rs-metricas
-            // (Fase 2): sin esto, el contenedor se queda en su reposo CSS
-            // (translateY(100vh), oculto) durante todo el scrub hacia
-            // adelante — onLeaveBack/onLeave por sí solos no lo revelan en
-            // un primer paso hacia adelante, solo lo esconden/muestran al
-            // cruzar los bordes del ScrollTrigger.
-            const containerRevealY = (1 - clamp01(p3 / 0.20)) * vh;
+            // Se usa clip-path (no transform: translateY) para que el título
+            // — position:absolute dentro del contenedor — no herede un
+            // arrastre vertical. Si el padre se trasladara, el título lo
+            // acompañaría; combinado con el overflow:hidden del contenedor
+            // eso producía un "wipe" del título de abajo hacia arriba que
+            // se leía como una animación de máscara adicional. Con clip-path
+            // el contenedor se "abre" de arriba hacia abajo y el título
+            // queda quieto en su sitio, entrando solo con x/opacity.
+            // Mismo "relevo" que .rs-mosaico y .rs-metricas: sin esto el
+            // contenedor se queda en su reposo CSS (oculto) durante todo el
+            // scrub hacia adelante.
+            const containerRevealP = clamp01(p3 / 0.20);
             if (rsUsuariosSection) {
-                gsap.set(rsUsuariosSection, { y: containerRevealY });
+                gsap.set(rsUsuariosSection, { clipPath: `inset(0 0 ${(1 - containerRevealP) * 100}% 0)` });
             }
 
             // ── 3.0 Captura lazy del top real del párrafo (una sola vez) ──
@@ -646,25 +654,23 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // transform (mismo patrón de "top/left fijo, JS solo mueve con
             // transform" que ya usa .rs-metricas__card) — evita el solape
             // que tendría un valor fijo adivinado en pantallas anchas.
+            // Sin cap por viewport: el requerimiento es mantener los 120px
+            // de aire entre imagen y párrafo aunque eso implique que el
+            // párrafo asome por el borde inferior en viewports muy bajos.
             if (!rsTextTopCaptured && rsUsuariosMedia && rsUsuariosText) {
                 const mediaRect = rsUsuariosMedia.getBoundingClientRect();
                 const mediaTop = rsUsuariosMedia.offsetTop;
-                const textRect = rsUsuariosText.getBoundingClientRect();
-                const desiredTop = mediaTop + mediaRect.height + RS_TEXT_TOP_BUFFER;
-                // En viewports de poca altura, el párrafo (4 líneas) puede
-                // no caber completo debajo de la imagen — se limita el top
-                // para que el párrafo siempre termine con el mismo buffer
-                // de aire respecto al borde inferior, en vez de desbordarse.
-                const maxTopForBottomFit = vh - RS_TEXT_TOP_BUFFER - textRect.height;
-                gsap.set(rsUsuariosText, { top: Math.min(desiredTop, maxTopForBottomFit) });
+                gsap.set(rsUsuariosText, { top: mediaTop + mediaRect.height + RS_TEXT_TOP_BUFFER });
                 rsTextTopCaptured = true;
             }
 
             // ── 3.1 Título (RS_USUARIOS_TITLE_DELAY → +RS_USUARIOS_TITLE_SPAN) ──
-            // Copia exacta de la entrada del título de Fase 2: mismo delay
-            // (0.10), mismo span (0.20), misma ease, solo x/opacity. Ningún
-            // y aquí — es la misma relación (sin cancelar nada) que ya tiene
-            // el título de Fase 2 con el revelado de .rs-metricas.
+            // Réplica exacta de la entrada del título de Fase 2: mismo
+            // delay (0.10), mismo span (0.20), misma ease, solo x/opacity.
+            // El contenedor ahora se revela con clip-path (no transform),
+            // así que el título no hereda ningún arrastre vertical y
+            // tampoco queda recortado por el overflow:hidden del padre
+            // — entra únicamente con la firma de derecha a izquierda + fade.
             if (rsUsuariosTitle) {
                 const titleEased = gsap.parseEase('power2.out')(clamp01((p3 - RS_USUARIOS_TITLE_DELAY) / RS_USUARIOS_TITLE_SPAN));
                 gsap.set(rsUsuariosTitle, {
@@ -694,26 +700,33 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
 
             // ── 3.3a Salida de la imagen (0.75 → 0.875) ──
+            // Sin condición `if (p3 >= 0.75)`: el y se calcula SIEMPRE
+            // desde p3. Antes la condición hacía que al hacer scrub en
+            // reversa el y quedara "congelado" en el último valor seteado
+            // (p3≈0.76 → y≈-98px) porque scrub: 1 suaviza y no garantiza
+            // pasar exactamente por p3=0.75. Con la imagen a media salida
+            // y el párrafo aún más arriba (sale en cascada), el párrafo se
+            // encima con la imagen. Como clamp01 ya devuelve 0 fuera del
+            // rango, calcular siempre da el mismo resultado en la zona
+            // normal y resetea correctamente al reverso.
             // El título NO se toca aquí: permanece anclado.
-            if (p3 >= 0.75 && rsUsuariosMedia) {
+            if (rsUsuariosMedia) {
                 const mediaExitP = clamp01((p3 - 0.75) / 0.125);
                 gsap.set(rsUsuariosMedia, { y: -mediaExitP * vh });
             }
 
             // ── 3.3b Salida del párrafo, EN CASCADA tras la imagen (0.875 → 1.00) ──
-            if (p3 >= 0.875 && rsUsuariosText) {
+            // Misma corrección que la imagen.
+            if (rsUsuariosText) {
                 const textExitP = clamp01((p3 - 0.875) / 0.125);
                 gsap.set(rsUsuariosText, { y: -textExitP * vh });
             }
         },
         onLeaveBack: () => {
-            if (rsUsuariosSection) { gsap.set(rsUsuariosSection, { y: '100vh' }); }
+            if (rsUsuariosSection) { gsap.set(rsUsuariosSection, { clipPath: 'inset(0 0 100% 0)' }); }
             if (rsUsuariosTitle)   { gsap.set(rsUsuariosTitle, { x: RS_ENTRY_OFFSET_X, opacity: 0 }); }
             if (rsUsuariosMedia)   { gsap.set(rsUsuariosMedia, { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
             if (rsUsuariosText)    { gsap.set(rsUsuariosText,  { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
-        },
-        onLeave: () => {
-            if (rsUsuariosSection) { gsap.set(rsUsuariosSection, { y: 0 }); }
         }
     });
 }
