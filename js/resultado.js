@@ -782,22 +782,27 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         const anchorRect = rsPAnchor.getBoundingClientRect();
         const wordRect   = rsImpactoWord.getBoundingClientRect();
 
-        // Transform-origin en el punto exacto de la "p" dentro de la palabra,
-        // para que el scale() crezca alrededor de ese punto sin desplazarlo.
-        const originXPercent = ((anchorRect.left + anchorRect.width / 2) - wordRect.left) / wordRect.width * 100;
-        const originYPercent = ((anchorRect.top + anchorRect.height / 2) - wordRect.top) / wordRect.height * 100;
-        gsap.set(rsImpactoWord, { transformOrigin: `${originXPercent}% ${originYPercent}%` });
+        // Transform-origin en PIXELES ENTEROS (no porcentajes ni decimales).
+        // Si el origin está en posición sub-pixel, el escalado se desfasa
+        // y el texto se ve pixeleado/borroso. Math.round fuerza el
+        // origin a un píxel exacto, alineando el escalado a la grid del
+        // browser y eliminando el pixelaje. El origin apunta al centro
+        // del bounding box de la "p" (no al centro del círculo — ese
+        // ajuste se hace en el onUpdate con el offset de -40px en Y).
+        const originXPx = Math.round((anchorRect.left + anchorRect.width / 2) - wordRect.left);
+        const originYPx = Math.round((anchorRect.top + anchorRect.height / 2) - wordRect.top);
+        gsap.set(rsImpactoWord, { transformOrigin: `${originXPx}px ${originYPx}px` });
 
-        // Escala para que "impacto" desborde el viewport (portal).
-        // Factor 1.5 (no 3.0): la palabra crece ~23x — sigue siendo
-        // gigante y desbordando el viewport, pero NO TANTO como antes
-        // (46x). Con el factor anterior la palabra crecía tan rápido
-        // que el ojo solo percibía el crecimiento, no el movimiento
-        // de traslación. Con 1.5x la palabra es visible durante el
-        // movimiento y el usuario VE la "p" viajar desde top-left
-        // hasta el centro mientras la palabra crece.
-        const scaleByWidth  = (vw * 1.5) / wordRect.width;
-        const scaleByHeight = (vh * 1.5) / wordRect.height;
+        // Escala para que "impacto" desborde el viewport ampliamente.
+        // Factor 3.0: la palabra crece ~46x, TANTO que sus bordes se
+        // salen completamente del viewport — la palabra "desaparece"
+        // por crecimiento (sus letras quedan fuera de pantalla),
+        // no por fade out. Ver resultado-d-05 a resultado-d-08: la
+        // palabra es tan grande que solo la "p" permanece visible al
+        // final, y el resto de las letras ("m", "a", "c", "t", "o")
+        // quedan cortadas por el borde del viewport.
+        const scaleByWidth  = (vw * 3.0) / wordRect.width;
+        const scaleByHeight = (vh * 3.0) / wordRect.height;
         rsPortalTargetScale = Math.max(scaleByWidth, scaleByHeight);
 
         // Delta para que el punto de la "p" (el transform-origin recién fijado)

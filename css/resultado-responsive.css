@@ -318,12 +318,23 @@
     .rs-usuarios__word {
         display: inline-block;
         will-change: opacity, transform;
-        /* optimizeLegibility: el navegador usa el renderer de texto de
-           alta calidad en vez del rápido. Combinado con will-change:
-           transform y force3D en el JS, evita que la palabra se vea
-           pixelada cuando crece 10-20x. */
-        text-rendering: optimizeLegibility;
+        /* Anti-pixelación agresivo para el escalado ~46x:
+           - text-rendering: geometricPrecision: el navegador usa el
+             renderer de texto geométrico (más lento pero más preciso
+             que optimizeLegibility — crítico a escalas grandes).
+           - -webkit-font-smoothing: antialiased: suavizado de fuentes
+             en WebKit/Blink.
+           - backface-visibility: hidden: fuerza una nueva capa de
+             compositing, evitando que el texto se renderice con
+             sub-pixel issues durante el escalado.
+           - perspective: 1000px: habilita la aceleración 3D para que
+             el escalado use la GPU en vez de la CPU.
+           - transform: translateZ(0) en el JS (force3D: true) crea
+             un contexto 3D que combina con la perspective de arriba. */
+        text-rendering: geometricPrecision;
         -webkit-font-smoothing: antialiased;
+        backface-visibility: hidden;
+        perspective: 1000px;
     }
 
     .rs-testimonio {
