@@ -746,6 +746,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsImpactoWord   = document.querySelector('.rs-usuarios__word[data-word="impacto"]');
     const rsPAnchor       = document.querySelector('.rs-usuarios__p-anchor');
     const rsRing          = document.querySelector('.rs-testimonio__ring');
+    const rsQuote         = document.querySelector('.rs-testimonio__quote');
 
     let rsPortalCaptured   = false;
     let rsPortalTargetScale = 1;
@@ -828,6 +829,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             } else if (rsImpactoWord && rsPortalCaptured) {
                 gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1 });
                 rsPortalCaptured = false;
+            }
+
+            // ── 4.2 Testimonio: fade-in (0.50 → 0.65) ──
+            if (rsQuote && p4 >= 0.50 && p4 < 0.75) {
+                const quoteInP = clamp01((p4 - 0.50) / 0.15);
+                gsap.set(rsQuote, { opacity: quoteInP });
+            }
+
+            // ── 4.3 Testimonio: fade-out puro (0.75 → 0.85) ──
+            if (rsQuote && p4 >= 0.75) {
+                const quoteOutP = clamp01((p4 - 0.75) / 0.10);
+                gsap.set(rsQuote, { opacity: 1 - quoteOutP });
             }
         },
         onLeaveBack: () => {
