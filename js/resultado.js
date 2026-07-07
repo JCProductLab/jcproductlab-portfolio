@@ -729,4 +729,63 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsUsuariosText)    { gsap.set(rsUsuariosText,  { x: RS_ENTRY_OFFSET_X, y: 0, opacity: 0 }); }
         }
     });
+
+    // ============================================
+    // FASE 4 — Portal de máscara tipográfica y revelación
+    // Anclado a rsUsuariosST.end (Fase 3). Reusa
+    // .rs-usuarios__title (Fase 3) — no crea título propio.
+    // ============================================
+
+    const rsUsuariosST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--rs-usuarios')
+    );
+
+    const rsTestimonioSection = document.querySelector('.rs-testimonio');
+    const rsUsuariosWords = gsap.utils.toArray('.rs-usuarios__word');
+    const rsImpactoWord   = document.querySelector('.rs-usuarios__word[data-word="impacto"]');
+    const rsPAnchor       = document.querySelector('.rs-usuarios__p-anchor');
+    const rsRing          = document.querySelector('.rs-testimonio__ring');
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--rs-testimonio',
+        start: () => rsUsuariosST ? rsUsuariosST.end : 0,
+        end: () => '+=' + (window.innerHeight * 4),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const p4 = self.progress;
+
+            // ── 4.1 Fade selectivo de palabras (0.00 → 0.25), "impacto" queda en 1 ──
+            const wordFadeP = clamp01(p4 / 0.25);
+            rsUsuariosWords.forEach((word) => {
+                if (word.dataset.word !== 'impacto') {
+                    gsap.set(word, { opacity: 1 - wordFadeP });
+                }
+            });
+
+            // ── 4.1 Anillo: fade-in (0.00→0.25) + rotación/escala (0.00→0.65) ──
+            // Misma fórmula que .cs-decision-mc__ring de "La Decisión".
+            if (rsRing) {
+                const ringFadeP = clamp01(p4 / 0.25);
+                const ringOutP  = clamp01((p4 - 0.55) / 0.10);
+                const ringGrowP = clamp01(p4 / 0.65);
+                const ringGrowEased = gsap.parseEase('power1.inOut')(ringGrowP);
+                gsap.set(rsRing, {
+                    opacity: ringFadeP * (1 - ringOutP),
+                    scale: 1.0 + (2.75 - 1.0) * ringGrowEased,
+                    rotation: 360 * ringGrowP,
+                });
+            }
+        },
+        onLeaveBack: () => {
+            gsap.set(rsUsuariosWords, { opacity: 1 });
+            if (rsRing) { gsap.set(rsRing, { opacity: 0, scale: 1, rotation: 0 }); }
+        },
+        onLeave: () => {
+            // estado final se aplica en tasks posteriores (cierre + CTA visibles).
+        }
+    });
 }
