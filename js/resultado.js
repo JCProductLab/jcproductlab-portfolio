@@ -747,6 +747,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsPAnchor       = document.querySelector('.rs-usuarios__p-anchor');
     const rsRing          = document.querySelector('.rs-testimonio__ring');
     const rsQuote         = document.querySelector('.rs-testimonio__quote');
+    const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
+    const rsCta           = document.querySelector('.rs-testimonio__cta');
 
     let rsPortalCaptured   = false;
     let rsPortalTargetScale = 1;
@@ -842,15 +844,40 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const quoteOutP = clamp01((p4 - 0.75) / 0.10);
                 gsap.set(rsQuote, { opacity: 1 - quoteOutP });
             }
+
+            // ── 4.4 Revelación de líneas de cierre con máscara (0.80 → 0.95) ──
+            const CLOSING_START = 0.80;
+            const CLOSING_STEP  = 0.075; // stagger entre líneas
+            rsClosingLines.forEach((line, i) => {
+                const lineStart = CLOSING_START + i * CLOSING_STEP;
+                const localP = clamp01((p4 - lineStart) / (CLOSING_STEP * 2));
+                const eased = gsap.parseEase('power2.out')(localP);
+                gsap.set(line, { y: `${100 * (1 - eased)}%` });
+            });
+
+            // ── 4.4 CTA: entra coordinado con la última línea (0.90 → 1.00) ──
+            if (rsCta) {
+                const ctaP = clamp01((p4 - 0.90) / 0.10);
+                const ctaEased = gsap.parseEase('power2.out')(ctaP);
+                gsap.set(rsCta, { y: 40 * (1 - ctaEased), opacity: ctaEased });
+                rsCta.style.pointerEvents = ctaP >= 1 ? 'auto' : 'none';
+            }
         },
         onLeaveBack: () => {
             gsap.set(rsUsuariosWords, { opacity: 1 });
             if (rsRing) { gsap.set(rsRing, { opacity: 0, scale: 1, rotation: 0 }); }
             if (rsImpactoWord) { gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1 }); }
             rsPortalCaptured = false;
+            if (rsQuote) { gsap.set(rsQuote, { opacity: 0 }); }
+            gsap.set(rsClosingLines, { y: '100%' });
+            if (rsCta) {
+                gsap.set(rsCta, { y: 40, opacity: 0 });
+                rsCta.style.pointerEvents = 'none';
+            }
         },
         onLeave: () => {
-            // estado final se aplica en tasks posteriores (cierre + CTA visibles).
+            // estado final ya aplicado por el propio onUpdate en p4=1: título
+            // invisible, testimonio invisible, cierre + CTA visibles y legibles.
         }
     });
 }
