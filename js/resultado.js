@@ -864,34 +864,38 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
 
             // ── 4.2 Zoom exponencial de "impacto" anclado en la "p" (0.20 → 0.65) ──
-            // La palabra se MUEVE al centro desde el inicio (x/y = delta
-            // completo, no multiplicado por zoomEased) para que la "p"
-            // quede centrada desde el primer frame del zoom. Si la traslación
-            // fuera gradual (delta * zoomEased), la "p" se quedaría en su
-            // posición original (top-left) mientras la palabra crece HACIA
-            // el centro, y el crecimiento se vería descentrado. Con delta
-            // completo, la "p" está quieta en el centro y la palabra crece
-            // ALREDEDOR de ella — el efecto "portal" es mucho más claro.
+            // La palabra se MUEVE desde su posición original (top-left)
+            // hacia el centro MIENTRAS crece. El movimiento y el
+            // crecimiento son SIMULTÁNEOS pero con curvas distintas:
+            //   - Traslación: LINEAR (delta * zoomP) — movimiento
+            //     constante y visible desde el primer frame. La palabra
+            //     recorre el 50% del camino cuando zoomP=0.5.
+            //   - Escala: power1.in (1 + (target-1) * eased(zoomP)) —
+            //     crecimiento suave al inicio, dramático al final.
+            // Antes ambos compartían power1.in y el crecimiento
+            // dominaba la animación (la palabra crecía TAN rápido que
+            // el movimiento era imperceptible). Con la traslación lineal
+            // y la escala power1.in, el usuario VE la palabra moverse
+            // desde el inicio Y crecer al mismo tiempo.
+            // Al final (zoomP=1) la "p" queda exactamente en (vw/2, vh/2).
             if (rsImpactoWord && p4 >= 0.20) {
                 if (!rsPortalCaptured) {
                     computeRsPortalConstants();
                     rsPortalCaptured = true;
                 }
                 const zoomP = clamp01((p4 - 0.20) / 0.45);
-                const zoomEased = gsap.parseEase('power2.in')(zoomP);
+                const zoomEased = gsap.parseEase('power1.in')(zoomP);
                 // Fade-out sincronizado con el anillo (0.55 → 0.65).
                 const impactoFadeP = clamp01((p4 - 0.55) / 0.10);
                 gsap.set(rsImpactoWord, {
-                    // x/y = delta COMPLETO (no * zoomEased) — la "p" llega
-                    // al centro en el frame 0 del zoom y se queda ahí.
-                    x: rsPortalDeltaX,
-                    y: rsPortalDeltaY,
+                    // x/y = delta * zoomP (LINEAL) — la "p" se mueve
+                    // constantemente hacia el centro desde el frame 0.
+                    x: rsPortalDeltaX * zoomP,
+                    y: rsPortalDeltaY * zoomP,
+                    // scale = power1.in — crecimiento más dramático
+                    // al final, suave al inicio.
                     scale: 1 + (rsPortalTargetScale - 1) * zoomEased,
                     opacity: 1 - impactoFadeP,
-                    // force3D:true → translate3d en vez de translate, lo
-                    // que fuerza una capa GPU y elimina el pixelaje del
-                    // texto al escalar (combinado con will-change:transform
-                    // y text-rendering:optimizeLegibility en el CSS).
                     force3D: true,
                 });
             } else if (rsImpactoWord && rsPortalCaptured) {
