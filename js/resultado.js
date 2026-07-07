@@ -747,6 +747,38 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsPAnchor       = document.querySelector('.rs-usuarios__p-anchor');
     const rsRing          = document.querySelector('.rs-testimonio__ring');
 
+    let rsPortalCaptured   = false;
+    let rsPortalTargetScale = 1;
+    let rsPortalDeltaX     = 0;
+    let rsPortalDeltaY     = 0;
+
+    function computeRsPortalConstants() {
+        if (!rsPAnchor || !rsImpactoWord) return;
+        const vh = window.innerHeight;
+        const vw = window.innerWidth;
+        const anchorRect = rsPAnchor.getBoundingClientRect();
+        const wordRect   = rsImpactoWord.getBoundingClientRect();
+
+        // Transform-origin en el punto exacto de la "p" dentro de la palabra,
+        // para que el scale() crezca alrededor de ese punto sin desplazarlo.
+        const originXPercent = ((anchorRect.left + anchorRect.width / 2) - wordRect.left) / wordRect.width * 100;
+        const originYPercent = ((anchorRect.top + anchorRect.height / 2) - wordRect.top) / wordRect.height * 100;
+        gsap.set(rsImpactoWord, { transformOrigin: `${originXPercent}% ${originYPercent}%` });
+
+        // Escala para que "impacto" desborde el viewport ampliamente (portal).
+        const scaleByWidth  = (vw * 1.6) / wordRect.width;
+        const scaleByHeight = (vh * 1.6) / wordRect.height;
+        rsPortalTargetScale = Math.max(scaleByWidth, scaleByHeight);
+
+        // Delta para que el punto de la "p" (el transform-origin recién fijado)
+        // quede centrado en el viewport — el scale() no mueve el origin, así
+        // que basta una traslación fija, no recalculada por frame.
+        const anchorCenterX = anchorRect.left + anchorRect.width / 2;
+        const anchorCenterY = anchorRect.top + anchorRect.height / 2;
+        rsPortalDeltaX = vw / 2 - anchorCenterX;
+        rsPortalDeltaY = vh / 2 - anchorCenterY;
+    }
+
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--rs-testimonio',
         start: () => rsUsuariosST ? rsUsuariosST.end : 0,
@@ -779,10 +811,30 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     rotation: 360 * ringGrowP,
                 });
             }
+
+            // ── 4.2 Zoom exponencial de "impacto" anclado en la "p" (0.20 → 0.65) ──
+            if (rsImpactoWord && p4 >= 0.20) {
+                if (!rsPortalCaptured) {
+                    computeRsPortalConstants();
+                    rsPortalCaptured = true;
+                }
+                const zoomP = clamp01((p4 - 0.20) / 0.45);
+                const zoomEased = gsap.parseEase('power2.in')(zoomP);
+                gsap.set(rsImpactoWord, {
+                    x: rsPortalDeltaX * zoomEased,
+                    y: rsPortalDeltaY * zoomEased,
+                    scale: 1 + (rsPortalTargetScale - 1) * zoomEased,
+                });
+            } else if (rsImpactoWord && rsPortalCaptured) {
+                gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1 });
+                rsPortalCaptured = false;
+            }
         },
         onLeaveBack: () => {
             gsap.set(rsUsuariosWords, { opacity: 1 });
             if (rsRing) { gsap.set(rsRing, { opacity: 0, scale: 1, rotation: 0 }); }
+            if (rsImpactoWord) { gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1 }); }
+            rsPortalCaptured = false;
         },
         onLeave: () => {
             // estado final se aplica en tasks posteriores (cierre + CTA visibles).
