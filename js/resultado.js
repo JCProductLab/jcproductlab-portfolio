@@ -864,6 +864,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
 
             // ── 4.2 Zoom exponencial de "impacto" anclado en la "p" (0.20 → 0.65) ──
+            // La palabra se MUEVE al centro desde el inicio (x/y = delta
+            // completo, no multiplicado por zoomEased) para que la "p"
+            // quede centrada desde el primer frame del zoom. Si la traslación
+            // fuera gradual (delta * zoomEased), la "p" se quedaría en su
+            // posición original (top-left) mientras la palabra crece HACIA
+            // el centro, y el crecimiento se vería descentrado. Con delta
+            // completo, la "p" está quieta en el centro y la palabra crece
+            // ALREDEDOR de ella — el efecto "portal" es mucho más claro.
             if (rsImpactoWord && p4 >= 0.20) {
                 if (!rsPortalCaptured) {
                     computeRsPortalConstants();
@@ -871,20 +879,23 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
                 const zoomP = clamp01((p4 - 0.20) / 0.45);
                 const zoomEased = gsap.parseEase('power2.in')(zoomP);
-                // Fade-out sincronizado con el anillo (0.55 → 0.65): la
-                // palabra y el anillo desaparecen JUNTOS al final del zoom
-                // para dar paso al testimonio. Sin esto, "impacto" gigante
-                // se queda cubriendo la pantalla mientras el testimonio
-                // intenta aparecer detrás.
+                // Fade-out sincronizado con el anillo (0.55 → 0.65).
                 const impactoFadeP = clamp01((p4 - 0.55) / 0.10);
                 gsap.set(rsImpactoWord, {
-                    x: rsPortalDeltaX * zoomEased,
-                    y: rsPortalDeltaY * zoomEased,
+                    // x/y = delta COMPLETO (no * zoomEased) — la "p" llega
+                    // al centro en el frame 0 del zoom y se queda ahí.
+                    x: rsPortalDeltaX,
+                    y: rsPortalDeltaY,
                     scale: 1 + (rsPortalTargetScale - 1) * zoomEased,
                     opacity: 1 - impactoFadeP,
+                    // force3D:true → translate3d en vez de translate, lo
+                    // que fuerza una capa GPU y elimina el pixelaje del
+                    // texto al escalar (combinado con will-change:transform
+                    // y text-rendering:optimizeLegibility en el CSS).
+                    force3D: true,
                 });
             } else if (rsImpactoWord && rsPortalCaptured) {
-                gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1, opacity: 1 });
+                gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1, opacity: 1, force3D: true });
                 rsPortalCaptured = false;
             }
 

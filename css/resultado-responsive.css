@@ -315,7 +315,16 @@
 
     .cs-pin-spacer--rs-testimonio { height: 400vh; }
 
-    .rs-usuarios__word { display: inline-block; will-change: opacity; }
+    .rs-usuarios__word {
+        display: inline-block;
+        will-change: opacity, transform;
+        /* optimizeLegibility: el navegador usa el renderer de texto de
+           alta calidad en vez del rápido. Combinado con will-change:
+           transform y force3D en el JS, evita que la palabra se vea
+           pixelada cuando crece 10-20x. */
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
 
     .rs-testimonio {
         position: fixed;
