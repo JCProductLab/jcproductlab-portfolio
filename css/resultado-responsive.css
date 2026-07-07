@@ -418,6 +418,13 @@
            legibilidad sobre el fondo oscuro. */
         color: var(--color-secondary);
         max-width: 100%;
+        /* Anti-pixelación: mismo set que .rs-usuarios__word. El
+           testimonio se renderiza a gran tamaño (clamp 1.5-2.8rem) y
+           con clip-path, lo que puede causar pixelaje sin estas
+           propiedades. */
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+        will-change: opacity, clip-path;
     }
 
     .rs-testimonio__closing {

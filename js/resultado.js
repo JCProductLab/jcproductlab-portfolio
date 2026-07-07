@@ -848,19 +848,22 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             // ── 4.1 Anillo: copia EXACTA de la fórmula de .cs-decision-mc__ring ──
             // caso-asdeporte.js:1475-1490. Mismo scale 1→2.75 con power1.inOut,
-            // misma rotación 0→360° lineal, mismo fade atado al scale (1 hasta
-            // scale 2.3, luego 1→0 hasta 2.75), mismo centrado x:-377 y:-240
-            // (porque la elipse base es 754×480, no 300×300 como antes).
+            // misma rotación 0→360° lineal, mismo centrado x:-377 y:-240
+            // (porque la elipse base es 754×480).
+            // DIFERENCIA vs el original: la opacity NO se ata al scale
+            // (no se desvanece al final). El diseño (resultado-d-09 a
+            // d-12) muestra el anillo VISIBLE durante toda la fase del
+            // testimonio — es el marco visual donde aparece el texto.
+            // Solo hay fade-in al inicio (0.00→0.25), después se queda
+            // a opacity 1 para que el efecto portal se mantenga.
             if (rsRing) {
                 const ringFadeP = clamp01(p4 / 0.25);
-                const ringP = clamp01(p4 / 0.65);
+                const ringP = clamp01(p4 / 0.95);
                 const ringEased = gsap.parseEase('power1.inOut')(ringP);
                 const ringScale = 1.0 + (2.75 - 1.0) * ringEased;
                 const ringRotation = 360 * ringP;
-                // Fade atado al scale: 1 hasta scale 2.3, luego 1→0 de 2.3 a 2.75
-                const ringOpacityByScale = clamp01(1 - Math.max(0, ringScale - 2.3) / (2.75 - 2.3));
                 gsap.set(rsRing, {
-                    opacity: ringFadeP * ringOpacityByScale,
+                    opacity: ringFadeP, // Solo fade-in, sin fade-out
                     x: -377,
                     y: -240,
                     scale: ringScale,
@@ -933,9 +936,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             // ── 4.3 Testimonio: fade-out puro (0.75 → 0.85) ──
             // El clip-path se mantiene: la elipse del anillo aún existe
-            // (su opacity baja a 0 por ringOpacityByScale), pero el texto
-            // se desvanece sin desplazamiento. Limpia el clip-path al
-            // final para no dejarlo pegado si el usuario navega atrás.
+            // (su opacity es 1 durante toda la fase del testimonio), y
+            // el texto se desvanece sin desplazamiento. Limpia el
+            // clip-path al final para no dejarlo pegado si el usuario
+            // navega atrás.
             if (rsQuote && p4 >= 0.75) {
                 const quoteOutP = clamp01((p4 - 0.75) / 0.10);
                 gsap.set(rsQuote, { opacity: 1 - quoteOutP });
