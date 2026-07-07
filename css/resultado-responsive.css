@@ -382,8 +382,14 @@
         padding: 0 15%;
         opacity: 0;
         will-change: opacity, clip-path;
-        /* z-index:8 — ver comentario en .rs-testimonio__ring. */
-        z-index: 8;
+        /* z-index:10 — el testimonio debe estar POR ENCIMA de la palabra
+           "impacto" (z:9, en el stacking context del título) para que
+           se vea "a través" del portal del anillo. Sin esto, la palabra
+           (que ya no se desvanece) cubriría al testimonio dentro del
+           clip-path. El anillo (z:8) queda por debajo del testimonio
+           pero por encima de la palabra — orden: palabra(z:9) < anillo
+           (z:8 efec.) < testimonio(z:10 efec.). */
+        z-index: 10;
     }
 
     .rs-testimonio__quote-icon { color: var(--color-accent); font-size: 3rem; margin-bottom: 24px; }

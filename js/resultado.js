@@ -788,14 +788,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         const originYPercent = ((anchorRect.top + anchorRect.height / 2) - wordRect.top) / wordRect.height * 100;
         gsap.set(rsImpactoWord, { transformOrigin: `${originXPercent}% ${originYPercent}%` });
 
-        // Escala para que "impacto" desborde el viewport ampliamente (portal).
-        // Factor 3.0 (no 1.6): la palabra debe crecer hasta que cada letra
-        // individual sea más grande que la pantalla — ver resultado-d-05 a
-        // resultado-d-08, donde "impacto" se ve como letras gigantes que
-        // desbordan masivamente mientras la "p" (transform-origin) queda
-        // centrada en el viewport.
-        const scaleByWidth  = (vw * 3.0) / wordRect.width;
-        const scaleByHeight = (vh * 3.0) / wordRect.height;
+        // Escala para que "impacto" desborde el viewport (portal).
+        // Factor 1.5 (no 3.0): la palabra crece ~23x — sigue siendo
+        // gigante y desbordando el viewport, pero NO TANTO como antes
+        // (46x). Con el factor anterior la palabra crecía tan rápido
+        // que el ojo solo percibía el crecimiento, no el movimiento
+        // de traslación. Con 1.5x la palabra es visible durante el
+        // movimiento y el usuario VE la "p" viajar desde top-left
+        // hasta el centro mientras la palabra crece.
+        const scaleByWidth  = (vw * 1.5) / wordRect.width;
+        const scaleByHeight = (vh * 1.5) / wordRect.height;
         rsPortalTargetScale = Math.max(scaleByWidth, scaleByHeight);
 
         // Delta para que el punto de la "p" (el transform-origin recién fijado)
@@ -865,19 +867,26 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
             // ── 4.2 Zoom exponencial de "impacto" anclado en la "p" (0.20 → 0.65) ──
             // La palabra se MUEVE desde su posición original (top-left)
-            // hacia el centro MIENTRAS crece. El movimiento y el
-            // crecimiento son SIMULTÁNEOS pero con curvas distintas:
-            //   - Traslación: LINEAR (delta * zoomP) — movimiento
-            //     constante y visible desde el primer frame. La palabra
-            //     recorre el 50% del camino cuando zoomP=0.5.
-            //   - Escala: power1.in (1 + (target-1) * eased(zoomP)) —
-            //     crecimiento suave al inicio, dramático al final.
-            // Antes ambos compartían power1.in y el crecimiento
-            // dominaba la animación (la palabra crecía TAN rápido que
-            // el movimiento era imperceptible). Con la traslación lineal
-            // y la escala power1.in, el usuario VE la palabra moverse
-            // desde el inicio Y crecer al mismo tiempo.
-            // Al final (zoomP=1) la "p" queda exactamente en (vw/2, vh/2).
+            // hacia el centro MIENTRAS crece. NO tiene fade out — la
+            // palabra desaparece por crecer y salirse de la pantalla
+            // (sus bordes sobrepasan el viewport y dejan de verse).
+            //   - Traslación: pow(zoomP, 0.4) — movimiento MUY rápido
+            //     al inicio, luego se desacelera. Hace que el
+            //     movimiento sea dramático y visible.
+            //   - Escala: power1.in — crecimiento suave al inicio,
+            //     más dramático al final.
+            //   - Offset -40px en Y al final: el "palo" (stem) de la "p"
+            //     está DEBAJO del círculo visualmente. Sin este offset,
+            //     el centro del bounding box de la "p" queda alineado
+            //     con el viewport, pero el CÍRCULO (bowl) queda
+            //     ligeramente por debajo del centro. Restando 40px
+            //     al Y final, el círculo de la "p" queda exactamente
+            //     centrado verticalmente, sin importar dónde está
+            //     el palo. El offset se aplica gradualmente (× moveP)
+            //     para que no haya salto al inicio.
+            // El testimonio (z:10, ver CSS) queda por encima de la
+            // palabra (z:9) y aparece a través del "portal" del
+            // clip-path sincronizado con el anillo.
             if (rsImpactoWord && p4 >= 0.20) {
                 if (!rsPortalCaptured) {
                     computeRsPortalConstants();
@@ -885,17 +894,23 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
                 const zoomP = clamp01((p4 - 0.20) / 0.45);
                 const zoomEased = gsap.parseEase('power1.in')(zoomP);
-                // Fade-out sincronizado con el anillo (0.55 → 0.65).
-                const impactoFadeP = clamp01((p4 - 0.55) / 0.10);
+                const moveP = Math.pow(zoomP, 0.4);
                 gsap.set(rsImpactoWord, {
-                    // x/y = delta * zoomP (LINEAL) — la "p" se mueve
-                    // constantemente hacia el centro desde el frame 0.
-                    x: rsPortalDeltaX * zoomP,
-                    y: rsPortalDeltaY * zoomP,
-                    // scale = power1.in — crecimiento más dramático
-                    // al final, suave al inicio.
+                    // x = delta * pow(zoomP, 0.4) — la "p" se
+                    // desplaza rápido al inicio y frena al final.
+                    x: rsPortalDeltaX * moveP,
+                    // y = delta * moveP - 40 * moveP — al final del
+                    // zoom, la "p" está 40px más arriba de lo que
+                    // quedaría con el cálculo geométrico puro. Esto
+                    // compensa el palo de la "p" para que el CÍRCULO
+                    // (no el bounding box) quede centrado verticalmente.
+                    y: rsPortalDeltaY * moveP - 40 * moveP,
+                    // scale = power1.in — crecimiento independiente.
                     scale: 1 + (rsPortalTargetScale - 1) * zoomEased,
-                    opacity: 1 - impactoFadeP,
+                    // SIN opacity — la palabra NO se desvanece, se
+                    // sale de la pantalla por crecimiento. El
+                    // testimonio aparece encima (z:10) y la cubre
+                    // dentro del clip-path del anillo (efecto portal).
                     force3D: true,
                 });
             } else if (rsImpactoWord && rsPortalCaptured) {
