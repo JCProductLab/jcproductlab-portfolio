@@ -831,20 +831,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsTestimonioSection, { y: (1 - revealP) * vh });
             }
 
-            // ── 4.1 Aislamiento de "impacto" con efecto de MÁSCARA (0.00 → 0.25) ──
-            // Las otras palabras no se desvanecen con un simple opacity
-            // (queda "pobre" visualmente) sino con un clip-path wipe desde
-            // arriba hacia abajo + opacity. La máscara simula un cierre
-            // de cortina: la palabra se "esconde" detrás de un borde que
-            // baja desde el top, revelando el vacío debajo. "impacto"
-            // queda intacta — será el ancla del zoom posterior.
+            // ── 4.1 Aislamiento de "impacto" (0.00 → 0.25) ──
+            // Las otras palabras bajan a opacity 0 (fade out simple).
+            // "impacto" queda intacta — será el ancla del zoom posterior.
             const wordFadeP = clamp01(p4 / 0.25);
             rsUsuariosWords.forEach((word) => {
                 if (word.dataset.word !== 'impacto') {
-                    gsap.set(word, {
-                        opacity: 1 - wordFadeP,
-                        clipPath: `inset(0 0 ${wordFadeP * 100}% 0)`,
-                    });
+                    gsap.set(word, { opacity: 1 - wordFadeP });
                 }
             });
 
@@ -949,7 +942,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         },
         onLeaveBack: () => {
-            gsap.set(rsUsuariosWords, { opacity: 1, clipPath: 'inset(0 0 0% 0)' });
+            gsap.set(rsUsuariosWords, { opacity: 1 });
             if (rsRing) {
                 gsap.set(rsRing, { opacity: 0, x: 0, y: 0, scale: 1, rotation: 0 });
             }
