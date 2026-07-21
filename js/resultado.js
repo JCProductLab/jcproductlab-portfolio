@@ -1281,11 +1281,25 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(line, { y: `${70 * (1 - eased)}px` });
             });
 
-            // ── 4.5 Escala dinámica del closing ──
+            // ─ 4.5 Escala dinámica del closing 
             // Cuando el closing es visible (p4 >= 0.80), calcular y aplicar
             // scale para que el contenido quepa completo sin cortarse.
             if (p4 >= 0.80) {
                 updateClosingScale();
+            }
+
+            // ── 4.6 Revelación del botón QUÉ APRENDÍ (0.90 → 1.00) ──
+            // El botón tiene visibility:visible + opacity:0 en CSS para
+            // recibir eventos de magnetismo desde el inicio. Aquí animamos
+            // su opacidad para que aparezca visualmente cuando las líneas
+            // terminen su animación.
+            if (p4 >= 0.90) {
+                const closingBtn = rsClosingSection?.querySelector('.btn--secondary');
+                if (closingBtn) {
+                    const btnP = clamp01((p4 - 0.90) / 0.10);
+                    const btnEased = gsap.parseEase('power2.out')(btnP);
+                    gsap.set(closingBtn, { opacity: btnEased });
+                }
             }
         },
         onLeaveBack: () => {
@@ -1303,6 +1317,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
             gsap.set(rsClosingLines, { y: '70px' });
             gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
+            // Reset del botón QUÉ APRENDÍ
+            const closingBtn = rsClosingSection?.querySelector('.btn--secondary');
+            if (closingBtn) {
+                gsap.set(closingBtn, { opacity: 0 });
+            }
             // Reset del scale del closing
             if (rsClosingSection) {
                 rsClosingSection.style.transform = 'scale(1)';
