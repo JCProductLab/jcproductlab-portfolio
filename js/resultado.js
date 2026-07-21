@@ -1259,12 +1259,17 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsQuote, { opacity: 1 - quoteOutP });
             }
 
-            // ── 4.4 Revelación de líneas de cierre con cortinilla (0.80 → 0.95) ──
+            // ── 4.4 Revelación de líneas de cierre con cortinilla (0.70 → 1.00) ──
             // Animación de cortinilla: clip-path del wrap se abre de abajo hacia
             // arriba (inset(100% 0 0 0) → inset(0 0 0 0)), sincronizado con el
             // translateY del line (70px → 0px). Usamos clip-path en lugar de
             // overflow:hidden para evitar el corte por sub-pixel rounding.
-            const CLOSING_START = 0.80;
+            // CLOSING_START=0.70 y CLOSING_STEP=0.075 para que las 3 líneas
+            // completen su animación antes de p4=1.0:
+            //   Línea 0: 0.70 → 0.85 ✓
+            //   Línea 1: 0.775 → 0.925 ✓
+            //   Línea 2: 0.85 → 1.00 ✓
+            const CLOSING_START = 0.70;
             const CLOSING_STEP  = 0.075; // stagger entre líneas
             rsClosingLines.forEach((line, i) => {
                 const lineStart = CLOSING_START + i * CLOSING_STEP;
