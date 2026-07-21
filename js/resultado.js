@@ -1287,20 +1287,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (p4 >= 0.80) {
                 updateClosingScale();
             }
-
-            // ── 4.6 Revelación del botón QUÉ APRENDÍ (0.90 → 1.00) ──
-            // El botón tiene visibility:visible + opacity:0 en CSS para
-            // recibir eventos de magnetismo desde el inicio. Aquí animamos
-            // su opacidad para que aparezca visualmente cuando las líneas
-            // terminen su animación.
-            if (p4 >= 0.90) {
-                const closingBtn = rsClosingSection?.querySelector('.btn--secondary');
-                if (closingBtn) {
-                    const btnP = clamp01((p4 - 0.90) / 0.10);
-                    const btnEased = gsap.parseEase('power2.out')(btnP);
-                    gsap.set(closingBtn, { opacity: btnEased });
-                }
-            }
         },
         onLeaveBack: () => {
             gsap.set(rsUsuariosWords, { opacity: 1 });
@@ -1317,11 +1303,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
             gsap.set(rsClosingLines, { y: '70px' });
             gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
-            // Reset del botón QUÉ APRENDÍ
-            const closingBtn = rsClosingSection?.querySelector('.btn--secondary');
-            if (closingBtn) {
-                gsap.set(closingBtn, { opacity: 0 });
-            }
             // Reset del scale del closing
             if (rsClosingSection) {
                 rsClosingSection.style.transform = 'scale(1)';

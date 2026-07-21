@@ -448,7 +448,10 @@
 
     .rs-testimonio__closing {
         position: absolute;
-        inset: 0;
+        top: var(--cs-header-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -460,12 +463,11 @@
         /* Sin overflow:hidden para que el contenido pueda escalar
            si excede el viewport (manejado por JS). */
         overflow: visible;
-        /* visibility:visible sobrescribe el visibility:hidden heredado
-           de .rs-testimonio. Esto permite que el botón "QUÉ APRENDÍ"
-           reciba eventos de mouse para el efecto de magnetismo. El
-           contenido se mantiene invisible con opacity:0 hasta que la
-           animación termine. */
-        visibility: visible;
+        /* pointer-events:auto permite que el closing y sus hijos
+           (incluido el botón) reciban eventos de mouse, sobrescribiendo
+           el pointer-events:none de .rs-testimonio. Esto es necesario
+           para que el efecto de magnetismo funcione. */
+        pointer-events: auto;
     }
 
     .rs-testimonio__closing-title {
@@ -500,14 +502,5 @@
            la misma altura. Con line-height:1.2 y font-size:clamp(2rem,4vw,4rem),
            cada línea tiene altura consistente. */
         line-height: 1.2;
-    }
-
-    /* Botón dentro del closing: debe ser visible para los eventos de mouse
-       aunque el padre .rs-testimonio tenga visibility:hidden. Usamos
-       visibility:visible + opacity:0 para que reciba eventos de magnetismo
-       pero sea invisible visualmente hasta que la animación termine. */
-    .rs-testimonio__closing .btn--secondary {
-        visibility: visible;
-        opacity: 0;
     }
 }
