@@ -767,7 +767,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsQuote         = document.querySelector('.rs-testimonio__quote');
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
     const rsClosingWraps  = gsap.utils.toArray('.rs-testimonio__line-wrap');
-    const rsCta           = document.querySelector('.rs-testimonio__cta');
     const rsClosingSection = document.querySelector('.rs-testimonio__closing');
     
     // Escala dinámica del closing: si el contenido (3 líneas + gap + CTA)
@@ -1264,12 +1263,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // arriba (inset(100% 0 0 0) → inset(0 0 0 0)), sincronizado con el
             // translateY del line (70px → 0px). Usamos clip-path en lugar de
             // overflow:hidden para evitar el corte por sub-pixel rounding.
-            // CLOSING_START=0.70 y CLOSING_STEP=0.075 para que las 3 líneas
-            // completen su animación antes de p4=1.0:
-            //   Línea 0: 0.70 → 0.85 ✓
-            //   Línea 1: 0.775 → 0.925 ✓
-            //   Línea 2: 0.85 → 1.00 ✓
-            const CLOSING_START = 0.70;
+            // CLOSING_START=0.78 y CLOSING_STEP=0.075 para que las 3 líneas
+            // completen su animación antes de p4=1.0 y no se encimen con el
+            // párrafo del testimonio (retraso ~1s vs 0.70):
+            //   Línea 0: 0.78 → 0.93 ✓
+            //   Línea 1: 0.855 → 1.005 ≈ 1.0 ✓
+            //   Línea 2: 0.93 → 1.08 ≈ 1.0 ✓
+            const CLOSING_START = 0.78;
             const CLOSING_STEP  = 0.075; // stagger entre líneas
             rsClosingLines.forEach((line, i) => {
                 const lineStart = CLOSING_START + i * CLOSING_STEP;
@@ -1280,14 +1280,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(wrap, { clipPath: `inset(${100 * (1 - eased)}% 0 0 0)` });
                 gsap.set(line, { y: `${70 * (1 - eased)}px` });
             });
-
-            // ── 4.4 CTA: entra coordinado con la última línea (0.90 → 1.00) ──
-            if (rsCta) {
-                const ctaP = clamp01((p4 - 0.90) / 0.10);
-                const ctaEased = gsap.parseEase('power2.out')(ctaP);
-                gsap.set(rsCta, { y: 40 * (1 - ctaEased), opacity: ctaEased });
-                rsCta.style.pointerEvents = ctaP >= 1 ? 'auto' : 'none';
-            }
 
             // ── 4.5 Escala dinámica del closing ──
             // Cuando el closing es visible (p4 >= 0.80), calcular y aplicar
@@ -1311,10 +1303,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
             gsap.set(rsClosingLines, { y: '70px' });
             gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
-            if (rsCta) {
-                gsap.set(rsCta, { y: 40, opacity: 0 });
-                rsCta.style.pointerEvents = 'none';
-            }
             // Reset del scale del closing
             if (rsClosingSection) {
                 rsClosingSection.style.transform = 'scale(1)';

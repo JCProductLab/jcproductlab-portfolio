@@ -495,30 +495,4 @@
            cada línea tiene altura consistente. */
         line-height: 1.2;
     }
-
-    .rs-testimonio__cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px 28px;
-        border-radius: 9999px;
-        background: rgba(240, 240, 240, 0.08);
-        color: var(--color-accent);
-        font-weight: var(--semibold);
-        opacity: 0;
-        transform: translateY(40px);
-        will-change: transform, opacity;
-        pointer-events: none;
-    }
-
-    .rs-testimonio__cta-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: var(--color-accent);
-        color: var(--color-primary);
-    }
 }

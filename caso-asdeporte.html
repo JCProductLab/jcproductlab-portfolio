@@ -983,7 +983,15 @@
         <!-- ============================================ -->
         <section class="rs-usuarios" aria-label="El impacto en los usuarios">
             <h3 class="rs-usuarios__title cs-section-title">
-                <span class="rs-usuarios__word">El</span> <span class="rs-usuarios__word" data-word="impacto">im<span class="rs-usuarios__p-anchor">p</span>acto</span> <span class="rs-usuarios__word">en</span><br>
+                <span class="rs-usuarios__word">El</span>
+                <span class="rs-usuarios__word rs-usuarios__word--svg" data-word="impacto">
+                    <svg class="rs-usuarios__impacto-svg" aria-label="impacto">
+                        <g class="rs-usuarios__impacto-g">
+                            <text class="rs-usuarios__impacto-text" x="0" y="1">impacto</text>
+                        </g>
+                    </svg>
+                </span>
+                <span class="rs-usuarios__word">en</span><br>
                 <span class="rs-usuarios__word">los usuarios</span>
             </h3>
             <div class="rs-usuarios__media">
@@ -1012,9 +1020,11 @@
                     <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">Recuperamos la autoridad</span></span>
                     <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">de una marca.</span></span>
                 </h3>
-                <button type="button" class="rs-testimonio__cta" id="rsQueAprendiBtn">
+                <button class="btn btn--secondary" id="rsQueAprendiBtn">
                     QUÉ APRENDÍ
-                    <span class="rs-testimonio__cta-icon" aria-hidden="true"><i class="ph ph-arrow-up-right"></i></span>
+                    <span class="btn__icon" aria-hidden="true">
+                        <i class="ph ph-arrow-up-right"></i>
+                    </span>
                 </button>
             </div>
         </section>
