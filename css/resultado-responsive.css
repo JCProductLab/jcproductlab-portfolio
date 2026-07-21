@@ -469,9 +469,12 @@
         align-items: center;
         justify-content: center;
         gap: 48px;
-        /* z-index:8 — dentro del stacking context de .rs-testimonio
-           (z:8), el closing queda sobre .rs-usuarios (z:7). */
-        z-index: 8;
+        /* z-index:11 — sobre el ring (z:10) y el quote (z:10).
+           El SVG "impacto" (z:9 global en <main>) queda por encima
+           del closing (z:11 dentro de .rs-testimonio z:8, z efectivo 8),
+           pero su pointer-events se desactiva en JS cuando p4 >= 0.80
+           para que el botón "QUÉ APRENDÍ" reciba eventos de mouse. */
+        z-index: 11;
         overflow: visible;
     }
 
