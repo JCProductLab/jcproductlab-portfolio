@@ -754,17 +754,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsImpactoGroup = rsImpactoSvg ? rsImpactoSvg.querySelector('g') : null;
     const rsImpactoText  = rsImpactoSvg ? rsImpactoSvg.querySelector('text') : null;
     const rsRing          = document.querySelector('.rs-testimonio__ring');
-    // Sacar el ring del stacking context de .rs-testimonio (z:8) para
-    // que su z-index:10 propio lo coloque ENCIMA del título "impacto"
-    // (z efectivo 7 dentro de .rs-usuarios z:7) sin necesidad de subir
-    // toda la sección .rs-testimonio a z:10 (lo que cubriría las
-    // secciones anteriores). El ring se mueve a <main>, fuera de
-    // .rs-testimonio, conservando su posición CSS (position:absolute
-    // con top:50%/left:50% + margin negativo → centrado en el viewport).
-    if (rsRing && rsRing.parentElement && rsRing.parentElement.classList.contains('rs-testimonio')) {
-        const main = document.querySelector('main');
-        if (main) main.appendChild(rsRing);
-    }
+    // El ring se queda dentro de .rs-testimonio (z:8). Con z:10 propio,
+    // queda sobre el título "impacto" (z:9) y sobre .rs-usuarios (z:7).
+    // No es necesario moverlo a <main> porque el padre ya tiene z:8.
     const rsQuote         = document.querySelector('.rs-testimonio__quote');
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
     const rsCta           = document.querySelector('.rs-testimonio__cta');

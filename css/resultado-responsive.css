@@ -361,16 +361,13 @@
     .rs-testimonio {
         position: fixed;
         inset: 0;
-        /* z-index:5 — DEBAJO de .rs-usuarios (z:7) y de las secciones
-           anteriores. Aunque .rs-testimonio es position:fixed y cubre
+        /* z-index:8 — SOBRE .rs-usuarios (z:7) para que el testimonio,
+           el ring y el cierre sean visibles. Aunque .rs-testimonio cubre
            todo el viewport, NO tiene background (es transparente), así
-           que las secciones anteriores se ven a través. El z-index:5
-           asegura que si algún día se le pone background, quede detrás
-           de las secciones anteriores y no las oculte. El ring se mueve
-           fuera de este stacking context en resultado.js (a <main>) con
-           z-index:20 propio, para quedar arriba de la palabra
-           "impacto" (z efectivo 7 dentro de .rs-usuarios z:7). */
-        z-index: 5;
+           que las secciones anteriores se ven a través. El z-index:8
+           asegura que los hijos (quote z:10, closing z:8) tengan z
+           efectivo 8, sobre .rs-usuarios (z:7). */
+        z-index: 8;
         width: 100%;
         height: 100vh;
         overflow: hidden;
@@ -399,13 +396,10 @@
         border-radius: 232px;
         opacity: 0;
         will-change: transform, opacity;
-        /* z-index:10 — el ring se mueve fuera de .rs-testimonio en
-           resultado.js (appendChild a <main>) para escapar de su
-           stacking context (z:8). Así, con z:10 propio en el contexto
-           principal, queda ENCIMA del título "impacto" (z efectivo 7
-           dentro de .rs-usuarios z:7) sin necesidad de subir toda la
-           sección .rs-testimonio a z:10 (lo que cubriría las secciones
-           anteriores con su fondo implícito). */
+        /* z-index:10 — dentro del stacking context de .rs-testimonio
+           (z:8), el ring queda sobre .rs-usuarios__title (z:9) y sobre
+           .rs-usuarios (z:7). El ring se queda dentro de .rs-testimonio
+           (no se mueve a <main>). */
         z-index: 10;
     }
 
@@ -419,13 +413,11 @@
         padding: 0 15%;
         opacity: 0;
         will-change: opacity, clip-path;
-        /* z-index:10 — el testimonio debe estar POR ENCIMA de la palabra
-           "impacto" (z:9, en el stacking context del título) para que
-           se vea "a través" del portal del anillo. Sin esto, la palabra
-           (que ya no se desvanece) cubriría al testimonio dentro del
-           clip-path. El anillo (z:8) queda por debajo del testimonio
-           pero por encima de la palabra — orden: palabra(z:9) < anillo
-           (z:8 efec.) < testimonio(z:10 efec.). */
+        /* z-index:10 — dentro del stacking context de .rs-testimonio
+           (z:8), el testimonio queda sobre .rs-usuarios__title (z:9) y
+           sobre .rs-usuarios (z:7). El testimonio debe estar POR
+           ENCIMA de la palabra "impacto" para que se vea "a través"
+           del portal del anillo. */
         z-index: 10;
     }
 
@@ -461,7 +453,8 @@
         align-items: center;
         justify-content: center;
         gap: 48px;
-        /* z-index:8 — ver comentario en .rs-testimonio__ring. */
+        /* z-index:8 — dentro del stacking context de .rs-testimonio
+           (z:8), el closing queda sobre .rs-usuarios (z:7). */
         z-index: 8;
     }
 
