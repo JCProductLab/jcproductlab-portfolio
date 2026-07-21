@@ -754,12 +754,56 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsImpactoGroup = rsImpactoSvg ? rsImpactoSvg.querySelector('g') : null;
     const rsImpactoText  = rsImpactoSvg ? rsImpactoSvg.querySelector('text') : null;
     const rsRing          = document.querySelector('.rs-testimonio__ring');
-    // El ring se queda dentro de .rs-testimonio (z:8). Con z:10 propio,
-    // queda sobre el título "impacto" (z:9) y sobre .rs-usuarios (z:7).
-    // No es necesario moverlo a <main> porque el padre ya tiene z:8.
+    // Mover el ring a <main> para que escape del stacking context de
+    // .rs-testimonio (z:8). Con position:fixed + z-index:10, el ring
+    // queda ENCIMA de .rs-usuarios__title (z:9) sin necesidad de subir
+    // .rs-testimonio a z:10 (lo que cubriría las secciones anteriores).
+    // El position:fixed hace que el top:50%/left:50% se posicione
+    // respecto al viewport, no al padre, así que el ring sigue centrado.
+    if (rsRing && rsRing.parentElement && rsRing.parentElement.classList.contains('rs-testimonio')) {
+        const main = document.querySelector('main');
+        if (main) main.appendChild(rsRing);
+    }
     const rsQuote         = document.querySelector('.rs-testimonio__quote');
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
+    const rsClosingWraps  = gsap.utils.toArray('.rs-testimonio__line-wrap');
     const rsCta           = document.querySelector('.rs-testimonio__cta');
+    const rsClosingSection = document.querySelector('.rs-testimonio__closing');
+    
+    // Escala dinámica del closing: si el contenido (3 líneas + gap + CTA)
+    // excede la altura del viewport, se escala proporcionalmente para que
+    // quepa completo sin cortarse. Mantiene centrado vertical y todas las
+    // proporciones del diseño.
+    function updateClosingScale() {
+        if (!rsClosingSection) return;
+        
+        const vh = window.innerHeight;
+        const h3 = rsClosingSection.querySelector('.rs-testimonio__closing-title');
+        const cta = rsClosingSection.querySelector('.rs-testimonio__cta');
+        
+        if (!h3 || !cta) return;
+        
+        // Altura total del contenido: h3 + gap (48px) + CTA
+        const gap = 48;
+        const contentHeight = h3.offsetHeight + gap + cta.offsetHeight;
+        
+        // 95% del viewport para dejar 2.5% de margen arriba y abajo
+        const availableHeight = vh * 0.95;
+        
+        // Calcular scale: si el contenido cabe, scale=1. Si no, escalar
+        // proporcionalmente para que quepa.
+        const scale = Math.min(1, availableHeight / contentHeight);
+        
+        rsClosingSection.style.transform = `scale(${scale})`;
+        rsClosingSection.style.transformOrigin = 'center center';
+    }
+    
+    // Recalcular scale en resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateClosingScale, 100);
+    });
 
     // ── Mover el título de Fase 3 fuera de .rs-usuarios ──
     // El título debe ser visible durante toda la Fase 4 (imagen 01 del
@@ -1215,14 +1259,21 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsQuote, { opacity: 1 - quoteOutP });
             }
 
-            // ── 4.4 Revelación de líneas de cierre con máscara (0.80 → 0.95) ──
+            // ── 4.4 Revelación de líneas de cierre con cortinilla (0.80 → 0.95) ──
+            // Animación de cortinilla: clip-path del wrap se abre de abajo hacia
+            // arriba (inset(100% 0 0 0) → inset(0 0 0 0)), sincronizado con el
+            // translateY del line (70px → 0px). Usamos clip-path en lugar de
+            // overflow:hidden para evitar el corte por sub-pixel rounding.
             const CLOSING_START = 0.80;
             const CLOSING_STEP  = 0.075; // stagger entre líneas
             rsClosingLines.forEach((line, i) => {
                 const lineStart = CLOSING_START + i * CLOSING_STEP;
                 const localP = clamp01((p4 - lineStart) / (CLOSING_STEP * 2));
                 const eased = gsap.parseEase('power2.out')(localP);
-                gsap.set(line, { y: `${100 * (1 - eased)}%` });
+                const wrap = rsClosingWraps[i];
+                // clip-path: inset(top right bottom left) — top va de 100% a 0%
+                gsap.set(wrap, { clipPath: `inset(${100 * (1 - eased)}% 0 0 0)` });
+                gsap.set(line, { y: `${70 * (1 - eased)}px` });
             });
 
             // ── 4.4 CTA: entra coordinado con la última línea (0.90 → 1.00) ──
@@ -1231,6 +1282,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const ctaEased = gsap.parseEase('power2.out')(ctaP);
                 gsap.set(rsCta, { y: 40 * (1 - ctaEased), opacity: ctaEased });
                 rsCta.style.pointerEvents = ctaP >= 1 ? 'auto' : 'none';
+            }
+
+            // ── 4.5 Escala dinámica del closing ──
+            // Cuando el closing es visible (p4 >= 0.80), calcular y aplicar
+            // scale para que el contenido quepa completo sin cortarse.
+            if (p4 >= 0.80) {
+                updateClosingScale();
             }
         },
         onLeaveBack: () => {
@@ -1246,10 +1304,15 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsQuote) {
                 gsap.set(rsQuote, { opacity: 0, clipPath: 'ellipse(50% 50% at 50% 50%)' });
             }
-            gsap.set(rsClosingLines, { y: '100%' });
+            gsap.set(rsClosingLines, { y: '70px' });
+            gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
             if (rsCta) {
                 gsap.set(rsCta, { y: 40, opacity: 0 });
                 rsCta.style.pointerEvents = 'none';
+            }
+            // Reset del scale del closing
+            if (rsClosingSection) {
+                rsClosingSection.style.transform = 'scale(1)';
             }
             // Reset de .rs-testimonio a su estado oculto inicial
             // (opacity:0 / visibility:hidden), para que no tape las

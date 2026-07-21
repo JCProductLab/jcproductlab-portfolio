@@ -362,11 +362,11 @@
         position: fixed;
         inset: 0;
         /* z-index:8 — SOBRE .rs-usuarios (z:7) para que el testimonio,
-           el ring y el cierre sean visibles. Aunque .rs-testimonio cubre
+           el cierre y el quote sean visibles. Aunque .rs-testimonio cubre
            todo el viewport, NO tiene background (es transparente), así
-           que las secciones anteriores se ven a través. El z-index:8
-           asegura que los hijos (quote z:10, closing z:8) tengan z
-           efectivo 8, sobre .rs-usuarios (z:7). */
+           que las secciones anteriores se ven a través. El ring se mueve
+           a <main> con position:fixed + z:10 para quedar sobre el título
+           "impacto" (z:9) sin subir .rs-testimonio a z:10. */
         z-index: 8;
         width: 100%;
         height: 100vh;
@@ -381,7 +381,7 @@
     }
 
     .rs-testimonio__ring {
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
         /* Dimensiones y forma IDÉNTICAS a .cs-decision-mc__ring
@@ -396,10 +396,11 @@
         border-radius: 232px;
         opacity: 0;
         will-change: transform, opacity;
-        /* z-index:10 — dentro del stacking context de .rs-testimonio
-           (z:8), el ring queda sobre .rs-usuarios__title (z:9) y sobre
-           .rs-usuarios (z:7). El ring se queda dentro de .rs-testimonio
-           (no se mueve a <main>). */
+        /* z-index:10 — el ring se mueve a <main> (fuera de .rs-testimonio)
+           con position:fixed para escapar del stacking context del padre
+           (z:8). Así, con z:10 global, queda ENCIMA de .rs-usuarios__title
+           (z:9) sin necesidad de subir .rs-testimonio a z:10 (lo que
+           cubriría las secciones anteriores). */
         z-index: 10;
     }
 
@@ -414,10 +415,10 @@
         opacity: 0;
         will-change: opacity, clip-path;
         /* z-index:10 — dentro del stacking context de .rs-testimonio
-           (z:8), el testimonio queda sobre .rs-usuarios__title (z:9) y
-           sobre .rs-usuarios (z:7). El testimonio debe estar POR
-           ENCIMA de la palabra "impacto" para que se vea "a través"
-           del portal del anillo. */
+           (z:8), el testimonio queda sobre .rs-usuarios (z:7). El
+           testimonio debe estar POR ENCIMA de la palabra "impacto"
+           para que se vea "a través" del portal del anillo. El ring
+           (z:10 global) queda sobre el testimonio. */
         z-index: 10;
     }
 
@@ -456,6 +457,9 @@
         /* z-index:8 — dentro del stacking context de .rs-testimonio
            (z:8), el closing queda sobre .rs-usuarios (z:7). */
         z-index: 8;
+        /* Sin overflow:hidden para que el contenido pueda escalar
+           si excede el viewport (manejado por JS). */
+        overflow: visible;
     }
 
     .rs-testimonio__closing-title {
@@ -471,12 +475,25 @@
         max-width: 80%;
     }
 
-    .rs-testimonio__line-wrap { display: block; overflow: hidden; }
+    .rs-testimonio__line-wrap {
+        display: block;
+        /* clip-path en lugar de overflow:hidden para la máscara de cortinilla.
+           clip-path no tiene el problema de sub-pixel rounding que causa
+           overflow:hidden. inset(100% 0 0 0) oculta la línea completamente
+           (estado inicial), inset(0 0 0 0) la revela (estado final).
+           El JS anima el clip-path sincronizado con el translateY del line. */
+        clip-path: inset(100% 0 0 0);
+        line-height: 0;
+    }
     .rs-testimonio__line {
         display: block;
-        transform: translateY(100%);
+        transform: translateY(70px);
         will-change: transform;
         text-align: center;
+        /* line-height explícito para garantizar que todas las líneas tengan
+           la misma altura. Con line-height:1.2 y font-size:clamp(2rem,4vw,4rem),
+           cada línea tiene altura consistente. */
+        line-height: 1.2;
     }
 
     .rs-testimonio__cta {
