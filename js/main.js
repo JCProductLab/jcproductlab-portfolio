@@ -26,6 +26,7 @@ import { initAboutSectionReveal } from './modules/animations/about-section-revea
 import { initCtaSectionReveal, initStickyReveal } from './modules/animations/cta-section-reveal.js';
 import { initModalMiRol } from './modal-rol-proceso.js';
 import { initModalProceso } from './modal-proceso.js';
+import { initModalQueAprendi } from './modal-que-aprendi.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMagnetic();
     initModalMiRol();
     initModalProceso();
+    initModalQueAprendi();
 });
 
 // Custom cursor: el canvas #fluid y el div #customCursor ya existen en el DOM
