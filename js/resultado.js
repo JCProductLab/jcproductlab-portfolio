@@ -1028,6 +1028,17 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                     visibility: revealP > 0 ? 'visible' : 'hidden'
                 });
             }
+            
+            // ── Revelado del closing (0.75 → 0.85) ──
+            // El closing tiene visibility:hidden en CSS para no bloquear
+            // eventos de mouse antes de que sea visible. Lo revelamos
+            // cuando empieza la animación de las líneas de cierre.
+            if (rsClosingSection) {
+                const closingRevealP = clamp01((p4 - 0.75) / 0.10);
+                gsap.set(rsClosingSection, {
+                    visibility: closingRevealP > 0 ? 'visible' : 'hidden'
+                });
+            }
 
             // ── 4.1 Aislamiento de "impacto" (0.00 → 0.25) ──
             // Las otras palabras bajan a opacity 0 (fade out simple).
@@ -1287,6 +1298,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (p4 >= 0.80) {
                 updateClosingScale();
             }
+
+            // ── 4.6 Desactivar eventos del SVG "impacto" ──
+            // El SVG de "impacto" está en <main> con z-index:9 global,
+            // por encima del closing (z:11 pero dentro de .rs-testimonio
+            // z:8, así que su z efectivo es 8). Cuando el closing sea
+            // visible, desactivamos los eventos del SVG para que el
+            // botón "QUÉ APRENDÍ" reciba clicks correctamente.
+            if (p4 >= 0.80 && rsImpactoSvg) {
+                rsImpactoSvg.style.pointerEvents = 'none';
+            }
         },
         onLeaveBack: () => {
             gsap.set(rsUsuariosWords, { opacity: 1 });
@@ -1303,9 +1324,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
             gsap.set(rsClosingLines, { y: '70px' });
             gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
-            // Reset del scale del closing
+            // Reset del closing scale
             if (rsClosingSection) {
                 rsClosingSection.style.transform = 'scale(1)';
+            }
+            // Restaurar eventos del SVG "impacto"
+            if (rsImpactoSvg) {
+                rsImpactoSvg.style.pointerEvents = 'auto';
             }
             // Reset de .rs-testimonio a su estado oculto inicial
             // (opacity:0 / visibility:hidden), para que no tape las

@@ -398,10 +398,16 @@
         will-change: transform, opacity;
         /* z-index:10 — el ring se mueve a <main> (fuera de .rs-testimonio)
            con position:fixed para escapar del stacking context del padre
-           (z:8). Así, con z:10 global, queda ENCIMA de .rs-usuarios__title
-           (z:9) sin necesidad de subir .rs-testimonio a z:10 (lo que
-           cubriría las secciones anteriores). */
+           (z:8). Así, con z:10 global, queda ENCIMA del título "impacto"
+           (z efectivo 7 dentro de .rs-usuarios z:7) sin necesidad de subir
+           toda la sección .rs-testimonio a z:10 (lo que cubriría las
+           secciones anteriores). */
         z-index: 10;
+        /* pointer-events:none — el ring es puramente decorativo.
+           Aunque su opacity sea 0, pointer-events:auto (default) hace
+           que intercepte clicks/hover de elementos debajo (como el
+           botón "QUÉ APRENDÍ" en .rs-testimonio__closing z:8). */
+        pointer-events: none;
     }
 
     .rs-testimonio__quote {
@@ -420,6 +426,12 @@
            para que se vea "a través" del portal del anillo. El ring
            (z:10 global) queda sobre el testimonio. */
         z-index: 10;
+        /* pointer-events:none — el quote es puramente visual (texto
+           con clip-path), nunca necesita recibir eventos de mouse.
+           Sin esto, esta capa invisible (opacity:0 al final de la
+           animación) cubre todo el closing (z:8) y bloquea los
+           eventos de mouse del botón "QUÉ APRENDÍ". */
+        pointer-events: none;
     }
 
     .rs-testimonio__quote-icon { color: var(--color-accent); font-size: 3rem; margin-bottom: 24px; }
@@ -460,14 +472,7 @@
         /* z-index:8 — dentro del stacking context de .rs-testimonio
            (z:8), el closing queda sobre .rs-usuarios (z:7). */
         z-index: 8;
-        /* Sin overflow:hidden para que el contenido pueda escalar
-           si excede el viewport (manejado por JS). */
         overflow: visible;
-        /* pointer-events:auto permite que el closing y sus hijos
-           (incluido el botón) reciban eventos de mouse, sobrescribiendo
-           el pointer-events:none de .rs-testimonio. Esto es necesario
-           para que el efecto de magnetismo funcione. */
-        pointer-events: auto;
     }
 
     .rs-testimonio__closing-title {
