@@ -318,44 +318,69 @@
     .rs-usuarios__word {
         display: inline-block;
         will-change: opacity, transform;
-        /* Anti-pixelación agresivo para el escalado ~46x:
-           - text-rendering: geometricPrecision: el navegador usa el
-             renderer de texto geométrico (más lento pero más preciso
-             que optimizeLegibility — crítico a escalas grandes).
-           - -webkit-font-smoothing: antialiased: suavizado de fuentes
-             en WebKit/Blink.
-           - backface-visibility: hidden: fuerza una nueva capa de
-             compositing, evitando que el texto se renderice con
-             sub-pixel issues durante el escalado.
-           - perspective: 1000px: habilita la aceleración 3D para que
-             el escalado use la GPU en vez de la CPU.
-           - transform: translateZ(0) en el JS (force3D: true) crea
-             un contexto 3D que combina con la perspective de arriba. */
         text-rendering: geometricPrecision;
         -webkit-font-smoothing: antialiased;
-        backface-visibility: hidden;
-        perspective: 1000px;
+    }
+
+    /* Wrapper del SVG. Su altura se fuerza al line-box (70.4 = 64×1.1)
+       para que tenga las MISMAS dimensiones que los otros
+       <span class="word">. `vertical-align: bottom` alinea el fondo
+       del wrapper con el fondo del line-box del h3 — así el
+       wrapper queda a la misma altura vertical que "El" / "en" /
+       "los usuarios" sin depender de la heurística de "first
+       baseline" del navegador (que trata el SVG como sin baseline
+       y termina anclando por el fondo del box, descentrando la
+       palabra 9px). El SVG interior desborda este wrapper
+       (overflow:visible) — exactamente como el texto HTML de
+       "El" desborda su line-box. */
+    .rs-usuarios__word--svg {
+        height: 70.4px;
+        overflow: visible;
+        vertical-align: bottom;
+        line-height: 0;
+    }
+
+    /* SVG que reemplaza la palabra "impacto" — texto vectorial, escala
+       sin pixelación. viewBox/width/height se fijan en JS (después del
+       primer render) al bbox real del texto. */
+    .rs-usuarios__impacto-svg {
+        display: inline-block;
+        vertical-align: baseline;
+        overflow: visible;
+        will-change: transform, opacity;
+    }
+    .rs-usuarios__impacto-text {
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        letter-spacing: inherit;
+        fill: currentColor;
+        dominant-baseline: alphabetic;
     }
 
     .rs-testimonio {
         position: fixed;
         inset: 0;
-        /* z-index:8 — SOBRE .rs-usuarios (z:7) para que el testimonio,
-           el ring y el cierre sean visibles. El título de .rs-usuarios
-           se mantiene visible porque tiene position:fixed + z-index:9
-           (ver regla más abajo), escapando del stacking context de
-           .rs-usuarios. Sin esto, todo el contenido de Fase 4 queda
-           detrás de la capa oscura de .rs-usuarios. */
-        z-index: 8;
+        /* z-index:5 — DEBAJO de .rs-usuarios (z:7) y de las secciones
+           anteriores. Aunque .rs-testimonio es position:fixed y cubre
+           todo el viewport, NO tiene background (es transparente), así
+           que las secciones anteriores se ven a través. El z-index:5
+           asegura que si algún día se le pone background, quede detrás
+           de las secciones anteriores y no las oculte. El ring se mueve
+           fuera de este stacking context en resultado.js (a <main>) con
+           z-index:20 propio, para quedar arriba de la palabra
+           "impacto" (z efectivo 7 dentro de .rs-usuarios z:7). */
+        z-index: 5;
         width: 100%;
         height: 100vh;
         overflow: hidden;
         pointer-events: none;
-        /* Estado de reposo: oculto abajo del viewport. Mismo patrón que
-           .rs-mosaico:18 y .rs-metricas:169. El JS lo revela en 0.00→0.15
-           del ST de Fase 4 (relevo). Sin esto, el fondo oscuro cubría
-           todo el contenido de Fases 1-3 desde la carga de la página. */
-        transform: translateY(100vh);
+        /* Estado de reposo: oculto con opacity + visibility. Sin
+           transform inicial: el ring aparece centrado (fade in) sin
+           desplazamiento desde abajo. Solo el ring crece y rota, no
+           se desliza. El JS lo revela en 0.00→0.15 del ST de Fase 4. */
+        opacity: 0;
+        visibility: hidden;
     }
 
     .rs-testimonio__ring {
@@ -374,13 +399,14 @@
         border-radius: 232px;
         opacity: 0;
         will-change: transform, opacity;
-        /* z-index:8 — el contenedor .rs-testimonio está en z:6, debajo
-           de .rs-usuarios (z:7) que sigue en pantalla con su título
-           anclado. Sin este z-index, el ring y el testimonio quedan
-           DETRÁS de .rs-usuarios y son invisibles. 8 los pone sobre
-           .rs-usuarios pero el título (en top-left, sin z-index propio)
-           no se solapa con ellos — sigue visible naturalmente. */
-        z-index: 8;
+        /* z-index:10 — el ring se mueve fuera de .rs-testimonio en
+           resultado.js (appendChild a <main>) para escapar de su
+           stacking context (z:8). Así, con z:10 propio en el contexto
+           principal, queda ENCIMA del título "impacto" (z efectivo 7
+           dentro de .rs-usuarios z:7) sin necesidad de subir toda la
+           sección .rs-testimonio a z:10 (lo que cubriría las secciones
+           anteriores con su fondo implícito). */
+        z-index: 10;
     }
 
     .rs-testimonio__quote {

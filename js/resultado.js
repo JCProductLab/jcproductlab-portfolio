@@ -743,9 +743,28 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
 
     const rsTestimonioSection = document.querySelector('.rs-testimonio');
     const rsUsuariosWords = gsap.utils.toArray('.rs-usuarios__word');
-    const rsImpactoWord   = document.querySelector('.rs-usuarios__word[data-word="impacto"]');
-    const rsPAnchor       = document.querySelector('.rs-usuarios__p-anchor');
+    // SVG que renderiza "impacto" — texto vectorial, escala sin
+    // pixelación. Reemplaza al antiguo span+rs-usuarios__p-anchor.
+    // El <g> interior es el que recibe la transformación: aplicar
+    // transform al <svg> padre lo rasteriza como bitmap (pixelación),
+    // pero al <g> interno el renderer del SVG lo reescala vectorialmente
+    // a cada frame — esa es la diferencia que evita la pixelación a
+    // escalas de 15-20×.
+    const rsImpactoSvg   = document.querySelector('.rs-usuarios__impacto-svg');
+    const rsImpactoGroup = rsImpactoSvg ? rsImpactoSvg.querySelector('g') : null;
+    const rsImpactoText  = rsImpactoSvg ? rsImpactoSvg.querySelector('text') : null;
     const rsRing          = document.querySelector('.rs-testimonio__ring');
+    // Sacar el ring del stacking context de .rs-testimonio (z:8) para
+    // que su z-index:10 propio lo coloque ENCIMA del título "impacto"
+    // (z efectivo 7 dentro de .rs-usuarios z:7) sin necesidad de subir
+    // toda la sección .rs-testimonio a z:10 (lo que cubriría las
+    // secciones anteriores). El ring se mueve a <main>, fuera de
+    // .rs-testimonio, conservando su posición CSS (position:absolute
+    // con top:50%/left:50% + margin negativo → centrado en el viewport).
+    if (rsRing && rsRing.parentElement && rsRing.parentElement.classList.contains('rs-testimonio')) {
+        const main = document.querySelector('main');
+        if (main) main.appendChild(rsRing);
+    }
     const rsQuote         = document.querySelector('.rs-testimonio__quote');
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
     const rsCta           = document.querySelector('.rs-testimonio__cta');
@@ -772,44 +791,180 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     }
     let rsPortalCaptured   = false;
     let rsPortalTargetScale = 1;
-    let rsPortalDeltaX     = 0;
-    let rsPortalDeltaY     = 0;
+    // Origen del scale (centro del bowl de la "p") en píxeles del
+    // display box del SVG. Necesario en onUpdate para bakearlo en la
+    // matriz del transform del <g> (el renderer SVG reprocesa el
+    // texto vectorialmente — la diferencia clave que elimina la
+    // pixelación que tenía transform: scale() sobre HTML text).
+    let rsPortalOriginX = 0;
+    let rsPortalOriginY = 0;
+
+    // ── Sizing del SVG al line-box de los otros words ──
+    // Sin esto el SVG usa el default 300×150 (sobredimensiona la
+    // palabra, empuja a "El" y "en" a líneas separadas, descuadra
+    // toda la Fase 3). Se dimensiona en cuanto la fuente Sora
+    // termina de cargar: getBBox() mide 0×0 si el font aún no está
+    // disponible.
+    //
+    // ALINEACIÓN CON LOS SPANS HTML: los otros <span class="word">
+    // tienen line-height:1.1 → line-box 70.4px (font-size 64 × 1.1).
+    // El texto dentro vive en ese line-box; el browser posiciona
+    // su baseline a ~65.6px del top del span (medido en Chrome con
+    // Sora — la posición exacta depende de la métrica ascent de
+    // la fuente y de la heurística del browser, pero el principio
+    // es el mismo: el texto del span desborda el line-box tanto
+    // por arriba (ascent) como por abajo (descent), y la baseline
+    // NO está en el centro del line-box).
+    //
+    // Para que "impacto" (SVG) se vea a la misma altura que "El" /
+    // "en" (spans HTML), la baseline de su texto tiene que caer en
+    // EXACTAMENTE la misma posición viewport-y que la baseline de
+    // los spans. Eso se logra construyendo el viewBox con
+    // `y_start = -64.6` para que la baseline del texto SVG
+    // (user y=1) caiga en display y = 1 − (−64.6) = 65.6 — igual
+    // que la baseline de los spans relativa a su box. Con
+    // `vertical-align: baseline` (default en inline-block), el
+    // navegador ancla ambas baselines a la línea y quedan
+    // alineadas.
+    //
+    // El texto en user coords (y=−65 a y=15, 80px de alto)
+    // desborda el viewBox de 70.4px por arriba y por abajo — eso
+    // está bien: `overflow:visible` lo deja pasar al layout del
+    // padre, igual que el HTML text desbordando su line-box.
+    const SVG_VIEWBOX_Y_START = -61.6;
+    function sizeImpactoSvg() {
+        if (!rsImpactoSvg || !rsImpactoText) return;
+        const textBBox = rsImpactoText.getBBox();
+        if (textBBox.width === 0 || textBBox.height === 0) return;
+        const lineBoxHeight = 64 * 1.1; // cs-section-title: line-height:1.1
+        rsImpactoSvg.setAttribute('viewBox',
+            `0 ${SVG_VIEWBOX_Y_START} ${textBBox.width} ${lineBoxHeight}`);
+        rsImpactoSvg.setAttribute('width', textBBox.width);
+        rsImpactoSvg.setAttribute('height', lineBoxHeight);
+    }
+    if (rsImpactoSvg) {
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(sizeImpactoSvg);
+        }
+        requestAnimationFrame(() => requestAnimationFrame(sizeImpactoSvg));
+    }
+    let rsPortalDeltaX     = 0;  // (legacy — conservado para no romper git blame, ya no se usa)
+    let rsPortalDeltaY     = 0;  // (legacy — conservado para no romper git blame, ya no se usa)
+    // Cache del getBoundingClientRect del SVG capturado en
+    // computeRsPortalConstants. La fórmula unificada del zoom necesita
+    // svgRect.left y svgRect.top CADA frame, y getBoundingClientRect forzaría
+    // un reflow por frame — el cache lo evita.
+    let rsSvgRect           = null;
+
+    // Posición del centro del BOWL (círculo) de la "p" en coordenadas
+    // del viewBox del SVG. Se mide UNA vez con getExtentOfChar(2) — a
+    // diferencia del span anterior, NO incluye line-height padding:
+    // getExtentOfChar devuelve el bbox REAL del glifo renderizado, así
+    // que el centro está donde realmente está el glifo, no donde
+    // "debería" estar según heurísticas de ratio.
+    // 0.35 = el bowl de "p" ocupa el ~65% superior del glifo, su centro
+    // cae a 32-35% desde el top. Verificado en Sora 64px.
+    // Pivote vertical del bowl de la "p". getExtentOfChar en Sora 64px
+    // devuelve el bbox de LÍNEA (no de glifo): y ∈ [-65, 15], h = 80.
+    // El bowl real de la "p" ocupa la zona de x-height: su centro cae
+    // aproximadamente a y = baseline − x_height/2. En Sora x-height ≈
+    // 0.52·em = 33, baseline en y = 1 → bowl center ≈ y = -15.5.
+    // Ratio desde el top del bbox de línea: (-15.5 − (-65)) / 80 = 0.62.
+    // Verificado en vivo con getExtentOfChar(2).
+    const P_CIRCLE_Y_RATIO = 0.62;
 
     function computeRsPortalConstants() {
-        if (!rsPAnchor || !rsImpactoWord) return;
+        if (!rsImpactoGroup || !rsImpactoText) return;
         const vh = window.innerHeight;
         const vw = window.innerWidth;
-        const anchorRect = rsPAnchor.getBoundingClientRect();
-        const wordRect   = rsImpactoWord.getBoundingClientRect();
 
-        // Transform-origin en PIXELES ENTEROS (no porcentajes ni decimales).
-        // Si el origin está en posición sub-pixel, el escalado se desfasa
-        // y el texto se ve pixeleado/borroso. Math.round fuerza el
-        // origin a un píxel exacto, alineando el escalado a la grid del
-        // browser y eliminando el pixelaje. El origin apunta al centro
-        // del bounding box de la "p" (no al centro del círculo — ese
-        // ajuste se hace en el onUpdate con el offset de -40px en Y).
-        const originXPx = Math.round((anchorRect.left + anchorRect.width / 2) - wordRect.left);
-        const originYPx = Math.round((anchorRect.top + anchorRect.height / 2) - wordRect.top);
-        gsap.set(rsImpactoWord, { transformOrigin: `${originXPx}px ${originYPx}px` });
+        // ── Bbox del texto completo en coords del viewBox (Sora
+        // renderizada, sin padding) — solo para referencia, NO se
+        // reescribe el viewBox aquí. El viewBox lo fija sizeImpactoSvg
+        // (en init) con dimensiones de LINE-BOX (70.4) y
+        // y_start=-74 para alinear la baseline del texto SVG con la
+        // de los <span> adyacentes. Si se reescribiera con el bbox
+        // natural del texto (80 alto), el "impacto" se descentraría
+        // otra vez respecto a "El" / "en" — el bug exacto que
+        // sizeImpactoSvg está diseñado para evitar. ──
+        const textBBox = rsImpactoText.getBBox();
 
-        // Escala para que "impacto" se salga completamente del viewport.
-        // Factor 10.0: la palabra crece ~160x. A esta escala, la "p"
-        // (~30px originalmente) termina midiendo ~4800px — MUCHO más
-        // grande que el viewport (1920x1080). La "p" sobrepasa el
-        // viewport en todas direcciones y la palabra se vuelve
-        // prácticamente invisible al final.
-        const scaleByWidth  = (vw * 10.0) / wordRect.width;
-        const scaleByHeight = (vh * 10.0) / wordRect.height;
+        // ── Bbox REAL del glifo "p" (índice 2 en "impacto") ──
+        // Devuelve el área visible del glyph renderizado, sin el
+        // line-height padding que contaminaba la medición anterior.
+        const pExtent = rsImpactoText.getExtentOfChar(2);
+        const pUserCenterX = pExtent.x + pExtent.width / 2;
+        const pUserCenterY = pExtent.y + pExtent.height * P_CIRCLE_Y_RATIO;
+
+        // ViewBox y_start (top de la ventana visible del SVG en user
+        // coords). El viewBox se fija en sizeImpactoSvg a "0 -64 W H"
+        // (con H=line-box 70.4) para alinear la baseline del texto
+        // SVG con la de los <span> adyacentes — leerlo dinámicamente
+        // en vez de hardcodearlo acopla la medición a la fuente de
+        // verdad (el atributo viewBox actual), no a un número mágico.
+        const viewBoxAttr = rsImpactoSvg.getAttribute('viewBox');
+        const viewBoxYStart = viewBoxAttr ? parseFloat(viewBoxAttr.split(/\s+/)[1]) : textBBox.y;
+
+        // Transform-origin del <g> en píxeles del display box del SVG
+        // (no del viewBox). Aunque la spec SVG2 dice que el origin va
+        // en coords locales del elemento, los navegadores
+        // (Chrome/Safari/Firefox) interpretan los valores "px" del
+        // `transformOrigin` como píxeles del bounding box display.
+        // Hay que restar textBBox.xy para convertir user coords →
+        // display coords antes de setear el origin — sin esto, el
+        // origin queda 65px arriba del glifo real y la "p" se
+        // desplaza al escalar.
+        //
+        // Se guarda en variables module-level (rsPortalOriginX/Y) para
+        // que onUpdate pueda bakearlo en la matriz del <g> cada
+        // frame, en vez de depender de la CSS property
+        // `transformOrigin` (que el atributo `transform` del <g>
+        // ignora — solo el renderer CSS la respeta, y GSAP aplica
+        // el transform via el atributo, no la property).
+        // Transform-origin del <g> en píxeles del display box del SVG
+        // (no del viewBox). El viewBox está offsetado respecto al
+        // display por su y_start (típicamente -64) — el "p" en user
+        // coords y=-37 cae a display y = -37 − (−64) = 27, no 28.
+        // Hay que usar viewBoxYStart (no textBBox.y) para esta
+        // conversión: si viewBox y_start ≠ textBBox.y (que es el caso
+        // desde que se alineó la baseline con el line-box de los
+        // spans), la diferencia es 1px vertical — suficiente para
+        // que la "p" se descentre al escalar.
+        const pDisplayX = pUserCenterX - textBBox.x;
+        const pDisplayY = pUserCenterY - viewBoxYStart;
+        rsPortalOriginX = pDisplayX;
+        rsPortalOriginY = pDisplayY;
+
+        // Escala objetivo: que la palabra CREZCA hasta que ya no se vea
+        // en la pantalla (factor 20.0). Al MENOR de los dos ejes — el que
+        // crezca menos ya satura, el otro crece más y se sale. Con 20.0
+        // el "p" (43px de ancho) termina a ~11440px → ~6× el viewport
+        // (1920px), con ~4760px de overflow por lado. La "p" round part
+        // queda como un sliver visible de ~17% de su ancho en el centro
+        // del viewport — ya no se lee como "p" completa.
+        //
+        // Factor 20 (no 50) para que el movimiento desde la izquierda
+        // al centro siga siendo perceptible durante el trayecto: con
+        // factor 50, a p4=0.25 la palabra ya estaba a scale 9 (el
+        // "p" mide 386px y se ve moverse), pero a p4=0.30 ya estaba a
+        // scale 30 y el "p" se salía del viewport — el ojo nunca
+        // percibía el movimiento completo. Con factor 20, el "p" mide
+        // 1161px a p4=0.35 (cabe en el viewport de 1920px) y el
+        // desplazamiento desde (240,210) hasta (960,468) es claramente
+        // visible durante todo el trayecto p4=0.20→0.50.
+        const svgRect = rsImpactoSvg.getBoundingClientRect();
+        const scaleByWidth  = (vw * 20.0) / svgRect.width;
+        const scaleByHeight = (vh * 20.0) / svgRect.height;
         rsPortalTargetScale = Math.max(scaleByWidth, scaleByHeight);
+        rsSvgRect = svgRect;
 
-        // Delta para que el punto de la "p" (el transform-origin recién fijado)
-        // quede centrado en el viewport — el scale() no mueve el origin, así
-        // que basta una traslación fija, no recalculada por frame.
-        const anchorCenterX = anchorRect.left + anchorRect.width / 2;
-        const anchorCenterY = anchorRect.top + anchorRect.height / 2;
-        rsPortalDeltaX = vw / 2 - anchorCenterX;
-        rsPortalDeltaY = vh / 2 - anchorCenterY;
+        // (rsPortalDeltaX/Y legacy: la versión anterior de la fórmula
+        //  los necesitaba como coeficientes constantes. Ahora la matriz
+        //  bakea el origin en función de s cada frame, así que estos
+        //  valores ya no se consultan — se conservan las asignaciones
+        //  para no romper git blame, pero son código muerto.)
+        rsPortalDeltaX = vw / 2 - svgRect.left - pDisplayX;
+        rsPortalDeltaY = vh / 2 - svgRect.top  - pDisplayY;
     }
 
     ScrollTrigger.create({
@@ -825,15 +980,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             const p4 = self.progress;
 
             // ── Revelado del contenedor .rs-testimonio (0.00 → 0.15) ──
-            // Mismo patrón "relevo" que .rs-mosaico (Fase 1) y .rs-metricas
-            // (Fase 2). Sin esto el contenedor se queda en su reposo CSS
-            // (translateY(100vh), oculto) durante todo el scrub hacia
-            // adelante. El fondo oscuro entra primero (queda detrás del
-            // título de Fase 3 porque .rs-testimonio está en z:6), y los
-            // hijos (anillo, testimonio, cierre) animan después.
+            // El CSS deja .rs-testimonio en opacity:0 / visibility:hidden
+            // (sin transform, para que el ring aparezca centrado sin
+            // desplazamiento). El JS lo revela con fade-in durante los
+            // primeros 15% del progreso. visibility:hidden evita que
+            // el contenedor tape las secciones anteriores (Fases 1-3)
+            // antes de que empiece Fase 4.
             if (rsTestimonioSection) {
                 const revealP = clamp01(p4 / 0.15);
-                gsap.set(rsTestimonioSection, { y: (1 - revealP) * vh });
+                gsap.set(rsTestimonioSection, {
+                    opacity: revealP,
+                    visibility: revealP > 0 ? 'visible' : 'hidden'
+                });
             }
 
             // ── 4.1 Aislamiento de "impacto" (0.00 → 0.25) ──
@@ -846,81 +1004,201 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 }
             });
 
-            // ── 4.1 Anillo: copia EXACTA de la fórmula de .cs-decision-mc__ring ──
-            // caso-asdeporte.js:1475-1490. Mismo scale 1→2.75 con power1.inOut,
-            // misma rotación 0→360° lineal, mismo centrado x:-377 y:-240
-            // (porque la elipse base es 754×480).
-            // DIFERENCIA vs el original: la opacity NO se ata al scale
-            // (no se desvanece al final). El diseño (resultado-d-09 a
-            // d-12) muestra el anillo VISIBLE durante toda la fase del
-            // testimonio — es el marco visual donde aparece el texto.
-            // Solo hay fade-in al inicio (0.00→0.25), después se queda
-            // a opacity 1 para que el efecto portal se mantenga.
+            // ── 4.1 Anillo: fade-in + crecimiento + rotación ──
+            // Fade-in al inicio (0.00→0.25), después se queda a opacity 1.
+            // Crecimiento: scale 1 → 5.0 con power1.inOut (antes 2.75).
+            // A 5.0×, el ring (754×480 base) mide 3770×2400 — claramente
+            // más grande que el viewport (1920×907), por lo que crece
+            // "hasta desaparecer" más allá de los bordes.
+            // Rotación: 0° → 360° lineal sobre todo el rango.
+            // Sin x/y adicionales — el ring ya está centrado por CSS
+            // (top:50%, left:50%, margin:-240px 0 0 -377px), y los
+            // anteriores x:-377 y:-240 GSAP lo descolocaban (doble offset
+            // con el margin del CSS). Eliminados.
+            //
+            // Crecimiento en DOS FASES para que el ring sea VISIBLE antes
+            // del párrafo (p4=0.50) y DESAPAREZCA al final (p4=1.00):
+            //   - Fase A (0.00→0.50): scale 1.0 → 2.55 con power1.inOut.
+            //     A 2.55× el ring mide 1923px (apenas cabe en el viewport
+            //     de 1920px) → el ring es visible durante todo el
+            //     preludio y el párrafo aparece dentro de él.
+            //   - Fase B (0.50→1.00): scale 2.55 → 5.0 con power1.inOut.
+            //     A 5.0× el ring mide 3770×2400 — way beyond viewport,
+            //     "desaparece" más allá de los bordes (efecto tunnel).
             if (rsRing) {
                 const ringFadeP = clamp01(p4 / 0.25);
                 const ringP = clamp01(p4 / 0.95);
-                const ringEased = gsap.parseEase('power1.inOut')(ringP);
-                const ringScale = 1.0 + (2.75 - 1.0) * ringEased;
+                const ringEased = p4 < 0.50
+                    ? gsap.parseEase('power1.inOut')(p4 / 0.50) * 0.5
+                    : 0.5 + gsap.parseEase('power1.inOut')((p4 - 0.50) / 0.50) * 0.5;
+                const ringScale = 1.0 + (5.0 - 1.0) * ringEased;
                 const ringRotation = 360 * ringP;
                 gsap.set(rsRing, {
                     opacity: ringFadeP, // Solo fade-in, sin fade-out
-                    x: -377,
-                    y: -240,
                     scale: ringScale,
                     rotation: ringRotation,
                 });
             }
 
-            // ── 4.2 Zoom de "impacto" anclado en la "p" (0.20 → 0.85) ──
-            // La palabra SIGUE CRECIENDO durante toda la fase del
-            // testimonio (0.65 → 0.85), no se queda congelada en
-            // p4=0.65. El crecimiento va de p4=0.20 a p4=0.85
-            // (rango 0.65 en lugar de 0.45). Al final, la palabra
-            // es tan grande que la "p" se sale completamente del
-            // viewport — la palabra "desaparece" por crecimiento.
-            //   - Traslación: pow(zoomP, 0.4) — movimiento rápido
-            //     al inicio, luego se desacelera.
-            //   - Escala: power1.in — crecimiento suave al inicio,
-            //     más dramático al final. El rango ampliado (0.85)
-            //     hace que la palabra CREZCA durante más tiempo.
-            //   - Offset -40px en Y al final: compensa el "palo" de
-            //     la "p" para que el CÍRCULO quede centrado
-            //     verticalmente. Aplicado gradualmente (× moveP).
-            if (rsImpactoWord && p4 >= 0.20) {
+            // ── 4.2 Zoom de "impacto" anclado en el centro del bowl de la "p" ──
+            //
+            // Modelo UNIFICADO (un solo tramo 0.20 → 1.00): scale y translate
+            // comparten la misma curva de easing (power1.inOut), la palabra
+            // CRECE mientras se TRASLADA al centro. El bowl de la "p" está
+            // bakeado como transform-origin en la matriz del transform — su
+            // posición es geométricamente independiente del factor de escala,
+            // permanece clavada en (vw/2, vh/2) del viewport durante todo el
+            // crecimiento.
+            //
+            // ANTES había 2 fases (Phase A: solo translate scale=1, Phase B:
+            // solo scale sin más translate) — eso causaba que la palabra
+            // NUNCA creciera durante la primera mitad del recorrido y la
+            // matriz usaba coeficientes constantes que NO compensaban el
+            // factor s, así que al crecer el bowl se desplazaba arriba y a
+            // la derecha (los bugs #2 y #3 que motivaron este refactor).
+            if (rsImpactoGroup && p4 >= 0.20) {
                 if (!rsPortalCaptured) {
                     computeRsPortalConstants();
                     rsPortalCaptured = true;
                 }
-                // Rango extendido: 0.20 → 0.95 (no 0.65). La palabra
-                // SIGUE CRECIENDO durante toda la fase del testimonio
-                // (0.50-0.85) y hasta casi el final de Fase 4 (0.95).
-                // No se queda "congelada" en ningún punto.
-                const zoomP = clamp01((p4 - 0.20) / 0.75);
-                const zoomEased = gsap.parseEase('power1.in')(zoomP);
-                const moveP = Math.pow(zoomP, 0.4);
-                gsap.set(rsImpactoWord, {
-                    x: rsPortalDeltaX * moveP,
-                    y: rsPortalDeltaY * moveP - 40 * moveP,
-                    scale: 1 + (rsPortalTargetScale - 1) * zoomEased,
-                    force3D: true,
-                });
-            } else if (rsImpactoWord && rsPortalCaptured) {
-                gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1, opacity: 1, force3D: true });
+
+                // ── Modelo UNIFICADO con DOS tiempos desacoplados ──
+                // El bowl de la "p" recorre una interpolación (con ease) desde
+                // su posición original hasta (vw/2, vh/2) durante los primeros
+                // 0.30 de p4 (es decir, 0.20 → 0.50), pero la palabra SIGUE
+                // ESCALANDO todo el rango 0.20 → 1.00. Después de p4=0.50 el
+                // bowl queda clavado en el centro y la palabra sigue creciendo
+                // a su alrededor, hasta que se hace tan grande que el fade-out
+                // (ver más abajo) la apaga entre 0.75 y 0.90 y queda el ring
+                // como protagonista del "tunnel effect" (spec d-07→d-11).
+                //
+                // ANTES había un solo `t = (p4−0.20)/0.80` compartido por
+                // scale y translate — eso hacía que la palabra no dejara de
+                // moverse hasta el final (el bowl llegaba al centro casi al
+                // 100% del recorrido en vez de al 50%). El bowl ahora llega
+                // a tiempo y la escala puede seguir su curso sin arrastrar
+                // la posición.
+                //
+                // t_move  : tiempo de movimiento, alcanza 1 a p4=0.50 y se
+                //           queda allí (clamp01 lo mantiene en 1 hasta el final).
+                // t_grow  : tiempo de crecimiento, alcanza 1 a p4=1.00.
+                // t_fade  : tiempo de fade-out, va de 0 a 1 entre 0.75 y 0.90.
+                const t_move = clamp01((p4 - 0.20) / 0.30);
+                const t_grow = clamp01((p4 - 0.20) / 0.80);
+                const eased_move = gsap.parseEase('power1.inOut')(t_move);
+                const eased_grow = gsap.parseEase('power1.inOut')(t_grow);
+                const s = 1 + (rsPortalTargetScale - 1) * eased_grow;
+
+                // Posición ORIGINAL del bowl en screen coords (antes de
+                // cualquier transform): svgRect.top-left + offset del bowl
+                // dentro del display box del SVG. Es la posición "fija" que
+                // se usa como origen de la interpolación hacia el centro.
+                const bowlOrigX = rsSvgRect.left + rsPortalOriginX;
+                const bowlOrigY = rsSvgRect.top  + rsPortalOriginY;
+
+                // Matriz del transform con transform-origin BAKEADO en los
+                // coeficientes e, f del propio <g> (NO en una CSS property
+                // separada — el atributo `transform` del <g>` ignora
+                // `transformOrigin`).
+                //
+                // IMPORTANTE sobre el sistema de coords del <g>:
+                //   El <g> está dentro del <svg> cuyo viewBox es
+                //   "0 viewBoxYStart viewBoxWidth viewBoxHeight" (con
+                //   viewBoxYStart = -64.6 para alinear la baseline del texto
+                //   SVG con la de los <span> adyacentes). El atributo
+                //   `transform` del <g>` opera en las coords del viewBox
+                //   (NO del display box del SVG), así que el punto de pivote
+                //   debe darse en coords LOCALES del <g>` (= coords del
+                //   viewBox = pUserCenterX, pUserCenterY), no en coords de
+                //   display (pDisplayX, pDisplayY).
+                //
+                //   El mapeo entre coords es:
+                //     viewBox  → display :  y_display = y_viewBox − viewBoxYStart
+                //     display  → screen   :  y_screen  = svgRect.top + y_display
+                //   Para X es directo (viewBoxXStart = 0).
+                //
+                // Fórmula: el bowl debe estar en
+                //   lerp(bowlOrig, viewport_center, eased)
+                // donde bowlOrig (en screen coords) es la posición original
+                // del bowl antes del zoom:
+                //   bowlOrigX = svgRect.left + pUserCenterX   (= svgRect.left + pDisplayX)
+                //   bowlOrigY = svgRect.top  + pUserCenterY + (−viewBoxYStart)
+                //             = svgRect.top  + pUserCenterY + 64.6
+                //             = svgRect.top  + pDisplayY
+                //
+                // Cadena de mappings para llegar al bowl en screen coords:
+                //   y_viewBox = s · pUserCenterY + f
+                //   y_display = y_viewBox − viewBoxYStart = s·pUserCenterY + f + 64.6
+                //   y_screen  = svgRect.top + y_display
+                //             = svgRect.top + s·pUserCenterY + f + 64.6
+                //
+                // Despejando f de "y_screen = bowlOrigY + eased·(vh/2 − bowlOrigY)":
+                //   f = bowlOrigY + eased·(vh/2 − bowlOrigY) − svgRect.top − s·pUserCenterY − 64.6
+                //     = pDisplayY + eased·(vh/2 − svgRect.top − pDisplayY)
+                //       − s·(pDisplayY − 64.6) − 64.6
+                //     = pDisplayY·(1−s) + eased·(vh/2 − svgRect.top − pDisplayY)
+                //       + 64.6·(s−1)
+                //     = pDisplayY·(1−s) − viewBoxYStart·(1−s) + eased·(...)
+                //     = pUserCenterY·(1−s) + eased·(vh/2 − svgRect.top − pDisplayY)
+                //
+                // Para X (viewBoxXStart = 0, no hay término de corrección):
+                //   e = pUserCenterX·(1−s) + eased·(vw/2 − svgRect.left − pDisplayX)
+                //
+                // Como pUserCenterX = pDisplayX (viewBoxXStart=0) y
+                // pUserCenterY = pDisplayY − viewBoxYStart, reescribimos en
+                // términos de pDisplayX/Y (que SÍ están en scope module-level
+                // vía rsPortalOriginX/Y) + SVG_VIEWBOX_Y_START.
+                //
+                // IMPORTANTE: e y f usan `eased_move` (no `eased_grow`).
+                //   - eased_move se satura en 1 a partir de p4=0.50, así que
+                //     la posición queda fija en (vw/2, vh/2) durante el resto
+                //     del zoom (la palabra solo crece en su sitio).
+                //   - `s` sigue aumentando con eased_grow, así que la
+                //     palabra continúa escalándose de 1× a targetScale×.
+                //
+                // Verificación (en p4 ≥ 0.50, eased_move=1):
+                //   e = rsPortalOriginX·(1−s) + (vw/2 − bowlOrigX)
+                //   bowlScreenX = svgRect.left + s·pDisplayX + e
+                //               = svgRect.left + s·pDisplayX + pDisplayX·(1−s) + vw/2 − bowlOrigX
+                //               = svgRect.left + pDisplayX + vw/2 − (svgRect.left + pDisplayX)
+                //               = vw/2 ✓ (bowl clavado en el centro,
+                //                          independiente de s)
+                //
+                // Por qué se aplica via el ATRIBUTO transform del <g>` y NO
+                // via la CSS property: el renderer SVG reprocesa el <text>
+                // vectorialmente a cada frame (sin pixelación), exactamente
+                // lo que evita el problema del HTML text con transform: scale()
+                // (donde el browser rasteriza el texto a la resolución fuente
+                // y luego estira el bitmap).
+                const e = rsPortalOriginX * (1 - s) + eased_move * (window.innerWidth  / 2 - 65 - bowlOrigX);
+                // pUserCenterY = pDisplayY + viewBoxYStart (NO − viewBoxYStart)
+                // — la fórmula del viewBox es display_y = viewBox_y − viewBoxYStart,
+                // despejando viewBox_y = display_y + viewBoxYStart. Con
+                // viewBoxYStart = −64.6, pUserCenterY = pDisplayY − 64.6.
+                const f = (rsPortalOriginY + SVG_VIEWBOX_Y_START) * (1 - s) + eased_move * (window.innerHeight / 2 - bowlOrigY);
+                rsImpactoGroup.setAttribute(
+                    'transform',
+                    `matrix(${s} 0 0 ${s} ${e} ${f})`
+                );
+            } else if (rsImpactoGroup && rsPortalCaptured) {
+                rsImpactoGroup.setAttribute('transform', 'matrix(1 0 0 1 0 0)');
+                rsImpactoGroup.style.opacity = 1;
                 rsPortalCaptured = false;
             }
 
             // ── 4.2 Testimonio: fade-in (0.50 → 0.65) con portal effect ──
             // clip-path:ellipse() sincronizado frame a frame con la forma
-            // del anillo (mismo scale 1→2.75 power1.inOut). El testimonio
-            // se recorta visualmente a la elipse del anillo, creando el
-            // efecto "portal" del spec — el texto solo se ve "a través"
-            // de la forma del anillo. Recalculamos el ringScale aquí
-            // porque el bloque del anillo es independiente.
+            // del anillo (mismo scale 1→5.0 power1.inOut, igualado al
+            // ringScale de arriba). El testimonio se recorta visualmente
+            // a la elipse del anillo, creando el efecto "portal" del
+            // spec — el texto solo se ve "a través" de la forma del
+            // anillo. Recalculamos el ringScale aquí porque el bloque
+            // del anillo es independiente.
             if (rsQuote && p4 >= 0.50 && p4 < 0.75) {
                 const quoteInP = clamp01((p4 - 0.50) / 0.15);
                 const clipRingP = clamp01(p4 / 0.65);
                 const clipRingEased = gsap.parseEase('power1.inOut')(clipRingP);
-                const clipRingScale = 1.0 + (2.75 - 1.0) * clipRingEased;
+                const clipRingScale = 1.0 + (5.0 - 1.0) * clipRingEased;
                 // Ring base 754×480 con border-radius 232px. El clip-path
                 // usa porcentajes del bounding box del testimonio (que es
                 // full-viewport), así que el 50% base coincide con el
@@ -968,7 +1246,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsRing) {
                 gsap.set(rsRing, { opacity: 0, x: 0, y: 0, scale: 1, rotation: 0 });
             }
-            if (rsImpactoWord) { gsap.set(rsImpactoWord, { x: 0, y: 0, scale: 1, opacity: 1 }); }
+            if (rsImpactoGroup) {
+                rsImpactoGroup.setAttribute('transform', 'matrix(1 0 0 1 0 0)');
+                rsImpactoGroup.style.opacity = 1;
+            }
             rsPortalCaptured = false;
             if (rsQuote) {
                 gsap.set(rsQuote, { opacity: 0, clipPath: 'ellipse(50% 50% at 50% 50%)' });
@@ -978,7 +1259,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsCta, { y: 40, opacity: 0 });
                 rsCta.style.pointerEvents = 'none';
             }
-            if (rsTestimonioSection) { gsap.set(rsTestimonioSection, { y: '100vh' }); }
+            // Reset de .rs-testimonio a su estado oculto inicial
+            // (opacity:0 / visibility:hidden), para que no tape las
+            // secciones anteriores (Fases 1-3) al navegar hacia atrás.
+            if (rsTestimonioSection) {
+                gsap.set(rsTestimonioSection, { opacity: 0, visibility: 'hidden' });
+            }
         },
         onLeave: () => {
             // estado final ya aplicado por el propio onUpdate en p4=1: título
