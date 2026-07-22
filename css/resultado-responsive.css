@@ -467,7 +467,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 48px;
+        gap: 80px;
         /* z-index:8 — dentro del stacking context de .rs-testimonio
            (z:8), el closing queda sobre .rs-usuarios (z:7). */
         z-index: 8;
