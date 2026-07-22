@@ -1369,4 +1369,109 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // invisible, testimonio invisible, cierre + CTA visibles y legibles.
         }
     });
+
+    // ============================================
+    // FASE 5.2/5.3 — Agradecimiento, casos y CTA final
+    // ============================================
+
+    const rsTestimonioST = ScrollTrigger.getAll().find(st =>
+        st.trigger && st.trigger.classList &&
+        st.trigger.classList.contains('cs-pin-spacer--rs-testimonio')
+    );
+
+    const rsCierreSection = document.querySelector('.rs-cierre');
+    const rsGraciasLeft  = document.querySelector('.rs-cierre__gracias-word--left');
+    const rsGraciasRight = document.querySelector('.rs-cierre__gracias-word--right');
+    const rsCierreMedia  = document.querySelector('.rs-cierre__media');
+    const rsCierreCases  = gsap.utils.toArray('.rs-cierre__case');
+    const rsFooterLabel  = document.querySelector('.rs-cierre__footer-label');
+    const rsFooterTitle  = document.querySelector('.rs-cierre__footer-title');
+    const rsFooterText   = document.querySelector('.rs-cierre__footer-text');
+
+    ScrollTrigger.create({
+        trigger: '.cs-pin-spacer--rs-cierre',
+        start: () => rsTestimonioST ? rsTestimonioST.end : 0,
+        end: () => '+=' + (window.innerHeight * 3.5),
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self) => {
+            if (ScrollTrigger.isRefreshing) return;
+            const vh = window.innerHeight;
+            const p5 = self.progress;
+
+            // ── Entrada de .rs-cierre desde abajo (0.00 → 0.10) ──
+            const cierreP = clamp01(p5 / 0.10);
+            if (rsCierreSection) {
+                gsap.set(rsCierreSection, { y: (1 - cierreP) * vh });
+            }
+
+            // ── Salida del cierre de Fase 4 (0.00 → 0.15) ──
+            const exitP = clamp01(p5 / 0.15);
+            gsap.set('.rs-testimonio__closing', { y: -exitP * vh });
+            gsap.set('.rs-testimonio__closing .btn--secondary', { y: -exitP * vh, opacity: 1 - exitP });
+
+            // ── "¡Gracias" (0.05 → 0.30), deriva +X ──
+            if (rsGraciasLeft) {
+                const graciasP = clamp01((p5 - 0.05) / 0.25);
+                const graciasEased = gsap.parseEase('power2.out')(graciasP);
+                gsap.set(rsGraciasLeft, {
+                    y: 60 * (1 - graciasEased),
+                    x: 20 * graciasEased,
+                    opacity: graciasEased,
+                });
+            }
+
+            // ─ "por ver!" (0.10 → 0.35), deriva -X ─
+            if (rsGraciasRight) {
+                const porVerP = clamp01((p5 - 0.10) / 0.25);
+                const porVerEased = gsap.parseEase('power2.out')(porVerP);
+                gsap.set(rsGraciasRight, {
+                    y: 60 * (1 - porVerEased),
+                    x: -20 * porVerEased,
+                    opacity: porVerEased,
+                });
+            }
+
+            // ── Imagen (0.10 → 0.40) ──
+            if (rsCierreMedia) {
+                const mediaP = clamp01((p5 - 0.10) / 0.30);
+                const mediaEased = gsap.parseEase('power2.out')(mediaP);
+                gsap.set(rsCierreMedia, { y: 80 * (1 - mediaEased), opacity: mediaEased });
+            }
+
+            // ── Cards de casos de estudio (0.45 → 0.65), stagger ──
+            rsCierreCases.forEach((card, i) => {
+                const start = 0.45 + i * 0.10;
+                const localP = clamp01((p5 - start) / 0.10);
+                const eased = gsap.parseEase('power2.out')(localP);
+                gsap.set(card, { y: 60 * (1 - eased), opacity: eased });
+            });
+
+            // ── Footer de contacto (0.65 → 1.00), stagger ──
+            const footerEls = [rsFooterLabel, rsFooterTitle, rsFooterText];
+            footerEls.forEach((el, i) => {
+                if (!el) return;
+                const start = 0.65 + i * 0.10;
+                const localP = clamp01((p5 - start) / 0.15);
+                const eased = gsap.parseEase('power2.out')(localP);
+                gsap.set(el, { y: 40 * (1 - eased), opacity: eased });
+            });
+        },
+        onLeaveBack: () => {
+            gsap.set('.rs-testimonio__closing', { y: 0 });
+            gsap.set('.rs-testimonio__closing .btn--secondary', { y: 0, opacity: 1 });
+            if (rsCierreSection) { gsap.set(rsCierreSection, { y: '100vh' }); }
+            if (rsGraciasLeft)  { gsap.set(rsGraciasLeft,  { y: 60, x: 0, opacity: 0 }); }
+            if (rsGraciasRight) { gsap.set(rsGraciasRight, { y: 60, x: 0, opacity: 0 }); }
+            if (rsCierreMedia)  { gsap.set(rsCierreMedia,  { y: 80, opacity: 0 }); }
+            gsap.set(rsCierreCases, { y: 60, opacity: 0 });
+            [rsFooterLabel, rsFooterTitle, rsFooterText].forEach((el) => {
+                if (el) { gsap.set(el, { y: 40, opacity: 0 }); }
+            });
+        },
+        onLeave: () => {
+            if (rsCierreSection) { gsap.set(rsCierreSection, { y: 0 }); }
+        }
+    });
 }

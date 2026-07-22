@@ -67,6 +67,31 @@ Botón circular con glassmorphism effect. Perfecto para toggles y acciones rápi
 
 ---
 
+## 2.1 Botón líquido (`.btn-liquid`)
+
+CTA de contacto con microinteracción de fusión elástica — 3 cápsulas independientes (`CHARLEMOS`, `EN`, ícono WhatsApp) que se funden en una sola cápsula continua al hacer hover del wrapper. Exclusivo del CTA final de la sección de casos de estudio — no reemplaza `.btn.btn--primary`.
+
+### HTML
+```html
+<div class="btn-liquid">
+    <span class="btn-liquid__pill btn-liquid__pill--charlemos">CHARLEMOS</span>
+    <span class="btn-liquid__pill btn-liquid__pill--en">EN</span>
+    <span class="btn-liquid__pill btn-liquid__pill--whatsapp"><i class="ph ph-whatsapp-logo"></i></span>
+</div>
+```
+
+### Características
+- **3 cápsulas:** `CHARLEMOS` (texto largo), `EN` (texto corto), ícono WhatsApp
+- **Gap inicial:** 16px entre cápsulas
+- **Animación:** 100% CSS (`transition` en `:hover` del wrapper) — sin GSAP, sin scroll
+- **Easing:** `cubic-bezier(0.65, 0, 0.35, 1)` para movimiento elástico
+
+### Estados
+- **Reposo:** 3 cápsulas separadas, ícono WhatsApp rotado -90°
+- **Hover:** Gap 0px, cápsulas se funden en una sola, ícono rota a 0°
+
+---
+
 ## 3. Tag / Label — Categoría
 
 Etiqueta inline para categorización. Tres estilos distintos según contexto.
