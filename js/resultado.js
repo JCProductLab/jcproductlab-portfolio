@@ -764,15 +764,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         const main = document.querySelector('main');
         if (main) main.appendChild(rsRing);
     }
-    // Mover el closing a <main> para que escape del stacking context de
-    // .rs-testimonio (z:8). Con position:fixed + z-index:11, el closing
-    // queda ENCIMA de todas las secciones (mosaico z:7, metricas z:7,
-    // usuarios z:7, title z:9, ring z:10). El position:fixed hace que
-    // el top:var(--cs-header-height) se posicione respecto al viewport.
-    if (rsClosingSection && rsClosingSection.parentElement && rsClosingSection.parentElement.classList.contains('rs-testimonio')) {
-        const main = document.querySelector('main');
-        if (main) main.appendChild(rsClosingSection);
-    }
     const rsQuote         = document.querySelector('.rs-testimonio__quote');
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
     const rsClosingWraps  = gsap.utils.toArray('.rs-testimonio__line-wrap');
@@ -1035,17 +1026,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsTestimonioSection, {
                     opacity: revealP,
                     visibility: revealP > 0 ? 'visible' : 'hidden'
-                });
-            }
-            
-            // ── Revelado del closing (0.75 → 0.85) ──
-            // El closing tiene visibility:hidden en CSS para no bloquear
-            // eventos de mouse antes de que sea visible. Lo revelamos
-            // cuando empieza la animación de las líneas de cierre.
-            if (rsClosingSection) {
-                const closingRevealP = clamp01((p4 - 0.75) / 0.10);
-                gsap.set(rsClosingSection, {
-                    visibility: closingRevealP > 0 ? 'visible' : 'hidden'
                 });
             }
 
@@ -1323,7 +1303,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
             gsap.set(rsClosingLines, { y: '70px' });
             gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
-            // Reset del closing scale
+            // Reset del scale del closing
             if (rsClosingSection) {
                 rsClosingSection.style.transform = 'scale(1)';
             }

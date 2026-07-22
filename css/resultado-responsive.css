@@ -273,6 +273,10 @@
         z-index: 9;
         opacity: 0;
         will-change: transform, opacity;
+        /* pointer-events:none — el título contiene el SVG "impacto" que
+           bloquea los clicks al botón de "Qué aprendí". El título solo
+           contiene texto informativo, no tiene hijos interactivos. */
+        pointer-events: none;
     }
 
     .rs-usuarios__media {
@@ -398,15 +402,12 @@
         will-change: transform, opacity;
         /* z-index:10 — el ring se mueve a <main> (fuera de .rs-testimonio)
            con position:fixed para escapar del stacking context del padre
-           (z:8). Así, con z:10 global, queda ENCIMA del título "impacto"
-           (z efectivo 7 dentro de .rs-usuarios z:7) sin necesidad de subir
-           toda la sección .rs-testimonio a z:10 (lo que cubriría las
-           secciones anteriores). */
+           (z:8). Así, con z:10 global, queda ENCIMA de .rs-usuarios__title
+           (z:9) sin necesidad de subir .rs-testimonio a z:10 (lo que
+           cubriría las secciones anteriores). */
         z-index: 10;
-        /* pointer-events:none — el ring es puramente decorativo.
-           Aunque su opacity sea 0, pointer-events:auto (default) hace
-           que intercepte clicks/hover de elementos debajo (como el
-           botón "QUÉ APRENDÍ" en .rs-testimonio__closing z:8). */
+        /* pointer-events:none — el ring es decorativo (aria-hidden="true")
+           y bloquea los clicks al botón de "Qué aprendí". */
         pointer-events: none;
     }
 
@@ -426,11 +427,9 @@
            para que se vea "a través" del portal del anillo. El ring
            (z:10 global) queda sobre el testimonio. */
         z-index: 10;
-        /* pointer-events:none — el quote es puramente visual (texto
-           con clip-path), nunca necesita recibir eventos de mouse.
-           Sin esto, esta capa invisible (opacity:0 al final de la
-           animación) cubre todo el closing (z:8) y bloquea los
-           eventos de mouse del botón "QUÉ APRENDÍ". */
+        /* pointer-events:none — el quote cubre todo el viewport (inset:0)
+           y bloquea los clicks al botón de "Qué aprendí". El quote solo
+           contiene texto informativo, no tiene hijos interactivos. */
         pointer-events: none;
     }
 
@@ -459,7 +458,7 @@
     }
 
     .rs-testimonio__closing {
-        position: fixed;
+        position: absolute;
         top: var(--cs-header-height);
         left: 0;
         right: 0;
@@ -469,13 +468,17 @@
         align-items: center;
         justify-content: center;
         gap: 48px;
-        /* z-index:11 — global (no dentro de .rs-testimonio) para que
-           el closing quede por encima de todas las secciones (mosaico z:7,
-           metricas z:7, usuarios z:7, title z:9, ring z:10). El closing
-           se mueve a <main> en JS para escapar del stacking context de
-           .rs-testimonio (z:8). */
-        z-index: 11;
+        /* z-index:8 — dentro del stacking context de .rs-testimonio
+           (z:8), el closing queda sobre .rs-usuarios (z:7). */
+        z-index: 8;
+        /* Sin overflow:hidden para que el contenido pueda escalar
+           si excede el viewport (manejado por JS). */
         overflow: visible;
+        /* pointer-events:auto permite que el closing y sus hijos
+           (incluido el botón) reciban eventos de mouse, sobrescribiendo
+           el pointer-events:none de .rs-testimonio. Esto es necesario
+           para que el efecto de magnetismo funcione. */
+        pointer-events: auto;
     }
 
     .rs-testimonio__closing-title {
