@@ -1061,7 +1061,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             //     A 5.0× el ring mide 3770×2400 — way beyond viewport,
             //     "desaparece" más allá de los bordes (efecto tunnel).
             if (rsRing) {
-                const ringFadeP = clamp01(p4 / 0.25);
+                const ringFadeP = clamp01(p4 / 0.15);
                 const ringP = clamp01(p4 / 0.95);
                 const ringEased = p4 < 0.50
                     ? gsap.parseEase('power1.inOut')(p4 / 0.50) * 0.5
@@ -1221,7 +1221,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 rsPortalCaptured = false;
             }
 
-            // ── 4.2 Testimonio: fade-in (0.50 → 0.65) con portal effect ──
+            // ── 4.2 Testimonio: fade-in (0.40 → 0.55) con portal effect ──
             // clip-path:ellipse() sincronizado frame a frame con la forma
             // del anillo (mismo scale 1→5.0 power1.inOut, igualado al
             // ringScale de arriba). El testimonio se recorta visualmente
@@ -1229,8 +1229,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // spec — el texto solo se ve "a través" de la forma del
             // anillo. Recalculamos el ringScale aquí porque el bloque
             // del anillo es independiente.
-            if (rsQuote && p4 >= 0.50 && p4 < 0.75) {
-                const quoteInP = clamp01((p4 - 0.50) / 0.15);
+            if (rsQuote && p4 >= 0.40 && p4 < 0.75) {
+                const quoteInP = clamp01((p4 - 0.40) / 0.15);
                 const clipRingP = clamp01(p4 / 0.65);
                 const clipRingEased = gsap.parseEase('power1.inOut')(clipRingP);
                 const clipRingScale = 1.0 + (5.0 - 1.0) * clipRingEased;
