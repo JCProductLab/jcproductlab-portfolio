@@ -1289,18 +1289,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(rsQuote, { opacity: 1 - quoteOutP });
             }
 
-            // ── 4.4 Revelación de líneas de cierre con cortinilla (0.78 → 1.00) ──
+            // ── 4.4 Revelación de líneas de cierre con cortinilla (0.85 → 0.99) ──
             // Animación de cortinilla: clip-path del wrap se abre de abajo hacia
             // arriba (inset(100% 0 0 0) → inset(0 0 0 0)), sincronizado con el
             // translateY del line (70px → 0px). Usamos clip-path en lugar de
             // overflow:hidden para evitar el corte por sub-pixel rounding.
-            // CLOSING_START=0.78 y CLOSING_STEP=0.055 para que las 3 líneas
-            // completen su animación exactamente en p4=1.0:
-            //   Línea 0: 0.78 → 0.89 ✓
-            //   Línea 1: 0.835 → 0.945 ✓
-            //   Línea 2: 0.89 → 1.0 ✓
-            const CLOSING_START = 0.78;
-            const CLOSING_STEP  = 0.055; // stagger entre líneas
+            // CLOSING_START=0.85 (después del fade-out del quote) y CLOSING_STEP=0.035
+            // para que las 3 líneas completen su animación antes de p4=1.0:
+            //   Línea 0: 0.85 → 0.92 ✓
+            //   Línea 1: 0.885 → 0.955 ✓
+            //   Línea 2: 0.92 → 0.99 ✓
+            const CLOSING_START = 0.85;
+            const CLOSING_STEP  = 0.035; // stagger entre líneas
             rsClosingLines.forEach((line, i) => {
                 const lineStart = CLOSING_START + i * CLOSING_STEP;
                 const localP = clamp01((p4 - lineStart) / (CLOSING_STEP * 2));
@@ -1314,11 +1314,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             // ── 4.5 Botón "Qué aprendí": zoom + fade con rebote ──
             // Réplica EXACTA de cta-section-reveal: scale 0.5→1, opacity 0→1,
             // ease 'back.out(1.4)'. Empieza DESPUÉS de que la última línea
-            // termina de animarse (línea 2 termina en p4 ≈ 1.08, capped a 1.0).
-            // El botón entra en p4 = 0.90 → 1.0 con rebote final.
+            // termina de animarse (línea 2 termina en p4 ≈ 0.99).
+            // El botón entra en p4 = 0.92 → 1.0 con rebote final.
             if (rsClosingBtnWrapper) {
-                const BTN_START = 0.90;
-                const BTN_DUR = 0.10;
+                const BTN_START = 0.92;
+                const BTN_DUR = 0.08;
                 const btnP = clamp01((p4 - BTN_START) / BTN_DUR);
                 const btnEased = gsap.parseEase('back.out(1.4)')(btnP);
                 gsap.set(rsClosingBtnWrapper, {
