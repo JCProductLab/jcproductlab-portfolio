@@ -79,8 +79,12 @@
 
 /* Título principal */
 .modal-rol-proceso__title {
-    width: 45%;
-    margin-bottom: 80px;
+    margin-bottom: 0;
+}
+
+/* Gap entre título e inner solo en modalMiRol */
+#modalMiRol .modal-rol-proceso__inner {
+    margin-top: 80px;
 }
 
 /* Contenedor interno — columnas */
@@ -120,6 +124,39 @@
 .modal-rol-proceso__text .large-paragraph {
     line-height: 1.6;
     color: #C0C0C0;
+}
+
+/* ============================================
+   MODAL QUÉ APRENDÍ — Grid 2 columnas
+   ============================================ */
+
+.modal-que-aprendi__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-que-aprendi__left {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-que-aprendi__right {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal-que-aprendi__right .modal-rol-proceso__text {
+    justify-content: flex-end;
+}
+
+.cs-highlight {
+    color: var(--color-secondary);
 }
 
 /* ============================================
@@ -195,7 +232,7 @@
     top: 80px;
     left: 0;
     width: 100%;
-    height: 280px;
+    height: 240px;
     flex-shrink: 0;
     border-radius: 24px;
     overflow: hidden;

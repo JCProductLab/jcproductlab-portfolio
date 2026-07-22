@@ -49,6 +49,35 @@
     }
 
     /* ============================================
+       MODAL QUÉ APRENDÍ — Desktop 2 columnas
+       ============================================ */
+
+    .modal-que-aprendi__grid {
+        flex-direction: row;
+        gap: 80px;
+    }
+
+    .modal-que-aprendi__left {
+        flex: 0 0 35%;
+        width: 35%;
+        justify-content: flex-start;
+    }
+
+    .modal-que-aprendi__right {
+        flex: 1;
+        width: auto;
+        justify-content: flex-end;
+        padding-right: 0;
+    }
+
+    .modal-que-aprendi__right .modal-rol-proceso__text {
+        flex: 1;
+        width: auto;
+        padding-right: 0;
+        justify-content: flex-end;
+    }
+
+    /* ============================================
        MODAL EL PROCESO — Responsive desktop
        ============================================ */
 
@@ -76,4 +105,7 @@
         left: 0;
         flex-shrink: 0;
     }
+    #modalMiRol .modal-rol-proceso__inner {
+    margin-top: 80px;
+}
 }
