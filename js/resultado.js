@@ -768,6 +768,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsClosingLines  = gsap.utils.toArray('.rs-testimonio__line');
     const rsClosingWraps  = gsap.utils.toArray('.rs-testimonio__line-wrap');
     const rsClosingSection = document.querySelector('.rs-testimonio__closing');
+    const rsClosingBtn    = document.querySelector('.rs-testimonio__closing .btn--secondary');
+
+    // Estado inicial del botón "Qué aprendí": invisible y escalado al 50%
+    // La animación de entrada (zoom + fade con rebote) se aplica en el
+    // onUpdate del ScrollTrigger de Fase 4.
+    if (rsClosingBtn) {
+        gsap.set(rsClosingBtn, { scale: 0.5, opacity: 0, transformOrigin: 'center center' });
+    }
     
     // Escala dinámica del closing: si el contenido (3 líneas + gap + CTA)
     // excede la altura del viewport, se escala proporcionalmente para que
@@ -1281,6 +1289,23 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.set(line, { y: `${70 * (1 - eased)}px` });
             });
 
+            // ── 4.5 Botón "Qué aprendí": zoom + fade con rebote ──
+            // Réplica EXACTA de cta-section-reveal: scale 0.5→1, opacity 0→1,
+            // ease 'back.out(1.4)'. Empieza DESPUÉS de que la última línea
+            // termina de animarse (línea 2 termina en p4 ≈ 1.08, capped a 1.0).
+            // El botón entra en p4 = 0.95 → 1.0 con rebote final.
+            if (rsClosingBtn) {
+                const BTN_START = 0.95;
+                const BTN_DUR = 0.05;
+                const btnP = clamp01((p4 - BTN_START) / BTN_DUR);
+                const btnEased = gsap.parseEase('back.out(1.4)')(btnP);
+                gsap.set(rsClosingBtn, {
+                    scale: 0.5 + 0.5 * btnEased,
+                    opacity: btnEased,
+                    transformOrigin: 'center center',
+                });
+            }
+
             // ─ 4.5 Escala dinámica del closing 
             // Cuando el closing es visible (p4 >= 0.80), calcular y aplicar
             // scale para que el contenido quepa completo sin cortarse.
@@ -1303,6 +1328,10 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
             gsap.set(rsClosingLines, { y: '70px' });
             gsap.set(rsClosingWraps, { clipPath: 'inset(100% 0 0 0)' });
+            // Reset del botón "Qué aprendí" a su estado inicial
+            if (rsClosingBtn) {
+                gsap.set(rsClosingBtn, { scale: 0.5, opacity: 0 });
+            }
             // Reset del scale del closing
             if (rsClosingSection) {
                 rsClosingSection.style.transform = 'scale(1)';
