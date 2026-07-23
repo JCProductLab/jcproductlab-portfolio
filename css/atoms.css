@@ -289,8 +289,10 @@
 
 .btn-liquid {
     display: inline-flex;
-    align-items: center;
-    gap: 16px;
+    /* stretch: las 3 cápsulas igualan su alto al de la más alta
+       (--charlemos/--en, definido por su padding). */
+    align-items: stretch;
+    gap: 0px;
     cursor: pointer;
 }
 
@@ -300,28 +302,44 @@
     justify-content: center;
     background-color: var(--color-accent);
     color: var(--color-primary);
-    font-weight: var(--semibold);
+    /* Misma tipografía que .btn (el botón de .cta-section). */
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: var(--bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     border-radius: 9999px;
     transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1);
     white-space: nowrap;
 }
 
 .btn-liquid__pill--charlemos {
-    padding: 20px 32px;
+    padding: 40px 32px;
     transform: translateX(0);
 }
 
 .btn-liquid__pill--en {
-    padding: 20px 20px;
+    padding: 40px 40px;
     transform: translateX(0);
 }
 
 .btn-liquid__pill--whatsapp {
     width: 64px;
-    height: 64px;
+    /* Sin height fijo: el stretch de .btn-liquid la alarga hasta igualar
+       el alto de --charlemos/--en. */
     padding: 0;
-    font-size: 1.5rem;
-    transform: translateX(0) rotate(-90deg);
+    transform: translateX(0);
+}
+
+/* .btn__icon anidado dentro de la cápsula: mismo badge oscuro con ícono
+   en accent que usa .btn--primary .btn__icon en cta-section, conservando
+   el fondo verde de la cápsula alrededor (no lo reemplaza). La rotación
+   vive aquí (no en la cápsula) para que estirar la cápsula a lo alto no
+   la deje ancha por culpa del rotate. */
+.btn-liquid__pill--whatsapp .btn__icon {
+    background-color: var(--color-primary);
+    transform: rotate(-90deg);
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .btn-liquid:hover { gap: 0px; }
@@ -339,8 +357,12 @@
 }
 
 .btn-liquid:hover .btn-liquid__pill--whatsapp {
-    transform: translateX(-24px) rotate(0deg);
+    transform: translateX(-24px);
     border-radius: 0 9999px 9999px 0;
+}
+
+.btn-liquid:hover .btn-liquid__pill--whatsapp .btn__icon {
+    transform: rotate(0deg);
 }
 
 @media (min-width: 1200px) {
