@@ -626,11 +626,13 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 24px;
+        /* Mismo gap que .cta-section (index.html) entre header y body. */
+        gap: 40px;
         text-align: center;
     }
 
-    .rs-cierre__footer-label { color: var(--color-accent); opacity: 0; will-change: transform, opacity; }
+    /* Tipografía en .cs-label, aquí solo el estado de animación. */
+    .rs-cierre__footer-label { opacity: 0; will-change: transform, opacity; }
     .rs-cierre__footer-title { opacity: 0; will-change: transform, opacity; }
     .rs-cierre__footer-text  { opacity: 0; will-change: transform, opacity; }
 }
