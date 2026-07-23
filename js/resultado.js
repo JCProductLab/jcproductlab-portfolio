@@ -1387,11 +1387,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsFooterLabel  = document.querySelector('.rs-cierre__footer-label');
     const rsFooterTitle  = document.querySelector('.rs-cierre__footer-title');
     const rsFooterText   = document.querySelector('.rs-cierre__footer-text');
+    const rsFooterBtn    = document.querySelector('.rs-cierre .btn-liquid');
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--rs-cierre',
         start: () => rsTestimonioST ? rsTestimonioST.end : 0,
-        end: () => '+=' + (window.innerHeight * 3.5),
+        end: () => '+=' + (window.innerHeight * 5),
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -1446,20 +1447,30 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 });
             }
 
-            // ── Cards de casos de estudio (0.45 → 0.65), stagger ──
+            // ── Cascada final: cards → label → título → texto → botón ──
+            // Arranca en 0.65, justo cuando la imagen de la subfase anterior
+            // ya terminó de desaparecer (mediaExit llega a 1 en 0.65) — antes
+            // arrancaba en 0.45 y chocaba con ella. Las cards entran desde
+            // fuera del viewport (abajo hacia arriba), igual que .rs-cierre
+            // al inicio de esta fase, en vez del pequeño drift de 60px que
+            // usa el resto del footer.
+            const cascadeStart = 0.65;
+            const cascadeStagger = 0.045;
+            const cascadeDur = 0.12;
+
             rsCierreCases.forEach((card, i) => {
-                const start = 0.45 + i * 0.10;
-                const localP = clamp01((p5 - start) / 0.10);
+                const start = cascadeStart + i * cascadeStagger;
+                const localP = clamp01((p5 - start) / cascadeDur);
                 const eased = gsap.parseEase('power2.out')(localP);
-                gsap.set(card, { y: 60 * (1 - eased), opacity: eased });
+                gsap.set(card, { y: (1 - eased) * vh, opacity: eased });
             });
 
-            // ── Footer de contacto (0.65 → 1.00), stagger ──
-            const footerEls = [rsFooterLabel, rsFooterTitle, rsFooterText];
+            const footerStart = cascadeStart + rsCierreCases.length * cascadeStagger;
+            const footerEls = [rsFooterLabel, rsFooterTitle, rsFooterText, rsFooterBtn];
             footerEls.forEach((el, i) => {
                 if (!el) return;
-                const start = 0.65 + i * 0.10;
-                const localP = clamp01((p5 - start) / 0.15);
+                const start = footerStart + i * cascadeStagger;
+                const localP = clamp01((p5 - start) / cascadeDur);
                 const eased = gsap.parseEase('power2.out')(localP);
                 gsap.set(el, { y: 40 * (1 - eased), opacity: eased });
             });
@@ -1471,8 +1482,8 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsGraciasLeft)  { gsap.set(rsGraciasLeft,  { y: 60, x: 0, opacity: 0 }); }
             if (rsGraciasRight) { gsap.set(rsGraciasRight, { y: 60, x: 0, opacity: 0 }); }
             if (rsCierreMedia)  { gsap.set(rsCierreMedia,  { y: 80, opacity: 0 }); }
-            gsap.set(rsCierreCases, { y: 60, opacity: 0 });
-            [rsFooterLabel, rsFooterTitle, rsFooterText].forEach((el) => {
+            gsap.set(rsCierreCases, { y: window.innerHeight, opacity: 0 });
+            [rsFooterLabel, rsFooterTitle, rsFooterText, rsFooterBtn].forEach((el) => {
                 if (el) { gsap.set(el, { y: 40, opacity: 0 }); }
             });
         },
