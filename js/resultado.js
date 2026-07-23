@@ -1411,9 +1411,9 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.set('.rs-testimonio__closing', { y: -exitP * vh });
             gsap.set('.rs-testimonio__closing .btn--secondary', { y: -exitP * vh, opacity: 1 - exitP });
 
-            // ── "¡Gracias" (0.05 → 0.30), deriva +X ──
+            // ── "¡Gracias" (0.10 → 0.35), deriva +X — misma animación que "por ver!", espejada ──
             if (rsGraciasLeft) {
-                const graciasP = clamp01((p5 - 0.05) / 0.25);
+                const graciasP = clamp01((p5 - 0.10) / 0.25);
                 const graciasEased = gsap.parseEase('power2.out')(graciasP);
                 const graciasExit = clamp01((p5 - 0.40) / 0.20);
                 gsap.set(rsGraciasLeft, {
