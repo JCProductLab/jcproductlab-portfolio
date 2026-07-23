@@ -294,12 +294,34 @@
     align-items: stretch;
     gap: 0px;
     cursor: pointer;
+    position: relative;
+}
+
+/* Fondo único compartido — inset:0 lo mantiene sincronizado con el
+   tamaño real de .btn-liquid en cada frame del reflow (el ancho de
+   .btn-liquid cambia por el padding de sus hijos, no por un valor
+   propio), sin necesidad de calcular ningún ancho a mano. */
+.btn-liquid__merge-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background-color: var(--color-accent);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.btn-liquid:hover .btn-liquid__merge-bg {
+    opacity: 1;
 }
 
 .btn-liquid__pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 1;
     background-color: var(--color-accent);
     color: var(--color-primary);
     /* Misma tipografía que .btn (el botón de .cta-section). */
@@ -315,50 +337,49 @@
 
 .btn-liquid__pill--charlemos {
     padding: 40px 32px;
-    transform: translateX(0);
 }
 
 .btn-liquid__pill--en {
     padding: 40px 40px;
-    transform: translateX(0);
 }
 
 .btn-liquid__pill--whatsapp {
     width: 64px;
-    /* Sin height fijo: el stretch de .btn-liquid la alarga hasta igualar
-       el alto de --charlemos/--en. */
     padding: 0;
-    transform: translateX(0);
+    /* Sin height fijo: el stretch de .btn-liquid la alarga hasta igualar
+       el alto de --charlemos/--en. Sin cambios entre reposo y hover: no
+       se le anima padding/width (evita animar hacia/desde un valor auto). */
 }
 
 /* .btn__icon anidado dentro de la cápsula: mismo badge oscuro con ícono
    en accent que usa .btn--primary .btn__icon en cta-section, conservando
    el fondo verde de la cápsula alrededor (no lo reemplaza). La rotación
-   vive aquí (no en la cápsula) para que estirar la cápsula a lo alto no
-   la deje ancha por culpa del rotate. */
+   vive aquí (no en la cápsula) porque el badge es un círculo perfecto
+   (48×48, rotacionalmente invariante); la cápsula exterior mide 64×106
+   (no cuadrada, por el stretch) y rotarla distorsionaría su silueta. */
 .btn-liquid__pill--whatsapp .btn__icon {
     background-color: var(--color-primary);
     transform: rotate(-90deg);
     transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.btn-liquid:hover { gap: 0px; }
+/* Las 3 cápsulas pierden su fondo propio de forma uniforme — revela
+   .btn-liquid__merge-bg debajo. Sin casos especiales por cápsula: así
+   es geométricamente imposible que la silueta de una asome sobre la
+   silueta plana de las otras (el bug de la "cuarta cápsula" fantasma). */
+.btn-liquid:hover .btn-liquid__pill {
+    background-color: transparent;
+}
 
+/* padding-left se queda en 32px (ancla): CHARLEMOS se desplaza a la
+   derecha porque el padre (.cta-section__body, align-items:center)
+   recentra el botón al encogerse — no por un translateX calculado. */
 .btn-liquid:hover .btn-liquid__pill--charlemos {
-    transform: translateX(24px);
-    border-radius: 9999px 0 0 9999px;
-    padding-right: 12px;
+    padding-right: 8px;
 }
 
 .btn-liquid:hover .btn-liquid__pill--en {
-    transform: translateX(-8px);
-    border-radius: 0;
-    padding-inline: 12px;
-}
-
-.btn-liquid:hover .btn-liquid__pill--whatsapp {
-    transform: translateX(-24px);
-    border-radius: 0 9999px 9999px 0;
+    padding: 40px 16px 40px 8px;
 }
 
 .btn-liquid:hover .btn-liquid__pill--whatsapp .btn__icon {
