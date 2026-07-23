@@ -352,10 +352,20 @@ h4 {
   font-family: var(--font-family);
   font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 400;
-  font-style: italic;
-  line-height: 1.3;
-  letter-spacing: 0;
-  color: var(--color-text-secondary);
+   font-style: italic;
+   line-height: 1.3;
+   letter-spacing: 0;
+   color: var(--color-text-secondary);
+}
+
+/* Display — Para el agradecimiento "¡Gracias por ver!" */
+.cs-gracias {
+   font-family: var(--font-display);
+   font-size: 144px;
+   font-weight: 500;
+   line-height: 1.1;
+   letter-spacing: 0;
+   color: var(--color-secondary);
 }
 
 /* ============================================

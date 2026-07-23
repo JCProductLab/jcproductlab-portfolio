@@ -83,3 +83,8 @@ Sizes: `icon--xs/sm/md/lg/xl`. Colors: `icon--primary/secondary/accent/disabled`
 ## Hero Animation
 
 `hero-intro.js` wraps H1 words in `<span class="hero-word">` at init time, then adds `.hero-active` on `window.load` to trigger CSS entry animations. The word swapper (`negocio → producto → usuario → mañana`) starts after the CTA button's `transitionend` fires — this is the final step of the choreography and must not be disrupted.
+
+## Workflow Rules
+
+- **Never use Chrome DevTools / browser automation tools** (chrome-devtools, claude-in-chrome, etc.) on this project unless absolutely necessary. "Absolutely necessary" excludes anything the user can check themselves via Chrome's inspector — that's the default path. If a genuine need comes up, stop and explain to the user *why* it's needed and ask for confirmation before using it. Prefer instead: tell the user exactly what to open/click/inspect in DevTools themselves and what to report back.
+- **Never `git commit` or `git push`** unless the user explicitly asks for it in that message. Implement and report; wait for the user to review before committing. This holds even if committing feels like the natural next step.

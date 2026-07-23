@@ -533,32 +533,41 @@
 
     .rs-cierre__gracias {
         position: absolute;
-        top: 15%;
-        left: 80px;
-        display: flex;
-        flex-direction: column;
-        font-family: var(--font-display);
-        font-size: clamp(3rem, 6vw, 6rem);
-        font-weight: var(--bold);
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: inline-block;
+        text-align: left;
+        line-height: 1.1;
+        /* Por encima de .rs-cierre__media: el bloque de texto se solapa
+           40px con la imagen (spec de diseño) y debe quedar visible. */
+        z-index: 2;
     }
 
-    .rs-cierre__gracias-word { opacity: 0; will-change: transform, opacity; }
-    .rs-cierre__gracias-word--right { align-self: flex-end; margin-right: 10%; }
+    .rs-cierre__gracias-word { opacity: 0; will-change: transform, opacity; display: block; }
+    .rs-cierre__gracias-word--left { margin-left: 0; }
+    /* -32px respecto a la línea "¡Gracias" (spec de diseño). */
+    .rs-cierre__gracias-word--right { margin-left: 3em; margin-top: -32px; }
 
     .rs-cierre__media {
         position: absolute;
-        top: 40%;
+        /* Anclada a .rs-cierre__gracias (top: 10%): 2 líneas de 144px/1.1
+           (158.4px c/u) con -32px de solape = 284.8px de alto de bloque,
+           menos 40px de gap respecto a "por ver!" = 10% + 244.8px. */
+        top: calc(10% + 244.8px);
         left: 50%;
         transform: translateX(-50%);
-        width: 55%;
-        max-width: 900px;
+        width: 1200px;
+        max-width: none;
+        height: 560px;
         border-radius: 24px;
         overflow: hidden;
         opacity: 0;
         will-change: transform, opacity;
+        z-index: 1;
     }
 
-    .rs-cierre__media-img { display: block; width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+    .rs-cierre__media-img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
     .rs-cierre__cases {
         position: absolute;

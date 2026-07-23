@@ -1415,10 +1415,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsGraciasLeft) {
                 const graciasP = clamp01((p5 - 0.05) / 0.25);
                 const graciasEased = gsap.parseEase('power2.out')(graciasP);
+                const graciasExit = clamp01((p5 - 0.40) / 0.20);
                 gsap.set(rsGraciasLeft, {
-                    y: 60 * (1 - graciasEased),
+                    y: 60 * (1 - graciasEased) - graciasExit * vh,
                     x: 20 * graciasEased,
-                    opacity: graciasEased,
+                    opacity: graciasEased * (1 - graciasExit),
                 });
             }
 
@@ -1426,10 +1427,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsGraciasRight) {
                 const porVerP = clamp01((p5 - 0.10) / 0.25);
                 const porVerEased = gsap.parseEase('power2.out')(porVerP);
+                const porVerExit = clamp01((p5 - 0.40) / 0.20);
                 gsap.set(rsGraciasRight, {
-                    y: 60 * (1 - porVerEased),
+                    y: 60 * (1 - porVerEased) - porVerExit * vh,
                     x: -20 * porVerEased,
-                    opacity: porVerEased,
+                    opacity: porVerEased * (1 - porVerExit),
                 });
             }
 
@@ -1437,7 +1439,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsCierreMedia) {
                 const mediaP = clamp01((p5 - 0.10) / 0.30);
                 const mediaEased = gsap.parseEase('power2.out')(mediaP);
-                gsap.set(rsCierreMedia, { y: 80 * (1 - mediaEased), opacity: mediaEased });
+                const mediaExit = clamp01((p5 - 0.45) / 0.20);
+                gsap.set(rsCierreMedia, {
+                    y: 80 * (1 - mediaEased) - mediaExit * vh,
+                    opacity: mediaEased * (1 - mediaExit),
+                });
             }
 
             // ── Cards de casos de estudio (0.45 → 0.65), stagger ──
