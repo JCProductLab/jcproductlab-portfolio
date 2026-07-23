@@ -580,6 +580,10 @@
         flex-direction: column;
         align-items: center;
         gap: 64px;
+        /* Por encima de .rs-cierre__media (z-index:1): sin esto, la imagen
+           (invisible en reposo pero presente en el DOM) queda por encima de
+           parte de las cards y bloquea el hover ahí. */
+        z-index: 2;
     }
 
     .rs-cierre__cases {
@@ -597,7 +601,19 @@
         will-change: transform, opacity;
     }
 
-    .rs-cierre__case-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .rs-cierre__case-img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 400ms ease;
+    }
+
+    /* Zoom solo de la imagen — el contenedor (.rs-cierre__case) no cambia
+       de tamaño, overflow:hidden recorta el excedente. */
+    .rs-cierre__case:hover .rs-cierre__case-img {
+        transform: scale(1.08);
+    }
 
     /* Overlay oscuro para legibilidad del texto sobre la imagen. */
     .rs-cierre__case::after {
