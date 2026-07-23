@@ -569,34 +569,63 @@
 
     .rs-cierre__media-img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
-    .rs-cierre__cases {
+    /* Agrupa las cards de casos y el CTA final para poder centrarlos
+       juntos, a lo alto, como un solo bloque. */
+    .rs-cierre__bottom {
         position: absolute;
-        bottom: 15%;
-        left: 80px;
-        right: 80px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         display: flex;
-        gap: 40px;
+        flex-direction: column;
+        align-items: center;
+        gap: 64px;
+    }
+
+    .rs-cierre__cases {
+        display: flex;
+        gap: 380px;
     }
 
     .rs-cierre__case {
-        flex: 1;
+        position: relative;
+        width: 400px;
+        height: 300px;
         border-radius: 24px;
         overflow: hidden;
-        background: var(--color-bg);
         opacity: 0;
         will-change: transform, opacity;
     }
 
-    .rs-cierre__case-img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; }
-    .rs-cierre__case-text { padding: 24px; color: var(--color-secondary); }
+    .rs-cierre__case-img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
-    .rs-cierre__footer {
+    /* Overlay oscuro para legibilidad del texto sobre la imagen. */
+    .rs-cierre__case::after {
+        content: '';
         position: absolute;
         inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 55%);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .rs-cierre__case-text {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 24px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--color-secondary);
+        z-index: 2;
+    }
+
+    .rs-cierre__footer {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         gap: 24px;
         text-align: center;
     }
