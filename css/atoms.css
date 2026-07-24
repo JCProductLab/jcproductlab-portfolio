@@ -381,15 +381,38 @@
     background-color: transparent;
 }
 
-/* padding-left se queda en 32px (ancla): CHARLEMOS se desplaza a la
-   derecha porque el padre (.cta-section__body, align-items:center)
-   recentra el botón al encogerse — no por un translateX calculado. */
+/* Margen izquierdo pedido: 64px (antes 32px, sin cambio en reposo).
+   CHARLEMOS se desplaza a la derecha porque el padre (.cta-section__body,
+   align-items:center) recentra el botón al encogerse — no por un
+   translateX calculado. */
 .btn-liquid:hover .btn-liquid__pill--charlemos {
-    padding-right: 8px;
+    padding-left: 64px;
+    padding-right: 0px;
 }
 
+/* CHARLEMOS↔EN: 0(charlemos) + 5(en, abajo) = 5px.
+   EN↔ícono: 0(en, abajo) + 8px fijo de --whatsapp (sin tocar, ver nota
+   en su regla) = 8px. */
 .btn-liquid:hover .btn-liquid__pill--en {
-    padding: 40px 16px 40px 8px;
+    padding: 40px 0 40px 5px;
+}
+
+/* Margen derecho pedido: 64px, igual al izquierdo. No se logra con
+   padding en .btn-liquid (el merge-bg usa inset:0, que se ajusta al
+   content box — un padding ahí dejaría ese espacio sin fondo verde) ni
+   tocando --whatsapp directamente (rompería el pivote de su rotación,
+   ver su regla). Un spacer invisible, como último ítem del flex, sí
+   queda incluido en el content box que el merge-bg cubre.
+   64px = 8px fijo de --whatsapp (badge centrado en su caja de 64px,
+   sin tocar) + 56px de este spacer. */
+.btn-liquid__spacer-right {
+    width: 0;
+    flex-shrink: 0;
+    transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.btn-liquid:hover .btn-liquid__spacer-right {
+    width: 56px;
 }
 
 @media (min-width: 1200px) {
