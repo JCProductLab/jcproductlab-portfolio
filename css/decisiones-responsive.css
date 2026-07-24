@@ -40,7 +40,7 @@
 
     /* Altura del pin-spacer de la transición Contexto → Decisiones.
        100vh = un viewport de scroll para la interpolación de la escalera. */
-    .cs-pin-spacer--decisiones-titulos { height: 100vh; }
+    .cs-pin-spacer--decisiones-titulos { height: 0; }
 
     /* Altura del pin-spacer de la cortina Decisión 1.
        6.5vh = el pin dura ~6.5vh de scroll (antes 9.17vh / 100vh).

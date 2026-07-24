@@ -829,9 +829,14 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--contexto',
         // Contiguo con el fin del Shift (calculado del DOM).
-        // El end se queda en 'bottom top' (equivale a start + altura del trigger).
+        // end explícito (antes 'bottom top'): confirmado en vivo que la
+        // duración real (contextoST.end - start) coincidía exactamente con
+        // los 200vh naturales del spacer (2160px a 1080px de innerHeight,
+        // ratio 1.0). Con end explícito, la altura natural del spacer puede
+        // bajarse a 0 (ver css/case-study-responsive.css) sin cambiar la
+        // duración del pin.
         start: () => calculateShiftLayout().contextoStart,
-        end: 'bottom top',
+        end: () => calculateShiftLayout().contextoStart + window.innerHeight * 2,
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -903,8 +908,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         // (que ya incluye el pinSpacing) en vez de calcular con
         // contextoSpacer.offsetHeight (que da la altura CSS original, no
         // el rango efectivo del ST). No modifica calculateShiftLayout().
+        // end explícito (antes 'bottom top'): confirmado en vivo que la
+        // duración real coincide exactamente con los 100vh naturales del
+        // spacer (1080px a 1080px de innerHeight, ratio 1.0). Con end
+        // explícito, la altura natural del spacer puede bajarse a 0 (ver
+        // css/decisiones-responsive.css) sin cambiar la duración del pin.
         start: () => contextoST ? contextoST.end : 0,
-        end: 'bottom top',
+        end: () => (contextoST ? contextoST.end : 0) + window.innerHeight * 1,
         pin: true,
         pinSpacing: true,
         scrub: 1,

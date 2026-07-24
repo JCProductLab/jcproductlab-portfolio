@@ -346,4 +346,4 @@
 
 .cs-pin-spacer--metrica  { height: 150vh; }
 .cs-pin-spacer--shift-mc { height: 120vh; }
-.cs-pin-spacer--contexto { height: 200vh; }
+.cs-pin-spacer--contexto { height: 0; }
