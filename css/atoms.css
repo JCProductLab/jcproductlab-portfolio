@@ -343,24 +343,31 @@
     padding: 40px 40px;
 }
 
+/* Reposo: sin rotar (0deg) — 64px de ancho x ~106px de alto (por el
+   stretch de .btn-liquid), igual que --charlemos/--en. En hover rota
+   90deg (sentido horario): pasa a verse acostada (~106 de ancho x 64 de
+   alto). Rota TODA
+   la cápsula (fondo verde + badge + ícono) como una sola pieza — no solo
+   el badge interior — porque el fondo ya se desvanece a transparent en
+   el mismo instante (regla de arriba), así que la silueta no cuadrada
+   nunca queda visible distorsionada de forma permanente, solo durante
+   la transición, disimulada por el propio desvanecimiento. */
 .btn-liquid__pill--whatsapp {
     width: 64px;
     padding: 0;
-    /* Sin height fijo: el stretch de .btn-liquid la alarga hasta igualar
-       el alto de --charlemos/--en. Sin cambios entre reposo y hover: no
-       se le anima padding/width (evita animar hacia/desde un valor auto). */
+    transform: rotate(0deg);
+}
+
+.btn-liquid:hover .btn-liquid__pill--whatsapp {
+    transform: rotate(90deg);
 }
 
 /* .btn__icon anidado dentro de la cápsula: mismo badge oscuro con ícono
    en accent que usa .btn--primary .btn__icon en cta-section, conservando
-   el fondo verde de la cápsula alrededor (no lo reemplaza). La rotación
-   vive aquí (no en la cápsula) porque el badge es un círculo perfecto
-   (48×48, rotacionalmente invariante); la cápsula exterior mide 64×106
-   (no cuadrada, por el stretch) y rotarla distorsionaría su silueta. */
+   el fondo verde de la cápsula alrededor (no lo reemplaza). Sin rotación
+   propia — rota junto con --whatsapp (arriba) al ser su descendiente. */
 .btn-liquid__pill--whatsapp .btn__icon {
     background-color: var(--color-primary);
-    transform: rotate(-90deg);
-    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* Las 3 cápsulas pierden su fondo propio de forma uniforme — revela
@@ -380,10 +387,6 @@
 
 .btn-liquid:hover .btn-liquid__pill--en {
     padding: 40px 16px 40px 8px;
-}
-
-.btn-liquid:hover .btn-liquid__pill--whatsapp .btn__icon {
-    transform: rotate(0deg);
 }
 
 @media (min-width: 1200px) {
