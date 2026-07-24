@@ -4,7 +4,7 @@
        FASE 1 — Mosaico y expansión
        ============================================ */
 
-    .cs-pin-spacer--rs-mosaico { height: 350vh; }
+    .cs-pin-spacer--rs-mosaico { height: 0; }
 
     .rs-mosaico {
         position: fixed;
@@ -152,7 +152,7 @@
        FASE 2 — Tránsito diagonal de tarjetas de métricas
        ============================================ */
 
-    .cs-pin-spacer--rs-metricas { height: 320vh; }
+    .cs-pin-spacer--rs-metricas { height: 0; }
 
     .rs-metricas {
         position: fixed;
@@ -239,7 +239,7 @@
        FASE 3 — Entrada desfasada derecha a izquierda
        ============================================ */
 
-    .cs-pin-spacer--rs-usuarios { height: 300vh; }
+    .cs-pin-spacer--rs-usuarios { height: 0; }
 
     .rs-usuarios {
         position: fixed;
@@ -317,7 +317,7 @@
        FASE 4 — Portal de máscara tipográfica y revelación
        ============================================ */
 
-    .cs-pin-spacer--rs-testimonio { height: 400vh; }
+    .cs-pin-spacer--rs-testimonio { height: 0; }
 
     .rs-usuarios__word {
         display: inline-block;
@@ -519,7 +519,8 @@
        FASE 5.2/5.3 — Agradecimiento, casos y CTA final
        ============================================ */
 
-    .cs-pin-spacer--rs-cierre { height: 500vh; }
+    /* height:0 evita que GSAP duplique la duración del pin (natural + end-start); el scroll real ya lo fija el ScrollTrigger en JS. */
+    .cs-pin-spacer--rs-cierre { height: 0; }
 
     .rs-cierre {
         position: fixed;

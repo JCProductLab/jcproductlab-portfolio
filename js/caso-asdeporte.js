@@ -632,13 +632,24 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         const overflow = Math.max(0, contextoWidth - window.innerWidth);
         // pinHeight: velocidad 0.667 px-desplazamiento/px-scroll.
         const pinHeightPx = Math.round((overflow + window.innerWidth) / 0.667);
-        // Aplicar la altura con !important para sobrevivir resets de GSAP.
-        // max-height también porque GSAP lo pone en el inline style.
-        shiftSpacer.style.setProperty('height', pinHeightPx + 'px', 'important');
-        shiftSpacer.style.setProperty('max-height', pinHeightPx + 'px', 'important');
+        // Altura APLICADA a los spacers: mínima (0), no la duración real.
+        // GSAP suma natural + (end - start) al pinear un trigger; si la
+        // natural iguala a la duración (como pasaba antes), duplica el
+        // scroll físico reservado. pinHeightPx y metricaHeight siguen
+        // gobernando la duración real más abajo (shiftEnd/shiftStart) —
+        // esto solo evita que se repita como altura física del spacer.
+        // !important para sobrevivir resets de estilos inline de GSAP.
+        shiftSpacer.style.setProperty('height', '0px', 'important');
+        shiftSpacer.style.setProperty('max-height', '0px', 'important');
+        metricaSpacer.style.setProperty('height', '0px', 'important');
+        metricaSpacer.style.setProperty('max-height', '0px', 'important');
         // Starts contiguos: leídos del DOM en este momento, no números.
         const aperturaEnd = aperturaEl.offsetHeight;
-        const metricaHeight = metricaSpacer.offsetHeight;
+        // Duración real de Métrica (antes leída de metricaSpacer.offsetHeight,
+        // 150vh en CSS) preservada como fórmula explícita: con la altura
+        // natural del spacer forzada a 0 arriba, ya no se puede leer de ahí
+        // sin perder la duración real del pin.
+        const metricaHeight = window.innerHeight * 1.5;
         // metricaStart = fin de apertura → ancla el ST de Métrica a la misma
         // fuente que el Shift, evitando que GSAP lo re-mida con un literal
         // 'top top' y rompa la contigüidad tras un refresh.

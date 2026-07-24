@@ -50,24 +50,15 @@
        nuevas ventanas de cascada. */
     .cs-pin-spacer--decision-1 { height: 6.5vh; }
 
-    /* Altura del pin-spacer de la expansión Decisión 1 (Gate 4).
-       80vh = ~0.8vh de scroll para las dos fases de la expansión. */
-    .cs-pin-spacer--decision-1-expansion { height: 80vh; }
+    /* height:0 — GSAP duplicaría natural + duración del pin si dejamos el
+       valor en vh (la duración real ya la fija el end:'+=Nvh' en JS). */
+    .cs-pin-spacer--decision-1-expansion { height: 0; }
 
-    /* Altura del pin-spacer de la cortina Decisión 2.
-       100vh = un viewport de scroll para la interpolación de la cortina. */
-    .cs-pin-spacer--decision-2 { height: 100vh; }
-
-    /* Altura del pin-spacer de la expansión Decisión 2.
-       80vh = ~0.8vh de scroll para las dos fases de la expansión. */
-    .cs-pin-spacer--decision-2-expansion { height: 80vh; }
-
-    /* Altura del pin-spacer de "El Problema" de Decisión 2.
-       100vh = un viewport de scroll para la cortina + cascada + respiro.
-       (El ST de El Problema usa '+=' 3*vh internamente.) */
-    .cs-pin-spacer--decision-2-problema { height: 100vh; }
-    .cs-pin-spacer--decision-2-ladecision  { height: 100vh; }
-    .cs-pin-spacer--decision-2-razonamiento { height: 100vh; }
+    .cs-pin-spacer--decision-2 { height: 0; }
+    .cs-pin-spacer--decision-2-expansion { height: 0; }
+    .cs-pin-spacer--decision-2-problema { height: 0; }
+    .cs-pin-spacer--decision-2-ladecision  { height: 0; }
+    .cs-pin-spacer--decision-2-razonamiento { height: 0; }
 
     /* Descriptores de Razonamiento 2 — usan custom props propias
        para no pisarse con las de Razonamiento 1. El JS escribe
@@ -79,11 +70,11 @@
         top: var(--razon2-desc3-top, 332%);
     }
 
-    .cs-pin-spacer--decision-3             { height: 100vh; }
-    .cs-pin-spacer--decision-3-expansion   { height: 80vh; }
-    .cs-pin-spacer--decision-3-problema    { height: 100vh; }
-    .cs-pin-spacer--decision-3-ladecision  { height: 100vh; }
-    .cs-pin-spacer--decision-3-razonamiento { height: 100vh; }
+    .cs-pin-spacer--decision-3             { height: 0; }
+    .cs-pin-spacer--decision-3-expansion   { height: 0; }
+    .cs-pin-spacer--decision-3-problema    { height: 0; }
+    .cs-pin-spacer--decision-3-ladecision  { height: 0; }
+    .cs-pin-spacer--decision-3-razonamiento { height: 0; }
 
     /* Descriptores de Razonamiento 3 — usan custom props propias
        para no pisarse con las de Razonamiento 1/2. El JS escribe
@@ -228,11 +219,11 @@
 
     /* Altura del pin-spacer de "El Problema" (Decisión 1 interna).
        Provee la altura de scroll para el ST de la cortina + permanencia. */
-    .cs-pin-spacer--decision-1-problema { height: 100vh; }
+    .cs-pin-spacer--decision-1-problema { height: 0; }
 
     /* Altura del pin-spacer de "La Decisión" (Decisión 1 interna, fase 2).
        Provee la altura de scroll para el ST de la cortina + futuras animaciones internas. */
-    .cs-pin-spacer--decision-1-ladecision { height: 100vh; }
+    .cs-pin-spacer--decision-1-ladecision { height: 0; }
 
     /* ============================================
        PROBLEMA — Sección interna de Decisión 1
@@ -462,7 +453,7 @@
 
     /* Pin-spacer: provee la altura de scroll. SIN ScrollTrigger todavía
        (el JS no toca este selector en Gate 1). */
-    .cs-pin-spacer--decision-1-razonamiento { height: 100vh; }
+    .cs-pin-spacer--decision-1-razonamiento { height: 0; }
 
     /* Sección raíz — capa fija sobre viewport (patrón de .cs-decision-mc).
        z-index:4 la pone entre el track (z:1) y El Problema (z:6).
