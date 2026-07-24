@@ -364,10 +364,13 @@
 
 /* .btn__icon anidado dentro de la cápsula: mismo badge oscuro con ícono
    en accent que usa .btn--primary .btn__icon en cta-section, conservando
-   el fondo verde de la cápsula alrededor (no lo reemplaza). Sin rotación
-   propia — rota junto con --whatsapp (arriba) al ser su descendiente. */
+   el fondo verde de la cápsula alrededor (no lo reemplaza). Rotación fija
+   de -90deg (antihoraria) propia del badge — NO de la cápsula verde — que
+   se suma a la rotación de --whatsapp (0deg reposo → 90deg hover): el
+   ícono queda en -90deg en reposo y en 0deg al terminar el hover. */
 .btn-liquid__pill--whatsapp .btn__icon {
     background-color: var(--color-primary);
+    transform: rotate(-90deg);
 }
 
 /* Las 3 cápsulas pierden su fondo propio de forma uniforme — revela
