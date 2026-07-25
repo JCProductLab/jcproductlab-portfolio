@@ -9,9 +9,9 @@ import { initSectionNav } from './modules/section-nav.js';
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px)', () => {
-        initScrollProgress({ anchorSelector: '.header' });
+        const destroyScrollProgress = initScrollProgress({ anchorSelector: '.header' });
 
-        initSectionNav([
+        const { destroy: destroySectionNav } = initSectionNav([
             { selector: '.cs-apertura', label: 'Inicio' },
             { selector: '.cs-contexto', label: 'Contexto', phase: 'contexto' },
             {
@@ -30,5 +30,14 @@ if (typeof gsap !== 'undefined') {
             // spacer propio (ver spec 2026-07-24, tabla data-phase).
             { selector: '.rs-cierre__bottom', label: 'Contacto', phase: 'rs-cierre', scrollProgress: 0.85 },
         ]);
+
+        // I3: gsap.matchMedia calls this returned function automatically
+        // when the (min-width: 1200px) query stops matching (it does NOT
+        // undo plain DOM appendChild on its own), so re-crossing the
+        // breakpoint re-inits cleanly instead of duplicating the bar/nav.
+        return () => {
+            destroyScrollProgress();
+            destroySectionNav();
+        };
     });
 }

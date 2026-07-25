@@ -60,7 +60,9 @@ function buildDom(config) {
                 subDot.className = 'section-nav__subdot';
                 subDot.setAttribute('aria-label', sub.label);
                 subWrap.appendChild(subDot);
-                dotRefs.push({ entry: sub, el: subDot, depth: 1, group });
+                // I4: track which top-level entry this subsection belongs to,
+                // so active-tracking can bound activeSub to activeTop's group.
+                dotRefs.push({ entry: sub, el: subDot, depth: 1, group, parentSelector: entry.selector });
             });
             group.appendChild(subWrap);
             nav.appendChild(group);
@@ -75,7 +77,7 @@ function buildDom(config) {
     });
 
     document.body.appendChild(nav);
-    return dotRefs;
+    return { nav, dotRefs };
 }
 
 let veilEl = null;
@@ -106,15 +108,27 @@ function jumpTo(target) {
 }
 
 export function initSectionNav(config) {
-    const dotRefs = buildDom(config);
+    const { nav, dotRefs } = buildDom(config);
 
-    const topLevel = dotRefs.filter(d => d.depth === 0)
-        .map(d => ({ ...d, target: resolveScrollTarget(d.entry) }))
-        .sort((a, b) => a.target - b.target);
+    // I2: topLevel/subLevel used to be resolved once here and cached forever.
+    // GSAP pins derive scroll distance from viewport height, and the page
+    // calls ScrollTrigger.refresh() on resize, so cached targets go stale
+    // above 1200px after any resize. buildLevels() re-resolves everything
+    // and is re-run on resize/refresh instead of only once at init.
+    let topLevel = [];
+    let subLevel = [];
 
-    const subLevel = dotRefs.filter(d => d.depth === 1)
-        .map(d => ({ ...d, target: resolveScrollTarget(d.entry) }))
-        .sort((a, b) => a.target - b.target);
+    function buildLevels() {
+        topLevel = dotRefs.filter(d => d.depth === 0)
+            .map(d => ({ ...d, target: resolveScrollTarget(d.entry) }))
+            .sort((a, b) => a.target - b.target);
+
+        subLevel = dotRefs.filter(d => d.depth === 1)
+            .map(d => ({ ...d, target: resolveScrollTarget(d.entry) }))
+            .sort((a, b) => a.target - b.target);
+    }
+
+    buildLevels();
 
     function updateActive() {
         const y = window.scrollY;
@@ -127,6 +141,16 @@ export function initSectionNav(config) {
 
         let activeSub = null;
         subLevel.forEach(d => { if (y >= d.target) activeSub = d; });
+
+        // I4: a subsection only stays "active" while its parent top-level
+        // entry is the active one. Once the user scrolls past all of a
+        // group's subsections into the next top-level section, activeTop
+        // no longer matches parentSelector, so activeSub is cleared instead
+        // of staying pinned to the last subsection ever crossed.
+        if (activeSub && (!activeTop || activeSub.parentSelector !== activeTop.entry.selector)) {
+            activeSub = null;
+        }
+
         subLevel.forEach(d => {
             d.el.setAttribute('aria-current', d === activeSub ? 'true' : 'false');
         });
@@ -137,17 +161,56 @@ export function initSectionNav(config) {
 
     updateActive();
 
-    [...topLevel, ...subLevel].forEach(d => {
-        d.el.addEventListener('click', () => jumpTo(d.target));
+    dotRefs.forEach(d => {
+        // I2: resolve fresh at click time instead of reading a pre-computed
+        // .target — the cached value in topLevel/subLevel can be stale
+        // relative to the instant the user actually clicks.
+        d.el.addEventListener('click', () => jumpTo(resolveScrollTarget(d.entry)));
     });
 
     let ticking = false;
-    window.addEventListener('scroll', () => {
+    const onScroll = () => {
         if (!ticking) {
             requestAnimationFrame(() => { updateActive(); ticking = false; });
             ticking = true;
         }
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    return { dotRefs, resolveScrollTarget };
+    let resizeTicking = false;
+    const onResize = () => {
+        if (!resizeTicking) {
+            requestAnimationFrame(() => {
+                buildLevels();
+                updateActive();
+                resizeTicking = false;
+            });
+            resizeTicking = true;
+        }
+    };
+    window.addEventListener('resize', onResize);
+
+    const hasScrollTrigger = typeof ScrollTrigger !== 'undefined';
+    const onRefresh = () => { buildLevels(); updateActive(); };
+    if (hasScrollTrigger) {
+        ScrollTrigger.addEventListener('refresh', onRefresh);
+    }
+
+    // I3: cleanup so gsap.matchMedia can revert this init when the
+    // (min-width: 1200px) query stops matching, and re-init cleanly (no
+    // duplicate <nav>/veil/listeners) the next time it matches again.
+    function destroySectionNav() {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onResize);
+        if (hasScrollTrigger) {
+            ScrollTrigger.removeEventListener('refresh', onRefresh);
+        }
+        nav.remove();
+        if (veilEl) {
+            veilEl.remove();
+            veilEl = null;
+        }
+    }
+
+    return { dotRefs, resolveScrollTarget, destroy: destroySectionNav };
 }

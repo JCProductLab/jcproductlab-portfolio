@@ -91,7 +91,8 @@
     }
 
     .section-nav__group:hover .section-nav__subdots,
-    .section-nav__group[data-active="true"] .section-nav__subdots {
+    .section-nav__group[data-active="true"] .section-nav__subdots,
+    .section-nav__group:focus-within .section-nav__subdots {
         opacity: 1;
         pointer-events: auto;
     }
@@ -109,6 +110,7 @@
     }
 
     .section-nav-veil {
+        display: block;
         position: fixed;
         inset: 0;
         background: var(--color-primary);

@@ -14,10 +14,11 @@ export function initScrollProgress({ anchorSelector } = {}) {
     bar.appendChild(fill);
     document.body.appendChild(bar);
 
+    let setTop = null;
     if (anchorSelector) {
         const anchor = document.querySelector(anchorSelector);
         if (anchor) {
-            const setTop = () => {
+            setTop = () => {
                 bar.style.top = `${anchor.getBoundingClientRect().height}px`;
             };
             setTop();
@@ -38,17 +39,30 @@ export function initScrollProgress({ anchorSelector } = {}) {
 
     update();
 
-    window.addEventListener('scroll', () => {
+    const onScroll = () => {
         if (!ticking) {
             requestAnimationFrame(update);
             ticking = true;
         }
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    window.addEventListener('resize', () => {
+    const onResize = () => {
         if (!ticking) {
             requestAnimationFrame(update);
             ticking = true;
         }
-    });
+    };
+    window.addEventListener('resize', onResize);
+
+    // I3: named listeners above so they (and the injected bar) can be torn
+    // down when gsap.matchMedia reverts this context (e.g. crossing back
+    // below 1200px) — otherwise re-crossing the breakpoint would inject a
+    // second .scroll-progress bar and duplicate listeners.
+    return function destroyScrollProgress() {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onResize);
+        if (setTop) window.removeEventListener('resize', setTop);
+        bar.remove();
+    };
 }
