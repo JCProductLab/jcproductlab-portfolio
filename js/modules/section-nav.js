@@ -78,6 +78,33 @@ function buildDom(config) {
     return dotRefs;
 }
 
+let veilEl = null;
+
+function getVeil() {
+    if (veilEl) return veilEl;
+    veilEl = document.createElement('div');
+    veilEl.className = 'section-nav-veil';
+    veilEl.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(veilEl);
+    return veilEl;
+}
+
+function jumpTo(target) {
+    const veil = getVeil();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduced) {
+        window.scrollTo({ top: target, behavior: 'auto' });
+        return;
+    }
+
+    veil.classList.add('is-visible');
+    setTimeout(() => {
+        window.scrollTo({ top: target, behavior: 'auto' });
+        requestAnimationFrame(() => veil.classList.remove('is-visible'));
+    }, 150);
+}
+
 export function initSectionNav(config) {
     const dotRefs = buildDom(config);
 
@@ -109,6 +136,10 @@ export function initSectionNav(config) {
     }
 
     updateActive();
+
+    [...topLevel, ...subLevel].forEach(d => {
+        d.el.addEventListener('click', () => jumpTo(d.target));
+    });
 
     let ticking = false;
     window.addEventListener('scroll', () => {
