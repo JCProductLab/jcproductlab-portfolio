@@ -1,7 +1,8 @@
 /* ============================================
-   DECISIONES — Estilos base
-   Panel introductorio: 3 títulos de decisiones clave
-   Solo desktop en esta fase
+   DECISIONES — Estilos base + mobile/tablet
+   Desktop en decisiones-responsive.css (gateado a MQ_DESKTOP).
+   El layout mobile vive al final de este archivo, dentro de
+   MQ_MOBILE: (max-width: 1199.98px), (hover: none), (pointer: coarse)
    ============================================ */
 
 /* Estructura general del panel */
@@ -14,15 +15,20 @@
     justify-content: center;
 }
 
-/* Label superior — posición exacta en desktop (decisiones-responsive.css) */
-.cs-decisiones-titulos__label {
-    position: absolute;
-    top: calc(var(--cs-header-height) + 60px);
-    left: clamp(2rem, 6vw, 8rem);
-    /* Estado inicial controlado por JS (ST de Decisiones-títulos):
-       el JS hace fade in + slide desde CONTEXTO_ENTER_OFFSET en el
-       tramo 0.7→1.0. opacity 0 evita flash antes del primer onUpdate. */
-    opacity: 0;
+/* Label superior — posición exacta y estado de animación SOLO en
+   desktop: en mobile el label fluye estático y visible, así que las
+   declaraciones van gateadas a MQ_DESKTOP (misma condición que
+   decisiones-responsive.css). */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+    .cs-decisiones-titulos__label {
+        position: absolute;
+        top: calc(var(--cs-header-height) + 60px);
+        left: clamp(2rem, 6vw, 8rem);
+        /* Estado inicial controlado por JS (ST de Decisiones-títulos):
+           el JS hace fade in + slide desde CONTEXTO_ENTER_OFFSET en el
+           tramo 0.7→1.0. opacity 0 evita flash antes del primer onUpdate. */
+        opacity: 0;
+    }
 }
 
 /* Lista de decisiones */
@@ -79,4 +85,266 @@
     margin-top: 32px;
 }
 
-/* .cs-problema — tablet/mobile pendiente */
+/* ============================================
+   MOBILE / TABLET — layout vertical de Decisiones
+   (índice, cortina verde, problema, la decisión, razonamiento)
+   ============================================ */
+
+@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
+
+    /* --- Índice de decisiones (badge 01/02/03 + subtítulo) --- */
+
+    .cs-decisiones-titulos {
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+    }
+
+    .cs-decisiones-titulos__label {
+        margin-bottom: 2.5rem;
+    }
+
+    .cs-decisiones-titulos__list {
+        gap: 48px;
+    }
+
+    /* En mobile no existe el gesto de la escalera: el título "Decisión N"
+       es redundante con el badge numerado — el subtítulo es el contenido. */
+    .cs-decisiones-titulos__number {
+        width: 48px;
+        height: 48px;
+    }
+
+    /* --- Cortina de decisión → panel verde pleno --- */
+
+    .cs-decision {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        background-color: var(--color-decision-bg);
+    }
+
+    /* El bg animable de la cortina es redundante: el fondo va en la sección */
+    .cs-decision__bg {
+        display: none;
+    }
+
+    .cs-decision__content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .cs-decision__label {
+        color: var(--color-decision-label);
+    }
+
+    .cs-decision__title {
+        color: #FFFFFF;
+        font-size: clamp(2.25rem, 8vw, 4rem);
+    }
+
+    .cs-decision__media {
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .cs-decision__media-img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+    }
+
+    /* --- El problema: cards glass apiladas --- */
+
+    .cs-problema {
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        background-color: var(--color-primary);
+    }
+
+    .cs-problema__content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .cs-problema__title {
+        text-align: center;
+        font-size: clamp(1.75rem, 6vw, 2.5rem);
+    }
+
+    .cs-problema__grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .cs-problema__card {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: var(--glass-bg);
+        border: 1px solid var(--color-glass-border);
+        box-shadow: var(--glass-shadow);
+    }
+
+    .cs-problema__bullet {
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    .cs-problema__text {
+        color: var(--color-text-secondary);
+    }
+
+    /* --- La decisión: imagen estática + párrafo centrado --- */
+
+    .cs-decision-mc {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        background-color: var(--color-primary);
+    }
+
+    .cs-decision-mc__title {
+        text-align: center;
+        font-size: clamp(1.75rem, 6vw, 2.5rem);
+    }
+
+    .cs-decision-mc__stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    /* El óvalo/anillo pertenece a la coreografía desktop */
+    .cs-decision-mc__ring {
+        display: none;
+    }
+
+    .cs-decision-mc__media {
+        width: min(100%, 320px);
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .cs-decision-mc__img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+    }
+
+    .cs-decision-mc__text-wrap {
+        max-width: 60ch;
+    }
+
+    .cs-decision-mc__text {
+        text-align: center;
+    }
+
+    /* --- El razonamiento: métrica + descriptor intercalados ---
+       En desktop metric N (capa __fixed) y descriptor N (capa __rail)
+       se emparejan por scroll; en mobile se intercalan con
+       display:contents + order sobre [data-screen] para leerse como
+       check → dato gigante → explicación, tres veces, y la conclusión
+       al final. El orden del DOM (lectores de pantalla) no cambia. */
+
+    .cs-razonamiento {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        background-color: var(--color-primary);
+    }
+
+    .cs-razonamiento__fixed,
+    .cs-razonamiento__rail {
+        display: contents;
+    }
+
+    .cs-razonamiento__label {
+        order: 0;
+        text-align: center;
+        font-size: clamp(1.75rem, 6vw, 2.5rem);
+    }
+
+    .cs-razonamiento__metric[data-screen="1"]     { order: 1; }
+    .cs-razonamiento__descriptor[data-screen="1"] { order: 2; }
+    .cs-razonamiento__metric[data-screen="2"]     { order: 3; }
+    .cs-razonamiento__descriptor[data-screen="2"] { order: 4; }
+    .cs-razonamiento__metric[data-screen="3"]     { order: 5; }
+    .cs-razonamiento__descriptor[data-screen="3"] { order: 6; }
+    .cs-razonamiento__conclusion                  { order: 7; }
+
+    .cs-razonamiento__metric {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+    }
+
+    .cs-razonamiento__check {
+        font-size: clamp(1.75rem, 6vw, 2.5rem);
+        color: var(--color-accent);
+    }
+
+    .cs-razonamiento__metric-value {
+        font-size: clamp(3.5rem, 14vw, 7rem);
+    }
+
+    /* El descriptor pega con su métrica; el salto grande va entre pares */
+    .cs-razonamiento__descriptor {
+        margin-top: -1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .cs-razonamiento__conclusion {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-width: 26ch;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .cs-razonamiento__conclusion-body,
+    .cs-razonamiento__conclusion-final {
+        font-size: clamp(1.5rem, 5.5vw, 2.5rem);
+    }
+
+    .cs-razonamiento__conclusion-final {
+        color: var(--color-accent);
+    }
+
+    /* --- Tablet (>= 700px): problema a 2 columnas --- */
+
+    @media (min-width: 700px) {
+        .cs-problema__grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .cs-decision-mc__stage {
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .cs-decision-mc__text {
+            text-align: left;
+        }
+    }
+
+} /* fin MQ_MOBILE */

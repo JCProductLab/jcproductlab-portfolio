@@ -11,6 +11,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 
     // ============================================
+    // GATE DESKTOP — mismo wrap que caso-asdeporte.js. El handler corre
+    // síncrono al add() en desktop, así que el orden de módulos
+    // caso-asdeporte.js → resultado.js se preserva y ScrollTrigger.getAll()
+    // (abajo) encuentra el ST del razonamiento 3 ya registrado.
+    // Cruce de breakpoint en caliente requiere reload (ver nota en
+    // caso-asdeporte.js). Cuerpo original sin re-indentar.
+    // ============================================
+    gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
+
+    // ============================================
     // FASE 1 — Mosaico y expansión
     // Toma el relevo de razon3Final (mismo patrón "OPTION-1: acoplamiento
     // controlado" que ya usan las cortinas D2/D3 con la frase anterior).
@@ -1491,4 +1501,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsCierreSection) { gsap.set(rsCierreSection, { y: 0 }); }
         }
     });
+
+    }); // fin gsap.matchMedia().add(MQ_DESKTOP)
 }

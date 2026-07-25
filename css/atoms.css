@@ -312,8 +312,12 @@
     transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.btn-liquid:hover .btn-liquid__merge-bg {
-    opacity: 1;
+/* Solo con mouse real: en touch el hover se queda "pegado" tras el tap
+   y la fusión animada del botón quedaría a medias. */
+@media (hover: hover) {
+    .btn-liquid:hover .btn-liquid__merge-bg {
+        opacity: 1;
+    }
 }
 
 .btn-liquid__pill {
@@ -358,8 +362,10 @@
     transform: rotate(0deg);
 }
 
-.btn-liquid:hover .btn-liquid__pill--whatsapp {
-    transform: rotate(90deg);
+@media (hover: hover) {
+    .btn-liquid:hover .btn-liquid__pill--whatsapp {
+        transform: rotate(90deg);
+    }
 }
 
 /* .btn__icon anidado dentro de la cápsula: mismo badge oscuro con ícono
@@ -377,24 +383,30 @@
    .btn-liquid__merge-bg debajo. Sin casos especiales por cápsula: así
    es geométricamente imposible que la silueta de una asome sobre la
    silueta plana de las otras (el bug de la "cuarta cápsula" fantasma). */
-.btn-liquid:hover .btn-liquid__pill {
-    background-color: transparent;
+@media (hover: hover) {
+    .btn-liquid:hover .btn-liquid__pill {
+        background-color: transparent;
+    }
 }
 
 /* Margen izquierdo pedido: 64px (antes 32px, sin cambio en reposo).
    CHARLEMOS se desplaza a la derecha porque el padre (.cta-section__body,
    align-items:center) recentra el botón al encogerse — no por un
    translateX calculado. */
-.btn-liquid:hover .btn-liquid__pill--charlemos {
-    padding-left: 64px;
-    padding-right: 0px;
+@media (hover: hover) {
+    .btn-liquid:hover .btn-liquid__pill--charlemos {
+        padding-left: 64px;
+        padding-right: 0px;
+    }
 }
 
 /* CHARLEMOS↔EN: 0(charlemos) + 5(en, abajo) = 5px.
    EN↔ícono: 0(en, abajo) + 8px fijo de --whatsapp (sin tocar, ver nota
    en su regla) = 8px. */
-.btn-liquid:hover .btn-liquid__pill--en {
-    padding: 40px 0 40px 5px;
+@media (hover: hover) {
+    .btn-liquid:hover .btn-liquid__pill--en {
+        padding: 40px 0 40px 5px;
+    }
 }
 
 /* Margen derecho pedido: 64px, igual al izquierdo. No se logra con
@@ -411,8 +423,10 @@
     transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.btn-liquid:hover .btn-liquid__spacer-right {
-    width: 56px;
+@media (hover: hover) {
+    .btn-liquid:hover .btn-liquid__spacer-right {
+        width: 56px;
+    }
 }
 
 @media (min-width: 1200px) {
@@ -692,13 +706,26 @@
         box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.nav-link:hover::after,
+/* El estado hover (anima letter-spacing/transform) solo con mouse real;
+   aria-current es un estado persistente y aplica también en touch. */
+@media (hover: hover) {
+    .nav-link:hover::after {
+        width: 100%;
+        box-shadow: 0 0 12px rgba(0, 212, 110, 0.4);
+    }
+
+    .nav-link:hover {
+        color: var(--color-accent);
+        letter-spacing: 0.08em;
+        transform: translateY(-2px);
+    }
+}
+
 .nav-link[aria-current="page"]::after {
     width: 100%;
     box-shadow: 0 0 12px rgba(0, 212, 110, 0.4);
 }
 
-.nav-link:hover,
 .nav-link[aria-current="page"] {
     color: var(--color-accent);
     letter-spacing: 0.08em;
@@ -724,7 +751,15 @@
         transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.body-link:hover,
+/* :active queda sin gatear — feedback transitorio válido en touch */
+@media (hover: hover) {
+    .body-link:hover {
+        color: var(--color-accent);
+        letter-spacing: 0.03em;
+        transform: translateY(-2px);
+    }
+}
+
 .body-link:active {
     color: var(--color-accent);
     letter-spacing: 0.03em;
@@ -750,7 +785,14 @@
         transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.link-secondary:hover,
+@media (hover: hover) {
+    .link-secondary:hover {
+        color: var(--color-accent);
+        letter-spacing: 0.03em;
+        transform: translateY(-2px);
+    }
+}
+
 .link-secondary:active {
     color: var(--color-accent);
     letter-spacing: 0.03em;

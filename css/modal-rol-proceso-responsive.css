@@ -2,7 +2,7 @@
    MODAL MI ROL — Responsive (desktop 1024px+)
    ============================================ */
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
     /* Modal — 85% ancho, 100% alto, anclado a la derecha */
     .modal-rol-proceso__content {
         width: 85vw;

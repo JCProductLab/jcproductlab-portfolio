@@ -1,6 +1,13 @@
 /* ============================================
-   CASE STUDY — Desktop (1200px+)
+   CASE STUDY — Desktop (1200px+ con mouse)
+   Gateado a MQ_DESKTOP: misma condición que usa
+   gsap.matchMedia en caso-asdeporte.js/resultado.js.
+   Tablets touch (pointer: coarse) de cualquier ancho
+   ven la versión mobile de case-study.css.
+   Contenido sin re-indentar dentro del @media.
    ============================================ */
+
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
 
 /* ============================================
    SECCIÓN 1 — APERTURA
@@ -347,3 +354,5 @@
 .cs-pin-spacer--metrica  { height: 150vh; }
 .cs-pin-spacer--shift-mc { height: 120vh; }
 .cs-pin-spacer--contexto { height: 0; }
+
+} /* fin @media MQ_DESKTOP */

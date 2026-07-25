@@ -8,6 +8,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 
     // ============================================
+    // GATE DESKTOP — todo el scrollytelling corre solo en MQ_DESKTOP
+    // (misma condición que los *-responsive.css y caso-asdeporte-nav.js).
+    // Mobile/tablet no registra ningún ScrollTrigger: la página fluye
+    // estática con los estilos base + mobile-reveals.
+    // Cruce de breakpoint en caliente requiere reload: matchMedia limpia
+    // los STs pero no las mutaciones DOM (spans de palabras, estilos
+    // inline de gsap.set) — documentado como riesgo aceptado.
+    // Cuerpo original sin re-indentar.
+    // ============================================
+    gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
+
+    // ============================================
     // Referencias DOM
     // ============================================
     const apertura = document.querySelector('.cs-apertura');
@@ -30,6 +42,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // reversa (direction === -1) cuando la flecha ya está fuera de foco
     // (opacidad <= 0.05) — análogo al reset invisible de la métrica.
     let contextoArrowAnimated = false;
+
+    // El <video> vive en el HTML con data-src (sin src) para que el .mp4
+    // no se descargue en mobile. Aquí — ya dentro del contexto desktop —
+    // se asigna y arranca. El resto del código tolera metadatos tardíos
+    // vía getVideoDuration() + VIDEO_DURATION_FALLBACK.
+    if (video && !video.src && video.dataset.src) {
+        video.src = video.dataset.src;
+        video.load();
+        video.play().catch(() => {});
+    }
 
     const VIDEO_DURATION_FALLBACK = 3;
 
@@ -3721,4 +3743,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             }
         }
     });
+
+    }); // fin gsap.matchMedia().add(MQ_DESKTOP)
 }

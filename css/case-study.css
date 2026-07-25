@@ -1,0 +1,264 @@
+/* ============================================
+   CASE STUDY — Base + Mobile/Tablet
+   Desktop (scrollytelling) vive en case-study-responsive.css,
+   gateado a MQ_DESKTOP:
+     (min-width: 1200px) and (hover: hover) and (pointer: fine)
+   Todo el layout mobile va dentro de MQ_MOBILE (el complemento
+   exacto) para no pisar ninguna regla del desktop:
+     (max-width: 1199.98px), (hover: none), (pointer: coarse)
+   Diseño según case-study-mobile.jpg.
+   ============================================ */
+
+/* ============================================
+   REVEALS MOBILE (.mrv) — usados por
+   js/modules/animations/mobile-reveals.js, que solo marca
+   elementos fuera de MQ_DESKTOP. Sin JS o con reduced-motion
+   nada recibe la clase → todo queda visible (estado seguro).
+   ============================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+    .mrv {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .mrv--in {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
+
+    /* Padding lateral compartido por todas las secciones mobile */
+    :root {
+        --cs-mobile-pad: clamp(1.25rem, 5vw, 3rem);
+    }
+
+    /* Los SVGs decorativos y las imágenes grandes no deben generar
+       scroll horizontal en ningún caso. */
+    main#main {
+        overflow-x: clip;
+    }
+
+    /* ============================================
+       SECCIÓN 1 — APERTURA (hero con foto estática)
+       ============================================ */
+
+    .cs-apertura {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100svh;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+        background-color: var(--color-primary);
+        background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-mobile.webp);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    /* El .mp4 no se descarga en mobile (data-src sin src en el HTML);
+       este display:none es el cinturón por si algún día vuelve el src. */
+    .cs-apertura__video {
+        display: none;
+    }
+
+    /* Overlay + viñeta — mismo tratamiento de contraste que desktop */
+    .cs-apertura__overlay {
+        position: absolute;
+        inset: 0;
+        background: var(--color-primary);
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .cs-apertura__vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            ellipse at center,
+            rgba(13, 13, 13, 0.2) 0%,
+            rgba(13, 13, 13, 0.7) 100%
+        );
+        pointer-events: none;
+    }
+
+    /* La sombra de transición es un mecanismo del scrubbing desktop */
+    .cs-apertura__shadow {
+        display: none;
+    }
+
+    /* Ticker → headline estático anclado abajo. El primer track se
+       comporta como H1 ("Una app de clase mundial que frenaba a sus
+       propios atletas."); el clon del loop y el separador se ocultan. */
+    .cs-apertura__ticker {
+        position: relative;
+        z-index: 4;
+        width: 100%;
+        padding: 0 var(--cs-mobile-pad) clamp(4rem, 12vh, 7rem);
+    }
+
+    .cs-ticker__track {
+        display: block;
+        white-space: normal;
+    }
+
+    .cs-ticker__track + .cs-ticker__track,
+    .cs-ticker__separator {
+        display: none;
+    }
+
+    .cs-ticker__word {
+        display: inline;
+    }
+
+    .cs-ticker__word.cs-headline {
+        font-size: clamp(2.5rem, 10vw, 4.5rem);
+    }
+
+    /* ============================================
+       STAGE HORIZONTAL → flujo vertical
+       Sin el CSS desktop, stage/track/inner son divs normales y las
+       secciones fluyen en orden DOM (= orden del diseño mobile).
+       El cometa es exclusivo del recorrido horizontal desktop.
+       ============================================ */
+
+    .cs-metrica__comet {
+        display: none;
+    }
+
+    /* ============================================
+       SECCIÓN 2 — MÉTRICA (KPI 25% ↗ + caption)
+       ============================================ */
+
+    .cs-metrica {
+        padding: clamp(5rem, 14vh, 8rem) var(--cs-mobile-pad);
+        background-color: var(--color-primary);
+    }
+
+    .cs-metrica__left {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .cs-metrica__kpi {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 0.15em;
+    }
+
+    /* La flecha llega ya trazada: los stroke-dasharray del estado
+       inicial viven en el CSS desktop (gateado). */
+    .cs-metrica__arrow {
+        width: clamp(44px, 11vw, 72px);
+        height: auto;
+        margin-top: clamp(16px, 5vw, 40px);
+        overflow: visible;
+    }
+
+    /* ============================================
+       SECCIÓN 3 — CONTEXTO (columna única)
+       ============================================ */
+
+    .cs-contexto {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        background-color: var(--color-primary);
+    }
+
+    .cs-contexto__col {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Flecha curva decorativa — pensada para el gap entre columnas
+       del layout desktop. */
+    .cs-contexto__arrow {
+        display: none;
+    }
+
+    .cs-contexto__media {
+        overflow: hidden;
+        border-radius: 16px;
+        width: 100%;
+        aspect-ratio: 3 / 2;
+    }
+
+    .cs-contexto__image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cs-contexto__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .cs-contexto__tag {
+        background-color: var(--color-bg);
+        padding: 4px 12px;
+        color: var(--color-accent);
+        border-radius: 1rem;
+    }
+
+    /* Párrafos completos, sin máscara ni track desplazable */
+    .cs-contexto__mask {
+        overflow: visible;
+        height: auto;
+    }
+
+    .cs-contexto__text-track {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .cs-contexto__mask p {
+        color: var(--color-text-secondary);
+    }
+
+    /* Botones MI ROL / EL PROCESO apilados a lo ancho */
+    .cs-contexto__actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .cs-contexto__actions .btn {
+        justify-content: space-between;
+    }
+
+    /* ============================================
+       TABLET (>= 700px) — refinos dentro de la versión mobile
+       (breakpoint canónico del sitio, ver responsive.css)
+       ============================================ */
+
+    @media (min-width: 700px) {
+        .cs-apertura {
+            background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-tablet.webp);
+        }
+
+        .cs-contexto__actions {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .cs-contexto__actions .btn {
+            justify-content: center;
+        }
+    }
+
+} /* fin MQ_MOBILE */

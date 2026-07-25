@@ -3,9 +3,15 @@
 // Adds magnetic attraction and glow effects to buttons on desktop
 // ============================================
 
+// Sin mouse real (touch/stylus) el efecto magnético no tiene sentido y el
+// rAF quedaría corriendo para siempre — p. ej. iPad landscape >= 1024px.
+function isTouchLike() {
+    return !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+}
+
 class MagneticManager {
     constructor() {
-        this.isMobile = window.innerWidth < 1024;
+        this.isMobile = window.innerWidth < 1024 || isTouchLike();
         this.elements = document.querySelectorAll('.btn--primary, .btn--secondary, .btn-icon');
         this.data = Array.from(this.elements).map(el => ({
             el,
@@ -26,7 +32,7 @@ class MagneticManager {
         // Handle window resize to detect mobile/desktop changes
         window.addEventListener('resize', () => {
             const wasDesktop = !this.isMobile;
-            this.isMobile = window.innerWidth < 1024;
+            this.isMobile = window.innerWidth < 1024 || isTouchLike();
 
             if (wasDesktop && this.isMobile) {
                 // Transitioning to mobile - stop animation loop

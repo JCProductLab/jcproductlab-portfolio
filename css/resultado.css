@@ -1,7 +1,8 @@
 /* ============================================
-   RESULTADO — Estilos base (mobile/tablet pendiente)
+   RESULTADO — Estilos base + mobile/tablet
    Fases 1-5 post-Decisiones. Ver resultado-responsive.css
-   para el maquetado completo de desktop.
+   para el maquetado completo de desktop (gateado a MQ_DESKTOP).
+   El layout mobile vive abajo, dentro de MQ_MOBILE.
    ============================================ */
 
 .rs-mosaico,
@@ -13,3 +14,284 @@
     background-color: var(--color-primary);
     color: var(--color-secondary);
 }
+
+/* ============================================
+   MOBILE / TABLET — Resultados y cierre
+   ============================================ */
+
+@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
+
+    /* --- Mosaico de fotos --- */
+
+    .rs-mosaico {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+    }
+
+    .rs-mosaico__intro {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .rs-mosaico__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: clamp(130px, 22vw, 200px);
+        grid-auto-flow: dense;
+        gap: 0.75rem;
+    }
+
+    .rs-mosaico__card {
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .rs-mosaico__card[data-size="tall"] {
+        grid-row: span 2;
+    }
+
+    /* La foto central (la atleta) es la protagonista: ancho completo */
+    .rs-mosaico__card--center {
+        grid-column: 1 / -1;
+        grid-row: span 2;
+    }
+
+    .rs-mosaico__card-img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* --- Métricas de negocio: cards gradiente verde --- */
+
+    .rs-metricas {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+    }
+
+    .rs-metricas__title {
+        margin-bottom: 1rem;
+    }
+
+    .rs-metricas__card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--color-decision-bg) 0%, #00913F 100%);
+    }
+
+    .rs-metricas__value {
+        display: flex;
+        align-items: center;
+        gap: 0.15em;
+        color: #FFFFFF;
+        font-size: clamp(3rem, 11vw, 5rem);
+    }
+
+    .rs-metricas__arrow {
+        font-size: 0.5em;
+        color: var(--color-decision-label);
+    }
+
+    .rs-metricas__label {
+        color: #FFFFFF;
+    }
+
+    .rs-metricas__detail {
+        color: var(--color-decision-label);
+    }
+
+    /* --- Impacto en los usuarios --- */
+
+    .rs-usuarios {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+    }
+
+    /* La palabra "impacto" vive en un SVG dimensionado por el JS
+       desktop; en mobile se sustituye por texto plano heredando la
+       tipografía del título. */
+    .rs-usuarios__word--svg .rs-usuarios__impacto-svg {
+        display: none;
+    }
+
+    .rs-usuarios__word--svg::after {
+        content: "impacto";
+        color: var(--color-accent);
+    }
+
+    .rs-usuarios__media {
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .rs-usuarios__img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+    }
+
+    /* --- Testimonio + cierre narrativo --- */
+
+    .rs-testimonio {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+    }
+
+    /* El portal elíptico es la coreografía desktop */
+    .rs-testimonio__ring {
+        display: none;
+    }
+
+    .rs-testimonio__quote {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin: 0;
+    }
+
+    .rs-testimonio__quote-icon {
+        font-size: 2.5rem;
+        color: var(--color-accent);
+    }
+
+    .rs-testimonio__quote-text {
+        font-family: var(--font-family);
+        font-style: italic;
+        font-size: clamp(1.5rem, 5.5vw, 2.25rem);
+        line-height: 1.4;
+        color: var(--color-secondary);
+    }
+
+    .rs-testimonio__closing {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2rem;
+    }
+
+    .rs-testimonio__closing-title {
+        font-family: var(--font-display);
+        font-weight: 500;
+        font-size: clamp(2rem, 7.5vw, 3.5rem);
+        line-height: 1.15;
+        color: var(--color-secondary);
+    }
+
+    .rs-testimonio__line-wrap {
+        display: block;
+    }
+
+    /* --- Cierre: gracias, casos y CTA --- */
+
+    .rs-cierre {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+    }
+
+    .rs-cierre__gracias {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        column-gap: 0.3em;
+        text-align: center;
+    }
+
+    /* .cs-gracias es 144px fijos (desktop); en mobile escala fluida */
+    .rs-cierre__gracias-word.cs-gracias {
+        font-size: clamp(3rem, 13vw, 6rem);
+    }
+
+    .rs-cierre__media {
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .rs-cierre__media-img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+    }
+
+    .rs-cierre__bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .rs-cierre__cases {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .rs-cierre__case {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .rs-cierre__case-img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 10 / 7;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .rs-cierre__case-text {
+        color: var(--color-text-secondary);
+    }
+
+    .rs-cierre__footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        text-align: center;
+    }
+
+    /* --- Tablet (>= 700px) --- */
+
+    @media (min-width: 700px) {
+        .rs-mosaico__grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .rs-mosaico__card--center {
+            grid-column: 2 / 4;
+        }
+
+        .rs-metricas__card {
+            padding: 2.5rem 2rem;
+        }
+
+        .rs-cierre__cases {
+            flex-direction: row;
+        }
+
+        .rs-cierre__case {
+            flex: 1 1 0;
+        }
+    }
+
+} /* fin MQ_MOBILE */

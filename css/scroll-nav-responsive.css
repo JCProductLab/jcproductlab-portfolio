@@ -1,5 +1,5 @@
 /* css/scroll-nav-responsive.css */
-@media (min-width: 1200px) {
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
 
     .scroll-progress {
         display: block;
