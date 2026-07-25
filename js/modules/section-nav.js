@@ -102,8 +102,10 @@ export function initSectionNav(config) {
         subLevel.forEach(d => { if (y >= d.target) activeSub = d; });
         subLevel.forEach(d => {
             d.el.setAttribute('aria-current', d === activeSub ? 'true' : 'false');
-            if (d.group) d.group.setAttribute('data-active', d === activeSub ? 'true' : 'false');
         });
+        const touchedGroups = new Set(subLevel.map(d => d.group).filter(Boolean));
+        touchedGroups.forEach(g => g.setAttribute('data-active', 'false'));
+        if (activeSub && activeSub.group) activeSub.group.setAttribute('data-active', 'true');
     }
 
     updateActive();
