@@ -63,3 +63,4 @@ d1-*.png
 
 *.jpeg
 .*.jpeg
+.worktrees/
