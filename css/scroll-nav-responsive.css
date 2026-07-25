@@ -31,16 +31,27 @@
     }
 
     .section-nav__dot {
+        /* Botón: 32px de zona clicleable/táctil. El círculo visible de 10px
+           vive en ::before para no agrandar el punto en sí. */
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .section-nav__dot::before {
+        content: '';
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background: var(--glass-bg);
         border: 1px solid var(--color-glass-border);
         transition: background-color 200ms ease, transform 200ms ease;
-        position: relative;
     }
 
-    .section-nav__dot[aria-current="true"] {
+    .section-nav__dot[aria-current="true"]::before {
         background: var(--color-accent);
         box-shadow: 0 0 0 4px var(--glass-glow);
         transform: scale(1.2);
@@ -49,7 +60,7 @@
     .section-nav__dot::after {
         content: attr(aria-label);
         position: absolute;
-        right: 24px;
+        right: 40px;
         top: 50%;
         transform: translateY(-50%);
         white-space: nowrap;
@@ -98,14 +109,26 @@
     }
 
     .section-nav__subdot {
+        /* Mismo tratamiento que .section-nav__dot: 24px clicleable,
+           círculo visible de 6px en ::before. */
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .section-nav__subdot::before {
+        content: '';
         width: 6px;
         height: 6px;
         border-radius: 50%;
         background: var(--glass-bg);
         border: 1px solid var(--color-glass-border);
+        transition: background-color 200ms ease;
     }
 
-    .section-nav__subdot[aria-current="true"] {
+    .section-nav__subdot[aria-current="true"]::before {
         background: var(--color-accent);
     }
 

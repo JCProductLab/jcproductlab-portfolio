@@ -91,6 +91,16 @@ function getVeil() {
     return veilEl;
 }
 
+const VEIL_FADE_MS = 150;
+// Los ScrollTrigger de esta página usan scrub: 1 — GSAP no salta el
+// progreso de las animaciones al instante cuando cambia el scroll, lo
+// suaviza durante ~1s. Si revelamos el velo antes de que ese segundo
+// termine, se ve el "alcance" (todas las animaciones intermedias en
+// cámara rápida). No tocamos el scrub en sí (es el mecanismo ya
+// aprobado del scroll normal) — solo esperamos más tiempo con el velo
+// arriba para que ese alcance termine tapado.
+const SCRUB_CATCHUP_MS = 1100;
+
 function jumpTo(target) {
     const veil = getVeil();
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -103,8 +113,10 @@ function jumpTo(target) {
     veil.classList.add('is-visible');
     setTimeout(() => {
         window.scrollTo({ top: target, behavior: 'auto' });
-        requestAnimationFrame(() => veil.classList.remove('is-visible'));
-    }, 150);
+        setTimeout(() => {
+            veil.classList.remove('is-visible');
+        }, SCRUB_CATCHUP_MS);
+    }, VEIL_FADE_MS);
 }
 
 export function initSectionNav(config) {
