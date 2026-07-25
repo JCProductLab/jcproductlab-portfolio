@@ -6,7 +6,8 @@
    ============================================ */
 
 .scroll-progress,
-.section-nav {
+.section-nav,
+.section-nav-veil {
     display: none;
 }
 
