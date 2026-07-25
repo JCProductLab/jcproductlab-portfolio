@@ -1,0 +1,32 @@
+/* css/scroll-nav.css */
+/* ============================================
+   SCROLL-NAV — Estilos base (mobile/tablet pendiente)
+   Barra de progreso de lectura + dots de navegación.
+   Ver scroll-nav-responsive.css para el layout de desktop.
+   ============================================ */
+
+.scroll-progress,
+.section-nav {
+    display: none;
+}
+
+.scroll-progress__fill {
+    transform-origin: left center;
+    background-color: var(--color-accent);
+}
+
+.section-nav__dot,
+.section-nav__subdot {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.section-nav__dot:focus-visible,
+.section-nav__subdot:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: 50%;
+}
