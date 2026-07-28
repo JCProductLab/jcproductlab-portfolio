@@ -84,6 +84,30 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         paused: true
     });
 
+    // Velocidad del ticker reactiva al scroll (ver onUpdate de initScrollPhase).
+    // tickerTimeScale es el valor SUAVIZADO (lerp) que de verdad se aplica al
+    // tween — self.getVelocity() es ruidoso frame a frame (ticks de rueda,
+    // rebotes de trackpad), y escribirlo directo producía micro-frenones
+    // aunque el promedio fuera constante. El lerp hace que el timeScale
+    // persiga el target gradualmente en vez de saltar a él cada frame.
+    // Puede ir negativo (scroll hacia arriba reproduce el loop en reversa,
+    // como el diseño original) sin generar el salto que había antes: ese
+    // salto lo causaban los timeScale instantáneos + delayedCalls apilados
+    // sin cancelar compitiendo entre sí, no la reversa en sí — ambas causas
+    // ya están resueltas (ver killTweensOf + tickerRecovery reutilizado).
+    let tickerTimeScale = 1;
+    const TICKER_SMOOTHING = 0.1;   // 0-1: más bajo = más suave (más lag)
+    const TICKER_FORWARD_MIN = 0.6; // hacia adelante nunca "pausa" del todo
+    const tickerRecovery = gsap.delayedCall(0.15, () => {
+        gsap.to(tickerTween, {
+            timeScale: 1,
+            duration: 0.6,
+            ease: 'power2.out',
+            overwrite: true,
+            onUpdate: () => { tickerTimeScale = tickerTween.timeScale(); }
+        });
+    }).pause();
+
     function playFase1() {
         const videoDuration = getVideoDuration();
 
@@ -142,22 +166,22 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const direction = self.direction; // 1 = hacia abajo, -1 = hacia arriba
                 const velocity = Math.abs(self.getVelocity());
 
-                // 1. Ticker: avanza con scroll down, retrocede con scroll up
-                // Cancelar cualquier tween de recuperación previo
+                // 1. Ticker: acelera con scroll down, reproduce en reversa con
+                // scroll up (timeScale negativo — diseño original). Cancela la
+                // recuperación activa (si la hay) para que no compita con el
+                // set de abajo, y suaviza el target con lerp para que el
+                // cambio de velocidad no se sienta como micro-frenones.
                 gsap.killTweensOf(tickerTween);
 
-                if (direction === 1) {
-                    // Scroll hacia abajo — acelera hacia la izquierda
-                    tickerTween.timeScale(1 + (velocity / 500));
-                } else if (direction === -1) {
-                    // Scroll hacia arriba — retrocede brevemente hacia la derecha
-                    tickerTween.timeScale(-(velocity / 800));
-                }
+                const tickerRawTarget = direction === 1
+                    ? Math.max(TICKER_FORWARD_MIN, 1 + (velocity / 500))  // hacia abajo — acelera, nunca "pausa"
+                    : -(velocity / 800);                                   // hacia arriba — reversa real
+                tickerTimeScale += (tickerRawTarget - tickerTimeScale) * TICKER_SMOOTHING;
+                tickerTween.timeScale(tickerTimeScale);
 
-                // Siempre programar recuperación a timeScale 1 después de 0.15s sin scroll
-                gsap.delayedCall(0.15, () => {
-                    gsap.to(tickerTween, { timeScale: 1, duration: 0.6, ease: 'power2.out' });
-                });
+                // Recuperación a timeScale 1 tras 0.15s sin scroll — reinicia el
+                // mismo delayedCall en vez de apilar uno nuevo por frame.
+                tickerRecovery.restart(true);
 
                 // Ticker sube con scroll down
                 gsap.set(ticker, { y: -(progress * window.innerHeight * 1.2) });
