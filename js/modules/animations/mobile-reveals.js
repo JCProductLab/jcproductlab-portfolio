@@ -13,8 +13,14 @@
 // - immediateSelectors: elementos YA visibles en el primer frame (ej. el
 //   título del hero). El oculto es el reposo por defecto del CSS (no lo
 //   crea JS — mismo patrón que .hero-word en main.css), así que JS solo
-//   agrega .mrv--in tras window.load + delay fijo. Usar IO acá sería
+//   agrega .mrv--in tras DOMContentLoaded + delay fijo. Usar IO acá sería
 //   pedirle que detecte un cruce que nunca ocurre.
+//   DOMContentLoaded en vez de window.load a propósito: el título no
+//   depende de imágenes/video/CDN de terceros que sí bloquean "load" —
+//   en una página pesada como esta, "load" puede tardar de más en redes
+//   reales y termina compitiendo con otro trabajo de JS que también
+//   engancha a "load" (ver main.js), corriendo la revelación justo
+//   cuando el hilo principal está ocupado.
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 const COUNTER_DURATION_MS = 800;
@@ -71,9 +77,13 @@ export function initMobileReveals({ revealSelectors = [], counterSelectors = [],
     // NO usan IntersectionObserver ni necesitan que JS cree un estado
     // "oculto" — el oculto YA es el reposo por defecto del CSS (ver
     // case-study.css), igual que .hero-word en main.css. Acá JS solo
-    // agrega la clase que revela, tras window.load + delay fijo. Evita
-    // la carrera de IO/doble-rAF por completo: no hay "antes" que JS deba
-    // crear y pintar a tiempo.
+    // agrega la clase que revela, tras DOMContentLoaded + delay fijo.
+    // Evita la carrera de IO/doble-rAF por completo: no hay "antes" que
+    // JS deba crear y pintar a tiempo. No hace falta el fallback por
+    // readyState === 'complete' que usaría "load": este módulo corre
+    // como script deferred, y los deferred siempre terminan de ejecutar
+    // ANTES de que el navegador dispare DOMContentLoaded — el evento
+    // nunca pudo haber disparado ya en este punto.
     const immediateEls = document.querySelectorAll(immediateSelectors.join(', '));
 
     function revealImmediate() {
@@ -83,11 +93,7 @@ export function initMobileReveals({ revealSelectors = [], counterSelectors = [],
     }
 
     if (immediateEls.length) {
-        if (document.readyState === 'complete') {
-            revealImmediate();
-        } else {
-            window.addEventListener('load', revealImmediate, { once: true });
-        }
+        document.addEventListener('DOMContentLoaded', revealImmediate, { once: true });
     }
 
     if (typeof IntersectionObserver === 'undefined') return;
