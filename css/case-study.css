@@ -209,13 +209,39 @@
         gap: 0.15em;
     }
 
-    /* La flecha llega ya trazada: los stroke-dasharray del estado
-       inicial viven en el CSS desktop (gateado). */
+    /* El trazado (stroke-dasharray/dashoffset) y el fade de fillet/caps
+       los arma metrica-sequence.js con estilos inline — la geometría del
+       SVG es fija, se mide una sola vez con getTotalLength(). Se dispara
+       cuando termina el conteo del número (ver initMetricaSequence). */
     .cs-metrica__arrow {
         width: clamp(44px, 11vw, 72px);
         height: auto;
         margin-top: clamp(16px, 5vw, 40px);
         overflow: visible;
+    }
+
+    /* Párrafo de la métrica: oculto por defecto (no depende de JS para
+       crear el estado inicial — mismo patrón que .cs-apertura__ticker).
+       Se revela junto con el trazado de la flecha, ambos disparados por
+       el completion callback del conteo (ver metrica-sequence.js). */
+    @media (prefers-reduced-motion: no-preference) {
+        .cs-metrica__caption {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .cs-metrica__caption.cs-metrica__caption--in {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cs-metrica__caption {
+            opacity: 1;
+            transform: none;
+        }
     }
 
     /* ============================================

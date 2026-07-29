@@ -11,6 +11,7 @@
 import { initScrollProgress } from './modules/scroll-progress.js';
 import { initSectionNav } from './modules/section-nav.js';
 import { initMobileReveals } from './modules/animations/mobile-reveals.js';
+import { initMetricaSequence } from './modules/animations/metrica-sequence.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
 // modos (ya no vive en el matchMedia: no hay nada que revertir al
@@ -62,11 +63,16 @@ initMobileReveals({
         '.rs-cierre__footer',
     ],
     counterSelectors: [
-        '.cs-metric',
+        // .cs-metric NO va acá: tiene su propia secuencia (conteo → dibuja
+        // flecha + revela párrafo), ver metrica-sequence.js.
         '.cs-razonamiento__metric-value',
         '.rs-metricas__value',
     ],
 });
+
+// Animación bespoke de Métrica (conteo → flecha + párrafo). Separada
+// del sistema genérico de arriba porque necesita coreografía propia.
+initMetricaSequence();
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {

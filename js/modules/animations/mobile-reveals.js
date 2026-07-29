@@ -31,7 +31,7 @@ function findNumericTextNode(el) {
     return null;
 }
 
-function animateCounter(el) {
+export function animateCounter(el, onComplete) {
     const node = findNumericTextNode(el);
     if (!node) return;
 
@@ -53,6 +53,7 @@ function animateCounter(el) {
             requestAnimationFrame(tick);
         } else {
             node.data = original; // valor exacto final, sin redondeos
+            if (onComplete) onComplete();
         }
     };
     requestAnimationFrame(tick);
