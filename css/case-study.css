@@ -54,10 +54,40 @@
         display: flex;
         align-items: flex-end;
         background-color: var(--color-primary);
+    }
+
+    /* Fondo en pseudo-elemento propio (no en .cs-apertura) para poder
+       animar el zoom sin mover el contenido del hero, que es flex
+       sobre el mismo box. */
+    .cs-apertura::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
         background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-mobile.webp);
         background-size: cover;
-        background-position: center;
+        background-position: calc(50% - 12px) center;
         background-repeat: no-repeat;
+        transform: scale(4);
+        transform-origin: center;
+    }
+
+    /* Zoom-out lento y único al cargar — encuadre en reposo (1.08) ya
+       más cerrado que el cover plano de antes. Con reduced-motion se
+       queda fijo en el encuadre cerrado, sin animar. */
+    @media (prefers-reduced-motion: no-preference) {
+        .cs-apertura::before {
+            animation: cs-hero-zoom 7s ease-out forwards;
+        }
+    }
+
+    @keyframes cs-hero-zoom {
+        from {
+            transform: scale(5);
+        }
+        to {
+            transform: scale(4);
+        }
     }
 
     /* El .mp4 no se descarga en mobile (data-src sin src en el HTML);
@@ -98,7 +128,34 @@
         position: relative;
         z-index: 4;
         width: 100%;
-        padding: 0 var(--cs-mobile-pad) clamp(4rem, 12vh, 7rem);
+        padding: 0 var(--cs-mobile-pad) 24px;
+    }
+
+    /* Reveal del hero: oculto por DEFECTO en el CSS (no depende de JS
+       para crear el estado inicial) — mismo patrón que .hero-word en
+       main.css. JS (mobile-reveals.js vía immediateSelectors) solo
+       agrega .mrv--in tras window.load + delay fijo. Evita la carrera
+       de IO/doble-rAF: acá no hay "estado oculto" que JS deba crear y
+       pintar a tiempo, ya es el reposo natural del CSS desde el arranque. */
+    @media (prefers-reduced-motion: no-preference) {
+        .cs-apertura__ticker {
+            opacity: 0;
+            transform: translateY(120px);
+            transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+        }
+
+        .cs-apertura__ticker.mrv--in {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Seguridad: si JS nunca corre, no debe quedar invisible para siempre. */
+    @media (prefers-reduced-motion: reduce) {
+        .cs-apertura__ticker {
+            opacity: 1;
+            transform: none;
+        }
     }
 
     .cs-ticker__track {
@@ -247,7 +304,7 @@
        ============================================ */
 
     @media (min-width: 700px) {
-        .cs-apertura {
+        .cs-apertura::before {
             background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-tablet.webp);
         }
 

@@ -75,7 +75,12 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // Ticker continuo — se anima el contenedor completo por -trackWidth.
     // Con dos tracks idénticos en flex, al llegar a x=-trackWidth el visual es
     // idéntico al inicio (x=0), haciendo el reset de repeat:-1 invisible.
-    const trackWidth = tracks[0].offsetWidth;
+    // trackWidth se mide con getBoundingClientRect (sub-píxel) en vez de
+    // offsetWidth (redondea a entero): confirmado con DevTools que el gap
+    // real entre track1 y track2 tiene una fracción de píxel (ej. 3962.40625
+    // vs 3962 redondeado) — ese desfase producía un micro-salto visible en
+    // cada reinicio del loop.
+    const trackWidth = tracks[1].getBoundingClientRect().left - tracks[0].getBoundingClientRect().left;
     const tickerTween = gsap.to(ticker, {
         x: -trackWidth,
         duration: 10,
@@ -83,6 +88,41 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         repeat: -1,
         paused: true
     });
+
+    // trackWidth se mide una sola vez al arrancar el script, así que queda
+    // "congelado" si la fuente Sora todavía no había cargado en ese instante
+    // (más probable en un hard refresh, que fuerza a pedirla por red en vez
+    // de usar caché) — el texto se mide con la fuente de reserva, de ancho
+    // distinto. document.fonts.ready confirma cuándo Sora ya cargó; si el
+    // ancho cambió, se corrige el target del tween antes de que se note.
+    // (No se resincroniza en window resize: un listener ahí viviría dentro
+    // del bloque que gsap.matchMedia() re-ejecuta en cada cruce del
+    // breakpoint de 1200px, y GSAP no limpia addEventListener manuales al
+    // revertir el contexto — se acumularían listeners duplicados apuntando
+    // a tweens viejos. Redimensionar la ventana durante la sesión es un
+    // caso raro para un visitante real; no vale el riesgo.)
+    // IMPORTANTE: no usar restart() aquí — restart(true) siempre lleva el
+    // tween a tiempo 0 de su ciclo, y en tiempo 0 x vale 0 (posición de
+    // "Una"), así que reiniciar es un salto visible al inicio en toda regla,
+    // exactamente el bug que se quiere evitar. En vez de reiniciar, se
+    // conserva el progreso actual del ciclo (0-1, independiente del ancho)
+    // y se re-aplica sobre el nuevo target — el ajuste queda en unos pocos
+    // píxeles, imperceptible, sin tocar en qué punto del recorrido iba.
+    function syncTickerTrackWidth() {
+        const realTrackWidth = tracks[1].getBoundingClientRect().left - tracks[0].getBoundingClientRect().left;
+        if (Math.abs(-realTrackWidth - tickerTween.vars.x) > 0.5) {
+            const wasPlaying = !tickerTween.paused();
+            const currentProgress = tickerTween.progress();
+            tickerTween.vars.x = -realTrackWidth;
+            tickerTween.invalidate();
+            tickerTween.progress(currentProgress);
+            if (wasPlaying) tickerTween.play();
+        }
+    }
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(syncTickerTrackWidth);
+    }
 
     // Velocidad del ticker reactiva al scroll (ver onUpdate de initScrollPhase).
     // tickerTimeScale es el valor SUAVIZADO (lerp) que de verdad se aplica al
@@ -96,8 +136,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     // sin cancelar compitiendo entre sí, no la reversa en sí — ambas causas
     // ya están resueltas (ver killTweensOf + tickerRecovery reutilizado).
     let tickerTimeScale = 1;
-    const TICKER_SMOOTHING = 0.1;   // 0-1: más bajo = más suave (más lag)
-    const TICKER_FORWARD_MIN = 0.6; // hacia adelante nunca "pausa" del todo
+    const TICKER_SMOOTHING = 0.1; // 0-1: más bajo = más suave (más lag)
     const tickerRecovery = gsap.delayedCall(0.15, () => {
         gsap.to(tickerTween, {
             timeScale: 1,
@@ -163,19 +202,23 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             onUpdate: (self) => {
                 const progress = self.progress;
                 const videoDuration = getVideoDuration();
-                const direction = self.direction; // 1 = hacia abajo, -1 = hacia arriba
-                const velocity = Math.abs(self.getVelocity());
 
                 // 1. Ticker: acelera con scroll down, reproduce en reversa con
-                // scroll up (timeScale negativo — diseño original). Cancela la
-                // recuperación activa (si la hay) para que no compita con el
-                // set de abajo, y suaviza el target con lerp para que el
-                // cambio de velocidad no se sienta como micro-frenones.
+                // scroll up (timeScale negativo — diseño original). Una sola
+                // fórmula continua sobre la velocidad CON signo (no direction +
+                // Math.abs por separado): con dos ramas independientes, la de
+                // avance valía 1 en reposo y la de reversa valía 0 en reposo —
+                // un salto de golpe en la fórmula misma que se disparaba cada
+                // vez que self.direction leía -1 por ruido en un instante de
+                // velocidad casi nula (constante en un scroll real: notches de
+                // rueda, micro-pausas de inercia). Con base compartida (1 ± v/N)
+                // ambas ramas coinciden en v=0 — sin salto en el cruce.
                 gsap.killTweensOf(tickerTween);
 
-                const tickerRawTarget = direction === 1
-                    ? Math.max(TICKER_FORWARD_MIN, 1 + (velocity / 500))  // hacia abajo — acelera, nunca "pausa"
-                    : -(velocity / 800);                                   // hacia arriba — reversa real
+                const v = self.getVelocity(); // px/s con signo: + abajo, - arriba
+                const tickerRawTarget = v >= 0
+                    ? 1 + (v / 500)   // hacia abajo — acelera
+                    : 1 + (v / 800);  // hacia arriba — frena y, a velocidad alta, reversa real
                 tickerTimeScale += (tickerRawTarget - tickerTimeScale) * TICKER_SMOOTHING;
                 tickerTween.timeScale(tickerTimeScale);
 

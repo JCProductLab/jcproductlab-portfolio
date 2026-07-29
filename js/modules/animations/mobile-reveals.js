@@ -4,6 +4,17 @@
 // métricas. IntersectionObserver vanilla, sin GSAP a propósito — la
 // página mobile debe quedar 100% funcional aunque el CDN falle.
 // En MQ_DESKTOP no hace nada (ahí manda el scrollytelling GSAP).
+//
+// Dos mecanismos de reveal, según si el elemento arranca dentro o fuera
+// del viewport:
+// - revealSelectors: elementos fuera del viewport al cargar — JS agrega
+//   .mrv (oculto) y usa IntersectionObserver para detectar el cruce real
+//   por scroll y agregar .mrv--in.
+// - immediateSelectors: elementos YA visibles en el primer frame (ej. el
+//   título del hero). El oculto es el reposo por defecto del CSS (no lo
+//   crea JS — mismo patrón que .hero-word en main.css), así que JS solo
+//   agrega .mrv--in tras window.load + delay fijo. Usar IO acá sería
+//   pedirle que detecte un cruce que nunca ocurre.
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 const COUNTER_DURATION_MS = 800;
@@ -47,13 +58,37 @@ function animateCounter(el) {
     requestAnimationFrame(tick);
 }
 
-export function initMobileReveals({ revealSelectors = [], counterSelectors = [] } = {}) {
+export function initMobileReveals({ revealSelectors = [], counterSelectors = [], immediateSelectors = [] } = {}) {
     // Desktop: el scrollytelling GSAP es el dueño de todas las animaciones.
     if (window.matchMedia(MQ_DESKTOP).matches) return;
 
-    // Con reduced-motion (o sin IO) no se marca nada: el contenido ya está
-    // visible con sus valores finales — estado seguro por diseño.
+    // Con reduced-motion no se marca nada: el contenido ya está visible con
+    // sus valores finales — estado seguro por diseño.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Elementos ya visibles en el primer frame (ej. el título del hero):
+    // NO usan IntersectionObserver ni necesitan que JS cree un estado
+    // "oculto" — el oculto YA es el reposo por defecto del CSS (ver
+    // case-study.css), igual que .hero-word en main.css. Acá JS solo
+    // agrega la clase que revela, tras window.load + delay fijo. Evita
+    // la carrera de IO/doble-rAF por completo: no hay "antes" que JS deba
+    // crear y pintar a tiempo.
+    const immediateEls = document.querySelectorAll(immediateSelectors.join(', '));
+
+    function revealImmediate() {
+        setTimeout(() => {
+            immediateEls.forEach((el) => el.classList.add('mrv--in'));
+        }, 100);
+    }
+
+    if (immediateEls.length) {
+        if (document.readyState === 'complete') {
+            revealImmediate();
+        } else {
+            window.addEventListener('load', revealImmediate, { once: true });
+        }
+    }
+
     if (typeof IntersectionObserver === 'undefined') return;
 
     const revealEls = document.querySelectorAll(revealSelectors.join(', '));

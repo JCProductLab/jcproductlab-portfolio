@@ -20,6 +20,12 @@ initScrollProgress({ anchorSelector: '.header' });
 // Reveals + contadores de la versión mobile/tablet. Sin GSAP a
 // propósito: debe funcionar con el CDN bloqueado.
 initMobileReveals({
+    // El ticker ya está visible en el primer frame (es el hero) — no hay
+    // scroll que lo cruce, así que va por immediateSelectors (window.load
+    // + delay fijo, sin IntersectionObserver). Ver mobile-reveals.js.
+    immediateSelectors: [
+        '.cs-apertura__ticker',
+    ],
     revealSelectors: [
         '.cs-metrica__left',
         '.cs-contexto .cs-label',
