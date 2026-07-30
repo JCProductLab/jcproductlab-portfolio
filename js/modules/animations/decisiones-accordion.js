@@ -36,12 +36,6 @@ export function initDecisionesAccordion() {
     const items = document.querySelectorAll('.cs-decisiones-titulos__item');
     if (!items.length) return;
 
-    // --cs-header-height en px — mismo valor que usa .sticky-header para
-    // su "top" en reposo, y el alto de .header-shield (ver decisiones.css).
-    // Se usa solo para la compensación de scroll al abrir (más abajo);
-    // el escudo en sí es puro CSS, position:sticky estático, sin JS.
-    const headerHeightPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cs-header-height')) || 0;
-
     items.forEach((li, i) => {
         const dec = String(i + 1);
         li.dataset.dec = dec;
@@ -103,28 +97,48 @@ export function initDecisionesAccordion() {
         // Todo el header es clickeable (no solo el ícono) — acordeón
         // exclusivo: abrir esta decisión cierra cualquier otra abierta.
         // Sin scroll automático propio (el usuario baja manualmente),
-        // salvo la corrección de abajo cuando SE CIERRA otra decisión de
-        // arriba en el mismo gesto.
+        // salvo las dos correcciones de abajo — ambas con el mismo
+        // patrón: colapso SIN transición (instantáneo) + compensar
+        // scroll en el mismo tick, nunca un colapso animado sin
+        // compensar (eso es lo que causaba los saltos reportados antes:
+        // mientras algo colapsa de a poco en 0.6s, todo lo de abajo se
+        // corre sin que nada lo compense en el camino).
         //
-        // El cierre de esa otra decisión es SIN transición (instantáneo)
-        // — si fuera animado, todo lo de abajo (incluida la que se está
-        // abriendo) se movería de a poco durante 0.6s sin nada que
-        // compense en el camino.
-        //
-        // La posición final se fuerza directo a que ESTE header quede en
-        // el borde superior del viewport (no una resta contra un estado
-        // previo — con position:sticky esa resta es inconsistente, ver
-        // commit anterior). Causa raíz real del salto reportado, medida
-        // con un overlay de diagnóstico en vivo: html tiene
-        // scroll-behavior:smooth global (reset.css) — CUALQUIER scroll
-        // programático sin behavior:'instant' explícito se anima solo
-        // (~300ms), aunque el JS nunca pidió esa animación. Por eso se
-        // veía como si saltara al final y luego volviera al principio:
-        // el scrollBy calculaba bien el destino, pero tardaba 300ms en
-        // llegar ahí.
+        // targetTop se lee de getComputedStyle en cada click (no un
+        // valor fijo en JS) — así queda siempre sincronizado con el
+        // "top" real de .sticky-header en decisiones.css, sin importar
+        // qué valor tenga ahí.
         stickyHeader.addEventListener('click', () => {
             const willOpen = !li.classList.contains('cs-decisiones-titulos__item--open');
+            const targetTop = parseFloat(getComputedStyle(stickyHeader).top) || 0;
 
+            // --- Cerrando ESTA decisión (sin abrir otra) ---
+            // Si su header está realmente pineado en este momento, el
+            // colapso de su propio contenido (content, no otherContent)
+            // encoge el documento por debajo de donde está el usuario —
+            // sin compensar, la página cae mucho más abajo de lo que
+            // debería (reportado: terminaba en secciones bien
+            // posteriores de la página). Si NO está pineado (el usuario
+            // nunca scrolleó dentro), no se toca el scroll — cerrar no
+            // debe moverte si no había nada que corregir.
+            if (!willOpen) {
+                const wasStuck = Math.abs(stickyHeader.getBoundingClientRect().top - targetTop) < 1;
+
+                if (wasStuck) {
+                    content.style.transition = 'none';
+                    setOpen(false);
+                    const delta = stickyHeader.getBoundingClientRect().top - targetTop;
+                    if (delta !== 0) {
+                        window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
+                    }
+                    content.style.transition = '';
+                } else {
+                    setOpen(false);
+                }
+                return;
+            }
+
+            // --- Abriendo esta decisión — cierra cualquier otra abierta ---
             const openOthers = [];
             items.forEach((otherLi) => {
                 if (otherLi === li) return;
@@ -144,13 +158,10 @@ export function initDecisionesAccordion() {
                 }
             });
 
-            if (willOpen && openOthers.length) {
+            if (openOthers.length) {
                 // getBoundingClientRect() fuerza el reflow síncrono — ya
-                // refleja el colapso instantáneo de arriba. El destino es
-                // headerHeightPx (no 0): "pineado" para este header
-                // significa top:var(--cs-header-height) en reposo — 0 lo
-                // metería debajo del header real del sitio.
-                const delta = stickyHeader.getBoundingClientRect().top - headerHeightPx;
+                // refleja el colapso instantáneo de arriba.
+                const delta = stickyHeader.getBoundingClientRect().top - targetTop;
                 if (delta !== 0) {
                     window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
                 }
@@ -162,7 +173,7 @@ export function initDecisionesAccordion() {
                 otherContent.style.transition = '';
             });
 
-            setOpen(willOpen);
+            setOpen(true);
         });
     });
 }

@@ -14,11 +14,16 @@ import { initMobileReveals } from './modules/animations/mobile-reveals.js';
 import { initMetricaSequence, initMetricaPin } from './modules/animations/metrica-sequence.js';
 import { initAperturaExit } from './modules/animations/apertura-exit.js';
 import { initDecisionesAccordion } from './modules/animations/decisiones-accordion.js';
+import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
 // modos (ya no vive en el matchMedia: no hay nada que revertir al
 // cruzar el breakpoint porque aplica en ambos lados).
 initScrollProgress({ anchorSelector: '.header' });
+
+// Botón flotante "volver arriba" — mobile/tablet, compensa los bullets
+// de section-nav (desktop-only, más abajo). Sale solo en desktop.
+initScrollToTop();
 
 // Reestructura el acordeón de Decisiones (mobile/tablet) ANTES de armar
 // los reveals de abajo — mueve las 4 secciones de cada decisión adentro
