@@ -243,28 +243,39 @@
         <!-- ============================================ -->
         <section class="cs-apertura" aria-label="Apertura del caso Asdeporte">
 
-            <!-- Video de fondo -->
-            <!-- data-src (no src): el .mp4 solo se descarga en desktop —
-                 caso-asdeporte.js lo asigna dentro del contexto MQ_DESKTOP.
-                 En mobile el hero usa la foto de la atleta (case-study.css). -->
-            <video
-                class="cs-apertura__video"
-                data-src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.mp4"
-                autoplay
-                muted
-                loop
-                playsinline
-                aria-hidden="true">
-            </video>
+            <!-- Wrapper mobile/tablet — envuelve fondo+overlay+viñeta+sombra
+                 para poder "pinearlos" con position:sticky mientras el
+                 usuario scrollea el colchón extra de .cs-apertura y el
+                 título se desvanece por encima (ver case-study.css). En
+                 desktop es display:contents (no-op): sus hijos vuelven a
+                 resolver position:absolute contra .cs-apertura como antes,
+                 así que case-study-responsive.css no necesita cambios. -->
+            <div class="cs-apertura__bg-pin">
 
-            <!-- Overlay oscuro -->
-            <div class="cs-apertura__overlay" aria-hidden="true"></div>
+                <!-- Video de fondo -->
+                <!-- data-src (no src): el .mp4 solo se descarga en desktop —
+                     caso-asdeporte.js lo asigna dentro del contexto MQ_DESKTOP.
+                     En mobile el hero usa la foto de la atleta (case-study.css). -->
+                <video
+                    class="cs-apertura__video"
+                    data-src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.mp4"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    aria-hidden="true">
+                </video>
 
-            <!-- Viñeta radial -->
-            <div class="cs-apertura__vignette" aria-hidden="true"></div>
+                <!-- Overlay oscuro -->
+                <div class="cs-apertura__overlay" aria-hidden="true"></div>
 
-            <!-- Sombra de transición -->
-            <div class="cs-apertura__shadow" aria-hidden="true"></div>
+                <!-- Viñeta radial -->
+                <div class="cs-apertura__vignette" aria-hidden="true"></div>
+
+                <!-- Sombra de transición -->
+                <div class="cs-apertura__shadow" aria-hidden="true"></div>
+
+            </div>
 
             <!-- Ticker anclado al fondo -->
             <div class="cs-apertura__ticker" aria-label="Una app de clase mundial que frenaba a sus propios atletas.">
@@ -374,6 +385,13 @@
                 <circle class="cs-metrica__comet-head" r="16" fill="#e5fff2" filter="url(#comet-glow)"/>
             </svg>
 
+        <!-- Wrapper mobile/tablet — le da a .cs-metrica el alto de sobra
+             para poder anclarse (position:sticky; bottom:0) al fondo de
+             la pantalla en vez de seguir subiendo con el scroll. En
+             desktop es display:contents (no-op, mismo patrón que
+             .cs-apertura__bg-pin) — no toca el scrollytelling GSAP. -->
+        <div class="cs-metrica-pin">
+
         <!-- Panel 1 — MÉTRICA -->
         <section class="cs-metrica" aria-label="Métrica de conversión post-lanzamiento">
 
@@ -419,6 +437,8 @@
             </div>
 
         </section>
+
+        </div>
 
         <!-- Panel 2 — CONTEXTO -->
         <section class="cs-contexto" aria-label="Contexto del proyecto">

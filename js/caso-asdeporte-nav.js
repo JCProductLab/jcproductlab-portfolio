@@ -11,7 +11,8 @@
 import { initScrollProgress } from './modules/scroll-progress.js';
 import { initSectionNav } from './modules/section-nav.js';
 import { initMobileReveals } from './modules/animations/mobile-reveals.js';
-import { initMetricaSequence } from './modules/animations/metrica-sequence.js';
+import { initMetricaSequence, initMetricaPin } from './modules/animations/metrica-sequence.js';
+import { initAperturaExit } from './modules/animations/apertura-exit.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
 // modos (ya no vive en el matchMedia: no hay nada que revertir al
@@ -22,8 +23,9 @@ initScrollProgress({ anchorSelector: '.header' });
 // propósito: debe funcionar con el CDN bloqueado.
 initMobileReveals({
     // El ticker ya está visible en el primer frame (es el hero) — no hay
-    // scroll que lo cruce, así que va por immediateSelectors (window.load
-    // + delay fijo, sin IntersectionObserver). Ver mobile-reveals.js.
+    // scroll que lo cruce, así que va por immediateSelectors
+    // (DOMContentLoaded + delay fijo, sin IntersectionObserver). Ver
+    // mobile-reveals.js.
     immediateSelectors: [
         '.cs-apertura__ticker',
     ],
@@ -73,6 +75,15 @@ initMobileReveals({
 // Animación bespoke de Métrica (conteo → flecha + párrafo). Separada
 // del sistema genérico de arriba porque necesita coreografía propia.
 initMetricaSequence();
+
+// Frena a .cs-metrica en el borde inferior de pantalla en su punto, en
+// vez de dejarla seguir subiendo con el scroll (ver metrica-sequence.js).
+initMetricaPin();
+
+// Fade de salida del título de Apertura atado al scroll del colchón de
+// .cs-apertura (fondo pineado por CSS, ver case-study.css). Bespoke por
+// la misma razón que initMetricaSequence.
+initAperturaExit();
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {

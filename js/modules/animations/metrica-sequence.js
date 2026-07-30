@@ -8,6 +8,9 @@
 //   el trazado de la flecha (stroke-dashoffset, misma coreografía que
 //   desktop: diagonal → cuña → punta → círculos) y el fade + slide-up
 //   del párrafo.
+// - initMetricaPin: frena a .cs-metrica en el borde inferior de pantalla
+//   una vez que llega ahí subiendo con el scroll normal, en vez de seguir
+//   de largo. Ver comentario completo más abajo.
 //
 // (El cometa en loop de tiempo fijo se probó y se sacó: no se veía bien
 // y ralentizaba en iPhone real — ver .cs-metrica__comet, oculto en mobile
@@ -80,4 +83,82 @@ export function initMetricaSequence() {
     }, { threshold: 0.15 });
 
     io.observe(metric);
+}
+
+// Frena a .cs-metrica en el borde inferior de pantalla en vez de dejarla
+// seguir de largo con el scroll — y cuando se suelta, lo hace en el
+// MISMO momento y a la MISMA velocidad que el fondo (.cs-apertura__bg-pin,
+// ver apertura-exit.js), no en un punto propio. Se probó position:sticky
+// (dos veces, con y sin ajustes) en esta estructura y nunca enganchó, sin
+// causa raíz clara que se pudiera confirmar sin inspección en vivo. En
+// vez de seguir adivinando con CSS, esto se calcula a mano en JS, mismo
+// patrón ya probado que funciona en apertura-exit.js: transform por
+// scroll con rAF, nada de loop por tiempo.
+//
+// Primera versión de esto soltaba a .cs-metrica cuando .cs-metrica-pin
+// (su wrapper) se quedaba sin alto — pero ese punto no coincidía con
+// cuándo se suelta el fondo, y además el salto era abrupto (pasaba de
+// "frenada en el punto" a "su posición natural", que para entonces ya
+// estaba lejos, porque mientras estuvo frenada su posición natural
+// siguió cayendo por debajo sin que se notara).
+//
+// Acá "aperturaScrolled > releaseBuffer" (mismo cálculo de buffer que
+// apertura-exit.js) es exactamente cuándo el fondo se suelta. Antes de
+// eso, virtualBottom se mantiene fijo en targetBottom (frenada). Después,
+// decrece 1 a 1 con el scroll — continúa exactamente desde donde estaba
+// frenada, sin salto, a la misma velocidad que el scroll (= misma
+// velocidad a la que se va el fondo una vez suelto).
+export function initMetricaPin() {
+    if (window.matchMedia(MQ_DESKTOP).matches) return;
+
+    const apertura = document.querySelector('.cs-apertura');
+    const metricaPin = document.querySelector('.cs-metrica-pin');
+    const metrica = document.querySelector('.cs-metrica');
+    if (!apertura || !metricaPin || !metrica) return;
+
+    let ticking = false;
+
+    function update() {
+        ticking = false;
+
+        const releaseBuffer = apertura.offsetHeight - window.innerHeight;
+        if (releaseBuffer <= 0) return;
+
+        const aperturaScrolled = -apertura.getBoundingClientRect().top;
+        const targetBottom = window.innerHeight;
+
+        const wrapperRect = metricaPin.getBoundingClientRect();
+        const naturalBottom = wrapperRect.top + metrica.offsetHeight;
+
+        if (naturalBottom > targetBottom) {
+            // Todavía no llega a su punto — sube en flujo normal.
+            // translateY(0px) en vez de 'none': "none" saca el transform
+            // por completo y el elemento pierde su capa de composición
+            // propia; si después vuelve a ganar un transform real al
+            // frenarse, el navegador tiene que crear esa capa de nuevo
+            // en caliente — en Android eso puede verse como un parpadeo/
+            // desaparición momentánea justo al cruzar el punto de anclaje
+            // en cualquier dirección (confirmado por el patrón reportado:
+            // pasa yendo Y viniendo). translateY(0px) mantiene la capa
+            // viva todo el tiempo, solo cambia el valor.
+            metrica.style.transform = 'translateY(0px)';
+            return;
+        }
+
+        const virtualBottom = targetBottom - Math.max(0, aperturaScrolled - releaseBuffer);
+        const renderedBottom = Math.min(targetBottom, virtualBottom);
+
+        metrica.style.transform = `translateY(${renderedBottom - naturalBottom}px)`;
+    }
+
+    function onScroll() {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+        }
+    }
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
 }

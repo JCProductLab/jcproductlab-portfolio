@@ -34,6 +34,19 @@
     /* Padding lateral compartido por todas las secciones mobile */
     :root {
         --cs-mobile-pad: clamp(1.25rem, 5vw, 3rem);
+        /* Colchón de scroll de .cs-apertura, en dos tramos — mientras se
+           scrollean juntos, el fondo queda pineado (.cs-apertura__bg-pin,
+           sticky) de punta a punta:
+           1. --cs-title-exit-buffer: el título se desvanece por encima
+              del fondo (ver apertura-exit.js). Referenciado también por
+              .cs-apertura__ticker (su "bottom" de reposo).
+           2. --cs-metrica-pin-buffer: .cs-metrica (sin fondo propio, ver
+              más abajo) se "monta" hacia arriba con margin-top negativo
+              para leerse encima del mismo fondo, todavía pineado.
+           Recién cuando se scrollean los dos tramos completos el fondo
+           se suelta y sigue Contexto normalmente. */
+        --cs-title-exit-buffer: 50vh;
+        --cs-metrica-pin-buffer: 60vh;
     }
 
     /* Los SVGs decorativos y las imágenes grandes no deben generar
@@ -48,18 +61,46 @@
 
     .cs-apertura {
         position: relative;
-        min-height: 100vh;
-        min-height: 100svh;
-        overflow: hidden;
-        display: flex;
-        align-items: flex-end;
+        /* Alto del fold + los dos tramos del colchón (título + Métrica
+           pineada encima del fondo, ver el :root de arriba).
+           SIN overflow:hidden acá a propósito: si este elemento (que
+           nunca scrollea internamente — el documento es el que scrollea)
+           tiene overflow distinto de "visible", el navegador lo toma
+           como el "contenedor de scroll" de referencia para el sticky
+           de su hijo — y como .cs-apertura nunca tiene su propio
+           scrollTop, el sticky no tiene contra qué engancharse y queda
+           estático (bug confirmado en vivo con Chrome DevTools). El
+           recorte del zoom Ken Burns lo hace .cs-apertura__bg-pin con
+           su propio overflow:hidden más abajo — no hace falta acá.
+           overflow-anchor:none — Chrome puede reajustar el scroll solo
+           ("scroll anchoring") si detecta un cambio de layout cerca de
+           lo que se está viendo; con el sticky recién resolviéndose acá
+           arriba al cargar la página, eso puede leerse como un salto de
+           scroll fantasma (reproducido en vivo, intermitente, sobre
+           todo en Chrome — Safari es más conservador con esto). Esto le
+           dice al navegador que no use nada de acá adentro como ancla. */
+        overflow-anchor: none;
+        min-height: calc(100vh + var(--cs-title-exit-buffer) + var(--cs-metrica-pin-buffer));
+        min-height: calc(100svh + var(--cs-title-exit-buffer) + var(--cs-metrica-pin-buffer));
         background-color: var(--color-primary);
     }
 
-    /* Fondo en pseudo-elemento propio (no en .cs-apertura) para poder
-       animar el zoom sin mover el contenido del hero, que es flex
-       sobre el mismo box. */
-    .cs-apertura::before {
+    /* Capa de fondo pineada — sticky dentro del .cs-apertura alto de
+       arriba. Contiene video (oculto)/overlay/viñeta/sombra, todos
+       position:absolute + inset:0 relativos a ESTA caja (no a
+       .cs-apertura), así que miden 100svh igual que antes. */
+    .cs-apertura__bg-pin {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+    }
+
+    /* Fondo en pseudo-elemento propio (no en .cs-apertura__bg-pin) para
+       poder animar el zoom sin mover contenido — no hay contenido flex
+       acá, pero se mantiene el mismo mecanismo que ya existía. */
+    .cs-apertura__bg-pin::before {
         content: '';
         position: absolute;
         inset: 0;
@@ -76,7 +117,7 @@
        más cerrado que el cover plano de antes. Con reduced-motion se
        queda fijo en el encuadre cerrado, sin animar. */
     @media (prefers-reduced-motion: no-preference) {
-        .cs-apertura::before {
+        .cs-apertura__bg-pin::before {
             animation: cs-hero-zoom 7s ease-out forwards;
         }
     }
@@ -123,20 +164,37 @@
 
     /* Ticker → headline estático anclado abajo. El primer track se
        comporta como H1 ("Una app de clase mundial que frenaba a sus
-       propios atletas."); el clon del loop y el separador se ocultan. */
+       propios atletas."); el clon del loop y el separador se ocultan.
+       position:absolute (no flex-item) a propósito: queda FUERA de
+       .cs-apertura__bg-pin (que es lo que se pinea), así que al scrollear
+       el colchón se mueve con el documento como cualquier elemento
+       normal — eso es lo que aprovecha apertura-exit.js para el fade de
+       salida sin tener que animar su posición a mano. "bottom" en vez de
+       "top" para que el reposo inicial (antes de cualquier scroll) quede
+       pegado al límite fold/colchón, igual que antes con flex-end. */
     .cs-apertura__ticker {
-        position: relative;
+        position: absolute;
         z-index: 4;
-        width: 100%;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--cs-title-exit-buffer) + var(--cs-metrica-pin-buffer));
         padding: 0 var(--cs-mobile-pad) 24px;
+        /* Reserva la capa de composición desde el arranque — mismo motivo
+           que .cs-metrica (ver ahí), apertura-exit.js también escribe
+           transform por scroll acá. */
+        will-change: transform;
     }
 
     /* Reveal del hero: oculto por DEFECTO en el CSS (no depende de JS
        para crear el estado inicial) — mismo patrón que .hero-word en
        main.css. JS (mobile-reveals.js vía immediateSelectors) solo
-       agrega .mrv--in tras window.load + delay fijo. Evita la carrera
+       agrega .mrv--in tras DOMContentLoaded + delay fijo. Evita la carrera
        de IO/doble-rAF: acá no hay "estado oculto" que JS deba crear y
-       pintar a tiempo, ya es el reposo natural del CSS desde el arranque. */
+       pintar a tiempo, ya es el reposo natural del CSS desde el arranque.
+       Tras esa entrada, apertura-exit.js toma el control de opacity/
+       transform inline para el fade de salida por scroll (ver ese
+       módulo) — desactiva esta "transition" en ese momento para que sus
+       escrituras por frame no queden amortiguadas por ella. */
     @media (prefers-reduced-motion: no-preference) {
         .cs-apertura__ticker {
             opacity: 0;
@@ -191,9 +249,36 @@
        SECCIÓN 2 — MÉTRICA (KPI 25% ↗ + caption)
        ============================================ */
 
+    /* .cs-metrica-pin (wrapper nuevo, ver HTML) montado hacia arriba con
+       margin-top negativo para que .cs-metrica entre en pantalla mientras
+       .cs-apertura__bg-pin (sticky, ver Apertura arriba) todavía está
+       pineado — así se lee encima de la misma imagen, no sobre una
+       sección nueva que la tapa. El alto de sobra del wrapper
+       (min-height) es lo que le da a .cs-metrica margen para clavarse
+       (sticky) antes de que el wrapper se termine y la suelte.
+       overflow-anchor:none: ver .cs-apertura arriba — mismo motivo. */
+    .cs-metrica-pin {
+        margin-top: calc(-1 * var(--cs-metrica-pin-buffer));
+        min-height: calc(100vh + var(--cs-metrica-pin-buffer));
+        min-height: calc(100svh + var(--cs-metrica-pin-buffer));
+        overflow-anchor: none;
+    }
+
+    /* Sin fondo propio. Se queda en flujo normal — el "clavado" al fondo
+       de pantalla NO es position:sticky (se probó dos veces en esta
+       misma estructura anidada con margin-top negativo y no enganchó,
+       sin causa raíz clara sin poder inspeccionarlo en vivo). Lo maneja
+       initMetricaPin (ver metrica-sequence.js) con transform:translateY
+       calculado en JS — mismo patrón ya probado de apertura-exit.js.
+       padding-bottom fijo en vez del clamp de arriba: el contenido debe
+       quedar a exactamente 24px del borde inferior de pantalla cuando
+       initMetricaPin lo frena ahí. */
     .cs-metrica {
-        padding: clamp(5rem, 14vh, 8rem) var(--cs-mobile-pad);
-        background-color: var(--color-primary);
+        padding: clamp(5rem, 14vh, 8rem) var(--cs-mobile-pad) 24px;
+        /* Reserva la capa de composición desde el arranque — initMetricaPin
+           siempre escribe translateY (nunca "none"), pero esto evita
+           incluso el primer parpadeo, antes de que JS toque nada. */
+        will-change: transform;
     }
 
     .cs-metrica__left {
@@ -330,7 +415,7 @@
        ============================================ */
 
     @media (min-width: 700px) {
-        .cs-apertura::before {
+        .cs-apertura__bg-pin::before {
             background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-tablet.webp);
         }
 

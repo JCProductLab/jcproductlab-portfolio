@@ -26,6 +26,15 @@
     z-index: 2;
 }
 
+/* Wrapper exclusivo de mobile/tablet (ver case-study.css) para pinear el
+   fondo con position:sticky. En desktop no debe existir como caja: sin
+   esto, video/overlay/vignette/shadow perderían su containing block
+   (.cs-apertura) y su position:absolute + inset:0 dejaría de coincidir
+   con el viewport de la sección. */
+.cs-apertura__bg-pin {
+    display: contents;
+}
+
 /* Video de fondo — capa base */
 .cs-apertura__video {
     position: absolute;
@@ -103,6 +112,15 @@
 /* ============================================
    SECCIÓN 2 — MÉTRICA
    ============================================ */
+
+/* Wrapper exclusivo de mobile/tablet (ver case-study.css) para anclar
+   .cs-metrica al fondo de pantalla con position:sticky. En desktop no
+   debe existir como caja — .cs-metrica sigue siendo hijo directo de
+   .cs-horizontal-track__inner para el paneo horizontal (transform: X)
+   de caso-asdeporte.js. */
+.cs-metrica-pin {
+    display: contents;
+}
 
 .cs-metrica {
     position: relative;
