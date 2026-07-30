@@ -5,14 +5,20 @@
 // Panel deslizante desde la derecha con overlay
 // ============================================
 
+import { initModalScrollHint } from './modal-scroll-hint.js';
+
 export function initModalQueAprendi() {
     const modal = document.getElementById('modalQueAprendi');
     const triggerBtn = document.querySelector('.rs-testimonio__closing .btn--secondary');
     const closeBtn = modal?.querySelector('.modal-rol-proceso__close');
     const overlay = modal?.querySelector('.modal-rol-proceso__overlay');
     const content = modal?.querySelector('.modal-rol-proceso__content');
+    const right = modal?.querySelector('.modal-que-aprendi__right');
+    const scrollHintEl = modal?.querySelector('.modal-rol-proceso__scroll-hint');
 
     if (!modal || !triggerBtn || !closeBtn || !overlay || !content) return;
+
+    const scrollHint = initModalScrollHint(right, scrollHintEl);
 
     let isOpen = false;
 
@@ -24,6 +30,8 @@ export function initModalQueAprendi() {
         modal.classList.add('active');
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
+
+        scrollHint.update();
 
         // Animación de entrada: slide desde la derecha
         gsap.to(content, {

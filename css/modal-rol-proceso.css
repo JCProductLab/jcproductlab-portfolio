@@ -460,13 +460,44 @@
         color: var(--color-text-secondary);
     }
 
+    /* ============================================
+       MODAL QUÉ APRENDÍ — mobile/tablet
+       Más simple que los otros dos: ya era una columna en la base
+       (unguarded) — solo hace falta ajustar el gap a 32px (antes 48px,
+       heredado de desktop) y hacer scrolleable .modal-que-aprendi__right
+       (mismo patrón que .modal-rol-proceso__inner / .modal-proceso__detail).
+       ============================================ */
+    #modalQueAprendi .modal-que-aprendi__grid {
+        gap: 32px;
+    }
+
+    #modalQueAprendi .modal-que-aprendi__right {
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        /* La base define justify-content:flex-end (pensado para desktop,
+           texto anclado al fondo de una columna alta) — en mobile el
+           contenido debe leerse de arriba hacia abajo, no empujado al
+           fondo. */
+        justify-content: flex-start;
+    }
+
+    #modalQueAprendi .modal-que-aprendi__right::-webkit-scrollbar {
+        display: none;
+    }
+
+    #modalQueAprendi .modal-que-aprendi__right .modal-rol-proceso__text {
+        justify-content: flex-start;
+    }
+
     /* Compartida por los 3 modales — hermano del contenedor scrolleable
        de cada uno (.modal-rol-proceso__inner en Mi Rol,
-       .modal-proceso__detail en El Proceso), nunca hijo: si fuera hijo
-       scrollearía junto con el contenido en vez de quedar fijo sobre el
-       borde inferior visible. .content ya es position:relative, así que
-       bottom:0 queda flush con el borde donde empieza su padding-bottom
-       (32px), justo donde termina el área visible del contenedor. */
+       .modal-proceso__detail en El Proceso, .modal-que-aprendi__right en
+       Qué Aprendí), nunca hijo: si fuera hijo scrollearía junto con el
+       contenido en vez de quedar fijo sobre el borde inferior visible.
+       .content ya es position:relative, así que bottom:0 queda flush con
+       el borde donde empieza su padding-bottom (32px), justo donde
+       termina el área visible del contenedor. */
     .modal-rol-proceso__scroll-hint {
         display: flex;
         align-items: center;
