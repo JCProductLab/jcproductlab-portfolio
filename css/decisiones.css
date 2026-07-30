@@ -95,7 +95,10 @@
     /* --- Índice de decisiones (badge 01/02/03 + subtítulo) --- */
 
     .cs-decisiones-titulos {
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 32px: junto con los 32px de padding-bottom de
+           .cs-contexto (case-study.css) suma 64px de espacio visible
+           entre "El proceso" y este label "[ Decisiones clave ]". */
+        padding: 2rem var(--cs-mobile-pad) clamp(4rem, 10vh, 6rem);
     }
 
     .cs-decisiones-titulos__label {
@@ -103,14 +106,39 @@
     }
 
     .cs-decisiones-titulos__list {
-        gap: 48px;
+        /* Gap entre items = 24px: distancia entre el hr de la decisión
+           anterior y el header (número + "Decisión x" + toggle) de la
+           siguiente. Antes 48px — se reduce a la mitad para una
+           composición más densa. Desktop mantiene sus 64px del base. */
+        gap: 24px;
     }
 
     /* En mobile no existe el gesto de la escalera: el título "Decisión N"
        es redundante con el badge numerado — el subtítulo es el contenido. */
     .cs-decisiones-titulos__number {
-        width: 48px;
-        height: 48px;
+        width: 32px;
+        height: 32px;
+        /* El base hereda clamp(1.25rem, 1.5vw, 1.5rem) = 20-24px. Con el
+           círculo reducido a 32px ese tamaño ocupa ~63% del diámetro y
+           se ve apretado — se baja a 1rem (16px) para una proporción
+           ~50% más limpia, similar a la original con círculo de 48px. */
+        font-size: 1rem;
+    }
+
+    /* Gap entre el círculo numerado y el título "Decisión x" — en mobile
+       se reduce a 16px (antes 24px del base) para una composición más
+       densa. Desktop mantiene los 24px del base. */
+    .cs-decisiones-titulos__header {
+        gap: 16px;
+    }
+
+    /* Título "Decisión x" en mobile — mínimo baja de 2.5rem (40px) a 2rem
+       (32px) para acompañar la reducción del círculo. El preferred (3.5vw)
+       y el máximo (3rem / 48px) del base se conservan: la curva sigue
+       escalando hacia arriba en pantallas más grandes dentro del rango
+       mobile/tablet. Solo cambia el piso. */
+    .cs-decisiones-titulos__title {
+        font-size: clamp(2rem, 3.5vw, 3rem);
     }
 
     /* ============================================
@@ -143,7 +171,12 @@
     .cs-decisiones-titulos__header-shield {
         position: sticky;
         top: 0;
-        height: var(--cs-header-height);
+        /* Alto = header + gap. Cubre no solo la franja translúcida del
+           header real del sitio, sino también el espacio de 24px entre
+           el header y .sticky-header — sin esto, el contenido que
+           scrollea detrás se transparentaba en esa franja (regresión
+           del problema original del hueco). */
+        height: calc(var(--cs-header-height) + 24px);
         /* Reserva su alto en el flujo (todo position:sticky lo hace,
            a diferencia de fixed) y de inmediato lo cancela empujando a
            .sticky-header hacia arriba esa misma distancia — en reposo,
@@ -151,7 +184,7 @@
            detrás, z-index más bajo) y el espaciado del índice queda
            intacto. Sin esto, el alto del escudo se sumaba siempre antes
            de "01 Decisión 1", pineado o no (el hueco reportado). */
-        margin-bottom: calc(-1 * var(--cs-header-height));
+        margin-bottom: calc(-1 * (var(--cs-header-height) + 24px));
         z-index: 1;
         background-color: var(--color-primary);
         overflow-anchor: none;
@@ -163,7 +196,12 @@
        exactamente cuando empieza a asomar el índice siguiente. */
     .cs-decisiones-titulos__sticky-header {
         position: sticky;
-        top: var(--cs-header-height);
+        /* Pineado 24px por debajo del header real del sitio (antes flush
+           con top:var(--cs-header-height)). Aplica a las 3 decisiones:
+           al abrir cualquiera, su header queda anclado a 24px del borde
+           inferior del header de la página, dejando una franja visible
+           del fondo de la sección entre ambos. */
+        top: calc(var(--cs-header-height) + 24px);
         z-index: 2;
         display: flex;
         flex-direction: column;
@@ -178,6 +216,34 @@
            el salto-y-vuelta reportado. Desactivado a propósito: el JS ya
            es el único que decide cuánto compensar. */
         overflow-anchor: none;
+    }
+
+    /* Espaciado del bloque "Decisión N" en mobile/tablet:
+       - header → subtítulo: 16px (gap 24px del sticky-header compensado
+         con margin-top: -8px en el subtítulo, para que la primera
+         separación sea más corta que la segunda)
+       - subtítulo → hr: 24px (gap del sticky-header, sin margin-top en hr)
+       - header → hr total: 40px
+       Desktop mantiene los 24px/56px/80px del base. */
+    .cs-decisiones-titulos__subtitle {
+        margin-top: -8px;
+    }
+
+    .cs-decisiones-titulos__item .divider--horizontal {
+        margin-top: 0;
+    }
+
+    /* Espaciador de 24px solo para Decisión 3 (la única sin <hr> en el
+       HTML). Se aplica al subtítulo cuando es el último hijo del
+       sticky-header — en decisiones 1 y 2 el <hr> es el último hijo, así
+       que este selector no las toca. El ::after es parte de la caja del
+       subtítulo (y por tanto del sticky-header), no un margin externo:
+       queda protegido por z-index:2 del sticky-header, así que el panel
+       verde que scrollea pasa por debajo sin taparlo. Siempre visible. */
+    .cs-decisiones-titulos__subtitle:last-child::after {
+        content: '';
+        display: block;
+        height: 24px;
     }
 
     /* Botón +/-→X — dos trazos independientes (no un ícono que rota):

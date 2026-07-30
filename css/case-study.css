@@ -362,8 +362,11 @@
            abajo con el bottom): .cs-metrica-pin ahora termina justo en el
            borde de .cs-contexto (0 gap entre contenedores, ver
            .cs-metrica-pin arriba) — estos 2rem son el único espacio
-           visible entre el hero y el contenido de Contexto. */
-        padding: 2rem var(--cs-mobile-pad) clamp(4rem, 10vh, 6rem);
+           visible entre el hero y el contenido de Contexto.
+           padding-bottom = 32px: junto con los 32px de padding-top de
+           .cs-decisiones-titulos suma 64px de espacio visible entre
+           "El proceso" y "[ Decisiones clave ]" (ver decisiones.css). */
+        padding: 2rem var(--cs-mobile-pad) 2rem;
         background-color: var(--color-primary);
     }
 
