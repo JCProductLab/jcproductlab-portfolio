@@ -88,12 +88,20 @@
     /* Capa de fondo pineada — sticky dentro del .cs-apertura alto de
        arriba. Contiene video (oculto)/overlay/viñeta/sombra, todos
        position:absolute + inset:0 relativos a ESTA caja (no a
-       .cs-apertura), así que miden 100svh igual que antes. */
+       .cs-apertura), así que miden lo mismo que ella.
+       100lvh (large viewport height) en vez de 100svh a propósito, solo
+       acá: lvh asume la barra del navegador ya oculta (el viewport más
+       grande posible), así que esta caja nace generosa y nunca deja un
+       espacio vacío cuando la barra se esconde al empezar a scrollear
+       (svh se queda con el alto chico y no crece con ella). El resto de
+       la sección (.cs-apertura arriba, el colchón, dónde se ancla
+       Métrica) se queda en svh — ninguno de esos cálculos lee el alto
+       de esta capa, así que no se desincroniza nada. */
     .cs-apertura__bg-pin {
         position: sticky;
         top: 0;
         height: 100vh;
-        height: 100svh;
+        height: 100lvh;
         overflow: hidden;
     }
 
