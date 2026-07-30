@@ -14,6 +14,7 @@ import { initMobileReveals } from './modules/animations/mobile-reveals.js';
 import { initMetricaSequence, initMetricaPin } from './modules/animations/metrica-sequence.js';
 import { initAperturaExit } from './modules/animations/apertura-exit.js';
 import { initDecisionesAccordion } from './modules/animations/decisiones-accordion.js';
+import { initDecisionMcPin } from './modules/animations/decision-mc-pin.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
@@ -30,6 +31,12 @@ initScrollToTop();
 // de su <li> de índice (ver decisiones-accordion.js). Sale solo en
 // desktop, no toca el HTML autoreado que usa el scrollytelling GSAP.
 initDecisionesAccordion();
+
+// Pin + fade-in de la imagen y el texto de "La decisión" en mobile/tablet.
+// Necesita que el acordeón ya esté reestructurado (arriba) para que
+// .cs-decisiones-titulos__sticky-header exista y se pueda medir su alto
+// al calcular el start offset del pin. Sale solo en desktop.
+initDecisionMcPin();
 
 // Reveals + contadores de la versión mobile/tablet. Sin GSAP a
 // propósito: debe funcionar con el CDN bloqueado.
@@ -56,8 +63,11 @@ initMobileReveals({
         '.cs-problema__title',
         '.cs-problema__card',
         '.cs-decision-mc__title',
-        '.cs-decision-mc__media',
-        '.cs-decision-mc__text-wrap',
+        // .cs-decision-mc__media y .cs-decision-mc__text-wrap NO van
+        // acá: su animación la maneja decision-mc-pin.js (pin + fade-in
+        // atado al scroll). Si quedaran acá, mobile-reveals las animaría
+        // también vía IntersectionObserver y se verían dos reveals a la
+        // vez sobre los mismos elementos.
         '.cs-razonamiento__label',
         '.cs-razonamiento__metric',
         '.cs-razonamiento__descriptor',

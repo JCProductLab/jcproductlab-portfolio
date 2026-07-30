@@ -233,19 +233,6 @@
         margin-top: 0;
     }
 
-    /* Espaciador de 24px solo para Decisión 3 (la única sin <hr> en el
-       HTML). Se aplica al subtítulo cuando es el último hijo del
-       sticky-header — en decisiones 1 y 2 el <hr> es el último hijo, así
-       que este selector no las toca. El ::after es parte de la caja del
-       subtítulo (y por tanto del sticky-header), no un margin externo:
-       queda protegido por z-index:2 del sticky-header, así que el panel
-       verde que scrollea pasa por debajo sin taparlo. Siempre visible. */
-    .cs-decisiones-titulos__subtitle:last-child::after {
-        content: '';
-        display: block;
-        height: 24px;
-    }
-
     /* Botón +/-→X — dos trazos independientes (no un ícono que rota):
        la barra horizontal gira a 45°, la vertical a -45°, con un leve
        overshoot elástico (misma curva "back" que ya usa el subrayado de
@@ -326,6 +313,11 @@
         .cs-decisiones-titulos__toggle-bar {
             transition: none;
         }
+
+        /* Sin pin ni fade-in: el texto se ve directo. */
+        .cs-decision-mc__text-wrap {
+            opacity: 1;
+        }
     }
 
     /* --- Cortina de decisión → panel verde pleno --- */
@@ -335,8 +327,20 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
-        background-color: var(--color-decision-bg);
+        /* Sin padding horizontal propio — ahora vive anidada dentro de
+           .cs-decisiones-titulos (acordeón), que ya aporta var(--cs-mobile-pad)
+           a los lados. Con las dos sumadas quedaba el doble del inset
+           esperado (48px en vez de 24px).
+           padding-top = 32px: espacio entre la línea divisoria del
+           header pineado y la imagen que abre el contenido.
+           padding-bottom = 0: el espacio hasta "[ El problema ]" vive
+           en el padding-top de .cs-problema (32px), no se duplica acá. */
+        padding: 32px 0 0;
+        /* Sin fondo verde propio: label + título (.cs-decision__content,
+           oculto abajo) ya no se muestran acá — son redundantes con el
+           índice pineado ("01 Decisión N" + subtítulo). Mismo fondo que
+           el resto de las secciones de la decisión. */
+        background-color: var(--color-primary);
     }
 
     /* El bg animable de la cortina es redundante: el fondo va en la sección */
@@ -344,19 +348,11 @@
         display: none;
     }
 
+    /* Redundante con el índice pineado (mismo label + título) — solo
+       queda la imagen en mobile. .cs-decision__label/__title quedan sin
+       regla propia acá: no hace falta, están dentro de este display:none. */
     .cs-decision__content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-
-    .cs-decision__label {
-        color: var(--color-decision-label);
-    }
-
-    .cs-decision__title {
-        color: #FFFFFF;
-        font-size: clamp(2.25rem, 8vw, 4rem);
+        display: none;
     }
 
     .cs-decision__media {
@@ -375,7 +371,13 @@
     /* --- El problema: cards glass apiladas --- */
 
     .cs-problema {
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* Sin padding horizontal propio — ver .cs-decision arriba.
+           padding-top = 32px: espacio entre la imagen de .cs-decision
+           y el título "[ El problema ]" — junto con el padding-bottom:0
+           de .cs-decision, el gap entre ambos es exactamente 32px.
+           padding-bottom = 0: el espacio hasta "[ La decisión ]" vive
+           en el padding-top de .cs-decision-mc (32px), no se duplica acá. */
+        padding: 32px 0 0;
         background-color: var(--color-primary);
     }
 
@@ -386,7 +388,9 @@
     }
 
     .cs-problema__title {
-        text-align: center;
+        /* text-align: left en mobile (antes center) — desktop lo
+           mantiene en center (ver decisiones-responsive.css). */
+        text-align: left;
         font-size: clamp(1.75rem, 6vw, 2.5rem);
     }
 
@@ -398,10 +402,13 @@
 
     .cs-problema__card {
         display: flex;
-        flex-direction: column;
+        /* Mismo patrón que desktop (decisiones-responsive.css:291) —
+           bullet y texto lado a lado en vez de apilados. */
+        flex-direction: row;
+        align-items: flex-start;
         gap: 1rem;
-        padding: 1.5rem;
-        border-radius: 16px;
+        padding: 20px;
+        border-radius: 12px;
         background: var(--glass-bg);
         border: 1px solid var(--color-glass-border);
         box-shadow: var(--glass-shadow);
@@ -414,6 +421,9 @@
         border-radius: 50%;
         background-color: var(--color-accent);
         flex-shrink: 0;
+        /* Mismo ajuste que desktop (decisiones-responsive.css:303) —
+           alinea el bullet con la primera línea del texto. */
+        margin-top: 0.15em;
     }
 
     .cs-problema__text {
@@ -426,12 +436,25 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 32px: espacio entre las cards de .cs-problema
+           y el título "[ La decisión ]" — junto con el padding-bottom:0
+           de .cs-problema, el gap entre ambos es exactamente 32px.
+           padding-left/right = 24px: espacio lateral de la imagen.
+           margin-left/right = -var(--cs-mobile-pad): cancela el
+           padding horizontal de .cs-decisiones-titulos (~20px por lado)
+           para que el total desde el borde del viewport sea exactamente
+           24px, no 44px (20 del padre + 24 propio). El background-color
+           del padre (--color-primary) es el mismo, así que la franja
+           "comida" por el margin negativo no deja un hueco visible. */
+        margin: 0 calc(-1 * var(--cs-mobile-pad));
+        padding: 32px 24px clamp(4rem, 10vh, 6rem);
         background-color: var(--color-primary);
     }
 
     .cs-decision-mc__title {
-        text-align: center;
+        /* text-align: left en mobile (antes center) — desktop lo
+           mantiene en center (ver decisiones-responsive.css). */
+        text-align: left;
         font-size: clamp(1.75rem, 6vw, 2.5rem);
     }
 
@@ -440,6 +463,10 @@
         flex-direction: column;
         align-items: center;
         gap: 2rem;
+        /* Contexto de posicionamiento para que .text-wrap (position:
+           absolute abajo) se ancle al stage y cubra exactamente el
+           .media que está dentro. */
+        position: relative;
     }
 
     /* El óvalo/anillo pertenece a la coreografía desktop */
@@ -448,9 +475,16 @@
     }
 
     .cs-decision-mc__media {
-        width: min(100%, 320px);
+        /* width: 100% (antes min(100%, 320px)): la imagen llena el
+           ancho del container con el padding de 24px a cada lado.
+           El max-width de 320px centraba la imagen y dejaba ~35px
+           por lado — el usuario pidió exactamente 24px. */
+        width: 100%;
         overflow: hidden;
         border-radius: 16px;
+        /* Necesario para que el ::after overlay se posicione respecto
+           a la imagen, no al stage. */
+        position: relative;
     }
 
     .cs-decision-mc__img {
@@ -461,12 +495,51 @@
         object-fit: cover;
     }
 
+    /* Overlay oscuro DENTRO del media — mismo patrón que desktop
+       (decisiones-responsive.css:396). Legibilidad del texto claro
+       sobre la imagen.
+       Sin z-index propio: queda por debajo del sticky-header (z:2)
+       y del header-shield (z:1) — cuando el contenido scrollea bajo
+       el header pinned, el overlay pasa por detrás y no se ve encima
+       del header. */
+    .cs-decision-mc__media::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+        border-radius: 16px;
+    }
+
     .cs-decision-mc__text-wrap {
-        max-width: 60ch;
+        /* position: absolute relativo al stage (que es position:relative
+           arriba). top:0 + left:0 + width:100% + height:100% lo coloca
+           sobre el .media (que es el único hijo con alto propio del
+           stage, ya que .text-wrap está fuera del flujo). Centrado con
+           flex para que el párrafo quede en el medio de la imagen,
+           igual que en desktop.
+           Sin z-index propio: igual que el overlay, queda por debajo
+           del sticky-header y del shield — al scrollear, el texto pasa
+           detrás del header pinned en vez de taparlo.
+           opacity:0 inicial: fallback antes de que decision-mc-pin.js
+           corra (evita flash del texto visible). El módulo lo anima a 1
+           con GSAP ScrollTrigger mientras la imagen está pineada. */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 24px;
+        margin: 0;
+        opacity: 0;
     }
 
     .cs-decision-mc__text {
         text-align: center;
+        color: var(--color-secondary);
     }
 
     /* --- El razonamiento: métrica + descriptor intercalados ---
@@ -480,7 +553,8 @@
         display: flex;
         flex-direction: column;
         gap: 2.5rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* Sin padding horizontal propio — ver .cs-decision arriba. */
+        padding: clamp(4rem, 10vh, 6rem) 0;
         background-color: var(--color-primary);
     }
 

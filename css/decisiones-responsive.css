@@ -7,6 +7,15 @@
 
 @media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
 
+    /* Línea divisoria (.divider--horizontal) — mobile-only.
+       El base la define con margin-top:32px (decisiones.css:84) y
+       el MQ_MOBILE lo baja a 0. Acá la ocultamos en desktop porque
+       el scrollytelling GSAP no la usa y queda como residuo visual
+       entre subtítulo y el track. */
+    .cs-decisiones-titulos__item .divider--horizontal {
+        display: none;
+    }
+
     /* Panel del track horizontal — ancho fijo de un viewport.
        flex: 0 0 auto + width: 100vw garantiza que getScrollAmount()
        del track existente lo incluya en el cálculo dinámico. */
