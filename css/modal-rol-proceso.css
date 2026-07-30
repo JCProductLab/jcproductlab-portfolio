@@ -8,7 +8,13 @@
     top: 0;
     left: 0;
     width: 100vw;
+    /* 100vh en iOS Safari asume la barra inferior ya oculta (viewport
+       "grande") — con la barra visible, este overlay fixed queda dibujado
+       más alto que el área realmente visible y el contenido se corta
+       abajo. dvh sí reacciona en vivo al estado real de la barra; vh
+       queda como fallback para navegadores sin soporte. */
     height: 100vh;
+    height: 100dvh;
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
@@ -38,9 +44,15 @@
 .modal-rol-proceso__content {
     position: relative;
     width: 100%;
+    /* Mismo motivo que .modal-rol-proceso arriba — deben quedar
+       sincronizados o el panel puede no cubrir el overlay por completo. */
     height: 100vh;
+    height: 100dvh;
     background-color: var(--color-bg-modal);
-    padding: 40px 24px 80px;
+    /* padding-bottom 32px en mobile (antes 80px, dejaba mucho aire entre
+       .inner y el borde inferior); desktop conserva su propio valor
+       (120px) vía el override en modal-rol-proceso-responsive.css. */
+    padding: 40px 24px 32px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -82,9 +94,19 @@
     margin-bottom: 0;
 }
 
-/* Gap entre título e inner solo en modalMiRol */
+/* Pista de scroll — degradado + chevron animado sobre el borde inferior
+   visible de .inner. Oculta por defecto: solo tiene sentido en
+   mobile/tablet, donde .inner tiene scroll propio (ver overflow-y:auto
+   más abajo); en desktop .inner no scrollea. Estilos reales en el bloque
+   MOBILE/TABLET más abajo. */
+.modal-rol-proceso__scroll-hint {
+    display: none;
+}
+
+/* Gap entre título e inner solo en modalMiRol — 32px en mobile/tablet;
+   overrideado a 80px en desktop (ver modal-rol-proceso-responsive.css). */
 #modalMiRol .modal-rol-proceso__inner {
-    margin-top: 80px;
+    margin-top: 32px;
 }
 
 /* Contenedor interno — columnas */
@@ -260,4 +282,81 @@
 /* Estado fade-out durante transición */
 .modal-proceso__description--fading {
     opacity: 0;
+}
+
+/* ============================================
+   MOBILE/TABLET — Contenido con scroll propio
+   Label, título y botón cerrar quedan anclados (fuera de este bloque,
+   nunca scrollean); .modal-rol-proceso__inner ya es flex:1 + min-height:0
+   dentro de .content (overflow:hidden, alto fijo 100vh) — le falta
+   overflow-y:auto para completar el patrón de "header fijo + body con
+   scroll" en vez de recortar el contenido que no entra.
+   ============================================ */
+@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
+    #modalMiRol .modal-rol-proceso__inner {
+        overflow-y: auto;
+        /* Sin scrollbar visible — el scroll táctil sigue funcionando
+           igual, solo se oculta el track/thumb del sistema operativo. */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    #modalMiRol .modal-rol-proceso__inner::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* flex:1 hacía que la imagen compitiera por el alto acotado del
+       contenedor con scroll en vez de tener un tamaño propio predecible
+       (podía terminar aplastada a casi 0px con textos largos). Alto fijo
+       por aspect-ratio, igual que .cs-contexto__media en mobile. */
+    #modalMiRol .modal-rol-proceso__image {
+        flex: 0 0 auto;
+        height: auto;
+        aspect-ratio: 3 / 2;
+    }
+
+    /* Hermano de .inner (no hijo — si fuera hijo scrollearía junto con el
+       contenido en vez de quedar fijo sobre el borde inferior visible).
+       .content ya es position:relative, así que bottom:0 queda flush con
+       el borde donde empieza su padding-bottom (32px), justo donde
+       termina el área visible de .inner. */
+    #modalMiRol .modal-rol-proceso__scroll-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* Alto automático: 24px arriba y abajo del chevron en vez de un
+           alto fijo con solo 8px de aire abajo — antes quedaba muy
+           apretado contra el borde inferior de la pantalla. */
+        padding: 24px 0;
+        background: linear-gradient(to bottom, transparent, var(--color-bg-modal) 70%);
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    #modalMiRol .modal-rol-proceso__scroll-hint--hidden {
+        opacity: 0;
+    }
+
+    #modalMiRol .modal-rol-proceso__scroll-hint i {
+        font-size: 24px;
+        color: var(--color-accent);
+    }
+
+    /* Bob suave — señal de "hay más abajo". Con reduced-motion queda
+       quieto (el degradado solo ya es una pista visual válida). */
+    @media (prefers-reduced-motion: no-preference) {
+        #modalMiRol .modal-rol-proceso__scroll-hint i {
+            animation: modal-scroll-hint-bob 1.6s ease-in-out infinite;
+        }
+    }
+
+    @keyframes modal-scroll-hint-bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(6px); }
+    }
 }

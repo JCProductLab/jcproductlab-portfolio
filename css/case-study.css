@@ -261,14 +261,27 @@
        margin-top negativo para que .cs-metrica entre en pantalla mientras
        .cs-apertura__bg-pin (sticky, ver Apertura arriba) todavía está
        pineado — así se lee encima de la misma imagen, no sobre una
-       sección nueva que la tapa. El alto de sobra del wrapper
-       (min-height) es lo que le da a .cs-metrica margen para clavarse
-       (sticky) antes de que el wrapper se termine y la suelte.
+       sección nueva que la tapa.
+       min-height = SOLO el buffer (no +100vh): en el instante exacto en
+       que initMetricaPin suelta a .cs-metrica (transform:translateY, ver
+       metrica-sequence.js) — que es el MISMO instante en que
+       .cs-apertura__bg-pin se despinea — su borde inferior queda
+       exactamente en el borde inferior del viewport. Ese es también el
+       instante en que el flujo normal (sin transform) pone el tope de
+       .cs-contexto en ese mismo borde, SI Y SOLO SI min-height = buffer.
+       La prueba algebraica no depende del alto real de .cs-metrica (se
+       cancela) — por eso este valor es un buffer fijo y no necesita JS
+       que lo recalcule. Con +100vh (versión anterior) sobraba casi una
+       pantalla de flujo vacío entre Métrica y Contexto, porque el
+       contenido real (bloque con padding, no una sección de 100vh como
+       en desktop) nunca llega a ocupar ese alto. Cero gap entre
+       contenedores a propósito — el espacio visible antes del contenido
+       de Contexto es su padding-top (ver .cs-contexto más abajo), no
+       esto.
        overflow-anchor:none: ver .cs-apertura arriba — mismo motivo. */
     .cs-metrica-pin {
         margin-top: calc(-1 * var(--cs-metrica-pin-buffer));
-        min-height: calc(100vh + var(--cs-metrica-pin-buffer));
-        min-height: calc(100svh + var(--cs-metrica-pin-buffer));
+        min-height: var(--cs-metrica-pin-buffer);
         overflow-anchor: none;
     }
 
@@ -345,7 +358,12 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top separado del resto (antes compartía el clamp de
+           abajo con el bottom): .cs-metrica-pin ahora termina justo en el
+           borde de .cs-contexto (0 gap entre contenedores, ver
+           .cs-metrica-pin arriba) — estos 2rem son el único espacio
+           visible entre el hero y el contenido de Contexto. */
+        padding: 2rem var(--cs-mobile-pad) clamp(4rem, 10vh, 6rem);
         background-color: var(--color-primary);
     }
 

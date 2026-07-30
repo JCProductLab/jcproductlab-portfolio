@@ -1,0 +1,1656 @@
+From 4ce3ee9292ef3236a9f5d7afb8f26df9dbd0da37 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 17:41:02 +0000
+Subject: [PATCH] =?UTF-8?q?feat(caso-asdeporte):=20versi=C3=B3n=20mobile/t?=
+ =?UTF-8?q?ablet=20completa?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FASE 1 — Gating unificado MQ_DESKTOP = (min-width:1200px) and (hover:hover) and (pointer:fine):
+- case-study-responsive.css envuelto en @media MQ_DESKTOP (antes sin media query)
+- decisiones/modal-rol-proceso/resultado/scroll-nav responsive → misma condición
+- caso-asdeporte.js y resultado.js envueltos en gsap.matchMedia(MQ_DESKTOP)
+- magnetic.js: sin rAF eterno en dispositivos touch (iPad landscape)
+
+FASE 2 — Hero mobile: foto estática (webp mobile/tablet), video con data-src
+que solo se descarga en el contexto desktop; ticker como headline estático.
+
+FASE 3 — Layout mobile por sección en case-study.css / decisiones.css /
+resultado.css (bloques MQ_MOBILE): métrica, contexto en columna, índice de
+decisiones, panel verde, cards glass del problema, razonamiento intercalado
+(display:contents + order), mosaico en grid 2 col, cards de métricas verdes,
+testimonio y cierre. Fix del leak desktop del label de decisiones-titulos.
+
+FASE 4 — mobile-reveals.js nuevo (IntersectionObserver, sin GSAP): reveals
+one-shot .mrv + count-up de métricas; respeta prefers-reduced-motion.
+Scroll-progress visible también en mobile (fuera del gate GSAP).
+
+FASE 5 — Hovers que animan layout gateados a @media (hover:hover) en
+atoms.css (btn-liquid, nav-link, body-link, link-secondary); loading=lazy
+en las 20 imágenes bajo el fold; refinos tablet en min-width:700px.
+
+Desktop 1200px+ con mouse queda intacto por construcción (todas las reglas
+nuevas viven en MQ_MOBILE, el complemento exacto de MQ_DESKTOP).
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_012GoSYsoWxhhkiNSpnbT2h5
+---
+ caso-asdeporte.html                     |  45 ++--
+ css/atoms.css                           |  76 ++++--
+ css/case-study-responsive.css           |  11 +-
+ css/case-study.css                      | 264 +++++++++++++++++++++
+ css/decisiones-responsive.css           |   2 +-
+ css/decisiones.css                      | 294 ++++++++++++++++++++++--
+ css/modal-rol-proceso-responsive.css    |   2 +-
+ css/resultado-responsive.css            |   2 +-
+ css/resultado.css                       | 286 ++++++++++++++++++++++-
+ css/scroll-nav-responsive.css           |   2 +-
+ css/scroll-nav.css                      |  25 +-
+ js/caso-asdeporte-nav.js                |  70 +++++-
+ js/caso-asdeporte.js                    |  24 ++
+ js/modules/animations/mobile-reveals.js |  86 +++++++
+ js/modules/magnetic.js                  |  10 +-
+ js/resultado.js                         |  12 +
+ 16 files changed, 1138 insertions(+), 73 deletions(-)
+ create mode 100644 js/modules/animations/mobile-reveals.js
+
+diff --git a/caso-asdeporte.html b/caso-asdeporte.html
+index 4a55aa9..9c8ae21 100644
+--- a/caso-asdeporte.html
++++ b/caso-asdeporte.html
+@@ -244,9 +244,12 @@
+         <section class="cs-apertura" aria-label="Apertura del caso Asdeporte">
+ 
+             <!-- Video de fondo -->
++            <!-- data-src (no src): el .mp4 solo se descarga en desktop —
++                 caso-asdeporte.js lo asigna dentro del contexto MQ_DESKTOP.
++                 En mobile el hero usa la foto de la atleta (case-study.css). -->
+             <video
+                 class="cs-apertura__video"
+-                src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.mp4"
++                data-src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.mp4"
+                 autoplay
+                 muted
+                 loop
+@@ -431,7 +434,7 @@
+ 
+                 <!-- Imagen placeholder (parallax pendiente) -->
+                 <div class="cs-contexto__media">
+-                    <img class="cs-contexto__image" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Calendario de carreras de AsDeporte">
++                    <img loading="lazy" class="cs-contexto__image" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Calendario de carreras de AsDeporte">
+                 </div>
+ 
+                 <!-- Etiquetas de contexto -->
+@@ -552,7 +555,7 @@
+             </div>
+ 
+             <div class="cs-decision__media">
+-                <img class="cs-decision__media-img"
++                <img loading="lazy" class="cs-decision__media-img"
+                      src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80"
+                      alt="" aria-hidden="true">
+             </div>
+@@ -602,7 +605,7 @@
+             <div class="cs-decision-mc__stage">
+                 <span class="cs-decision-mc__ring" aria-hidden="true"></span>
+                 <div class="cs-decision-mc__media">
+-                    <img class="cs-decision-mc__img"
++                    <img loading="lazy" class="cs-decision-mc__img"
+                          src="https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=600&h=800&fit=crop"
+                          alt="" />
+                 </div>
+@@ -717,7 +720,7 @@
+             </div>
+ 
+             <div class="cs-decision__media">
+-                <img class="cs-decision__media-img"
++                <img loading="lazy" class="cs-decision__media-img"
+                      src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80"
+                      alt="" aria-hidden="true">
+             </div>
+@@ -767,7 +770,7 @@
+             <div class="cs-decision-mc__stage">
+                 <span class="cs-decision-mc__ring" aria-hidden="true"></span>
+                 <div class="cs-decision-mc__media">
+-                    <img class="cs-decision-mc__img"
++                    <img loading="lazy" class="cs-decision-mc__img"
+                          src="https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=600&h=800&fit=crop"
+                          alt="" />
+                 </div>
+@@ -827,7 +830,7 @@
+             </div>
+ 
+             <div class="cs-decision__media">
+-                <img class="cs-decision__media-img"
++                <img loading="lazy" class="cs-decision__media-img"
+                      src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80"
+                      alt="" aria-hidden="true">
+             </div>
+@@ -872,7 +875,7 @@
+             <div class="cs-decision-mc__stage">
+                 <span class="cs-decision-mc__ring" aria-hidden="true"></span>
+                 <div class="cs-decision-mc__media">
+-                    <img class="cs-decision-mc__img"
++                    <img loading="lazy" class="cs-decision-mc__img"
+                          src="https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=600&h=800&fit=crop"
+                          alt="" />
+                 </div>
+@@ -930,25 +933,25 @@
+             </div>
+             <div class="rs-mosaico__grid">
+                 <div class="rs-mosaico__card" data-size="tall" data-col="1">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=1000&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=1000&fit=crop" alt="" />
+                 </div>
+                 <div class="rs-mosaico__card" data-size="short" data-col="2" data-row="1">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=600&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=600&fit=crop" alt="" />
+                 </div>
+                 <div class="rs-mosaico__card" data-size="short" data-col="2" data-row="2">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&h=600&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&h=600&fit=crop" alt="" />
+                 </div>
+                 <div class="rs-mosaico__card rs-mosaico__card--center" data-size="tall" data-col="3" data-center="true">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=900&h=1200&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=900&h=1200&fit=crop" alt="" />
+                 </div>
+                 <div class="rs-mosaico__card" data-size="short" data-col="4" data-row="1">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=600&h=600&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=600&h=600&fit=crop" alt="" />
+                 </div>
+                 <div class="rs-mosaico__card" data-size="short" data-col="4" data-row="2">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=600&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=600&fit=crop" alt="" />
+                 </div>
+                 <div class="rs-mosaico__card" data-size="tall" data-col="5">
+-                    <img class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=1000&fit=crop" alt="" />
++                    <img loading="lazy" class="rs-mosaico__card-img" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=1000&fit=crop" alt="" />
+                 </div>
+             </div>
+         </section>
+@@ -998,7 +1001,7 @@
+                 <span class="rs-usuarios__word">los usuarios</span>
+             </h3>
+             <div class="rs-usuarios__media">
+-                <img class="rs-usuarios__img" src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&h=500&fit=crop" alt="" />
++                <img loading="lazy" class="rs-usuarios__img" src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&h=500&fit=crop" alt="" />
+             </div>
+             <p class="rs-usuarios__text cs-body-xxl">Las métricas contaban la mitad de la historia. La otra mitad la contaron las grabaciones en Hotjar. Rage clicks que desaparecieron, usuarios que encontraban Oxxo y continuaban con alivio visible, el campo del CURP que dejó de paralizar.</p>
+         </section>
+@@ -1044,16 +1047,16 @@
+                 <span class="rs-cierre__gracias-word rs-cierre__gracias-word--right cs-gracias">por ver!</span>
+             </div>
+             <div class="rs-cierre__media">
+-                <img class="rs-cierre__media-img" src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=900&h=600&fit=crop" alt="" />
++                <img loading="lazy" class="rs-cierre__media-img" src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=900&h=600&fit=crop" alt="" />
+             </div>
+             <div class="rs-cierre__bottom">
+                 <div class="rs-cierre__cases">
+                     <article class="rs-cierre__case">
+-                        <img class="rs-cierre__case-img" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&h=350&fit=crop" alt="" />
++                        <img loading="lazy" class="rs-cierre__case-img" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&h=350&fit=crop" alt="" />
+                         <p class="rs-cierre__case-text">Atletas que entrenaban meses para un triatlón encontraban más obstáculos en la app que en la carrera.</p>
+                     </article>
+                     <article class="rs-cierre__case">
+-                        <img class="rs-cierre__case-img" src="https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=500&h=350&fit=crop" alt="" />
++                        <img loading="lazy" class="rs-cierre__case-img" src="https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=500&h=350&fit=crop" alt="" />
+                         <p class="rs-cierre__case-text">Atletas que entrenaban meses para un triatlón encontraban más obstáculos en la app que en la carrera.</p>
+                     </article>
+                 </div>
+@@ -1091,7 +1094,7 @@
+             <h2 class="cs-section-title modal-rol-proceso__title">Más allá de las pantallas.</h2>
+             <div class="modal-rol-proceso__inner">
+                 <div class="modal-rol-proceso__image">
+-                    <img src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Placeholder imagen Mi Rol">
++                    <img loading="lazy" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Placeholder imagen Mi Rol">
+                 </div>
+                 <div class="modal-rol-proceso__text">
+                     <p class="large-paragraph">
+@@ -1134,7 +1137,7 @@
+                 </div>
+                 <div class="modal-proceso__detail">
+                     <div class="modal-proceso__image">
+-                        <img src="https://picsum.photos/800/400" alt="Placeholder imagen El Proceso">
++                        <img loading="lazy" src="https://picsum.photos/800/400" alt="Placeholder imagen El Proceso">
+                     </div>
+                     <p class="modal-proceso__description large-paragraph"></p>
+                 </div>
+diff --git a/css/atoms.css b/css/atoms.css
+index 0be10c3..18406ad 100644
+--- a/css/atoms.css
++++ b/css/atoms.css
+@@ -312,8 +312,12 @@
+     transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+ }
+ 
+-.btn-liquid:hover .btn-liquid__merge-bg {
+-    opacity: 1;
++/* Solo con mouse real: en touch el hover se queda "pegado" tras el tap
++   y la fusión animada del botón quedaría a medias. */
++@media (hover: hover) {
++    .btn-liquid:hover .btn-liquid__merge-bg {
++        opacity: 1;
++    }
+ }
+ 
+ .btn-liquid__pill {
+@@ -358,8 +362,10 @@
+     transform: rotate(0deg);
+ }
+ 
+-.btn-liquid:hover .btn-liquid__pill--whatsapp {
+-    transform: rotate(90deg);
++@media (hover: hover) {
++    .btn-liquid:hover .btn-liquid__pill--whatsapp {
++        transform: rotate(90deg);
++    }
+ }
+ 
+ /* .btn__icon anidado dentro de la cápsula: mismo badge oscuro con ícono
+@@ -377,24 +383,30 @@
+    .btn-liquid__merge-bg debajo. Sin casos especiales por cápsula: así
+    es geométricamente imposible que la silueta de una asome sobre la
+    silueta plana de las otras (el bug de la "cuarta cápsula" fantasma). */
+-.btn-liquid:hover .btn-liquid__pill {
+-    background-color: transparent;
++@media (hover: hover) {
++    .btn-liquid:hover .btn-liquid__pill {
++        background-color: transparent;
++    }
+ }
+ 
+ /* Margen izquierdo pedido: 64px (antes 32px, sin cambio en reposo).
+    CHARLEMOS se desplaza a la derecha porque el padre (.cta-section__body,
+    align-items:center) recentra el botón al encogerse — no por un
+    translateX calculado. */
+-.btn-liquid:hover .btn-liquid__pill--charlemos {
+-    padding-left: 64px;
+-    padding-right: 0px;
++@media (hover: hover) {
++    .btn-liquid:hover .btn-liquid__pill--charlemos {
++        padding-left: 64px;
++        padding-right: 0px;
++    }
+ }
+ 
+ /* CHARLEMOS↔EN: 0(charlemos) + 5(en, abajo) = 5px.
+    EN↔ícono: 0(en, abajo) + 8px fijo de --whatsapp (sin tocar, ver nota
+    en su regla) = 8px. */
+-.btn-liquid:hover .btn-liquid__pill--en {
+-    padding: 40px 0 40px 5px;
++@media (hover: hover) {
++    .btn-liquid:hover .btn-liquid__pill--en {
++        padding: 40px 0 40px 5px;
++    }
+ }
+ 
+ /* Margen derecho pedido: 64px, igual al izquierdo. No se logra con
+@@ -411,8 +423,10 @@
+     transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+ }
+ 
+-.btn-liquid:hover .btn-liquid__spacer-right {
+-    width: 56px;
++@media (hover: hover) {
++    .btn-liquid:hover .btn-liquid__spacer-right {
++        width: 56px;
++    }
+ }
+ 
+ @media (min-width: 1200px) {
+@@ -692,13 +706,26 @@
+         box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+ }
+ 
+-.nav-link:hover::after,
++/* El estado hover (anima letter-spacing/transform) solo con mouse real;
++   aria-current es un estado persistente y aplica también en touch. */
++@media (hover: hover) {
++    .nav-link:hover::after {
++        width: 100%;
++        box-shadow: 0 0 12px rgba(0, 212, 110, 0.4);
++    }
++
++    .nav-link:hover {
++        color: var(--color-accent);
++        letter-spacing: 0.08em;
++        transform: translateY(-2px);
++    }
++}
++
+ .nav-link[aria-current="page"]::after {
+     width: 100%;
+     box-shadow: 0 0 12px rgba(0, 212, 110, 0.4);
+ }
+ 
+-.nav-link:hover,
+ .nav-link[aria-current="page"] {
+     color: var(--color-accent);
+     letter-spacing: 0.08em;
+@@ -724,7 +751,15 @@
+         transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+ 
+-.body-link:hover,
++/* :active queda sin gatear — feedback transitorio válido en touch */
++@media (hover: hover) {
++    .body-link:hover {
++        color: var(--color-accent);
++        letter-spacing: 0.03em;
++        transform: translateY(-2px);
++    }
++}
++
+ .body-link:active {
+     color: var(--color-accent);
+     letter-spacing: 0.03em;
+@@ -750,7 +785,14 @@
+         transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+ 
+-.link-secondary:hover,
++@media (hover: hover) {
++    .link-secondary:hover {
++        color: var(--color-accent);
++        letter-spacing: 0.03em;
++        transform: translateY(-2px);
++    }
++}
++
+ .link-secondary:active {
+     color: var(--color-accent);
+     letter-spacing: 0.03em;
+diff --git a/css/case-study-responsive.css b/css/case-study-responsive.css
+index c001bf3..c6c7e01 100644
+--- a/css/case-study-responsive.css
++++ b/css/case-study-responsive.css
+@@ -1,7 +1,14 @@
+ /* ============================================
+-   CASE STUDY — Desktop (1200px+)
++   CASE STUDY — Desktop (1200px+ con mouse)
++   Gateado a MQ_DESKTOP: misma condición que usa
++   gsap.matchMedia en caso-asdeporte.js/resultado.js.
++   Tablets touch (pointer: coarse) de cualquier ancho
++   ven la versión mobile de case-study.css.
++   Contenido sin re-indentar dentro del @media.
+    ============================================ */
+ 
++@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
++
+ /* ============================================
+    SECCIÓN 1 — APERTURA
+    ============================================ */
+@@ -347,3 +354,5 @@
+ .cs-pin-spacer--metrica  { height: 150vh; }
+ .cs-pin-spacer--shift-mc { height: 120vh; }
+ .cs-pin-spacer--contexto { height: 0; }
++
++} /* fin @media MQ_DESKTOP */
+diff --git a/css/case-study.css b/css/case-study.css
+index e69de29..4637cbf 100644
+--- a/css/case-study.css
++++ b/css/case-study.css
+@@ -0,0 +1,264 @@
++/* ============================================
++   CASE STUDY — Base + Mobile/Tablet
++   Desktop (scrollytelling) vive en case-study-responsive.css,
++   gateado a MQ_DESKTOP:
++     (min-width: 1200px) and (hover: hover) and (pointer: fine)
++   Todo el layout mobile va dentro de MQ_MOBILE (el complemento
++   exacto) para no pisar ninguna regla del desktop:
++     (max-width: 1199.98px), (hover: none), (pointer: coarse)
++   Diseño según case-study-mobile.jpg.
++   ============================================ */
++
++/* ============================================
++   REVEALS MOBILE (.mrv) — usados por
++   js/modules/animations/mobile-reveals.js, que solo marca
++   elementos fuera de MQ_DESKTOP. Sin JS o con reduced-motion
++   nada recibe la clase → todo queda visible (estado seguro).
++   ============================================ */
++
++@media (prefers-reduced-motion: no-preference) {
++    .mrv {
++        opacity: 0;
++        transform: translateY(24px);
++        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
++    }
++
++    .mrv--in {
++        opacity: 1;
++        transform: none;
++    }
++}
++
++@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
++
++    /* Padding lateral compartido por todas las secciones mobile */
++    :root {
++        --cs-mobile-pad: clamp(1.25rem, 5vw, 3rem);
++    }
++
++    /* Los SVGs decorativos y las imágenes grandes no deben generar
++       scroll horizontal en ningún caso. */
++    main#main {
++        overflow-x: clip;
++    }
++
++    /* ============================================
++       SECCIÓN 1 — APERTURA (hero con foto estática)
++       ============================================ */
++
++    .cs-apertura {
++        position: relative;
++        min-height: 100vh;
++        min-height: 100svh;
++        overflow: hidden;
++        display: flex;
++        align-items: flex-end;
++        background-color: var(--color-primary);
++        background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-mobile.webp);
++        background-size: cover;
++        background-position: center;
++        background-repeat: no-repeat;
++    }
++
++    /* El .mp4 no se descarga en mobile (data-src sin src en el HTML);
++       este display:none es el cinturón por si algún día vuelve el src. */
++    .cs-apertura__video {
++        display: none;
++    }
++
++    /* Overlay + viñeta — mismo tratamiento de contraste que desktop */
++    .cs-apertura__overlay {
++        position: absolute;
++        inset: 0;
++        background: var(--color-primary);
++        opacity: 0.35;
++        pointer-events: none;
++    }
++
++    .cs-apertura__vignette {
++        position: absolute;
++        inset: 0;
++        background: radial-gradient(
++            ellipse at center,
++            rgba(13, 13, 13, 0.2) 0%,
++            rgba(13, 13, 13, 0.7) 100%
++        );
++        pointer-events: none;
++    }
++
++    /* La sombra de transición es un mecanismo del scrubbing desktop */
++    .cs-apertura__shadow {
++        display: none;
++    }
++
++    /* Ticker → headline estático anclado abajo. El primer track se
++       comporta como H1 ("Una app de clase mundial que frenaba a sus
++       propios atletas."); el clon del loop y el separador se ocultan. */
++    .cs-apertura__ticker {
++        position: relative;
++        z-index: 4;
++        width: 100%;
++        padding: 0 var(--cs-mobile-pad) clamp(4rem, 12vh, 7rem);
++    }
++
++    .cs-ticker__track {
++        display: block;
++        white-space: normal;
++    }
++
++    .cs-ticker__track + .cs-ticker__track,
++    .cs-ticker__separator {
++        display: none;
++    }
++
++    .cs-ticker__word {
++        display: inline;
++    }
++
++    .cs-ticker__word.cs-headline {
++        font-size: clamp(2.5rem, 10vw, 4.5rem);
++    }
++
++    /* ============================================
++       STAGE HORIZONTAL → flujo vertical
++       Sin el CSS desktop, stage/track/inner son divs normales y las
++       secciones fluyen en orden DOM (= orden del diseño mobile).
++       El cometa es exclusivo del recorrido horizontal desktop.
++       ============================================ */
++
++    .cs-metrica__comet {
++        display: none;
++    }
++
++    /* ============================================
++       SECCIÓN 2 — MÉTRICA (KPI 25% ↗ + caption)
++       ============================================ */
++
++    .cs-metrica {
++        padding: clamp(5rem, 14vh, 8rem) var(--cs-mobile-pad);
++        background-color: var(--color-primary);
++    }
++
++    .cs-metrica__left {
++        display: flex;
++        flex-direction: column;
++        gap: 1.25rem;
++    }
++
++    .cs-metrica__kpi {
++        display: flex;
++        flex-direction: row;
++        align-items: flex-start;
++        gap: 0.15em;
++    }
++
++    /* La flecha llega ya trazada: los stroke-dasharray del estado
++       inicial viven en el CSS desktop (gateado). */
++    .cs-metrica__arrow {
++        width: clamp(44px, 11vw, 72px);
++        height: auto;
++        margin-top: clamp(16px, 5vw, 40px);
++        overflow: visible;
++    }
++
++    /* ============================================
++       SECCIÓN 3 — CONTEXTO (columna única)
++       ============================================ */
++
++    .cs-contexto {
++        display: flex;
++        flex-direction: column;
++        gap: 2rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++        background-color: var(--color-primary);
++    }
++
++    .cs-contexto__col {
++        display: flex;
++        flex-direction: column;
++        gap: 1.5rem;
++    }
++
++    /* Flecha curva decorativa — pensada para el gap entre columnas
++       del layout desktop. */
++    .cs-contexto__arrow {
++        display: none;
++    }
++
++    .cs-contexto__media {
++        overflow: hidden;
++        border-radius: 16px;
++        width: 100%;
++        aspect-ratio: 3 / 2;
++    }
++
++    .cs-contexto__image {
++        display: block;
++        width: 100%;
++        height: 100%;
++        object-fit: cover;
++    }
++
++    .cs-contexto__tags {
++        display: flex;
++        flex-wrap: wrap;
++        gap: 0.75rem;
++    }
++
++    .cs-contexto__tag {
++        background-color: var(--color-bg);
++        padding: 4px 12px;
++        color: var(--color-accent);
++        border-radius: 1rem;
++    }
++
++    /* Párrafos completos, sin máscara ni track desplazable */
++    .cs-contexto__mask {
++        overflow: visible;
++        height: auto;
++    }
++
++    .cs-contexto__text-track {
++        display: flex;
++        flex-direction: column;
++        gap: 1.25rem;
++    }
++
++    .cs-contexto__mask p {
++        color: var(--color-text-secondary);
++    }
++
++    /* Botones MI ROL / EL PROCESO apilados a lo ancho */
++    .cs-contexto__actions {
++        display: flex;
++        flex-direction: column;
++        align-items: stretch;
++        gap: 1rem;
++        margin-top: 0.5rem;
++    }
++
++    .cs-contexto__actions .btn {
++        justify-content: space-between;
++    }
++
++    /* ============================================
++       TABLET (>= 700px) — refinos dentro de la versión mobile
++       (breakpoint canónico del sitio, ver responsive.css)
++       ============================================ */
++
++    @media (min-width: 700px) {
++        .cs-apertura {
++            background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-tablet.webp);
++        }
++
++        .cs-contexto__actions {
++            flex-direction: row;
++            align-items: center;
++        }
++
++        .cs-contexto__actions .btn {
++            justify-content: center;
++        }
++    }
++
++} /* fin MQ_MOBILE */
+diff --git a/css/decisiones-responsive.css b/css/decisiones-responsive.css
+index 5b2a81a..25c24d5 100644
+--- a/css/decisiones-responsive.css
++++ b/css/decisiones-responsive.css
+@@ -5,7 +5,7 @@
+    a 0 (alineados) con scroll horizontal en fase 2.
+    ============================================ */
+ 
+-@media (min-width: 1024px) {
++@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+ 
+     /* Panel del track horizontal — ancho fijo de un viewport.
+        flex: 0 0 auto + width: 100vw garantiza que getScrollAmount()
+diff --git a/css/decisiones.css b/css/decisiones.css
+index 36b8c4e..f79e9df 100644
+--- a/css/decisiones.css
++++ b/css/decisiones.css
+@@ -1,7 +1,8 @@
+ /* ============================================
+-   DECISIONES — Estilos base
+-   Panel introductorio: 3 títulos de decisiones clave
+-   Solo desktop en esta fase
++   DECISIONES — Estilos base + mobile/tablet
++   Desktop en decisiones-responsive.css (gateado a MQ_DESKTOP).
++   El layout mobile vive al final de este archivo, dentro de
++   MQ_MOBILE: (max-width: 1199.98px), (hover: none), (pointer: coarse)
+    ============================================ */
+ 
+ /* Estructura general del panel */
+@@ -14,15 +15,20 @@
+     justify-content: center;
+ }
+ 
+-/* Label superior — posición exacta en desktop (decisiones-responsive.css) */
+-.cs-decisiones-titulos__label {
+-    position: absolute;
+-    top: calc(var(--cs-header-height) + 60px);
+-    left: clamp(2rem, 6vw, 8rem);
+-    /* Estado inicial controlado por JS (ST de Decisiones-títulos):
+-       el JS hace fade in + slide desde CONTEXTO_ENTER_OFFSET en el
+-       tramo 0.7→1.0. opacity 0 evita flash antes del primer onUpdate. */
+-    opacity: 0;
++/* Label superior — posición exacta y estado de animación SOLO en
++   desktop: en mobile el label fluye estático y visible, así que las
++   declaraciones van gateadas a MQ_DESKTOP (misma condición que
++   decisiones-responsive.css). */
++@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
++    .cs-decisiones-titulos__label {
++        position: absolute;
++        top: calc(var(--cs-header-height) + 60px);
++        left: clamp(2rem, 6vw, 8rem);
++        /* Estado inicial controlado por JS (ST de Decisiones-títulos):
++           el JS hace fade in + slide desde CONTEXTO_ENTER_OFFSET en el
++           tramo 0.7→1.0. opacity 0 evita flash antes del primer onUpdate. */
++        opacity: 0;
++    }
+ }
+ 
+ /* Lista de decisiones */
+@@ -79,4 +85,266 @@
+     margin-top: 32px;
+ }
+ 
+-/* .cs-problema — tablet/mobile pendiente */
++/* ============================================
++   MOBILE / TABLET — layout vertical de Decisiones
++   (índice, cortina verde, problema, la decisión, razonamiento)
++   ============================================ */
++
++@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
++
++    /* --- Índice de decisiones (badge 01/02/03 + subtítulo) --- */
++
++    .cs-decisiones-titulos {
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++    }
++
++    .cs-decisiones-titulos__label {
++        margin-bottom: 2.5rem;
++    }
++
++    .cs-decisiones-titulos__list {
++        gap: 48px;
++    }
++
++    /* En mobile no existe el gesto de la escalera: el título "Decisión N"
++       es redundante con el badge numerado — el subtítulo es el contenido. */
++    .cs-decisiones-titulos__number {
++        width: 48px;
++        height: 48px;
++    }
++
++    /* --- Cortina de decisión → panel verde pleno --- */
++
++    .cs-decision {
++        position: relative;
++        display: flex;
++        flex-direction: column;
++        gap: 2rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++        background-color: var(--color-decision-bg);
++    }
++
++    /* El bg animable de la cortina es redundante: el fondo va en la sección */
++    .cs-decision__bg {
++        display: none;
++    }
++
++    .cs-decision__content {
++        display: flex;
++        flex-direction: column;
++        gap: 1.25rem;
++    }
++
++    .cs-decision__label {
++        color: var(--color-decision-label);
++    }
++
++    .cs-decision__title {
++        color: #FFFFFF;
++        font-size: clamp(2.25rem, 8vw, 4rem);
++    }
++
++    .cs-decision__media {
++        overflow: hidden;
++        border-radius: 16px;
++    }
++
++    .cs-decision__media-img {
++        display: block;
++        width: 100%;
++        height: auto;
++        aspect-ratio: 4 / 3;
++        object-fit: cover;
++    }
++
++    /* --- El problema: cards glass apiladas --- */
++
++    .cs-problema {
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++        background-color: var(--color-primary);
++    }
++
++    .cs-problema__content {
++        display: flex;
++        flex-direction: column;
++        gap: 2rem;
++    }
++
++    .cs-problema__title {
++        text-align: center;
++        font-size: clamp(1.75rem, 6vw, 2.5rem);
++    }
++
++    .cs-problema__grid {
++        display: grid;
++        grid-template-columns: 1fr;
++        gap: 1rem;
++    }
++
++    .cs-problema__card {
++        display: flex;
++        flex-direction: column;
++        gap: 1rem;
++        padding: 1.5rem;
++        border-radius: 16px;
++        background: var(--glass-bg);
++        border: 1px solid var(--color-glass-border);
++        box-shadow: var(--glass-shadow);
++    }
++
++    .cs-problema__bullet {
++        display: block;
++        width: 10px;
++        height: 10px;
++        border-radius: 50%;
++        background-color: var(--color-accent);
++        flex-shrink: 0;
++    }
++
++    .cs-problema__text {
++        color: var(--color-text-secondary);
++    }
++
++    /* --- La decisión: imagen estática + párrafo centrado --- */
++
++    .cs-decision-mc {
++        display: flex;
++        flex-direction: column;
++        gap: 2rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++        background-color: var(--color-primary);
++    }
++
++    .cs-decision-mc__title {
++        text-align: center;
++        font-size: clamp(1.75rem, 6vw, 2.5rem);
++    }
++
++    .cs-decision-mc__stage {
++        display: flex;
++        flex-direction: column;
++        align-items: center;
++        gap: 2rem;
++    }
++
++    /* El óvalo/anillo pertenece a la coreografía desktop */
++    .cs-decision-mc__ring {
++        display: none;
++    }
++
++    .cs-decision-mc__media {
++        width: min(100%, 320px);
++        overflow: hidden;
++        border-radius: 16px;
++    }
++
++    .cs-decision-mc__img {
++        display: block;
++        width: 100%;
++        height: auto;
++        aspect-ratio: 3 / 4;
++        object-fit: cover;
++    }
++
++    .cs-decision-mc__text-wrap {
++        max-width: 60ch;
++    }
++
++    .cs-decision-mc__text {
++        text-align: center;
++    }
++
++    /* --- El razonamiento: métrica + descriptor intercalados ---
++       En desktop metric N (capa __fixed) y descriptor N (capa __rail)
++       se emparejan por scroll; en mobile se intercalan con
++       display:contents + order sobre [data-screen] para leerse como
++       check → dato gigante → explicación, tres veces, y la conclusión
++       al final. El orden del DOM (lectores de pantalla) no cambia. */
++
++    .cs-razonamiento {
++        display: flex;
++        flex-direction: column;
++        gap: 2.5rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++        background-color: var(--color-primary);
++    }
++
++    .cs-razonamiento__fixed,
++    .cs-razonamiento__rail {
++        display: contents;
++    }
++
++    .cs-razonamiento__label {
++        order: 0;
++        text-align: center;
++        font-size: clamp(1.75rem, 6vw, 2.5rem);
++    }
++
++    .cs-razonamiento__metric[data-screen="1"]     { order: 1; }
++    .cs-razonamiento__descriptor[data-screen="1"] { order: 2; }
++    .cs-razonamiento__metric[data-screen="2"]     { order: 3; }
++    .cs-razonamiento__descriptor[data-screen="2"] { order: 4; }
++    .cs-razonamiento__metric[data-screen="3"]     { order: 5; }
++    .cs-razonamiento__descriptor[data-screen="3"] { order: 6; }
++    .cs-razonamiento__conclusion                  { order: 7; }
++
++    .cs-razonamiento__metric {
++        display: flex;
++        align-items: baseline;
++        gap: 0.75rem;
++    }
++
++    .cs-razonamiento__check {
++        font-size: clamp(1.75rem, 6vw, 2.5rem);
++        color: var(--color-accent);
++    }
++
++    .cs-razonamiento__metric-value {
++        font-size: clamp(3.5rem, 14vw, 7rem);
++    }
++
++    /* El descriptor pega con su métrica; el salto grande va entre pares */
++    .cs-razonamiento__descriptor {
++        margin-top: -1.5rem;
++        margin-bottom: 1rem;
++    }
++
++    .cs-razonamiento__conclusion {
++        display: flex;
++        flex-direction: column;
++        gap: 0.5rem;
++        max-width: 26ch;
++        margin: 0 auto;
++        text-align: center;
++    }
++
++    .cs-razonamiento__conclusion-body,
++    .cs-razonamiento__conclusion-final {
++        font-size: clamp(1.5rem, 5.5vw, 2.5rem);
++    }
++
++    .cs-razonamiento__conclusion-final {
++        color: var(--color-accent);
++    }
++
++    /* --- Tablet (>= 700px): problema a 2 columnas --- */
++
++    @media (min-width: 700px) {
++        .cs-problema__grid {
++            grid-template-columns: 1fr 1fr;
++            gap: 1.25rem;
++        }
++
++        .cs-decision-mc__stage {
++            flex-direction: row;
++            justify-content: center;
++            align-items: center;
++            gap: 3rem;
++        }
++
++        .cs-decision-mc__text {
++            text-align: left;
++        }
++    }
++
++} /* fin MQ_MOBILE */
+diff --git a/css/modal-rol-proceso-responsive.css b/css/modal-rol-proceso-responsive.css
+index cdce2a3..938b94d 100644
+--- a/css/modal-rol-proceso-responsive.css
++++ b/css/modal-rol-proceso-responsive.css
+@@ -2,7 +2,7 @@
+    MODAL MI ROL — Responsive (desktop 1024px+)
+    ============================================ */
+ 
+-@media (min-width: 1024px) {
++@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+     /* Modal — 85% ancho, 100% alto, anclado a la derecha */
+     .modal-rol-proceso__content {
+         width: 85vw;
+diff --git a/css/resultado-responsive.css b/css/resultado-responsive.css
+index 3941981..bb167bf 100644
+--- a/css/resultado-responsive.css
++++ b/css/resultado-responsive.css
+@@ -1,4 +1,4 @@
+-@media (min-width: 1200px) {
++@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+ 
+     /* ============================================
+        FASE 1 — Mosaico y expansión
+diff --git a/css/resultado.css b/css/resultado.css
+index 2386d9c..bf6efa3 100644
+--- a/css/resultado.css
++++ b/css/resultado.css
+@@ -1,7 +1,8 @@
+ /* ============================================
+-   RESULTADO — Estilos base (mobile/tablet pendiente)
++   RESULTADO — Estilos base + mobile/tablet
+    Fases 1-5 post-Decisiones. Ver resultado-responsive.css
+-   para el maquetado completo de desktop.
++   para el maquetado completo de desktop (gateado a MQ_DESKTOP).
++   El layout mobile vive abajo, dentro de MQ_MOBILE.
+    ============================================ */
+ 
+ .rs-mosaico,
+@@ -13,3 +14,284 @@
+     background-color: var(--color-primary);
+     color: var(--color-secondary);
+ }
++
++/* ============================================
++   MOBILE / TABLET — Resultados y cierre
++   ============================================ */
++
++@media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
++
++    /* --- Mosaico de fotos --- */
++
++    .rs-mosaico {
++        display: flex;
++        flex-direction: column;
++        gap: 2.5rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++    }
++
++    .rs-mosaico__intro {
++        display: flex;
++        flex-direction: column;
++        gap: 1.25rem;
++    }
++
++    .rs-mosaico__grid {
++        display: grid;
++        grid-template-columns: 1fr 1fr;
++        grid-auto-rows: clamp(130px, 22vw, 200px);
++        grid-auto-flow: dense;
++        gap: 0.75rem;
++    }
++
++    .rs-mosaico__card {
++        overflow: hidden;
++        border-radius: 12px;
++    }
++
++    .rs-mosaico__card[data-size="tall"] {
++        grid-row: span 2;
++    }
++
++    /* La foto central (la atleta) es la protagonista: ancho completo */
++    .rs-mosaico__card--center {
++        grid-column: 1 / -1;
++        grid-row: span 2;
++    }
++
++    .rs-mosaico__card-img {
++        display: block;
++        width: 100%;
++        height: 100%;
++        object-fit: cover;
++    }
++
++    /* --- Métricas de negocio: cards gradiente verde --- */
++
++    .rs-metricas {
++        display: flex;
++        flex-direction: column;
++        gap: 1.5rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++    }
++
++    .rs-metricas__title {
++        margin-bottom: 1rem;
++    }
++
++    .rs-metricas__card {
++        display: flex;
++        flex-direction: column;
++        gap: 0.5rem;
++        padding: 2rem 1.5rem;
++        border-radius: 20px;
++        background: linear-gradient(135deg, var(--color-decision-bg) 0%, #00913F 100%);
++    }
++
++    .rs-metricas__value {
++        display: flex;
++        align-items: center;
++        gap: 0.15em;
++        color: #FFFFFF;
++        font-size: clamp(3rem, 11vw, 5rem);
++    }
++
++    .rs-metricas__arrow {
++        font-size: 0.5em;
++        color: var(--color-decision-label);
++    }
++
++    .rs-metricas__label {
++        color: #FFFFFF;
++    }
++
++    .rs-metricas__detail {
++        color: var(--color-decision-label);
++    }
++
++    /* --- Impacto en los usuarios --- */
++
++    .rs-usuarios {
++        display: flex;
++        flex-direction: column;
++        gap: 2rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++    }
++
++    /* La palabra "impacto" vive en un SVG dimensionado por el JS
++       desktop; en mobile se sustituye por texto plano heredando la
++       tipografía del título. */
++    .rs-usuarios__word--svg .rs-usuarios__impacto-svg {
++        display: none;
++    }
++
++    .rs-usuarios__word--svg::after {
++        content: "impacto";
++        color: var(--color-accent);
++    }
++
++    .rs-usuarios__media {
++        overflow: hidden;
++        border-radius: 16px;
++    }
++
++    .rs-usuarios__img {
++        display: block;
++        width: 100%;
++        height: auto;
++        aspect-ratio: 16 / 9;
++        object-fit: cover;
++    }
++
++    /* --- Testimonio + cierre narrativo --- */
++
++    .rs-testimonio {
++        display: flex;
++        flex-direction: column;
++        gap: 3rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++    }
++
++    /* El portal elíptico es la coreografía desktop */
++    .rs-testimonio__ring {
++        display: none;
++    }
++
++    .rs-testimonio__quote {
++        display: flex;
++        flex-direction: column;
++        gap: 1rem;
++        margin: 0;
++    }
++
++    .rs-testimonio__quote-icon {
++        font-size: 2.5rem;
++        color: var(--color-accent);
++    }
++
++    .rs-testimonio__quote-text {
++        font-family: var(--font-family);
++        font-style: italic;
++        font-size: clamp(1.5rem, 5.5vw, 2.25rem);
++        line-height: 1.4;
++        color: var(--color-secondary);
++    }
++
++    .rs-testimonio__closing {
++        display: flex;
++        flex-direction: column;
++        align-items: flex-start;
++        gap: 2rem;
++    }
++
++    .rs-testimonio__closing-title {
++        font-family: var(--font-display);
++        font-weight: 500;
++        font-size: clamp(2rem, 7.5vw, 3.5rem);
++        line-height: 1.15;
++        color: var(--color-secondary);
++    }
++
++    .rs-testimonio__line-wrap {
++        display: block;
++    }
++
++    /* --- Cierre: gracias, casos y CTA --- */
++
++    .rs-cierre {
++        display: flex;
++        flex-direction: column;
++        gap: 3rem;
++        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
++    }
++
++    .rs-cierre__gracias {
++        display: flex;
++        flex-wrap: wrap;
++        justify-content: center;
++        column-gap: 0.3em;
++        text-align: center;
++    }
++
++    /* .cs-gracias es 144px fijos (desktop); en mobile escala fluida */
++    .rs-cierre__gracias-word.cs-gracias {
++        font-size: clamp(3rem, 13vw, 6rem);
++    }
++
++    .rs-cierre__media {
++        overflow: hidden;
++        border-radius: 16px;
++    }
++
++    .rs-cierre__media-img {
++        display: block;
++        width: 100%;
++        height: auto;
++        aspect-ratio: 3 / 2;
++        object-fit: cover;
++    }
++
++    .rs-cierre__bottom {
++        display: flex;
++        flex-direction: column;
++        gap: 3rem;
++    }
++
++    .rs-cierre__cases {
++        display: flex;
++        flex-direction: column;
++        gap: 1.5rem;
++    }
++
++    .rs-cierre__case {
++        display: flex;
++        flex-direction: column;
++        gap: 1rem;
++    }
++
++    .rs-cierre__case-img {
++        display: block;
++        width: 100%;
++        height: auto;
++        aspect-ratio: 10 / 7;
++        object-fit: cover;
++        border-radius: 12px;
++    }
++
++    .rs-cierre__case-text {
++        color: var(--color-text-secondary);
++    }
++
++    .rs-cierre__footer {
++        display: flex;
++        flex-direction: column;
++        align-items: center;
++        gap: 2rem;
++        text-align: center;
++    }
++
++    /* --- Tablet (>= 700px) --- */
++
++    @media (min-width: 700px) {
++        .rs-mosaico__grid {
++            grid-template-columns: repeat(4, 1fr);
++        }
++
++        .rs-mosaico__card--center {
++            grid-column: 2 / 4;
++        }
++
++        .rs-metricas__card {
++            padding: 2.5rem 2rem;
++        }
++
++        .rs-cierre__cases {
++            flex-direction: row;
++        }
++
++        .rs-cierre__case {
++            flex: 1 1 0;
++        }
++    }
++
++} /* fin MQ_MOBILE */
+diff --git a/css/scroll-nav-responsive.css b/css/scroll-nav-responsive.css
+index ac3ac53..af4d7da 100644
+--- a/css/scroll-nav-responsive.css
++++ b/css/scroll-nav-responsive.css
+@@ -1,5 +1,5 @@
+ /* css/scroll-nav-responsive.css */
+-@media (min-width: 1200px) {
++@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+ 
+     .scroll-progress {
+         display: block;
+diff --git a/css/scroll-nav.css b/css/scroll-nav.css
+index a4aa0ec..9165269 100644
+--- a/css/scroll-nav.css
++++ b/css/scroll-nav.css
+@@ -1,17 +1,34 @@
+ /* css/scroll-nav.css */
+ /* ============================================
+-   SCROLL-NAV — Estilos base (mobile/tablet pendiente)
+-   Barra de progreso de lectura + dots de navegación.
+-   Ver scroll-nav-responsive.css para el layout de desktop.
++   SCROLL-NAV — Estilos base
++   Barra de progreso de lectura (todos los modos) + dots de
++   navegación (solo desktop, ver scroll-nav-responsive.css).
+    ============================================ */
+ 
+-.scroll-progress,
++/* Dots + velo: exclusivos del scrollytelling desktop */
+ .section-nav,
+ .section-nav-veil {
+     display: none;
+ }
+ 
++/* Barra de progreso — visible en mobile y desktop. El JS
++   (scroll-progress.js) ajusta `top` a la altura real del header.
++   El bloque desktop de scroll-nav-responsive.css re-declara estos
++   mismos valores (duplicado inofensivo; ese archivo no se toca). */
++.scroll-progress {
++    display: block;
++    position: fixed;
++    top: var(--cs-header-height);
++    left: 0;
++    right: 0;
++    height: 3px;
++    background-color: var(--color-glass-border);
++    z-index: 90;
++}
++
+ .scroll-progress__fill {
++    width: 100%;
++    height: 100%;
+     transform-origin: left center;
+     background-color: var(--color-accent);
+ }
+diff --git a/js/caso-asdeporte-nav.js b/js/caso-asdeporte-nav.js
+index 70a045a..3600733 100644
+--- a/js/caso-asdeporte-nav.js
++++ b/js/caso-asdeporte-nav.js
+@@ -1,16 +1,69 @@
+ // js/caso-asdeporte-nav.js
+ // Config específica de esta página para los módulos genéricos de
+-// scroll-progress y section-nav. Gateado a desktop (>=1200px) via
+-// gsap.matchMedia — mobile/tablet se retoma cuando se desarrolle esa
+-// versión de la página.
++// scroll-progress, section-nav y mobile-reveals.
++// - scroll-progress: SIEMPRE (mobile y desktop) — no depende de GSAP.
++// - mobile-reveals: siempre invocado; el módulo sale solo si matchea
++//   MQ_DESKTOP (ahí manda el scrollytelling GSAP).
++// - section-nav (dots + velo): solo desktop, via gsap.matchMedia con
++//   la misma condición MQ_DESKTOP que caso-asdeporte.js/resultado.js
++//   y los *-responsive.css.
+ 
+ import { initScrollProgress } from './modules/scroll-progress.js';
+ import { initSectionNav } from './modules/section-nav.js';
++import { initMobileReveals } from './modules/animations/mobile-reveals.js';
+ 
+-if (typeof gsap !== 'undefined') {
+-    gsap.matchMedia().add('(min-width: 1200px)', () => {
+-        const destroyScrollProgress = initScrollProgress({ anchorSelector: '.header' });
++// Barra de progreso de lectura — corre una sola vez para todos los
++// modos (ya no vive en el matchMedia: no hay nada que revertir al
++// cruzar el breakpoint porque aplica en ambos lados).
++initScrollProgress({ anchorSelector: '.header' });
++
++// Reveals + contadores de la versión mobile/tablet. Sin GSAP a
++// propósito: debe funcionar con el CDN bloqueado.
++initMobileReveals({
++    revealSelectors: [
++        '.cs-metrica__left',
++        '.cs-contexto .cs-label',
++        '.cs-contexto .cs-section-title',
++        '.cs-contexto__media',
++        '.cs-contexto__tags',
++        '.cs-contexto__text-track p',
++        '.cs-contexto__actions',
++        '.cs-decisiones-titulos__label',
++        '.cs-decisiones-titulos__item',
++        '.cs-decision__content',
++        '.cs-decision__media',
++        '.cs-problema__title',
++        '.cs-problema__card',
++        '.cs-decision-mc__title',
++        '.cs-decision-mc__media',
++        '.cs-decision-mc__text-wrap',
++        '.cs-razonamiento__label',
++        '.cs-razonamiento__metric',
++        '.cs-razonamiento__descriptor',
++        '.cs-razonamiento__conclusion',
++        '.rs-mosaico__intro',
++        '.rs-mosaico__card',
++        '.rs-metricas__title',
++        '.rs-metricas__card',
++        '.rs-usuarios__title',
++        '.rs-usuarios__media',
++        '.rs-usuarios__text',
++        '.rs-testimonio__quote',
++        '.rs-testimonio__closing',
++        '.rs-cierre__gracias',
++        '.rs-cierre__media',
++        '.rs-cierre__case',
++        '.rs-cierre__footer',
++    ],
++    counterSelectors: [
++        '.cs-metric',
++        '.cs-razonamiento__metric-value',
++        '.rs-metricas__value',
++    ],
++});
+ 
++if (typeof gsap !== 'undefined') {
++    gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
+         const { destroy: destroySectionNav } = initSectionNav([
+             { selector: '.cs-apertura', label: 'Inicio' },
+             // El fade-in de label/título/imagen/tags/flecha de Contexto en
+@@ -37,11 +90,10 @@ if (typeof gsap !== 'undefined') {
+         ]);
+ 
+         // I3: gsap.matchMedia calls this returned function automatically
+-        // when the (min-width: 1200px) query stops matching (it does NOT
++        // when the MQ_DESKTOP query stops matching (it does NOT
+         // undo plain DOM appendChild on its own), so re-crossing the
+-        // breakpoint re-inits cleanly instead of duplicating the bar/nav.
++        // breakpoint re-inits cleanly instead of duplicating the nav.
+         return () => {
+-            destroyScrollProgress();
+             destroySectionNav();
+         };
+     });
+diff --git a/js/caso-asdeporte.js b/js/caso-asdeporte.js
+index ade8127..3e0634c 100644
+--- a/js/caso-asdeporte.js
++++ b/js/caso-asdeporte.js
+@@ -7,6 +7,18 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+ 
+     gsap.registerPlugin(ScrollTrigger);
+ 
++    // ============================================
++    // GATE DESKTOP — todo el scrollytelling corre solo en MQ_DESKTOP
++    // (misma condición que los *-responsive.css y caso-asdeporte-nav.js).
++    // Mobile/tablet no registra ningún ScrollTrigger: la página fluye
++    // estática con los estilos base + mobile-reveals.
++    // Cruce de breakpoint en caliente requiere reload: matchMedia limpia
++    // los STs pero no las mutaciones DOM (spans de palabras, estilos
++    // inline de gsap.set) — documentado como riesgo aceptado.
++    // Cuerpo original sin re-indentar.
++    // ============================================
++    gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
++
+     // ============================================
+     // Referencias DOM
+     // ============================================
+@@ -31,6 +43,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+     // (opacidad <= 0.05) — análogo al reset invisible de la métrica.
+     let contextoArrowAnimated = false;
+ 
++    // El <video> vive en el HTML con data-src (sin src) para que el .mp4
++    // no se descargue en mobile. Aquí — ya dentro del contexto desktop —
++    // se asigna y arranca. El resto del código tolera metadatos tardíos
++    // vía getVideoDuration() + VIDEO_DURATION_FALLBACK.
++    if (video && !video.src && video.dataset.src) {
++        video.src = video.dataset.src;
++        video.load();
++        video.play().catch(() => {});
++    }
++
+     const VIDEO_DURATION_FALLBACK = 3;
+ 
+     // ============================================
+@@ -3721,4 +3743,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+             }
+         }
+     });
++
++    }); // fin gsap.matchMedia().add(MQ_DESKTOP)
+ }
+diff --git a/js/modules/animations/mobile-reveals.js b/js/modules/animations/mobile-reveals.js
+new file mode 100644
+index 0000000..99f0790
+--- /dev/null
++++ b/js/modules/animations/mobile-reveals.js
+@@ -0,0 +1,86 @@
++// js/modules/animations/mobile-reveals.js
++// Capa de animación de la versión mobile/tablet del caso: reveals
++// one-shot (clase .mrv/.mrv--in, ver case-study.css) + count-up de
++// métricas. IntersectionObserver vanilla, sin GSAP a propósito — la
++// página mobile debe quedar 100% funcional aunque el CDN falle.
++// En MQ_DESKTOP no hace nada (ahí manda el scrollytelling GSAP).
++
++const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
++const COUNTER_DURATION_MS = 800;
++
++// Los valores tipo "+30%" o "90.8%" pueden convivir con hijos <i> (flecha
++// Phosphor): se anima solo el primer nodo de texto con dígitos, preservando
++// prefijo (signo) y sufijo (%) del propio nodo y el resto de hijos intactos.
++function findNumericTextNode(el) {
++    for (const node of el.childNodes) {
++        if (node.nodeType === Node.TEXT_NODE && /\d/.test(node.data)) {
++            return node;
++        }
++    }
++    return null;
++}
++
++function animateCounter(el) {
++    const node = findNumericTextNode(el);
++    if (!node) return;
++
++    const original = node.data;
++    const match = original.match(/\d+(?:\.\d+)?/);
++    if (!match) return;
++
++    const target = parseFloat(match[0]);
++    const decimals = (match[0].split('.')[1] || '').length;
++    const prefix = original.slice(0, match.index);
++    const suffix = original.slice(match.index + match[0].length);
++    const start = performance.now();
++
++    const tick = (now) => {
++        const t = Math.min(1, (now - start) / COUNTER_DURATION_MS);
++        const eased = 1 - Math.pow(1 - t, 3); // ease-out cúbico
++        node.data = prefix + (target * eased).toFixed(decimals) + suffix;
++        if (t < 1) {
++            requestAnimationFrame(tick);
++        } else {
++            node.data = original; // valor exacto final, sin redondeos
++        }
++    };
++    requestAnimationFrame(tick);
++}
++
++export function initMobileReveals({ revealSelectors = [], counterSelectors = [] } = {}) {
++    // Desktop: el scrollytelling GSAP es el dueño de todas las animaciones.
++    if (window.matchMedia(MQ_DESKTOP).matches) return;
++
++    // Con reduced-motion (o sin IO) no se marca nada: el contenido ya está
++    // visible con sus valores finales — estado seguro por diseño.
++    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
++    if (typeof IntersectionObserver === 'undefined') return;
++
++    const revealEls = document.querySelectorAll(revealSelectors.join(', '));
++    const counterEls = document.querySelectorAll(counterSelectors.join(', '));
++    const counterSet = new Set(counterEls);
++
++    const io = new IntersectionObserver((entries) => {
++        entries.forEach((entry) => {
++            if (!entry.isIntersecting) return;
++            entry.target.classList.add('mrv--in');
++            if (counterSet.has(entry.target)) {
++                animateCounter(entry.target);
++            }
++            io.unobserve(entry.target);
++        });
++    }, { threshold: 0.15 });
++
++    revealEls.forEach((el) => {
++        el.classList.add('mrv');
++        io.observe(el);
++    });
++
++    // Contadores que no son también reveal (hoy todos lo son, pero el
++    // módulo no lo asume): se observan igual para disparar el count-up.
++    counterEls.forEach((el) => {
++        if (!el.classList.contains('mrv')) {
++            io.observe(el);
++        }
++    });
++}
+diff --git a/js/modules/magnetic.js b/js/modules/magnetic.js
+index 0c61750..dbfbcf7 100644
+--- a/js/modules/magnetic.js
++++ b/js/modules/magnetic.js
+@@ -3,9 +3,15 @@
+ // Adds magnetic attraction and glow effects to buttons on desktop
+ // ============================================
+ 
++// Sin mouse real (touch/stylus) el efecto magnético no tiene sentido y el
++// rAF quedaría corriendo para siempre — p. ej. iPad landscape >= 1024px.
++function isTouchLike() {
++    return !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
++}
++
+ class MagneticManager {
+     constructor() {
+-        this.isMobile = window.innerWidth < 1024;
++        this.isMobile = window.innerWidth < 1024 || isTouchLike();
+         this.elements = document.querySelectorAll('.btn--primary, .btn--secondary, .btn-icon');
+         this.data = Array.from(this.elements).map(el => ({
+             el,
+@@ -26,7 +32,7 @@ class MagneticManager {
+         // Handle window resize to detect mobile/desktop changes
+         window.addEventListener('resize', () => {
+             const wasDesktop = !this.isMobile;
+-            this.isMobile = window.innerWidth < 1024;
++            this.isMobile = window.innerWidth < 1024 || isTouchLike();
+ 
+             if (wasDesktop && this.isMobile) {
+                 // Transitioning to mobile - stop animation loop
+diff --git a/js/resultado.js b/js/resultado.js
+index 754c7b8..c2ebc44 100644
+--- a/js/resultado.js
++++ b/js/resultado.js
+@@ -10,6 +10,16 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+ 
+     gsap.registerPlugin(ScrollTrigger);
+ 
++    // ============================================
++    // GATE DESKTOP — mismo wrap que caso-asdeporte.js. El handler corre
++    // síncrono al add() en desktop, así que el orden de módulos
++    // caso-asdeporte.js → resultado.js se preserva y ScrollTrigger.getAll()
++    // (abajo) encuentra el ST del razonamiento 3 ya registrado.
++    // Cruce de breakpoint en caliente requiere reload (ver nota en
++    // caso-asdeporte.js). Cuerpo original sin re-indentar.
++    // ============================================
++    gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
++
+     // ============================================
+     // FASE 1 — Mosaico y expansión
+     // Toma el relevo de razon3Final (mismo patrón "OPTION-1: acoplamiento
+@@ -1491,4 +1501,6 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+             if (rsCierreSection) { gsap.set(rsCierreSection, { y: 0 }); }
+         }
+     });
++
++    }); // fin gsap.matchMedia().add(MQ_DESKTOP)
+ }
+-- 
+2.43.0
+
