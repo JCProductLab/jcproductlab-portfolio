@@ -2,8 +2,15 @@
 
 // ============================================
 // MÓDULO: Modal El Proceso
-// Carrusel automático de 3 pasos con hover
+// Desktop: carrusel automático de 3 pasos con hover.
+// Mobile/tablet: tabs — tap para cambiar, sin autoplay (no hay "mouse
+// afuera" que lo pause de forma natural, y con contenido scrolleable
+// que cambia solo cada 5s se siente invasivo mientras se lee).
 // ============================================
+
+import { initModalScrollHint } from './modal-scroll-hint.js';
+
+const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 
 export function initModalProceso() {
     const modal = document.getElementById('modalProceso');
@@ -13,8 +20,13 @@ export function initModalProceso() {
     const content = modal?.querySelector('.modal-rol-proceso__content');
     const steps = modal?.querySelectorAll('.modal-proceso__step');
     const description = modal?.querySelector('.modal-proceso__description');
+    const detail = modal?.querySelector('.modal-proceso__detail');
+    const scrollHintEl = modal?.querySelector('.modal-rol-proceso__scroll-hint');
 
     if (!modal || !triggerBtn || !closeBtn || !overlay || !content || !steps || !description) return;
+
+    const isDesktop = window.matchMedia(MQ_DESKTOP).matches;
+    const scrollHint = initModalScrollHint(detail, scrollHintEl);
 
     // Textos reales de assets/content/final-content.md (líneas 241-262)
     const stepData = [
@@ -49,6 +61,11 @@ export function initModalProceso() {
         fadeTimer = setTimeout(() => {
             description.textContent = stepData[index].text;
             description.classList.remove('modal-proceso__description--fading');
+            // El párrafo cambia de largo entre tabs — hay que revisar de
+            // nuevo si el contenido desborda (mobile) recién acá, cuando
+            // el texto nuevo ya está en el DOM.
+            if (detail) detail.scrollTop = 0;
+            scrollHint.update();
         }, 400);
 
         currentStep = index;
@@ -100,6 +117,9 @@ export function initModalProceso() {
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
 
+        if (detail) detail.scrollTop = 0;
+        scrollHint.update();
+
         gsap.fromTo(content,
             { x: '100%' },
             {
@@ -107,7 +127,9 @@ export function initModalProceso() {
                 duration: 0.6,
                 ease: 'power2.out',
                 onComplete: () => {
-                    startAutoPlay();
+                    // Sin autoplay en mobile/tablet — ver comentario del
+                    // módulo arriba.
+                    if (isDesktop) startAutoPlay();
                 }
             }
         );
@@ -136,8 +158,21 @@ export function initModalProceso() {
         });
     }
 
-    // Hover en pasos: pausa autoplay y muestra ese paso
+    // Desktop: hover en pasos pausa el autoplay y muestra ese paso.
+    // Mobile/tablet: sin hover ni autoplay — tap directo para cambiar.
     steps.forEach((step, index) => {
+        if (!isDesktop) {
+            step.addEventListener('click', () => {
+                setActiveStep(index);
+                // La tab tocada puede estar parcialmente cortada (fila con
+                // scroll horizontal, ver modal-rol-proceso.css) — la trae
+                // a la vista con el mínimo scroll necesario, sea que se
+                // corte por la izquierda (tab 1) o por la derecha (tab 3).
+                step.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+            });
+            return;
+        }
+
         step.addEventListener('mouseenter', () => {
             isHovering = true;
             stopAutoPlay();

@@ -5,7 +5,7 @@
 // Panel deslizante desde la derecha con overlay
 // ============================================
 
-const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
+import { initModalScrollHint } from './modal-scroll-hint.js';
 
 export function initModalMiRol() {
     const modal = document.getElementById('modalMiRol');
@@ -14,36 +14,13 @@ export function initModalMiRol() {
     const overlay = modal?.querySelector('.modal-rol-proceso__overlay');
     const content = modal?.querySelector('.modal-rol-proceso__content');
     const inner = modal?.querySelector('.modal-rol-proceso__inner');
-    const scrollHint = modal?.querySelector('.modal-rol-proceso__scroll-hint');
+    const scrollHintEl = modal?.querySelector('.modal-rol-proceso__scroll-hint');
 
     if (!modal || !triggerBtn || !closeBtn || !overlay || !content) return;
 
+    const scrollHint = initModalScrollHint(inner, scrollHintEl);
+
     let isOpen = false;
-
-    // Pista de scroll (degradado + chevron, ver modal-rol-proceso.css) —
-    // exclusiva de mobile/tablet, donde .inner tiene scroll propio. Se
-    // oculta si el contenido no desborda o si ya se llegó al fondo;
-    // reaparece si el usuario sube de nuevo.
-    const scrollHintEnabled = Boolean(inner && scrollHint && !window.matchMedia(MQ_DESKTOP).matches);
-    let hintTicking = false;
-
-    function updateScrollHint() {
-        hintTicking = false;
-        const hasOverflow = inner.scrollHeight > inner.clientHeight + 1;
-        const atBottom = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 4;
-        scrollHint.classList.toggle('modal-rol-proceso__scroll-hint--hidden', !hasOverflow || atBottom);
-    }
-
-    if (scrollHintEnabled) {
-        inner.addEventListener('scroll', () => {
-            if (!hintTicking) {
-                hintTicking = true;
-                requestAnimationFrame(updateScrollHint);
-            }
-        }, { passive: true });
-        window.addEventListener('resize', updateScrollHint);
-        updateScrollHint();
-    }
 
     // Abre el modal
     function openModal() {
@@ -54,7 +31,7 @@ export function initModalMiRol() {
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
 
-        if (scrollHintEnabled) updateScrollHint();
+        scrollHint.update();
 
         // Animación de entrada: slide desde la derecha
         gsap.to(content, {
