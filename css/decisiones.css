@@ -113,6 +113,155 @@
         height: 48px;
     }
 
+    /* ============================================
+       ACORDEÓN DE DECISIONES — mobile/tablet
+       Reestructurado en runtime por decisiones-accordion.js (SOLO
+       mobile — nunca corre en desktop, el HTML autoreado no cambia).
+       Cada <li> pasa de contener [header, subtítulo, hr] sueltos a
+       contener [.sticky-header (esos mismos nodos, envueltos) +
+       .content (las 4 secciones de esa decisión, movidas adentro)].
+       ============================================ */
+
+    /* El gap ahora vive en .sticky-header (ver abajo) — a nivel de <li>
+       pasa a 0 para que no quede un espacio extra entre el header y el
+       contenido colapsado (0 de alto) antes de abrirlo. */
+    .cs-decisiones-titulos__item {
+        gap: 0;
+    }
+
+    /* Escudo del header — elemento aparte, ESTÁTICO (ninguna propiedad
+       suya cambia nunca en runtime), pineado permanentemente en top:0.
+       Cubre exactamente la franja del header real del sitio (translúcido,
+       no se toca) mientras dura el pineo de esta decisión, para que el
+       contenido que scrollea detrás no se transparente ahí. Antes esto
+       se resolvía cambiando top/padding del propio índice con una clase
+       JS — pero mutar en runtime el box model de un elemento
+       position:sticky ya pineado hace que el navegador (sobre todo
+       mobile) pierda el enganche por un instante y saltee al
+       recalcular (el salto reportado, dos veces). Un segundo sticky
+       independiente, que nunca cambia, no tiene ese problema. */
+    .cs-decisiones-titulos__header-shield {
+        position: sticky;
+        top: 0;
+        height: var(--cs-header-height);
+        /* Reserva su alto en el flujo (todo position:sticky lo hace,
+           a diferencia de fixed) y de inmediato lo cancela empujando a
+           .sticky-header hacia arriba esa misma distancia — en reposo,
+           ambos arrancan en el mismo punto (el escudo queda tapado
+           detrás, z-index más bajo) y el espaciado del índice queda
+           intacto. Sin esto, el alto del escudo se sumaba siempre antes
+           de "01 Decisión 1", pineado o no (el hueco reportado). */
+        margin-bottom: calc(-1 * var(--cs-header-height));
+        z-index: 1;
+        background-color: var(--color-primary);
+        overflow-anchor: none;
+    }
+
+    /* Sticky real: se pinea contra el borde superior del viewport
+       mientras su <li> (header + contenido) sigue teniendo alto de
+       sobra por debajo — y se suelta solo cuando el contenido termina,
+       exactamente cuando empieza a asomar el índice siguiente. */
+    .cs-decisiones-titulos__sticky-header {
+        position: sticky;
+        top: var(--cs-header-height);
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        background-color: var(--color-primary);
+        cursor: pointer;
+        /* La compensación de scroll ahora la hace decisiones-accordion.js
+           a mano (mide y corrige en el mismo tick del click). El
+           scroll-anchoring nativo del navegador, sin ese manejo manual,
+           competía con la propia apertura animada (0.6s) del contenido
+           nuevo e intentaba "corregir" con su propio criterio — de ahí
+           el salto-y-vuelta reportado. Desactivado a propósito: el JS ya
+           es el único que decide cuánto compensar. */
+        overflow-anchor: none;
+    }
+
+    /* Botón +/-→X — dos trazos independientes (no un ícono que rota):
+       la barra horizontal gira a 45°, la vertical a -45°, con un leve
+       overshoot elástico (misma curva "back" que ya usa el subrayado de
+       las tabs de El Proceso) y un glow de acento al abrir. */
+    .cs-decisiones-titulos__toggle {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        margin-left: auto;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .cs-decisiones-titulos__toggle-bar {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 2px;
+        background-color: var(--color-accent);
+        border-radius: 1px;
+        box-shadow: 0 0 0 rgba(0, 212, 110, 0);
+        transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .cs-decisiones-titulos__toggle-bar--h {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    .cs-decisiones-titulos__toggle-bar--v {
+        transform: translate(-50%, -50%) rotate(90deg);
+    }
+
+    .cs-decisiones-titulos__item--open .cs-decisiones-titulos__toggle-bar--h {
+        transform: translate(-50%, -50%) rotate(45deg);
+        box-shadow: 0 0 8px rgba(0, 212, 110, 0.6);
+    }
+
+    .cs-decisiones-titulos__item--open .cs-decisiones-titulos__toggle-bar--v {
+        transform: translate(-50%, -50%) rotate(-45deg);
+        box-shadow: 0 0 8px rgba(0, 212, 110, 0.6);
+    }
+
+    /* Colapsable vía grid-template-rows 0fr→1fr (más fluido que animar
+       max-height a mano: se adapta solo al alto real del contenido, sin
+       necesito medirlo en JS).
+       overflow-anchor:none a propósito: decisiones-accordion.js ya hace
+       la compensación de scroll a mano (mide y corrige en el mismo tick
+       del click, ver ese archivo). Sin esto, mientras este contenedor
+       crece animado (0.6s), el scroll-anchoring nativo del navegador
+       competía con esa compensación manual e intentaba "corregir" con
+       su propio criterio — eso causaba un salto-y-vuelta visible. */
+    .cs-decisiones-titulos__content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        overflow-anchor: none;
+    }
+
+    .cs-decisiones-titulos__item--open .cs-decisiones-titulos__content {
+        grid-template-rows: 1fr;
+    }
+
+    /* El único hijo grid necesita min-height:0 (si no, nunca se encoge
+       por debajo de su alto de contenido) + overflow:hidden (recorta
+       mientras el row-track todavía no llega a 1fr). */
+    .cs-decisiones-titulos__content-inner {
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cs-decisiones-titulos__content,
+        .cs-decisiones-titulos__toggle-bar {
+            transition: none;
+        }
+    }
+
     /* --- Cortina de decisión → panel verde pleno --- */
 
     .cs-decision {
@@ -326,6 +475,30 @@
     .cs-razonamiento__conclusion-final {
         color: var(--color-accent);
     }
+
+    /* Las 4 secciones de contenido ocultas por defecto en su posición
+       ORIGINAL (fuera del acordeón) — evita el flash de "todo visible"
+       entre el primer paint y el momento en que decisiones-accordion.js
+       las mueve adentro de .content-inner. Mismo patrón que .mrv /
+       .cs-apertura__ticker: oculto en CSS, JS solo revela. Van al FINAL
+       del bloque MQ_MOBILE a propósito: .cs-decision/.cs-decision-mc/
+       .cs-razonamiento ya traen su propio "display:flex" más arriba en
+       este archivo — con igual especificidad, en CSS gana la regla que
+       aparece último en el cascade, así que este display:none tiene que
+       venir después de todas esas reglas para poder pisarlas. */
+    .cs-decision,
+    .cs-problema,
+    .cs-decision-mc,
+    .cs-razonamiento {
+        display: none;
+    }
+
+    /* Se re-habilitan explícitamente una vez anidadas dentro del
+       acordeón — selector más específico, gana sin importar el orden. */
+    .cs-decisiones-titulos__content-inner .cs-decision      { display: flex; }
+    .cs-decisiones-titulos__content-inner .cs-problema      { display: block; }
+    .cs-decisiones-titulos__content-inner .cs-decision-mc   { display: flex; }
+    .cs-decisiones-titulos__content-inner .cs-razonamiento  { display: flex; }
 
     /* --- Tablet (>= 700px): problema a 2 columnas --- */
 

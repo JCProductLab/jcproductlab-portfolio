@@ -13,11 +13,18 @@ import { initSectionNav } from './modules/section-nav.js';
 import { initMobileReveals } from './modules/animations/mobile-reveals.js';
 import { initMetricaSequence, initMetricaPin } from './modules/animations/metrica-sequence.js';
 import { initAperturaExit } from './modules/animations/apertura-exit.js';
+import { initDecisionesAccordion } from './modules/animations/decisiones-accordion.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
 // modos (ya no vive en el matchMedia: no hay nada que revertir al
 // cruzar el breakpoint porque aplica en ambos lados).
 initScrollProgress({ anchorSelector: '.header' });
+
+// Reestructura el acordeón de Decisiones (mobile/tablet) ANTES de armar
+// los reveals de abajo — mueve las 4 secciones de cada decisión adentro
+// de su <li> de índice (ver decisiones-accordion.js). Sale solo en
+// desktop, no toca el HTML autoreado que usa el scrollytelling GSAP.
+initDecisionesAccordion();
 
 // Reveals + contadores de la versión mobile/tablet. Sin GSAP a
 // propósito: debe funcionar con el CDN bloqueado.
