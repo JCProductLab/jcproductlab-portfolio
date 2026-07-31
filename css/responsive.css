@@ -488,6 +488,17 @@
         gap: 40px;
     }
 
+    /* CTA desktop: invertir la visibilidad — en ≥1200px gana el
+       .btn-liquid (efecto hover de fusión), el .btn--primary hermano
+       se oculta. En mobile/tablet el .btn--primary sigue visible
+       (regla base) y el .btn-liquid permanece oculto. */
+    .cta-section__cta-mobile {
+        display: none;
+    }
+    .cta-section__cta-desktop {
+        display: inline-flex;
+    }
+
     .cta-section__contacts {
         gap: 32px;
     }

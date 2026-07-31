@@ -1397,7 +1397,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const rsFooterLabel  = document.querySelector('.rs-cierre__footer-label');
     const rsFooterTitle  = document.querySelector('.rs-cierre__footer-title');
     const rsFooterText   = document.querySelector('.rs-cierre__footer-text');
-    const rsFooterBtn    = document.querySelector('.rs-cierre .btn-liquid');
+    // Ambos botones del cierre (desktop = .btn-liquid, mobile/tablet =
+    // .rs-cierre__cta-mobile) reciben la misma animación "pop" — solo
+    // uno está visible según el viewport (ver CSS).
+    const rsFooterBtn        = document.querySelector('.rs-cierre__footer .btn-liquid');
+    const rsFooterBtnMobile  = document.querySelector('.rs-cierre__footer .rs-cierre__cta-mobile');
 
     ScrollTrigger.create({
         trigger: '.cs-pin-spacer--rs-cierre',
@@ -1476,7 +1480,7 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             });
 
             const footerStart = cascadeStart + rsCierreCases.length * cascadeStagger;
-            const footerEls = [rsFooterLabel, rsFooterTitle, rsFooterText, rsFooterBtn];
+            const footerEls = [rsFooterLabel, rsFooterTitle, rsFooterText];
             footerEls.forEach((el, i) => {
                 if (!el) return;
                 const start = footerStart + i * cascadeStagger;
@@ -1484,6 +1488,25 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 const eased = gsap.parseEase('power2.out')(localP);
                 gsap.set(el, { y: 40 * (1 - eased), opacity: eased });
             });
+
+            // Botones (desktop + mobile/tablet): "pop" réplica EXACTA de
+            // cta-section-reveal — scale 0.5→1, opacity 0→1, ease 'back.out(1.4)'.
+            // Solo uno es visible por viewport (ver CSS resultado.css).
+            const btnStart = footerStart + footerEls.length * cascadeStagger;
+            const btnP = clamp01((p5 - btnStart) / cascadeDur);
+            const btnEased = gsap.parseEase('back.out(1.4)')(btnP);
+            if (rsFooterBtn) {
+                gsap.set(rsFooterBtn, {
+                    scale: 0.5 + 0.5 * btnEased,
+                    opacity: btnEased,
+                });
+            }
+            if (rsFooterBtnMobile) {
+                gsap.set(rsFooterBtnMobile, {
+                    scale: 0.5 + 0.5 * btnEased,
+                    opacity: btnEased,
+                });
+            }
         },
         onLeaveBack: () => {
             gsap.set('.rs-testimonio__closing', { y: 0 });
@@ -1493,9 +1516,11 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             if (rsGraciasRight) { gsap.set(rsGraciasRight, { y: 60, x: 0, opacity: 0 }); }
             if (rsCierreMedia)  { gsap.set(rsCierreMedia,  { y: 80, opacity: 0 }); }
             gsap.set(rsCierreCases, { y: window.innerHeight, opacity: 0 });
-            [rsFooterLabel, rsFooterTitle, rsFooterText, rsFooterBtn].forEach((el) => {
+            [rsFooterLabel, rsFooterTitle, rsFooterText].forEach((el) => {
                 if (el) { gsap.set(el, { y: 40, opacity: 0 }); }
             });
+            if (rsFooterBtn)       { gsap.set(rsFooterBtn,       { scale: 0.5, opacity: 0 }); }
+            if (rsFooterBtnMobile) { gsap.set(rsFooterBtnMobile, { scale: 0.5, opacity: 0 }); }
         },
         onLeave: () => {
             if (rsCierreSection) { gsap.set(rsCierreSection, { y: 0 }); }

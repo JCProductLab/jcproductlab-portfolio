@@ -15,6 +15,12 @@
     color: var(--color-secondary);
 }
 
+/* Botón mobile del cierre: oculto por default (solo visible en MQ_MOBILE).
+   El .btn-liquid hermano es el que se ve en desktop. */
+.rs-cierre__cta-mobile {
+    display: none;
+}
+
 /* ============================================
    MOBILE / TABLET — Resultados y cierre
    ============================================ */
@@ -356,6 +362,17 @@
         align-items: center;
         gap: 2rem;
         text-align: center;
+    }
+
+    /* CTA del cierre: en mobile/tablet se usa el mismo botón que
+       cta-section (.btn.btn--primary) — el .btn-liquid con efecto
+       hover no tiene sentido sin puntero fino. Se ocultan/activan
+       según viewport. */
+    .rs-cierre__footer .btn-liquid {
+        display: none;
+    }
+    .rs-cierre__cta-mobile {
+        display: inline-flex;
     }
 
     /* --- Tablet (>= 700px) --- */

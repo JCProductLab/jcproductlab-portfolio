@@ -36,7 +36,10 @@ export function initCtaSectionReveal() {
     const label = header?.querySelector('.section-header__label');
     const title = header?.querySelector('.section-header__title');
     const text = section.querySelector('.cta-section__text');
-    const cta = section.querySelector('.cta-section__cta');
+    // Ambos CTAs (mobile/tablet y desktop) reciben la misma animación
+    // de entrada — solo uno está visible según el viewport (ver CSS).
+    const ctaMobile = section.querySelector('.cta-section__cta-mobile');
+    const ctaDesktop = section.querySelector('.cta-section__cta-desktop');
     const email = section.querySelector('.cta-section__contact-tag');
 
     // ── Wrap idempotente para mask-reveal del header ─────────────────
@@ -77,13 +80,15 @@ export function initCtaSectionReveal() {
         return wrap;
     };
 
-    const ctaWrapper = wrapButton(cta);
+    const ctaMobileWrap = wrapButton(ctaMobile);
+    const ctaDesktopWrap = wrapButton(ctaDesktop);
 
     // ── Estados iniciales ────────────────────────────────────────────
     if (labelInner) gsap.set(labelInner, { xPercent: -100, opacity: 0 });
     if (titleInner) gsap.set(titleInner, { yPercent: 150 });
     if (text) gsap.set(text, { y: 30, opacity: 0 });
-    if (ctaWrapper) gsap.set(ctaWrapper, { scale: 0.5, opacity: 0, transformOrigin: 'center center' });
+    if (ctaMobileWrap) gsap.set(ctaMobileWrap, { scale: 0.5, opacity: 0, transformOrigin: 'center center' });
+    if (ctaDesktopWrap) gsap.set(ctaDesktopWrap, { scale: 0.5, opacity: 0, transformOrigin: 'center center' });
     if (email) gsap.set(email, { opacity: 0 });
 
     // ── Posiciones del timeline (proporciones bajo scrub) ────────────
@@ -120,10 +125,18 @@ export function initCtaSectionReveal() {
     if (text) {
         tl.to(text, { y: 0, opacity: 1, duration: TEXT_DUR, ease: 'power3.out' }, TEXT_START);
     }
-    if (ctaWrapper) {
+    if (ctaMobileWrap) {
         // Parámetros idénticos a about-section-reveal: scale 0.5→1,
         // opacity, duration 0.6, ease 'back.out(1.4)'.
-        tl.to(ctaWrapper, {
+        tl.to(ctaMobileWrap, {
+            scale: 1,
+            opacity: 1,
+            duration: CTA_DUR,
+            ease: 'back.out(1.4)',
+        }, CTA_START);
+    }
+    if (ctaDesktopWrap) {
+        tl.to(ctaDesktopWrap, {
             scale: 1,
             opacity: 1,
             duration: CTA_DUR,

@@ -945,6 +945,13 @@ body *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(h1 *):not(h2 *):not(h
     width: 100%;
 }
 
+/* CTA desktop del cta-section: oculto por default (solo visible en
+   ≥1200px de responsive.css). El .btn.btn--primary.cta-section__cta
+   hermano es el que se ve en mobile/tablet. */
+.cta-section__cta-desktop {
+    display: none;
+}
+
 .cta-section__text {
     margin: 0;
     color: var(--color-secondary);
