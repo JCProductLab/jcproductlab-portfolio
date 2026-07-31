@@ -15,6 +15,7 @@ import { initMetricaSequence, initMetricaPin } from './modules/animations/metric
 import { initAperturaExit } from './modules/animations/apertura-exit.js';
 import { initDecisionesAccordion } from './modules/animations/decisiones-accordion.js';
 import { initDecisionMcPin } from './modules/animations/decision-mc-pin.js';
+import { initAperturaTablet } from './modules/animations/apertura-tablet.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
@@ -38,18 +39,33 @@ initDecisionesAccordion();
 // al calcular el start offset del pin. Sale solo en desktop.
 initDecisionMcPin();
 
+// Combina Apertura + Métrica en una sola pantalla de 2 columnas para
+// tablet (700–1199.98px) — mueve .cs-metrica adentro de .cs-apertura y
+// arma su propia secuencia de entrada. Sale solo en mobile/desktop.
+// Corre ANTES de initMobileReveals de abajo: isTabletApertura decide
+// qué selectores excluir de esa lista (ver comentarios abajo).
+initAperturaTablet();
+
+const isTabletApertura = window.matchMedia('(min-width: 700px) and (max-width: 1199.98px)').matches;
+
 // Reveals + contadores de la versión mobile/tablet. Sin GSAP a
 // propósito: debe funcionar con el CDN bloqueado.
 initMobileReveals({
     // El ticker ya está visible en el primer frame (es el hero) — no hay
     // scroll que lo cruce, así que va por immediateSelectors
     // (DOMContentLoaded + delay fijo, sin IntersectionObserver). Ver
-    // mobile-reveals.js.
-    immediateSelectors: [
+    // mobile-reveals.js. En tablet se excluye: apertura-tablet.js ya lo
+    // revela con su propio timing (encadenado a la métrica) — si
+    // quedara acá también, mobile-reveals lo animaría una segunda vez.
+    immediateSelectors: isTabletApertura ? [] : [
         '.cs-apertura__ticker',
     ],
     revealSelectors: [
-        '.cs-metrica__left',
+        // En tablet, apertura-tablet.js revela .cs-metrica__left
+        // encadenado a la entrada del título — si quedara acá también,
+        // mobile-reveals lo animaría una segunda vez (mismo motivo que
+        // arriba).
+        ...(isTabletApertura ? [] : ['.cs-metrica__left']),
         '.cs-contexto .cs-label',
         '.cs-contexto .cs-section-title',
         '.cs-contexto__media',
