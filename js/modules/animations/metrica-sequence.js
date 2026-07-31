@@ -41,24 +41,45 @@ export function setupMetricaArrow(arrow) {
     const caps = arrow.querySelectorAll('.cs-metrica__arrow-cap');
     const fillet = arrow.querySelector('.cs-metrica__arrow-fillet');
 
+    // getTotalLength() (abajo) fuerza un reflow síncrono, que "fotografía"
+    // el trazo en su estado por defecto (dibujado por completo, sin
+    // dasharray — geometría cruda del SVG). Por eso el orden acá importa:
+    // primero se aplican TODOS los valores del estado oculto (dasharray/
+    // dashoffset/opacity) SIN transition todavía — un cambio de estilo sin
+    // "transition" activo nunca anima, pasa directo al valor nuevo. Recién
+    // después de un flush explícito (ver más abajo) se arma "transition",
+    // ya con el estado oculto asentado como checkpoint — así solo el
+    // reveal() real (más tarde) dispara la animación, no este setup
+    // inicial. Invertido (transition antes que el flush), el navegador
+    // toma el reflow de getTotalLength() como punto de partida legítimo y
+    // anima de verdad desde "visible" hacia "oculto" — bug confirmado en
+    // vivo: la flecha (y, en tablet, el "25%") se veían un instante y
+    // luego se desvanecían solos, antes de que arrancara la secuencia real.
     const mainLength = mainPath.getTotalLength();
     mainPath.style.strokeDasharray = String(mainLength);
     mainPath.style.strokeDashoffset = String(mainLength);
-    mainPath.style.transition = 'stroke-dashoffset 0.5s ease-out';
 
     tipPaths.forEach((p) => {
         const len = p.getTotalLength();
         p.style.strokeDasharray = String(len);
         p.style.strokeDashoffset = String(len);
-        // Arrancan junto con la cuña, cuando termina la diagonal (0.5s).
-        p.style.transition = 'stroke-dashoffset 0.3s ease-out 0.5s';
     });
 
     fillet.style.opacity = '0';
-    fillet.style.transition = 'opacity 0.05s linear 0.5s';
+    caps.forEach((c) => { c.style.opacity = '0'; });
 
+    // Flush explícito: asienta el estado oculto de arriba como el
+    // checkpoint "antes" del navegador — recién después de esto es seguro
+    // habilitar transition sin que anime retroactivamente el ocultamiento.
+    void arrow.getBoundingClientRect();
+
+    mainPath.style.transition = 'stroke-dashoffset 0.5s ease-out';
+    tipPaths.forEach((p) => {
+        // Arrancan junto con la cuña, cuando termina la diagonal (0.5s).
+        p.style.transition = 'stroke-dashoffset 0.3s ease-out 0.5s';
+    });
+    fillet.style.transition = 'opacity 0.05s linear 0.5s';
     caps.forEach((c) => {
-        c.style.opacity = '0';
         // Aparecen justo antes de que termine el trazado de la punta (0.8s).
         c.style.transition = 'opacity 0.05s linear 0.75s';
     });

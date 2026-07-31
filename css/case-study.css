@@ -502,10 +502,12 @@
         /* Título: ya no position:absolute (lo maneja el flex del
            wrapper) — ahora es el primer flex item, anclado
            arriba-izquierda por el reposo natural del flex
-           (align-items:flex-start es el default). Offset de entrada más
-           chico que en mobile (24px, no 120px): ya está compuesto en
-           pantalla junto a la métrica, no necesita "subir" desde
-           abajo. */
+           (align-items:flex-start es el default). Offset/duración de
+           entrada propios de tablet (40px/1.2s, no los 120px/0.9s de
+           mobile — ver la regla base más arriba): ya está compuesto en
+           pantalla junto a la métrica, no necesita "subir" tanto desde
+           abajo, pero el desplazamiento debe notarse — más lento que el
+           valor original de 24px/0.9s, calibrado en QA visual. */
         .cs-apertura__ticker {
             position: static;
             bottom: auto;
@@ -523,7 +525,8 @@
 
         @media (prefers-reduced-motion: no-preference) {
             .cs-apertura__ticker {
-                transform: translateY(24px);
+                transform: translateY(40px);
+                transition-duration: 1.2s;
             }
         }
 
@@ -553,6 +556,34 @@
             justify-content: flex-end;
         }
 
+        /* Entrada del número ("25%"+flecha): mismo mecanismo genérico
+           .mrv/.mrv--in que usa .cs-apertura__kpi (armado por JS, ver
+           apertura-tablet.js), pero con offset/duración propios acá —
+           no se toca la regla global de .mrv (case-study.css, arriba del
+           todo) porque la usan muchos otros elementos del sitio.
+           Selector con .cs-apertura__content como ancla porque
+           .cs-metrica__kpi solo vive ahí en tablet (JS lo reparenta) —
+           el de mobile nunca matchea este selector. Mismos valores que
+           .cs-apertura__ticker arriba, para que título y número entren
+           al mismo ritmo. */
+        @media (prefers-reduced-motion: no-preference) {
+            .cs-apertura__content .cs-metrica__kpi {
+                transform: translateY(40px);
+                transition-duration: 1.2s;
+            }
+
+            /* Necesario porque .mrv nunca se remueve al revelar (solo se
+               suma .mrv--in) — sin esta regla, la de arriba (2 clases)
+               le sigue ganando en especificidad a la genérica
+               .mrv--in{transform:none} (1 clase) y el kpi queda pegado
+               en translateY(40px) para siempre, sin desplazarse nunca
+               (bug confirmado en vivo: solo se veía el fade, no el
+               slide). 3 clases le gana a las 2 de arriba. */
+            .cs-apertura__content .cs-metrica__kpi.mrv--in {
+                transform: none;
+            }
+        }
+
         .cs-contexto__actions {
             flex-direction: row;
             align-items: center;
@@ -569,7 +600,12 @@
         @media (min-width: 900px) and (orientation: landscape) {
             .cs-apertura__content {
                 flex-direction: row;
-                align-items: flex-end;
+                /* Sin align-items:flex-end acá: eso empujaba también al
+                   ticker (título) al fondo, porque es el único flex-item
+                   sin su propio align-self — .cs-metrica ya se ancla
+                   abajo por su align-self:flex-end propio (ver arriba),
+                   independiente de lo que diga el contenedor. Default
+                   (stretch) deja al título arriba, como corresponde. */
             }
         }
     }

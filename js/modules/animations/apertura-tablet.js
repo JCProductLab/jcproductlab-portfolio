@@ -19,7 +19,7 @@
 // el sitio) + transitionend para encadenar los pasos — debe funcionar
 // aunque el CDN de GSAP falle.
 
-import { animateCounter } from './mobile-reveals.js';
+import { animateCounter, primeCounter } from './mobile-reveals.js';
 import { setupMetricaArrow } from './metrica-sequence.js';
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
@@ -34,13 +34,17 @@ const MQ_TABLET_FLOOR = '(min-width: 700px)';
 // Mismo delay que mobile-reveals.js#immediateSelectors — evita competir
 // con el resto del trabajo de JS que también engancha a DOMContentLoaded.
 const REVEAL_DELAY_MS = 100;
-// Duración de la transición del ticker (case-study.css: 0.9s ease-out) +
-// margen de seguridad — fallback por si "transitionend" nunca dispara
-// (clase agregada antes del primer paint, tab en background, etc.):
-// mismo criterio que el resto del sitio ("si JS nunca corre/completa, no
-// debe quedar invisible para siempre", ver los bloques
-// prefers-reduced-motion:reduce en case-study.css).
-const SEQUENCE_FALLBACK_MS = 1200;
+// Duración de la transición del ticker (case-study.css, bloque tablet:
+// 1.2s ease-out) + margen de seguridad — fallback por si "transitionend"
+// nunca dispara (clase agregada antes del primer paint, tab en
+// background, etc.): mismo criterio que el resto del sitio ("si JS nunca
+// corre/completa, no debe quedar invisible para siempre", ver los
+// bloques prefers-reduced-motion:reduce en case-study.css).
+const SEQUENCE_FALLBACK_MS = 1600;
+// Mismo criterio que SEQUENCE_FALLBACK_MS, pero para la transición del
+// kpi ("25%"+flecha, case-study.css: 1.2s ease-out) — fallback por si su
+// "transitionend" nunca dispara.
+const KPI_FALLBACK_MS = 1600;
 
 export function initAperturaTablet() {
     if (window.matchMedia(MQ_DESKTOP).matches) return;
@@ -59,10 +63,11 @@ export function initAperturaTablet() {
     // ticker ya había sido movido a .cs-apertura__content (oculto por
     // CSS mientras tanto) sin que quedara nada que lo revelara.
     const metricaLeft = metrica.querySelector('.cs-metrica__left');
+    const kpi = metrica.querySelector('.cs-metrica__kpi');
     const metric = metrica.querySelector('.cs-metric');
     const arrow = metrica.querySelector('.cs-metrica__arrow');
     const caption = metrica.querySelector('.cs-metrica__caption');
-    if (!metricaLeft || !metric || !arrow || !caption) return;
+    if (!metricaLeft || !kpi || !metric || !arrow || !caption) return;
 
     // 1. Reestructura DOM — una sola vez, corre siempre en este rango
     //    (independiente de reduced-motion: es estructural, no animación).
@@ -83,15 +88,51 @@ export function initAperturaTablet() {
     //    animado o no).
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    // kpi.mrv (no metricaLeft) porque el que necesita entrada propia,
+    // igual que el título, es el número+flecha — el caption ya tiene su
+    // propio fade independiente (cs-metrica__caption--in, más abajo).
+    // Se agrega ANTES de setupMetricaArrow a propósito: setupMetricaArrow
+    // llama getTotalLength() (mide el SVG), que fuerza un reflow
+    // síncrono. Si ese reflow ocurriera con kpi todavía en su estado por
+    // defecto (visible), el navegador lo toma como el punto de partida
+    // legítimo de una transición — y al agregar .mrv después, con su
+    // propio `transition` ya definido en la regla CSS, anima de verdad
+    // desde opacity:1 hacia 0 en vez de arrancar oculto (bug confirmado
+    // en vivo: "25%"+flecha visibles un instante y después
+    // desvaneciéndose). Agregando la clase ANTES de cualquier reflow
+    // forzado, esta es la primera vez que el navegador calcula su
+    // estilo — sin checkpoint previo que animar, el estado oculto se
+    // aplica al instante.
+    kpi.classList.add('mrv');
+    // "25%" (valor final estático del HTML) queda en "0%" desde ya, no
+    // recién cuando animateCounter arranca — si no, lo que se ve durante
+    // todo el fade-in (1.2s) es "25%" apareciendo gradual, y al terminar
+    // el conteo lo resetea a "0" para volver a contar: un salto visible
+    // confirmado en vivo. kpi ya está oculto (.mrv, arriba) en este
+    // punto, así que este cambio de texto no se alcanza a ver.
+    const primedCounter = primeCounter(metric);
     const revealArrow = setupMetricaArrow(arrow);
-    metricaLeft.classList.add('mrv');
 
     function revealMetrica() {
-        metricaLeft.classList.add('mrv--in');
-        animateCounter(metric, () => {
-            revealArrow();
-            caption.classList.add('cs-metrica__caption--in');
-        });
+        // Mismo fade + slide-up que .cs-apertura__ticker — el número
+        // entra igual que el título. El conteo (animateCounter) espera a
+        // que ESA entrada termine (mismo patrón transitionend+fallback
+        // que startSequence más abajo) — el "0" tiene que asentarse en su
+        // lugar antes de empezar a contar hasta 25, no competir con el
+        // desplazamiento.
+        kpi.classList.add('mrv--in');
+
+        let counted = false;
+        const triggerCounter = () => {
+            if (counted) return;
+            counted = true;
+            animateCounter(metric, () => {
+                revealArrow();
+                caption.classList.add('cs-metrica__caption--in');
+            }, primedCounter);
+        };
+        kpi.addEventListener('transitionend', triggerCounter, { once: true });
+        setTimeout(triggerCounter, KPI_FALLBACK_MS);
     }
 
     // I2: revealMetrica debe disparar UNA sola vez, desde lo que ocurra

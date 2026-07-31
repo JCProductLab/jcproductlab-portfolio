@@ -37,18 +37,47 @@ function findNumericTextNode(el) {
     return null;
 }
 
-export function animateCounter(el, onComplete) {
+function parseCounterNode(el) {
     const node = findNumericTextNode(el);
-    if (!node) return;
+    if (!node) return null;
 
     const original = node.data;
     const match = original.match(/\d+(?:\.\d+)?/);
-    if (!match) return;
+    if (!match) return null;
 
-    const target = parseFloat(match[0]);
-    const decimals = (match[0].split('.')[1] || '').length;
-    const prefix = original.slice(0, match.index);
-    const suffix = original.slice(match.index + match[0].length);
+    return {
+        node,
+        original,
+        target: parseFloat(match[0]),
+        decimals: (match[0].split('.')[1] || '').length,
+        prefix: original.slice(0, match.index),
+        suffix: original.slice(match.index + match[0].length),
+    };
+}
+
+// Deja el nodo en "0" (mismo prefijo/sufijo del valor final) ANTES de
+// que arranque cualquier fade-in que lo revele — usado por
+// apertura-tablet.js, donde el número queda visible en el primer frame
+// (sin scroll de por medio que lo mantenga oculto mientras tanto). Sin
+// esto, lo que se ve durante el fade-in es el valor final estático del
+// HTML ("25%"), y recién al terminar ese fade animateCounter lo resetea
+// a "0" para volver a contar — un salto visible confirmado en vivo.
+// Devuelve el parseo original (con el target real, ej. 25) — pasárselo a
+// animateCounter después es OBLIGATORIO en este flujo: animateCounter
+// por defecto vuelve a leer el texto del DOM para saber a qué valor
+// animar, y para ese momento el texto ya dice "0" (lo que acaba de
+// escribir esta función) — sin el parseo original, contaría de 0 a 0.
+export function primeCounter(el) {
+    const parsed = parseCounterNode(el);
+    if (!parsed) return null;
+    parsed.node.data = parsed.prefix + (0).toFixed(parsed.decimals) + parsed.suffix;
+    return parsed;
+}
+
+export function animateCounter(el, onComplete, primed) {
+    const parsed = primed || parseCounterNode(el);
+    if (!parsed) return;
+    const { node, original, target, decimals, prefix, suffix } = parsed;
     const start = performance.now();
 
     const tick = (now) => {
