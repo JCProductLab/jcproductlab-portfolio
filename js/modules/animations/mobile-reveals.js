@@ -84,7 +84,9 @@ export function initMobileReveals({ revealSelectors = [], counterSelectors = [],
     // como script deferred, y los deferred siempre terminan de ejecutar
     // ANTES de que el navegador dispare DOMContentLoaded — el evento
     // nunca pudo haber disparado ya en este punto.
-    const immediateEls = document.querySelectorAll(immediateSelectors.join(', '));
+    const immediateEls = immediateSelectors.length
+        ? document.querySelectorAll(immediateSelectors.join(', '))
+        : [];
 
     function revealImmediate() {
         setTimeout(() => {
@@ -98,8 +100,12 @@ export function initMobileReveals({ revealSelectors = [], counterSelectors = [],
 
     if (typeof IntersectionObserver === 'undefined') return;
 
-    const revealEls = document.querySelectorAll(revealSelectors.join(', '));
-    const counterEls = document.querySelectorAll(counterSelectors.join(', '));
+    const revealEls = revealSelectors.length
+        ? document.querySelectorAll(revealSelectors.join(', '))
+        : [];
+    const counterEls = counterSelectors.length
+        ? document.querySelectorAll(counterSelectors.join(', '))
+        : [];
     const counterSet = new Set(counterEls);
 
     const io = new IntersectionObserver((entries) => {

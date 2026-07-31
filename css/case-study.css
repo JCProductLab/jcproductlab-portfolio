@@ -474,7 +474,21 @@
            (landscape ancho, ver media query anidada más abajo). */
         .cs-apertura__content {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            /* height explícito en vez de inset:0 (bottom) — el ancestro
+               que arma el containing block de este absolute es
+               .cs-apertura__bg-pin (100lvh, asume toolbar ya colapsada);
+               con inset:0 este wrapper heredaría ese mismo alto y, con
+               la toolbar visible en el primer paint real, su borde
+               inferior (donde ancla la métrica, align-self:flex-end)
+               quedaría fuera del viewport visible. 100svh es el piso
+               visible garantizado — mismo criterio que min-height de
+               .cs-apertura (ver arriba). Fallback 100vh primero para
+               navegadores sin soporte de unidades dinámicas. */
+            height: 100vh;
+            height: 100svh;
             z-index: 4;
             display: flex;
             flex-direction: column;
@@ -496,6 +510,15 @@
             position: static;
             bottom: auto;
             padding: 0;
+            /* Inertes una vez position:static (z-index/left/right no
+               aplican a flujo normal) y sin escrituras per-frame de
+               transform en este rango (apertura-exit.js sale vía
+               MQ_TABLET_FLOOR — ver ese módulo), así que tampoco hace
+               falta reservar una capa de composición. */
+            z-index: auto;
+            left: auto;
+            right: auto;
+            will-change: auto;
         }
 
         @media (prefers-reduced-motion: no-preference) {
@@ -514,6 +537,11 @@
             align-self: flex-end;
             padding: 0;
             width: auto;
+            /* Nada escribe transform por frame acá en este rango
+               (initMetricaPin sale vía MQ_TABLET_FLOOR — ver
+               metrica-sequence.js), así que no hace falta reservar la
+               capa de composición que sí necesita en mobile. */
+            will-change: auto;
         }
 
         .cs-metrica__left {

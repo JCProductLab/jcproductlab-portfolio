@@ -17,7 +17,13 @@
 // pelear con esa transición ni con mobile-reveals.js.
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
-const MQ_TABLET = '(min-width: 700px) and (max-width: 1199.98px)';
+// Piso, no rango: "tablet" es todo lo que NO es desktop (ver MQ_DESKTOP)
+// y mide al menos 700px — mismo criterio que decisiones-accordion.js/
+// decision-mc-pin.js (solo excluyen MQ_DESKTOP), sumado al piso de
+// 700px para separarse de mobile (<700px). Un táctil de 1300px+
+// (pointer:coarse) también entra acá, igual que en el CSS (ver header
+// de case-study-responsive.css).
+const MQ_TABLET_FLOOR = '(min-width: 700px)';
 const EXIT_DISTANCE_PX = 100;
 
 // Mide el valor en px de una custom property de longitud (ej. "50vh")
@@ -37,7 +43,7 @@ export function initAperturaExit() {
     if (window.matchMedia(MQ_DESKTOP).matches) return;
     // Tablet: apertura-tablet.js arma una sola pantalla estática, sin
     // colchón de scroll que desvanecer.
-    if (window.matchMedia(MQ_TABLET).matches) return;
+    if (window.matchMedia(MQ_TABLET_FLOOR).matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const apertura = document.querySelector('.cs-apertura');

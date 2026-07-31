@@ -40,13 +40,22 @@ initDecisionesAccordion();
 initDecisionMcPin();
 
 // Combina Apertura + Métrica en una sola pantalla de 2 columnas para
-// tablet (700–1199.98px) — mueve .cs-metrica adentro de .cs-apertura y
-// arma su propia secuencia de entrada. Sale solo en mobile/desktop.
-// Corre ANTES de initMobileReveals de abajo: isTabletApertura decide
-// qué selectores excluir de esa lista (ver comentarios abajo).
+// tablet (todo lo que NO es desktop y mide >=700px — no un rango
+// acotado por max-width, ver comentario de isTabletApertura abajo) —
+// mueve .cs-metrica adentro de .cs-apertura y arma su propia secuencia
+// de entrada. Sale solo en mobile/desktop. Corre ANTES de
+// initMobileReveals de abajo: isTabletApertura decide qué selectores
+// excluir de esa lista (ver comentarios abajo).
 initAperturaTablet();
 
-const isTabletApertura = window.matchMedia('(min-width: 700px) and (max-width: 1199.98px)').matches;
+// Piso, no rango: "tablet" acá es todo lo que NO es desktop (misma
+// query que gsap.matchMedia más abajo) y mide al menos 700px — mismo
+// criterio que decisiones-accordion.js/decision-mc-pin.js (solo
+// excluyen MQ_DESKTOP), sumado al piso de 700px para separarse de
+// mobile (<700px). Un táctil de 1300px+ (pointer:coarse) también entra
+// acá, igual que en el CSS (ver header de case-study-responsive.css).
+const isTabletApertura = !window.matchMedia('(min-width: 1200px) and (hover: hover) and (pointer: fine)').matches
+    && window.matchMedia('(min-width: 700px)').matches;
 
 // Reveals + contadores de la versión mobile/tablet. Sin GSAP a
 // propósito: debe funcionar con el CDN bloqueado.

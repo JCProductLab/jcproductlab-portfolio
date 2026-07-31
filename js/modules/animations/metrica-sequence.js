@@ -19,7 +19,13 @@
 import { animateCounter } from './mobile-reveals.js';
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
-const MQ_TABLET = '(min-width: 700px) and (max-width: 1199.98px)';
+// Piso, no rango: "tablet" es todo lo que NO es desktop (ver MQ_DESKTOP)
+// y mide al menos 700px — mismo criterio que decisiones-accordion.js/
+// decision-mc-pin.js (solo excluyen MQ_DESKTOP), sumado al piso de
+// 700px para separarse de mobile (<700px). Un táctil de 1300px+
+// (pointer:coarse) también entra acá, igual que en el CSS (ver header
+// de case-study-responsive.css).
+const MQ_TABLET_FLOOR = '(min-width: 700px)';
 
 // Arma el estado inicial oculto de la flecha SVG (stroke-dasharray/
 // dashoffset + fillet/caps en opacity:0) y devuelve una función reveal()
@@ -70,7 +76,7 @@ export function initMetricaSequence() {
     if (window.matchMedia(MQ_DESKTOP).matches) return;
     // Tablet: apertura-tablet.js maneja esta secuencia, encadenada a la
     // entrada del título en vez de a un IntersectionObserver propio.
-    if (window.matchMedia(MQ_TABLET).matches) return;
+    if (window.matchMedia(MQ_TABLET_FLOOR).matches) return;
 
     // Reduced-motion: el HTML ya trae "25%" estático y la flecha ya
     // trazada — no se toca nada, queda visible con sus valores finales.
@@ -125,7 +131,7 @@ export function initMetricaSequence() {
 // velocidad a la que se va el fondo una vez suelto).
 export function initMetricaPin() {
     if (window.matchMedia(MQ_DESKTOP).matches) return;
-    if (window.matchMedia(MQ_TABLET).matches) return;
+    if (window.matchMedia(MQ_TABLET_FLOOR).matches) return;
 
     const apertura = document.querySelector('.cs-apertura');
     const metricaPin = document.querySelector('.cs-metrica-pin');
