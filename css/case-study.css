@@ -448,6 +448,83 @@
             background-image: url(../assets/images/cases/product-design-ecommerce-asdeporte-tablet.webp);
         }
 
+        /* Neutraliza el colchón de scroll mobile — en tablet
+           .cs-apertura pasa a ser una sola pantalla estática de 100vh,
+           título + métrica compuestos juntos (ver .cs-apertura__content
+           abajo, armado por apertura-tablet.js). apertura-exit.js y
+           metrica-sequence.js#initMetricaPin no corren en este rango
+           (guard MQ_TABLET, ver esos archivos). */
+        :root {
+            --cs-title-exit-buffer: 0px;
+            --cs-metrica-pin-buffer: 0px;
+        }
+
+        /* Queda vacío en su ubicación original — apertura-tablet.js
+           movió su contenido (.cs-metrica) adentro de .cs-apertura. */
+        .cs-metrica-pin {
+            display: none;
+        }
+
+        /* Wrapper armado por apertura-tablet.js: hermano de
+           .cs-apertura__bg-pin, contiene .cs-apertura__ticker +
+           .cs-metrica movidos ahí. Layout de 2 columnas calcado de
+           .case-card__container (css/responsive.css, index.html):
+           justify-content:space-between separa el primer/último hijo a
+           los extremos, sea la dirección column (portrait) o row
+           (landscape ancho, ver media query anidada más abajo). */
+        .cs-apertura__content {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* padding-top despeja el header fijo de la página — mismo
+               patrón que .case-card__container (responsive.css) y que
+               pinStartOffset en decision-mc-pin.js. */
+            padding: calc(var(--cs-header-height) + 24px) var(--cs-mobile-pad) 40px;
+        }
+
+        /* Título: ya no position:absolute (lo maneja el flex del
+           wrapper) — ahora es el primer flex item, anclado
+           arriba-izquierda por el reposo natural del flex
+           (align-items:flex-start es el default). Offset de entrada más
+           chico que en mobile (24px, no 120px): ya está compuesto en
+           pantalla junto a la métrica, no necesita "subir" desde
+           abajo. */
+        .cs-apertura__ticker {
+            position: static;
+            bottom: auto;
+            padding: 0;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .cs-apertura__ticker {
+                transform: translateY(24px);
+            }
+        }
+
+        /* Métrica: columna derecha/abajo — anclada al extremo opuesto
+           del título vía align-self (mismo mecanismo que
+           .case-card__right en responsive.css: align-self empuja por
+           el eje cruzado, justify-content:space-between del padre por
+           el eje principal — juntos anclan la esquina opuesta sea cual
+           sea la dirección del flex). */
+        .cs-metrica {
+            align-self: flex-end;
+            padding: 0;
+            width: auto;
+        }
+
+        .cs-metrica__left {
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        .cs-metrica__kpi {
+            justify-content: flex-end;
+        }
+
         .cs-contexto__actions {
             flex-direction: row;
             align-items: center;
@@ -455,6 +532,17 @@
 
         .cs-contexto__actions .btn {
             justify-content: center;
+        }
+
+        /* Fila en landscape ancho — mismo umbral que .case-card
+           (responsive.css: min-width:900px and orientation:landscape).
+           Por debajo de 900px en landscape se queda apilado en
+           columna, igual que en vertical. */
+        @media (min-width: 900px) and (orientation: landscape) {
+            .cs-apertura__content {
+                flex-direction: row;
+                align-items: flex-end;
+            }
         }
     }
 
