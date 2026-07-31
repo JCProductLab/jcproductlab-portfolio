@@ -19,31 +19,22 @@
 import { animateCounter } from './mobile-reveals.js';
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
+const MQ_TABLET = '(min-width: 700px) and (max-width: 1199.98px)';
 
-export function initMetricaSequence() {
-    // Desktop: el scrollytelling GSAP es el dueño de esta animación.
-    if (window.matchMedia(MQ_DESKTOP).matches) return;
-
-    // Reduced-motion: el HTML ya trae "25%" estático y la flecha ya
-    // trazada — no se toca nada, queda visible con sus valores finales.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (typeof IntersectionObserver === 'undefined') return;
-
-    const metric = document.querySelector('.cs-metric');
-    const arrow = document.querySelector('.cs-metrica__arrow');
-    const caption = document.querySelector('.cs-metrica__caption');
-    if (!metric || !arrow || !caption) return;
-
+// Arma el estado inicial oculto de la flecha SVG (stroke-dasharray/
+// dashoffset + fillet/caps en opacity:0) y devuelve una función reveal()
+// que la traza. La geometría del SVG (atributo "d") es fija — no cambia
+// entre mobile/tablet/desktop, solo el tamaño vía CSS — así que basta
+// con medirla una vez acá. Reutilizada por initMetricaSequence (mobile,
+// abajo) y por apertura-tablet.js (tablet) — mismo trazado, disparado
+// por triggers distintos según el contexto (IntersectionObserver acá,
+// encadenado a la entrada del título ahí).
+export function setupMetricaArrow(arrow) {
     const mainPath = arrow.querySelector('.cs-metrica__arrow-main');
     const tipPaths = arrow.querySelectorAll('.cs-metrica__arrow-tip');
     const caps = arrow.querySelectorAll('.cs-metrica__arrow-cap');
     const fillet = arrow.querySelector('.cs-metrica__arrow-fillet');
 
-    // Estado inicial oculto de la flecha. La geometría (atributo "d") es
-    // fija — no cambia entre mobile/tablet/desktop, solo el tamaño vía
-    // CSS — así que basta con medirla una vez acá. Se aplica de entrada,
-    // mucho antes de que el usuario llegue con scroll real: sin carrera
-    // de pintado posible.
     const mainLength = mainPath.getTotalLength();
     mainPath.style.strokeDasharray = String(mainLength);
     mainPath.style.strokeDashoffset = String(mainLength);
@@ -66,11 +57,35 @@ export function initMetricaSequence() {
         c.style.transition = 'opacity 0.05s linear 0.75s';
     });
 
-    function revealArrowAndCaption() {
+    return function reveal() {
         mainPath.style.strokeDashoffset = '0';
         tipPaths.forEach((p) => { p.style.strokeDashoffset = '0'; });
         fillet.style.opacity = '1';
         caps.forEach((c) => { c.style.opacity = '1'; });
+    };
+}
+
+export function initMetricaSequence() {
+    // Desktop: el scrollytelling GSAP es el dueño de esta animación.
+    if (window.matchMedia(MQ_DESKTOP).matches) return;
+    // Tablet: apertura-tablet.js maneja esta secuencia, encadenada a la
+    // entrada del título en vez de a un IntersectionObserver propio.
+    if (window.matchMedia(MQ_TABLET).matches) return;
+
+    // Reduced-motion: el HTML ya trae "25%" estático y la flecha ya
+    // trazada — no se toca nada, queda visible con sus valores finales.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    const metric = document.querySelector('.cs-metric');
+    const arrow = document.querySelector('.cs-metrica__arrow');
+    const caption = document.querySelector('.cs-metrica__caption');
+    if (!metric || !arrow || !caption) return;
+
+    const revealArrow = setupMetricaArrow(arrow);
+
+    function revealArrowAndCaption() {
+        revealArrow();
         caption.classList.add('cs-metrica__caption--in');
     }
 
@@ -110,6 +125,7 @@ export function initMetricaSequence() {
 // velocidad a la que se va el fondo una vez suelto).
 export function initMetricaPin() {
     if (window.matchMedia(MQ_DESKTOP).matches) return;
+    if (window.matchMedia(MQ_TABLET).matches) return;
 
     const apertura = document.querySelector('.cs-apertura');
     const metricaPin = document.querySelector('.cs-metrica-pin');
