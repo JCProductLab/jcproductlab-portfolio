@@ -372,12 +372,12 @@
 
     .cs-problema {
         /* Sin padding horizontal propio — ver .cs-decision arriba.
-           padding-top = 32px: espacio entre la imagen de .cs-decision
+           padding-top = 48px: espacio entre la imagen de .cs-decision
            y el título "[ El problema ]" — junto con el padding-bottom:0
-           de .cs-decision, el gap entre ambos es exactamente 32px.
+           de .cs-decision, el gap entre ambos es exactamente 48px.
            padding-bottom = 0: el espacio hasta "[ La decisión ]" vive
-           en el padding-top de .cs-decision-mc (32px), no se duplica acá. */
-        padding: 32px 0 0;
+           en el padding-top de .cs-decision-mc (48px), no se duplica acá. */
+        padding: 48px 0 0;
         background-color: var(--color-primary);
     }
 
@@ -436,18 +436,21 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        /* padding-top = 32px: espacio entre las cards de .cs-problema
+        /* padding-top = 48px: espacio entre las cards de .cs-problema
            y el título "[ La decisión ]" — junto con el padding-bottom:0
-           de .cs-problema, el gap entre ambos es exactamente 32px.
+           de .cs-problema, el gap entre ambos es exactamente 48px.
            padding-left/right = 24px: espacio lateral de la imagen.
            margin-left/right = -var(--cs-mobile-pad): cancela el
            padding horizontal de .cs-decisiones-titulos (~20px por lado)
            para que el total desde el borde del viewport sea exactamente
            24px, no 44px (20 del padre + 24 propio). El background-color
            del padre (--color-primary) es el mismo, así que la franja
-           "comida" por el margin negativo no deja un hueco visible. */
+           "comida" por el margin negativo no deja un hueco visible.
+           padding-bottom = 0: el espacio hasta "[ El razonamiento ]"
+           vive en el padding-top de .cs-razonamiento (48px), no se
+           duplica acá. */
         margin: 0 calc(-1 * var(--cs-mobile-pad));
-        padding: 32px 24px clamp(4rem, 10vh, 6rem);
+        padding: 48px 24px 0;
         background-color: var(--color-primary);
     }
 
@@ -552,9 +555,17 @@
     .cs-razonamiento {
         display: flex;
         flex-direction: column;
-        gap: 2.5rem;
-        /* Sin padding horizontal propio — ver .cs-decision arriba. */
-        padding: clamp(4rem, 10vh, 6rem) 0;
+        /* gap = 2rem (32px): separa el título del primer número y cada
+           descriptor del siguiente número. El margin-top:-1.5rem del
+           descriptor y el margin-bottom:0 (ver abajo) afinan los gaps
+           restantes para que el título→métrica sea 32px y cada
+           descriptor→métrica siguiente también sea 32px. */
+        gap: 2rem;
+        /* Sin padding horizontal propio — ver .cs-decision arriba.
+           padding-top = 48px: espacio entre la imagen de .cs-decision-mc
+           y el título "[ El razonamiento ]" — junto con el padding-bottom:0
+           de .cs-decision-mc, el gap entre ambos es exactamente 48px. */
+        padding: 48px 0;
         background-color: var(--color-primary);
     }
 
@@ -565,7 +576,9 @@
 
     .cs-razonamiento__label {
         order: 0;
-        text-align: center;
+        /* text-align: left en mobile (antes center) — desktop lo
+           mantiene en center (ver decisiones-responsive.css). */
+        text-align: left;
         font-size: clamp(1.75rem, 6vw, 2.5rem);
     }
 
@@ -589,22 +602,55 @@
     }
 
     .cs-razonamiento__metric-value {
-        font-size: clamp(3.5rem, 14vw, 7rem);
+        /* Mínimo baja de 3.5rem (56px) a 2.75rem (44px) en mobile —
+           preferred (14vw) y máximo (7rem / 112px) del base se conservan. */
+        font-size: clamp(2.5rem, 14vw, 7rem);
     }
 
     /* El descriptor pega con su métrica; el salto grande va entre pares */
     .cs-razonamiento__descriptor {
+        /* Override de .cs-body-xxl (clamp 1.5rem-2rem / 24-32px) para
+           mobile: mínimo 1.25rem (20px) en vez de 1.5rem (24px). */
+        font-size: clamp(1.25rem, 2.5vw, 2rem);
         margin-top: -1.5rem;
-        margin-bottom: 1rem;
+        /* margin-bottom = 0: junto con el gap de 2rem (32px) del
+           contenedor, el espacio entre este descriptor y la siguiente
+           métrica es exactamente 32px (antes 1rem + 2.5rem = 56px). */
+        margin-bottom: 0;
     }
 
     .cs-razonamiento__conclusion {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        max-width: 26ch;
-        margin: 0 auto;
-        text-align: center;
+        /* display: block en mobile (antes flex column): los <p> hijos
+           pasan a inline (abajo) y fluyen como un solo párrafo
+           continuo. Sin flex no hay salto de línea forzado entre
+           ellos — el texto del body y la frase "arreglando el pago."
+           se leen de corrido. Desktop mantiene flex column
+           (decisiones-responsive.css). */
+        display: block;
+        /* max-width: none en mobile (antes 26ch). El base tenía 26ch para
+           la composición centrada en desktop, pero con font-size
+           clamp(2rem, 5vw, 4rem) en mobile (~32px) eso son ~400-500px
+           de ancho máximo, forzando saltos de línea cada pocas palabras.
+           Sin tope acá, el texto usa todo el ancho disponible del
+           container. */
+        max-width: none;
+        /* margin: 0 (antes 0 auto) + text-align: left: conclusión
+           alineada a la izquierda en mobile, ya no centrada como el
+           base. Desktop mantiene su posición centrada (ver
+           decisiones-responsive.css). */
+        margin: 0;
+        text-align: left;
+    }
+
+    .cs-razonamiento__conclusion-body {
+        /* display: inline: clave para que el body y la frase final
+           fluyan como un solo párrafo. <p> es block por defecto —
+           inline lo convierte en parte del flujo de texto continuo. */
+        display: inline;
+        /* Override de .cs-body-xxl-italic (color gris) a blanco en mobile.
+           Desktop lo mantiene en gris (ver decisiones-responsive.css). */
+        color: var(--color-secondary);
+        margin: 0;
     }
 
     .cs-razonamiento__conclusion-body,
@@ -613,7 +659,13 @@
     }
 
     .cs-razonamiento__conclusion-final {
-        color: var(--color-accent);
+        /* display: inline: igual que el body, parte del flujo continuo. */
+        display: inline;
+        /* color: white en mobile (antes verde acento) — toda la
+           conclusión en blanco, sin distinción de color para la frase
+           final. */
+        color: var(--color-secondary);
+        margin: 0;
     }
 
     /* Las 4 secciones de contenido ocultas por defecto en su posición
