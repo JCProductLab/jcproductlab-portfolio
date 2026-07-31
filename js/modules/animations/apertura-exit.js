@@ -17,6 +17,7 @@
 // pelear con esa transición ni con mobile-reveals.js.
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
+const MQ_TABLET = '(min-width: 700px) and (max-width: 1199.98px)';
 const EXIT_DISTANCE_PX = 100;
 
 // Mide el valor en px de una custom property de longitud (ej. "50vh")
@@ -34,6 +35,9 @@ function measureCssLength(varName) {
 export function initAperturaExit() {
     // Desktop: el scrollytelling GSAP maneja la apertura.
     if (window.matchMedia(MQ_DESKTOP).matches) return;
+    // Tablet: apertura-tablet.js arma una sola pantalla estática, sin
+    // colchón de scroll que desvanecer.
+    if (window.matchMedia(MQ_TABLET).matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const apertura = document.querySelector('.cs-apertura');
