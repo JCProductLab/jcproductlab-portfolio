@@ -27,7 +27,13 @@
         display: flex;
         flex-direction: column;
         gap: 2.5rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 32px: junto con los 32px de padding-bottom de
+           .cs-decisiones-titulos (decisiones.css) suma 64px de espacio
+           visible entre "[ Decisiones clave ]" y "[ RESULTADO ]".
+           padding-bottom = 20px: junto con los 20px de padding-top de
+           .rs-metricas (abajo) suma 40px de espacio visible entre el
+           mosaico y "El impacto en el negocio". */
+        padding: 2rem var(--cs-mobile-pad) 1.25rem;
     }
 
     .rs-mosaico__intro {
@@ -59,6 +65,21 @@
         grid-row: span 2;
     }
 
+    /* Placement explícito por card en mobile — espeja la composición
+       desktop en 2 columnas:
+         - Primer trío: tall izq (col 1, row 1-2) + 2 shorts der apilados
+         - Centro: full width (row 3-4)
+         - Último trío: 2 shorts izq apilados (col 1, row 5-6) + tall der
+       El trío inferior invierte el orden del primero para cerrar la
+       composición en armonía (sin hueco vacío a la derecha). */
+    .rs-mosaico__card[data-col="1"] { grid-column: 1; grid-row: 1 / span 2; }
+    .rs-mosaico__card[data-col="2"][data-row="1"] { grid-column: 2; grid-row: 1; }
+    .rs-mosaico__card[data-col="2"][data-row="2"] { grid-column: 2; grid-row: 2; }
+    .rs-mosaico__card[data-col="3"] { grid-column: 1 / -1; grid-row: 3 / span 2; }
+    .rs-mosaico__card[data-col="4"][data-row="1"] { grid-column: 1; grid-row: 5; }
+    .rs-mosaico__card[data-col="4"][data-row="2"] { grid-column: 1; grid-row: 6; }
+    .rs-mosaico__card[data-col="5"] { grid-column: 2; grid-row: 5 / span 2; }
+
     .rs-mosaico__card-img {
         display: block;
         width: 100%;
@@ -72,7 +93,13 @@
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 20px: junto con los 20px de padding-bottom de
+           .rs-mosaico suma 40px de espacio visible entre el mosaico y
+           "El impacto en el negocio".
+           padding-bottom = 20px: junto con los 20px de padding-top de
+           .rs-usuarios (abajo) suma 40px de espacio visible entre la
+           última card de métricas y "El impacto en los usuarios". */
+        padding: 1.25rem var(--cs-mobile-pad) 1.25rem;
     }
 
     .rs-metricas__title {
@@ -115,7 +142,14 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 20px: junto con los 20px de padding-bottom de
+           .rs-metricas (arriba) suma 40px de espacio visible entre la
+           última card de "El impacto en el negocio" y este título.
+           padding-bottom = 20px: junto con los 20px de padding-top de
+           .rs-testimonio (abajo) suma 40px de espacio visible entre el
+           párrafo "Las métricas contaban..." y la blockquote
+           "Llevo 10 años corriendo...". */
+        padding: 1.25rem var(--cs-mobile-pad) 1.25rem;
     }
 
     /* La palabra "impacto" vive en un SVG dimensionado por el JS
@@ -127,7 +161,7 @@
 
     .rs-usuarios__word--svg::after {
         content: "impacto";
-        color: var(--color-accent);
+        color: var(--color-secondary);
     }
 
     .rs-usuarios__media {
@@ -143,13 +177,28 @@
         object-fit: cover;
     }
 
+    /* Override mobile: este párrafo usa .cs-body-xxl (24px en mobile
+       via clamp base) pero queremos 16px. Selectores más específicos
+       que .cs-body-xxl — afecta SOLO a este párrafo, no a los otros
+       20 elementos que comparten la clase base. */
+    .rs-usuarios__text {
+        font-size: 1rem;
+    }
+
     /* --- Testimonio + cierre narrativo --- */
 
     .rs-testimonio {
         display: flex;
         flex-direction: column;
         gap: 3rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 20px: junto con los 20px de padding-bottom de
+           .rs-usuarios (arriba) suma 40px de espacio visible entre el
+           párrafo "Las métricas contaban..." y la blockquote
+           "Llevo 10 años corriendo...".
+           padding-bottom = 32px: junto con los 32px de padding-top de
+           .rs-cierre (abajo) suma 64px de espacio visible entre el
+           botón "Qué aprendí" y el texto "¡Gracias". */
+        padding: 1.25rem var(--cs-mobile-pad) 2rem;
     }
 
     /* El portal elíptico es la coreografía desktop */
@@ -187,7 +236,7 @@
     .rs-testimonio__closing-title {
         font-family: var(--font-display);
         font-weight: 500;
-        font-size: clamp(2rem, 7.5vw, 3.5rem);
+        font-size: clamp(2.5rem, 7.5vw, 3.5rem);
         line-height: 1.15;
         color: var(--color-secondary);
     }
@@ -202,7 +251,10 @@
         display: flex;
         flex-direction: column;
         gap: 3rem;
-        padding: clamp(4rem, 10vh, 6rem) var(--cs-mobile-pad);
+        /* padding-top = 32px: junto con los 32px de padding-bottom de
+           .rs-testimonio (arriba) suma 64px de espacio visible entre el
+           botón "Qué aprendí" y el texto "¡Gracias". */
+        padding: 2rem var(--cs-mobile-pad);
     }
 
     .rs-cierre__gracias {
@@ -211,6 +263,10 @@
         justify-content: center;
         column-gap: 0.3em;
         text-align: center;
+        /* Por encima de .rs-cierre__media (z-index:1): el texto se solapa
+           con la imagen 16px y debe quedar visible encima de ella. */
+        position: relative;
+        z-index: 2;
     }
 
     /* .cs-gracias es 144px fijos (desktop); en mobile escala fluida */
@@ -221,6 +277,13 @@
     .rs-cierre__media {
         overflow: hidden;
         border-radius: 16px;
+        /* El gap de .rs-cierre (3rem = 48px) + este margin-top negativo
+           (-4rem = -64px) deja la imagen 16px por encima del borde
+           inferior del texto — overlap intencional de 16px, mismo gesto
+           que en desktop (donde el texto se solapa con la imagen). */
+        position: relative;
+        z-index: 1;
+        margin-top: -4rem;
     }
 
     .rs-cierre__media-img {
@@ -239,27 +302,52 @@
 
     .rs-cierre__cases {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 1.5rem;
     }
 
+    /* Mismo patrón que desktop: contenedor absoluto con overflow:hidden,
+       overlay (::after) y texto posicionado encima. Alto fijo 320px
+       (vs 300px desktop) para garantizar espacio vertical al texto
+       acumulado en varias líneas. */
     .rs-cierre__case {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        position: relative;
+        width: 100%;
+        height: 320px;
+        border-radius: 16px;
+        overflow: hidden;
     }
 
     .rs-cierre__case-img {
         display: block;
         width: 100%;
-        height: auto;
-        aspect-ratio: 10 / 7;
+        height: 100%;
         object-fit: cover;
-        border-radius: 12px;
+    }
+
+    /* Overlay oscuro 100% de la imagen (vs desktop que degrada a
+       transparente al 55%). Alpha 0.3 — overlay sutil que deja ver
+       la imagen con un velo uniforme. */
+    .rs-cierre__case::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1;
+        pointer-events: none;
     }
 
     .rs-cierre__case-text {
-        color: var(--color-text-secondary);
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 16px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--color-secondary);
+        z-index: 2;
     }
 
     .rs-cierre__footer {

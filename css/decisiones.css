@@ -97,8 +97,11 @@
     .cs-decisiones-titulos {
         /* padding-top = 32px: junto con los 32px de padding-bottom de
            .cs-contexto (case-study.css) suma 64px de espacio visible
-           entre "El proceso" y este label "[ Decisiones clave ]". */
-        padding: 2rem var(--cs-mobile-pad) clamp(4rem, 10vh, 6rem);
+           entre "El proceso" y este label "[ Decisiones clave ]".
+           padding-bottom = 32px: junto con los 32px de padding-top de
+           .rs-mosaico (resultado.css) suma 64px de espacio visible
+           entre "[ Decisiones clave ]" y "[ RESULTADO ]". */
+        padding: 2rem var(--cs-mobile-pad) 2rem;
     }
 
     .cs-decisiones-titulos__label {
