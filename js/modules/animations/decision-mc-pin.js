@@ -23,6 +23,10 @@
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 const PIN_DISTANCE_PX = 400;
 const PIN_BUFFER_PX = 20;
+// Debe ser >= la duración de transition: grid-template-rows en
+// .cs-decisiones-titulos__content (decisiones.css) — es el fallback
+// para cuando no llega transitionend (ver setupFor).
+const CONTENT_TRANSITION_MS = 650;
 
 export function initDecisionMcPin() {
     if (window.matchMedia(MQ_DESKTOP).matches) return;
@@ -40,8 +44,16 @@ export function initDecisionMcPin() {
     // Una sola instancia activa a la vez — el acordeón es exclusivo.
     let activeTrigger = null;
     let activeItem = null;
+    // Cancela una setupFor() que todavía está esperando el transitionend
+    // del acordeón (ver más abajo) — evita crear el pin sobre un <li>
+    // que ya se cerró de nuevo antes de que termine de abrirse.
+    let cancelPendingSetup = null;
 
     function killActive() {
+        if (cancelPendingSetup) {
+            cancelPendingSetup();
+            cancelPendingSetup = null;
+        }
         if (activeTrigger) {
             activeTrigger.kill();
             activeTrigger = null;
@@ -56,22 +68,11 @@ export function initDecisionMcPin() {
         }
     }
 
-    function setupFor(item) {
-        const section = item.querySelector('.cs-decision-mc');
-        const stage = section?.querySelector('.cs-decision-mc__stage');
-        const textWrap = section?.querySelector('.cs-decision-mc__text-wrap');
-        if (!stage || !textWrap) return;
-
+    function createPin(item, stage, textWrap) {
         // Alto real del sticky-header — depende del largo del subtítulo.
         const stickyHeader = item.querySelector('.cs-decisiones-titulos__sticky-header');
         const stickyHeaderHeight = stickyHeader ? stickyHeader.offsetHeight : 0;
         const pinStartOffset = pageHeaderHeight + headerGap + stickyHeaderHeight + PIN_BUFFER_PX;
-
-        if (reducedMotion) {
-            gsap.set(textWrap, { opacity: 1 });
-            activeItem = item;
-            return;
-        }
 
         const tween = gsap.to(textWrap, {
             opacity: 1,
@@ -79,7 +80,22 @@ export function initDecisionMcPin() {
             ease: 'none',
         });
 
-        activeTrigger = ScrollTrigger.create({
+        // html { scroll-behavior: smooth } (reset.css) rompe la medición
+        // interna que hace ScrollTrigger al crear/refrescar un pin — en
+        // Chrome/Android (Blink) el "start" calculado queda corrupto
+        // (pierde el scroll acumulado), pineando la imagen cientos de px
+        // antes de lo debido y dejando un hueco enorme entre el título y
+        // la imagen. En iOS (WebKit, cualquier navegador) no pasa.
+        // Confirmado con mediciones en dispositivo real. Lo neutralizamos
+        // mientras se crea/mide el pin — mismo patrón "desactivar y
+        // restaurar" que ya usa decisiones-accordion.js con las
+        // transiciones — y lo restauramos una vez que la medición
+        // interna de GSAP ya se asentó.
+        const htmlEl = document.documentElement;
+        const prevScrollBehavior = htmlEl.style.scrollBehavior;
+        htmlEl.style.scrollBehavior = 'auto';
+
+        const trigger = ScrollTrigger.create({
             trigger: stage,
             start: `top top+=${pinStartOffset}`,
             end: `+=${PIN_DISTANCE_PX}`,
@@ -89,7 +105,59 @@ export function initDecisionMcPin() {
             scrub: 0.5,
             invalidateOnRefresh: true,
         });
+        activeTrigger = trigger;
+
+        setTimeout(() => {
+            htmlEl.style.scrollBehavior = prevScrollBehavior;
+        }, 500);
+    }
+
+    function setupFor(item) {
+        const section = item.querySelector('.cs-decision-mc');
+        const stage = section?.querySelector('.cs-decision-mc__stage');
+        const textWrap = section?.querySelector('.cs-decision-mc__text-wrap');
+        if (!stage || !textWrap) return;
+
+        if (reducedMotion) {
+            gsap.set(textWrap, { opacity: 1 });
+            activeItem = item;
+            return;
+        }
+
         activeItem = item;
+
+        // El acordeón anima .cs-decisiones-titulos__content con
+        // grid-template-rows 0fr→1fr en 0.6s (decisiones.css), dentro de
+        // un .content-inner con overflow:hidden. Medir/crear el
+        // ScrollTrigger ANTES de que esa transición termine da geometría
+        // stale (el contenido todavía está colapsado). Esperamos el
+        // transitionend real del contenedor antes de medir, con un
+        // timeout de respaldo por si el <li> ya estaba abierto al cargar
+        // (no hay transición que dispare el evento en ese caso).
+        const content = item.querySelector('.cs-decisiones-titulos__content');
+        let settled = false;
+
+        const finish = () => {
+            if (settled) return;
+            settled = true;
+            content?.removeEventListener('transitionend', onTransitionEnd);
+            clearTimeout(fallbackId);
+            cancelPendingSetup = null;
+            createPin(item, stage, textWrap);
+        };
+
+        const onTransitionEnd = (e) => {
+            if (e.target === content && e.propertyName === 'grid-template-rows') finish();
+        };
+
+        if (content) content.addEventListener('transitionend', onTransitionEnd);
+        const fallbackId = setTimeout(finish, CONTENT_TRANSITION_MS);
+
+        cancelPendingSetup = () => {
+            settled = true;
+            content?.removeEventListener('transitionend', onTransitionEnd);
+            clearTimeout(fallbackId);
+        };
     }
 
     // Observer sobre la clase --open del <li> — el acordeón la togglea
