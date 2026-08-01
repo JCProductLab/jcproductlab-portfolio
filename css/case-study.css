@@ -227,6 +227,31 @@
     .cs-ticker__track {
         display: block;
         white-space: normal;
+        /* Cada palabra del headline de apertura es su propio <span>
+           (caso-asdeporte.html). El whitespace HTML entre spans
+           adyacentes (salto de línea del código, colapsado a un
+           espacio simple por el parser) se renderiza como un glifo de
+           espacio a la font-size del padre — y el padre es este
+           track. font-size:0 colapsa ese glifo a ancho cero, dejando
+           el whitespace en 0px. Los .cs-ticker__word reescriben su
+           font-size en .cs-ticker__word.cs-headline
+           (clamp(2.5rem, 10vw, 4.5rem)), así que el texto en sí no
+           se ve afectado — solo desaparece el espacio base entre
+           spans.
+           word-spacing es el gap que se SUMA al whitespace del
+           font-size. Con font-size:0 deja exactamente N px entre
+           palabras adyacentes (8px mobile, 12px tablet — ver el
+           override @media (min-width: 700px) más abajo). CRÍTICO:
+           a diferencia de margin-left, word-spacing NO se aplica al
+           inicio de una línea — si el headline wrappea, las palabras
+           que arrancan en nueva línea no quedan con N px de indent
+           fantasma. Por eso margin-left NO es una opción acá
+           (probado: en una línea wrappeada, margin-left:10px hacía
+           que la palabra siguiente arrancara 10px más adentro que
+           las demás). word-spacing hereda a los .cs-ticker__word
+           inline, no hace falta repetirlo por hijo. */
+        font-size: 0;
+        word-spacing: 8px;
     }
 
     .cs-ticker__track + .cs-ticker__track,
@@ -240,6 +265,13 @@
 
     .cs-ticker__word.cs-headline {
         font-size: clamp(2.5rem, 10vw, 4.5rem);
+        /* Override del -0.04em heredado de .cs-headline (variables.css)
+           — en mobile/tablet las letras grandes a -0.04em se ven
+           aplastadas (especialmente en headlines largos como el de
+           apertura). Restauramos el espaciado por defecto (0) para
+           mobile/tablet; desktop no entra en este @media y mantiene
+           el valor apretado del diseño original. */
+        letter-spacing: 0;
     }
 
     /* ============================================
@@ -454,10 +486,26 @@
            abajo, armado por apertura-tablet.js). apertura-exit.js y
            metrica-sequence.js#initMetricaPin no corren en este rango
            (guard MQ_TABLET, ver esos archivos). */
-        :root {
-            --cs-title-exit-buffer: 0px;
-            --cs-metrica-pin-buffer: 0px;
-        }
+         :root {
+             --cs-title-exit-buffer: 0px;
+             --cs-metrica-pin-buffer: 0px;
+         }
+
+         /* Override del word-spacing del .cs-ticker__track (regla base
+            mobile+tablet, más arriba, 8px): en tablet, donde el
+            headline compone a la izquierda con la métrica a la
+            derecha, el espaciado se siente más apretado visualmente
+            (el track es más ancho y las palabras "respiran" menos
+            relativamente). 12px lo compensa sin tocar desktop (sigue
+            siendo 0.25em = ~18px a 72px de font, su propia regla en
+            case-study-responsive.css). word-spacing y no margin-left
+            por el line-break: si el headline wrappea en este
+            viewport, las palabras que arrancan en nueva línea NO
+            heredan margin-left fantasma — solo el word-spacing entre
+            palabras en la misma línea. */
+         .cs-ticker__track {
+             word-spacing: 12px;
+         }
 
         /* Queda vacío en su ubicación original — apertura-tablet.js
            movió su contenido (.cs-metrica) adentro de .cs-apertura. */
@@ -593,6 +641,43 @@
             justify-content: center;
         }
 
+        /* Tipografía de la métrica unificada entre tablet portrait y
+           landscape. El número (.cs-metric) cae al clamp base
+           (6rem, 16vw, 15rem) sin override: a 768px portrait da
+           122.88px, a 1024px landscape da 163.84px — desbalance
+           visible entre ambas orientaciones. 140px fijo le da
+           el mismo peso en las dos. La caption (.cs-metrica__caption,
+           también .cs-body-xxl) tiene el mismo problema: clamp
+           (1.5rem, 2.5vw, 2rem) = 24px en portrait, 25.6px en
+           landscape (1024px). 25.6px fijo las iguala. El título
+           (.cs-ticker__word.cs-headline) NO se unifica: en
+           portrait sigue en 72px (clamp max) y en landscape baja
+           a 56px — son layouts distintos (stacked vs row), el
+           título necesita más presencia cuando no comparte fila
+           con la métrica. */
+        .cs-metric {
+            font-size: 140px;
+        }
+        .cs-metrica__caption {
+            font-size: 25.6px;
+        }
+
+        /* Ancho de las dos columnas del flex en tablet portrait:
+           70% del padre en vez del 100% (stretch por default en
+           cross-axis). El título queda 70% ancho y se ancla a la
+           izquierda (default cross-axis al ser explícito el width
+           en column flex), la métrica queda 70% ancha y se ancla
+           a la derecha vía align-self:flex-end propio (ver regla
+           más arriba). En landscape el flex-basis:50% (override
+           más abajo) gana sobre este width:70% por la regla de
+           precedencia de flex-basis sobre width — la composición
+           en landscape sigue siendo 50/50 simétrica, no se ve
+           afectada. */
+        .cs-apertura__ticker,
+        .cs-metrica {
+            width: 70%;
+        }
+
         /* Fila en landscape ancho — mismo umbral que .case-card
            (responsive.css: min-width:900px and orientation:landscape).
            Por debajo de 900px en landscape se queda apilado en
@@ -606,6 +691,50 @@
                    abajo por su align-self:flex-end propio (ver arriba),
                    independiente de lo que diga el contenedor. Default
                    (stretch) deja al título arriba, como corresponde. */
+            }
+
+            /* Override de font-size para el headline de apertura en
+               tablet landscape (≥900px y acostado). El valor por
+               defecto (viene de .cs-ticker__word.cs-headline en la
+               regla base mobile+tablet: clamp(2.5rem, 10vw, 4.5rem))
+               clampa a 72px a 1024px — demasiado grande cuando
+               comparte fila con la métrica a 140px: la jerarquía se
+               pierde. 56px mantiene la proporción ~2.5:1 con el
+               número. El número y la caption ya están unificados en
+               el bloque tablet de arriba (140px / 25.6px), no se
+               repiten acá. Fuera de este @media (mobile, tablet
+               portrait, desktop) los valores base quedan intactos. */
+            .cs-ticker__word.cs-headline {
+                font-size: 56px;
+            }
+
+            /* Reparto 50/50 entre las dos columnas del flex
+               (.cs-apertura__ticker / .cs-metrica). Antes el layout
+               dependía de justify-content:space-between + contenido
+               natural: el título (11 palabras a 56px) crecía hasta
+               ~615px y la métrica solo ~313px, desbalance 66/34 —
+               el número se sentía apretado contra el título y el
+               kpi quedaba corto para "25%"+flecha+caption. 50/50
+               le da a cada columna el mismo ancho y permite que
+               ambos contenidos respiren sin competir. */
+            .cs-apertura__ticker {
+                flex-basis: 50%;
+            }
+            .cs-metrica {
+                flex-basis: 50%;
+            }
+
+            /* Flecha de la métrica: 56px (vs 72px del clamp base
+               a 1024px) en tablet landscape. Equivale a ~22% menos
+               que el original — un poco más agresiva que el
+               escalonado anterior (15% = 61.2px) porque el número
+               "25%" a 140px domina visualmente y la flecha a 56px
+               sigue siendo acento, no compite. El margin-top
+               queda liberado al clamp base (16px, 5vw, 40px) =
+               40px a 1024px. */
+            .cs-metrica__arrow {
+                width: 56px;
+                height: 56px;
             }
         }
     }
