@@ -81,7 +81,13 @@ export function animateCounter(el, onComplete, primed) {
     const start = performance.now();
 
     const tick = (now) => {
-        const t = Math.min(1, (now - start) / COUNTER_DURATION_MS);
+        // Clampeado también por abajo (no solo arriba): el primer
+        // callback de requestAnimationFrame a veces llega con un "now"
+        // levísimamente anterior a "start" (quirk de rAF, intermitente
+        // según el navegador/frame) — sin este piso, t da negativo,
+        // eased también (1 - (1-t)³ con t<0 es negativo), y se ve un
+        // número negativo por un instante (bug confirmado en vivo).
+        const t = Math.max(0, Math.min(1, (now - start) / COUNTER_DURATION_MS));
         const eased = 1 - Math.pow(1 - t, 3); // ease-out cúbico
         node.data = prefix + (target * eased).toFixed(decimals) + suffix;
         if (t < 1) {

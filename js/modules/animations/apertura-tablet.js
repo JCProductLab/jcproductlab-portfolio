@@ -150,6 +150,32 @@ export function initAperturaTablet() {
         ticker.classList.add('mrv--in');
     }
 
+    // Parallax de la imagen de fondo — mismo patrón que
+    // case-cards-scroll.js (matchMedia pointer:coarse, scrub 0.5).
+    // El bg vive en .cs-apertura__bg-pin::before (pseudo-elemento,
+    // no targeteable con GSAP), así que se anima el .cs-apertura__bg-pin
+    // padre — el ::before se mueve con él y el overflow:hidden del
+    // bg-pin recorta si se sale. El bg-pin es sticky (position:sticky,
+    // top:0, height:100vh), pero los transforms NO rompen el sticky
+    // (el sticky se calcula por posición de layout, el transform
+    // mueve visualmente desde ahí). El trigger es .cs-apertura
+    // (la sección entera), start/end top-bottom/bottom-top = la
+    // animación corre mientras la sección atraviesa el viewport.
+    // Guard GSAP/ScrollTrigger: si el CDN falla, el parallax no
+    // corre, mismo criterio que el resto del sitio.
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+        gsap.to(bgPin, {
+            yPercent: 15,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: apertura,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 0.5
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(startSequence, REVEAL_DELAY_MS);
     }, { once: true });

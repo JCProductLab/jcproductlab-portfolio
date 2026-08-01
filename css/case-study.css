@@ -117,7 +117,17 @@
         background-size: cover;
         background-position: calc(50% - 12px) center;
         background-repeat: no-repeat;
-        transform: scale(4);
+        /* Encuadre en reposo: scale(5) en mobile. SIN translateY
+           en mobile (antes translateY(250px) + scale(5)) — el
+           empuje de 250px solo aplica en tablet, donde la imagen
+           se compone con el título+métrica a la derecha/abajo y
+           necesita correrse para no tapar el contenido. En mobile
+           el contenido fluye vertical (título arriba, métrica
+           abajo), el fondo puede quedarse en su posición natural.
+           Los overrides de tablet (portrait y landscape, más
+           abajo) incluyen su propio translateY(250px) en el
+           transform. */
+        transform: scale(5);
         transform-origin: center;
     }
 
@@ -678,6 +688,21 @@
             width: 70%;
         }
 
+        /* Flecha de la métrica: 56px en TODO tablet (portrait +
+           landscape). El base mobile+tablet (clamp(44px, 11vw, 72px)
+           sin override) da 72px en portrait (clampa al techo a
+           768px) y 72px en landscape — demasiado grande cuando la
+           métrica es un acento al lado del "25%" a 140px, no un
+           protagonista. 56px unificado mantiene la jerarquía en
+           las dos orientaciones sin reescribir el rule en el
+           bloque landscape de abajo. El margin-top queda liberado
+           al clamp base (16px, 5vw, 40px) — proporcional a la
+           flecha. */
+        .cs-metrica__arrow {
+            width: 56px;
+            height: 56px;
+        }
+
         /* Fila en landscape ancho — mismo umbral que .case-card
            (responsive.css: min-width:900px and orientation:landscape).
            Por debajo de 900px en landscape se queda apilado en
@@ -716,7 +741,9 @@
                el número se sentía apretado contra el título y el
                kpi quedaba corto para "25%"+flecha+caption. 50/50
                le da a cada columna el mismo ancho y permite que
-               ambos contenidos respiren sin competir. */
+               ambos contenidos respiren sin competir. La flecha
+               ya está unificada en 56px en el bloque tablet de
+               arriba, no se repite acá. */
             .cs-apertura__ticker {
                 flex-basis: 50%;
             }
@@ -724,17 +751,56 @@
                 flex-basis: 50%;
             }
 
-            /* Flecha de la métrica: 56px (vs 72px del clamp base
-               a 1024px) en tablet landscape. Equivale a ~22% menos
-               que el original — un poco más agresiva que el
-               escalonado anterior (15% = 61.2px) porque el número
-               "25%" a 140px domina visualmente y la flecha a 56px
-               sigue siendo acento, no compite. El margin-top
-               queda liberado al clamp base (16px, 5vw, 40px) =
-               40px a 1024px. */
-            .cs-metrica__arrow {
-                width: 56px;
-                height: 56px;
+            /* Override de transform del fondo en tablet landscape:
+               agrega translateX(50px) al translateY(250px) + scale(2.5)
+               del base. Sin este override el fondo en landscape queda
+               en la misma posición X que en portrait — acá se corre
+               50px a la derecha. Se duplican los keyframes
+               (cs-hero-zoom-landscape) porque con animation-fill-mode:
+               forwards el elemento termina en el valor `to` de los
+               keyframes, no en la propiedad `transform` del CSS — si
+               solo se overridea `transform` sin tocar la animación,
+               el translateX se pierde cuando la animación termina. */
+            .cs-apertura__bg-pin::before {
+                transform: translate(50px, 250px) scale(2.5);
+                animation-name: cs-hero-zoom-landscape;
+            }
+
+            @keyframes cs-hero-zoom-landscape {
+                from {
+                    transform: translate(50px, 250px) scale(3.5);
+                }
+                to {
+                    transform: translate(50px, 250px) scale(2.5);
+                }
+            }
+        }
+
+        /* Override de transform del fondo en tablet portrait:
+           reduce el scale del base (2.5) a 1.5 en reposo, con
+           animación 2.5 → 1.5. En portrait la pantalla es más
+           estrecha y alta — un scale(2.5) (igual que en mobile)
+           sobre-encuadra la imagen y muestra demasiado detalle
+           irrelevante. scale(1.5) deja ver más del contexto de
+           la escena sin que el sujeto se pierda. Mismo mecanismo
+           que en landscape: se duplican los keyframes
+           (cs-hero-zoom-portrait) para que el `to` incluya el
+           scale final — con forwards, overridear solo `transform`
+           sin la animación no alcanzaría. El translateY(250px)
+           se mantiene del base. */
+        @media (orientation: portrait) {
+            .cs-apertura__bg-pin::before {
+                transform: translateY(250px) scale(1.5);
+                animation-name: cs-hero-zoom-portrait;
+            }
+
+            @keyframes cs-hero-zoom-portrait {
+                from {
+                    transform: translateY(250px) scale(2.5);
+                }
+                to {
+                    transform: translateY(250px) scale(1.5);
+                }
             }
         }
     }
