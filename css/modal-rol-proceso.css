@@ -537,4 +537,52 @@
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(6px); }
     }
+
+    /* ============================================
+       TABLET LANDSCAPE — 2 columnas en Mi Rol y El Proceso
+       (image left | text right). Por defecto en el
+       rango mobile/tablet el contenido va en columna
+       (stacked); acá se aplana a fila solo cuando el
+       viewport es landscape y ancho suficiente
+       (>=900px). Desktop (>=1200px) tiene su layout
+       en modal-rol-proceso-responsive.css.
+       ============================================ */
+    @media (min-width: 900px) and (orientation: landscape) {
+        /* Mi Rol: inner pasa a fila, imagen 45% izq, texto 55% der */
+        #modalMiRol .modal-rol-proceso__inner {
+            flex-direction: row;
+            gap: 48px;
+            align-items: stretch;
+        }
+        /* Override del flex:0 0 auto + aspect-ratio:3/2 del bloque
+           mobile/tablet de arriba — la imagen llena la columna
+           (alto = alto de la fila) en vez de mantener proporción 3:2. */
+        #modalMiRol .modal-rol-proceso__image {
+            flex: 0 0 45%;
+            width: 45%;
+            height: 100%;
+            aspect-ratio: auto;
+        }
+        #modalMiRol .modal-rol-proceso__text {
+            flex: 0 0 55%;
+            width: 55%;
+        }
+
+        /* El Proceso: detail (image + description) pasa a fila.
+           Los steps arriba siguen como tabs horizontales (row)
+           igual que en mobile/tablet — el cambio es solo el detail. */
+        #modalProceso .modal-proceso__detail {
+            flex-direction: row;
+            gap: 32px;
+            align-items: flex-start;
+        }
+        #modalProceso .modal-proceso__image {
+            flex: 0 0 50%;
+            width: 50%;
+        }
+        #modalProceso .modal-proceso__description {
+            flex: 0 0 50%;
+            width: 50%;
+        }
+    }
 }

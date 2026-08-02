@@ -703,6 +703,26 @@
             gap: 1.25rem;
         }
 
+        /* Cancela el truco de full-bleed de la regla base (arriba):
+           margin negativo + padding propio de 24px la dejaban con un
+           inset de 24px desde el borde del viewport — la mitad que el
+           resto de las secciones hermanas (.cs-decisiones-titulos,
+           Contexto, etc.), que usan var(--cs-mobile-pad) como su
+           propio padding y en tablet clampa a 48px. El resultado:
+           "La decisión" quedaba ~48px más ancha (24px de más por lado)
+           que todo lo que la rodea — un desajuste de ancho real,
+           intencional para mobile (pedido explícito del usuario en su
+           momento, ver comentario de .cs-decision-mc) pero nunca
+           revisado para tablet. Con margin:0 y sin padding horizontal
+           propio, .cs-decision-mc vuelve a heredar el inset de
+           var(--cs-mobile-pad) de .cs-decisiones-titulos (el mismo
+           ancho que sus hermanas). */
+        .cs-decision-mc {
+            margin: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
         .cs-decision-mc__stage {
             flex-direction: row;
             justify-content: center;
@@ -712,6 +732,19 @@
 
         .cs-decision-mc__text {
             text-align: left;
+        }
+
+        /* Cap de alto de las 2 imágenes de cada decisión
+           (.cs-decision__media-img en la cortina,
+           .cs-decision-mc__img en "La decisión") para que no
+           obliguen a scrollear tanto. En tablet, con aspect-ratio
+           fijo (4/3 y 3/4) y width:100%, las imágenes crecen con
+           el ancho: 3/4 a 1024px = 1365px de alto. El max-height
+           las tope al 60% del viewport height; object-fit:cover
+           (ya presente en ambas) recorta lo que sobre. */
+        .cs-decision__media-img,
+        .cs-decision-mc__img {
+            max-height: 60dvh;
         }
     }
 
