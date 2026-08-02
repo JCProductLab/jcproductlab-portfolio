@@ -748,4 +748,46 @@
         }
     }
 
+    @media (min-width: 768px) and (orientation: landscape) {
+
+        .cs-decisiones-titulos__content-inner .cs-razonamiento {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.5rem 2.5rem;
+            align-items: start;
+        }
+
+        .cs-razonamiento__label,
+        .cs-razonamiento__conclusion {
+            grid-column: 1 / -1;
+        }
+
+        .cs-razonamiento__metric[data-screen="1"] { grid-column: 1; grid-row: 2; }
+        .cs-razonamiento__descriptor[data-screen="1"] { grid-column: 2; grid-row: 2; }
+        .cs-razonamiento__metric[data-screen="2"] { grid-column: 1; grid-row: 3; }
+        .cs-razonamiento__descriptor[data-screen="2"] { grid-column: 2; grid-row: 3; }
+        .cs-razonamiento__metric[data-screen="3"] { grid-column: 1; grid-row: 4; }
+        .cs-razonamiento__descriptor[data-screen="3"] { grid-column: 2; grid-row: 4; }
+
+        .cs-razonamiento__descriptor {
+            margin-top: 0;
+        }
+
+        .cs-razonamiento__metric-value {
+            font-size: 4.5rem;
+        }
+
+        .cs-razonamiento__descriptor {
+            font-size: 1.5rem;
+        }
+
+        .cs-razonamiento__label {
+            margin-bottom: 1rem;
+        }
+
+        .cs-razonamiento__conclusion {
+            margin-top: 1rem;
+        }
+    }
+
 } /* fin MQ_MOBILE */
