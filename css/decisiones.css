@@ -730,8 +730,15 @@
             gap: 3rem;
         }
 
+        /* Centrado (no left, como venía) + ancho acotado al 70% —
+           .cs-decision-mc__text-wrap (regla base, sin tocar) ya centra
+           este párrafo como flex item vía justify-content:center, así
+           que basta con darle el ancho: queda centrado sobre la imagen
+           automáticamente. Aplica a portrait Y landscape (este bloque
+           @media (min-width:700px) cubre ambas orientaciones). */
         .cs-decision-mc__text {
-            text-align: left;
+            text-align: center;
+            width: 70%;
         }
 
         /* Cap de alto de las 2 imágenes de cada decisión

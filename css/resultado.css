@@ -21,6 +21,14 @@
     display: none;
 }
 
+/* Copia del párrafo de .rs-testimonio__quote-text (ver HTML) — oculta
+   por default en TODOS los breakpoints (desktop incluido, este archivo
+   se carga siempre). Solo se muestra dentro del bloque tablet landscape
+   de .rs-usuarios, más abajo, para el layout de 2 columnas. */
+.rs-usuarios__quote-tablet {
+    display: none;
+}
+
 /* ============================================
    MOBILE / TABLET — Resultados y cierre
    ============================================ */
@@ -115,18 +123,28 @@
     .rs-metricas__card {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        /* Gap reemplazado por margin-top individual en label/detail (40px
+           y 24px pedidos) — el gap uniforme de flexbox no puede dar 2
+           espaciados distintos entre 3 items (mismo patrón que tablet,
+           ver bloque @media (min-width:700px) más abajo). */
+        gap: 0;
         padding: 2rem 1.5rem;
         border-radius: 20px;
         background: linear-gradient(135deg, var(--color-decision-bg) 0%, #00913F 100%);
     }
 
+    /* +20% sobre el tamaño original (clamp(3rem, 11vw, 5rem) × 1.2).
+       La flecha (.rs-metricas__arrow) no necesita regla propia: su
+       font-size ya es 0.5em, relativo al de este span, así que escala
+       junto con el número automáticamente. */
     .rs-metricas__value {
         display: flex;
-        align-items: center;
+        /* flex-start (no center): la flecha queda alineada arriba con
+           el número en vez de centrada verticalmente respecto a él. */
+        align-items: flex-start;
         gap: 0.15em;
         color: #FFFFFF;
-        font-size: clamp(3rem, 11vw, 5rem);
+        font-size: clamp(3.6rem, 13.2vw, 6rem);
     }
 
     .rs-metricas__arrow {
@@ -136,10 +154,14 @@
 
     .rs-metricas__label {
         color: #FFFFFF;
+        line-height: normal;
+        margin-top: 40px;
     }
 
     .rs-metricas__detail {
         color: var(--color-decision-label);
+        line-height: normal;
+        margin-top: 24px;
     }
 
     /* --- Impacto en los usuarios --- */
@@ -168,6 +190,14 @@
     .rs-usuarios__word--svg::after {
         content: "impacto";
         color: var(--color-secondary);
+    }
+
+    /* El <br> en el HTML fuerza el corte "en" / "los usuarios" — es el
+       quiebre de línea pensado para el layout desktop (título grande
+       con la palabra "impacto" animada por SVG). En mobile/tablet el
+       título es texto corrido y va en una sola línea. */
+    .rs-usuarios__title br {
+        display: none;
     }
 
     .rs-usuarios__media {
@@ -378,24 +408,416 @@
     /* --- Tablet (>= 700px) --- */
 
     @media (min-width: 700px) {
+
+        /* Mosaico en portrait: apilado vertical "reloj de arena" que
+           preserva las 7 fotos y el orden de desktop, sin recortar
+           bordes (a diferencia de landscape, ver más abajo). Fila 1 y 5
+           = las 2 fotos que en desktop quedan cortadas en los extremos
+           (col 1 y col 5), ahora a ancho completo arriba/abajo. Fila 3 =
+           la foto centro (protagonista), también a ancho completo. Filas
+           2 y 4 = los pares cortos que en desktop van apilados junto a
+           cada extremo, ahora lado a lado.
+           Alturas por fila: ajustar estos clamp() si se ven muy
+           altas/bajas en dispositivo real — el mínimo/máximo acotan el
+           rango, el término central (vw) es el que escala con el ancho.
+           La card centro se targetea con [data-col="3"] (no con
+           .rs-mosaico__card--center) a propósito: la regla base sin
+           anidar (arriba, línea ~84) ya usa [data-col="3"] —
+           especificidad (0,2,0) — y le gana a un selector de una sola
+           clase (0,1,0) sin importar el orden en el archivo. Con el
+           mismo selector de atributo, especificidad empatada, y esta
+           regla (más abajo en el archivo) gana por orden de cascada. */
+        /* Alturas × 0.8 (-20%) respecto a la primera pasada — mosaico
+           quedaba muy alargado en portrait. Mismos 3 valores de antes,
+           todos escalados por el mismo factor para mantener las
+           proporciones relativas entre filas. */
         .rs-mosaico__grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows:
+                clamp(160px, 27.2vw, 256px)
+                clamp(136px, 22.4vw, 224px)
+                clamp(208px, 33.6vw, 320px)
+                clamp(136px, 22.4vw, 224px)
+                clamp(160px, 27.2vw, 256px);
+            grid-auto-flow: row;
+            gap: 1rem;
         }
 
-        .rs-mosaico__card--center {
-            grid-column: 2 / 4;
+        .rs-mosaico__card[data-col="1"] { grid-column: 1 / -1; grid-row: 1; }
+        .rs-mosaico__card[data-col="2"][data-row="1"] { grid-column: 1; grid-row: 2; }
+        .rs-mosaico__card[data-col="2"][data-row="2"] { grid-column: 2; grid-row: 2; }
+        .rs-mosaico__card[data-col="3"] { grid-column: 1 / -1; grid-row: 3; }
+        .rs-mosaico__card[data-col="4"][data-row="1"] { grid-column: 1; grid-row: 4; }
+        .rs-mosaico__card[data-col="4"][data-row="2"] { grid-column: 2; grid-row: 4; }
+        .rs-mosaico__card[data-col="5"] { grid-column: 1 / -1; grid-row: 5; }
+
+        /* Las 3 cards de métricas van SIEMPRE una al lado de la otra en
+           tablet (nunca apiladas, ni en portrait ni en landscape) — a
+           diferencia de mobile, que las apila (regla base, sin tocar).
+           Grid en vez de flex: el título necesita ocupar todo el ancho
+           en su propia fila mientras las 3 cards comparten la fila de
+           abajo — con flex-column (base) todo es un solo eje. */
+        .rs-metricas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
         }
 
+        .rs-metricas__title {
+            grid-column: 1 / -1;
+        }
+
+        /* Padding/tipografía reducidos respecto a la base (pensada para
+           1 card a ancho completo): con 3 cards por fila cada una mide
+           ~1/3 del ancho de contenido — los valores base (padding
+           2.5rem/2rem, value hasta 5rem) desbordaban la card. */
         .rs-metricas__card {
-            padding: 2.5rem 2rem;
+            padding: 1.5rem 1.25rem;
+            /* Gap propio reemplazado por margin-top individual en label/
+               detail (48px y 32px pedidos) — el gap uniforme de flexbox
+               no puede dar 2 espaciados distintos entre 3 items. */
+            gap: 0;
         }
 
+        /* Portrait (valor por default en este bloque, sin orientación):
+           +15% sobre el tamaño con el que se probó el layout de 3
+           columnas (clamp(2rem, 6vw, 3rem) × 1.15). El override de
+           landscape (+50% sobre ese mismo base) vive más abajo, en el
+           bloque @media (orientation: landscape) — gana ahí por orden
+           de cascada (misma especificidad, declarado después).
+           La flecha (.rs-metricas__arrow) no necesita regla propia: su
+           font-size ya es 0.5em, relativo al de este span, así que
+           escala junto con el número automáticamente. */
+        .rs-metricas__value {
+            font-size: clamp(2.3rem, 6.9vw, 3.45rem);
+        }
+
+        .rs-metricas__label {
+            line-height: normal;
+            margin-top: 48px;
+        }
+
+        .rs-metricas__detail {
+            line-height: normal;
+            margin-top: 32px;
+        }
+
+        /* "El impacto en los usuarios" en portrait: imagen izq. / texto
+           "Las métricas..." der. — parecido al 2 columnas de landscape,
+           pero sin el párrafo del testimonio (.rs-usuarios__quote-tablet
+           sigue oculto acá, solo se muestra en landscape). El bloque
+           landscape (más abajo) redefine .rs-usuarios por completo para
+           su propio layout (con la 3ra columna del testimonio), así que
+           esto solo se ve en portrait. */
+        .rs-usuarios {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 2rem;
+            align-items: start;
+        }
+
+        .rs-usuarios__title {
+            grid-column: 1 / -1;
+        }
+
+        /* align-self:stretch (no el align-items:start heredado): la
+           celda ya mide lo mismo que el texto de al lado (misma fila),
+           pero sin stretch la media solo toma su alto natural (auto). */
+        .rs-usuarios__media {
+            grid-column: 1;
+            align-self: stretch;
+        }
+
+        /* height:100% del contenedor ya estirado — reemplaza el
+           height:auto + aspect-ratio:16/9 de la base, que mantenía la
+           proporción nativa en vez de igualar el alto del texto.
+           object-fit:cover (heredado) recorta el sobrante. */
+        .rs-usuarios__img {
+            height: 100%;
+        }
+
+        .rs-usuarios__text {
+            grid-column: 2;
+        }
+
+        /* Solo este párrafo — no .rs-usuarios__quote-tablet (la copia
+           del testimonio, landscape-only), que sigue con su propio
+           tamaño heredado de .cs-body-xxl. */
+        .rs-usuarios__text {
+            font-size: 20px;
+        }
+
+        /* Texto ORIGINAL del testimonio ("Llevo 10 años..."), el que se
+           ve en portrait — no el duplicado .rs-usuarios__quote-tablet
+           de landscape (ese ya tiene su propio 24px, sin tocar). En
+           landscape este bloque no se ve (.rs-testimonio__quote queda
+           display:none ahí), así que el cambio solo aplica en portrait. */
+        .rs-testimonio__quote-text {
+            font-size: 24px;
+        }
+
+        /* "No rediseñamos una app..." + botón "Qué aprendí" centrados
+           en tablet (portrait y landscape) — la base los deja alineados
+           a la izquierda (align-items:flex-start) con el título
+           encogido a su propio ancho de contenido. align-items:center
+           centra el botón (sin ancho propio, se centra solo); el título
+           necesita width:100% + text-align:center explícitos porque si
+           no, aunque esté centrado como bloque, seguiría encogido al
+           ancho de su línea más larga en vez de ocupar todo el ancho. */
+        .rs-testimonio__closing {
+            align-items: center;
+        }
+
+        .rs-testimonio__closing-title {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* El corte después de "autoridad" (y de "app.") no era un wrap
+           natural por ancho — cada .rs-testimonio__line-wrap es
+           display:block en la base (pensado para la animación línea
+           por línea de desktop), así que arranca en su propia línea
+           SIEMPRE, sin importar el espacio horizontal disponible.
+           inline: el texto de las 3 líneas fluye corrido y solo se
+           corte donde el ancho real lo obligue. El espacio entre "app."
+           y "Recuperamos" (y entre "autoridad" y "de") lo da el
+           whitespace del HTML entre los </span> — se colapsa a un
+           espacio normal al pasar a inline. */
+        .rs-testimonio__line-wrap {
+            display: inline;
+        }
+
+        /* space-between (no gap solo): con las cards ya no repartiéndose
+           el ancho a partes iguales (flex:1 1 0, tocándose por el gap),
+           esto las empuja cada una a su extremo — izquierda pegada a la
+           izquierda, derecha pegada a la derecha, con el espacio
+           sobrante en el medio. */
         .rs-cierre__cases {
             flex-direction: row;
+            justify-content: space-between;
         }
 
+        /* Reajuste: -15% (no -30%) respecto al ANCHO original de tablet
+           (~50% de ancho vía flex:1 1 0) — no respecto al -30% de la
+           pasada anterior. 50% × 0.85 = 42.5%. Valor por default de
+           este bloque, portrait. El override de landscape (-30%, no
+           -15%) vive más abajo y gana ahí por orden de cascada.
+           flex:none reemplaza flex:1 1 0 para que no vuelva a crecer y
+           ocupar el espacio sobrante.
+           height fijo (272px) reemplazado por aspect-ratio:4/3 — mismo
+           ratio EXACTO que la card de desktop (400×300,
+           resultado-responsive.css). Con height fijo, a los anchos de
+           tablet portrait (~700-1024px) el 42.5% de ancho daba una card
+           casi cuadrada (~285×272 a 768px) en vez de rectangular. Con
+           aspect-ratio el alto se recalcula del ancho real, así que
+           siempre sale 4:3 sin importar el viewport. */
         .rs-cierre__case {
-            flex: 1 1 0;
+            flex: none;
+            width: 42.5%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+        }
+    }
+
+    /* --- Tablet landscape (>= 768px, orientation: landscape) ---
+       Reproduce la composición de desktop (5 columnas tall/short/tall/
+       short/tall, mismas proporciones 464×718 / 432×374 de mosaico.jpg,
+       col 1 y col 5 cortadas por los bordes) pero SIN el scrollytelling:
+       nada de position:fixed, pin-spacer, ni estado inicial oculto — es
+       una sección estática de flujo normal (gsap.matchMedia en
+       resultado.js ya está gateado a MQ_DESKTOP, así que el JS no toca
+       nada aquí). El intro ([RESULTADO] + título) queda arriba del grid
+       en vez de superpuesto, heredando el flex-column de .rs-mosaico. */
+    @media (min-width: 768px) and (orientation: landscape) {
+
+        /* Se resetea el padding lateral de .rs-mosaico para que el grid
+           pueda sangrar hasta el borde real del viewport — el intro
+           recupera su propio padding lateral abajo para no quedar
+           pegado al borde. overflow:hidden recorta el 12% de sobreancho
+           intencional (--rs-scale) que produce el corte en col 1 y 5. */
+        .rs-mosaico {
+            padding-left: 0;
+            padding-right: 0;
+            overflow: hidden;
+        }
+
+        .rs-mosaico__intro {
+            padding: 0 var(--cs-mobile-pad);
+        }
+
+        /* Override de font-size de título en tablet landscape — mismo
+           problema y mismo patrón que .cs-contexto .cs-section-title
+           (case-study.css): el valor base (variables.css, clamp(2rem,
+           5vw, 4rem)) casi topa en el máximo (~62-64px) a este ancho,
+           mucho más grande de lo pensado. Mismo tamaño para los 3
+           títulos de Resultados ("Cuando la certeza...", "El impacto
+           en el negocio", "El impacto en los usuarios") — pedido
+           explícito de mantenerlos iguales entre sí en landscape.
+           Scoped a estos 3 selectores para no afectar otros títulos
+           que comparten .cs-section-title (apertura, contexto, modales). */
+        .rs-mosaico__intro .cs-section-title,
+        .rs-metricas__title,
+        .rs-usuarios__title {
+            font-size: 38.4px;
+        }
+
+        /* --rs-scale escala desde el ANCHO del viewport (no el alto,
+           como en desktop) porque acá la sección no ocupa 100vh — el
+           clamp() evita que la composición crezca demasiado en tablets
+           muy anchas en landscape (ej. iPad Pro 12.9", 1366px).
+           × 1.12: el grid resultante mide ~12% más que el viewport,
+           bleed simétrico de ~6% por lado — "un poco cortadas" como se
+           pidió. Ajustar este factor si el corte se ve muy sutil o
+           muy agresivo en dispositivo real.
+           IMPORTANTE — bounds del clamp() en px, no números pelados:
+           calc(100vw / 2384 * 1.12) da como resultado una LONGITUD (
+           100vw es longitud), no un número — clamp() exige que los 3
+           argumentos sean del mismo tipo. Con bounds sin unidad
+           (0.38 / 0.75) el clamp() completo es CSS inválido: --rs-scale
+           queda "inválido en tiempo de cómputo" y todo lo que depende
+           de él (--rs-tall-w/h, --rs-short-w/h, --rs-gap,
+           grid-template-columns/rows, width/height de las cards) cae a
+           su valor inicial (none/auto) — las cards se autodimensionan
+           según el tamaño nativo de cada imagen y el grid de 5 columnas
+           se rompe por completo. Bug real, confirmado por spec de CSS
+           Values (clamp/min/max exigen tipos consistentes). */
+        .rs-mosaico__grid {
+            --rs-scale: clamp(0.38px, calc(100vw / 2384 * 1.12), 0.75px);
+            --rs-tall-w: calc(var(--rs-scale) * 464);
+            --rs-tall-h: calc(var(--rs-scale) * 718);
+            --rs-short-w: calc(var(--rs-scale) * 432);
+            --rs-short-h: calc(var(--rs-scale) * 374);
+            --rs-gap: calc(var(--rs-scale) * 32);
+            grid-template-columns:
+                var(--rs-tall-w) var(--rs-short-w) var(--rs-tall-w)
+                var(--rs-short-w) var(--rs-tall-w);
+            grid-template-rows: var(--rs-short-h) var(--rs-short-h);
+            grid-auto-flow: row;
+            gap: var(--rs-gap);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rs-mosaico__card[data-size="tall"] {
+            width: var(--rs-tall-w);
+            height: var(--rs-tall-h);
+        }
+        .rs-mosaico__card[data-size="short"] {
+            width: var(--rs-short-w);
+            height: var(--rs-short-h);
+        }
+
+        .rs-mosaico__card[data-col="1"] { grid-column: 1; grid-row: 1 / span 2; }
+        .rs-mosaico__card[data-col="2"][data-row="1"] { grid-column: 2; grid-row: 1; }
+        .rs-mosaico__card[data-col="2"][data-row="2"] { grid-column: 2; grid-row: 2; }
+        .rs-mosaico__card[data-col="3"] { grid-column: 3; grid-row: 1 / span 2; }
+        .rs-mosaico__card[data-col="4"][data-row="1"] { grid-column: 4; grid-row: 1; }
+        .rs-mosaico__card[data-col="4"][data-row="2"] { grid-column: 4; grid-row: 2; }
+        .rs-mosaico__card[data-col="5"] { grid-column: 5; grid-row: 1 / span 2; }
+
+        /* +50% sobre el tamaño base de tablet (clamp(2rem, 6vw, 3rem) ×
+           1.5) — gana sobre la regla portrait (+15%, misma
+           especificidad) del bloque @media (min-width:700px) de arriba
+           por venir después en el archivo. La flecha escala sola (ver
+           comentario en el bloque portrait). */
+        .rs-metricas__value {
+            font-size: clamp(3rem, 9vw, 4.5rem);
+        }
+
+        /* "El impacto en los usuarios": imagen izq. / 2 párrafos
+           apilados a la der. (pedido explícito, solo tablet landscape).
+           .rs-usuarios__quote-tablet es la copia de
+           .rs-testimonio__quote-text (ver HTML) — se muestra acá y se
+           oculta el original de .rs-testimonio para no duplicar el
+           texto visualmente en el scroll. */
+        .rs-usuarios {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 3rem;
+            row-gap: 1rem;
+            align-items: start;
+        }
+
+        .rs-usuarios__title {
+            grid-column: 1 / -1;
+        }
+
+        /* align-self:stretch (no el align-items:start heredado de
+           .rs-usuarios): la CELDA del grid ya mide lo mismo que texto+
+           quote combinados (span de 2 filas), pero sin stretch la
+           media solo toma su alto natural (auto) y queda más baja. */
+        .rs-usuarios__media {
+            grid-column: 1;
+            grid-row: 2 / span 2;
+            align-self: stretch;
+        }
+
+        /* height:100% del contenedor ya estirado (arriba) — reemplaza
+           el height:auto + aspect-ratio:16/9 de la regla base, que
+           mantenía la proporción nativa en vez de igualar el alto de
+           los 2 párrafos. object-fit:cover (heredado) sigue recortando
+           el sobrante. */
+        .rs-usuarios__img {
+            height: 100%;
+        }
+
+        .rs-usuarios__text {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .rs-usuarios__quote-tablet {
+            display: block;
+            grid-column: 2;
+            grid-row: 3;
+            font-style: italic;
+            font-size: 24px;
+            /* .cs-body-xxl (clase en el HTML) trae color:
+               var(--color-text-secondary) — este duplicado va en blanco
+               (var(--color-secondary)) en vez de eso. */
+            color: var(--color-secondary);
+        }
+
+        .rs-testimonio__quote {
+            display: none;
+        }
+
+        /* "¡Gracias / por ver!" a 2 líneas siempre, como en desktop —
+           la base es flex+flex-wrap:wrap, que en mobile envuelve solo
+           porque las 2 palabras no entran juntas en una línea angosta;
+           en este ancho SÍ entran, así que sin este override quedaban
+           en una sola línea. flex-direction:column fuerza el quiebre
+           sin importar el ancho disponible (mismo criterio que usamos
+           con .rs-testimonio__line-wrap, pero al revés: acá forzamos 2
+           líneas en vez de dejarlas fluir). */
+        .rs-cierre__gracias {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Imagen de cierre: en desktop es un rectángulo fijo 1200×560
+           (ratio ~2.14/1) centrado, nunca 100% del ancho. La base mobile
+           usa width:100% + aspect-ratio:3/2 (más cuadrada) porque a
+           ancho de teléfono no hay espacio para dejar margen a los
+           lados — acá sí. 75% + el mismo ratio de desktop (1200/560 =
+           15/7) para que se vea como rectángulo ancho, no una imagen
+           casi cuadrada ocupando toda la sección. */
+        .rs-cierre__media {
+            width: 75%;
+            margin-inline: auto;
+        }
+
+        .rs-cierre__media-img {
+            aspect-ratio: 15 / 7;
+        }
+
+        /* Reajuste: -30% (no -50%) respecto al tamaño ORIGINAL de tablet
+           (~50% de ancho, 320px de alto) — gana acá sobre el -15% de
+           portrait por especificidad igual + orden de cascada
+           (declarado después). 50% × 0.7 = 35%; 320px × 0.7 = 224px. */
+        .rs-cierre__case {
+            width: 35%;
+            height: 224px;
         }
     }
 
