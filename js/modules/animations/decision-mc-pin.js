@@ -69,7 +69,20 @@ export function initDecisionMcPin() {
             // en píxeles ya no corresponde a la posición real del usuario
             // (bug confirmado en vivo: esos elementos dejaban de
             // revelarse tras cerrar una decisión).
-            const refEl = activeItem?.querySelector('.cs-decisiones-titulos__sticky-header');
+            //
+            // Referencia: el <li> completo (activeItem), NO el
+            // sticky-header — el header ahora tiene su propio toggle
+            // .mrv/.mrv--in (reveal bidireccional independiente, ver
+            // caso-asdeporte-nav.js), y si su transform cambia justo
+            // entre la medición "antes" y "después", ese desplazamiento
+            // propio (translateY) se mete en el cálculo del delta como si
+            // fuera el desplazamiento real del pin — corrompiendo la
+            // compensación (bug confirmado en vivo, la misma desaparición
+            // en cascada volvió al agregar ese reveal). El <li> está en
+            // oneShotSelectors: se revela una sola vez y queda
+            // transform:none para siempre, así que es un punto de
+            // referencia estable que nunca compite con esta medición.
+            const refEl = activeItem;
             const beforeTop = refEl ? refEl.getBoundingClientRect().top : null;
 
             activeTrigger.kill();
@@ -133,7 +146,13 @@ export function initDecisionMcPin() {
         // empujando hacia abajo todo lo que sigue en el documento. Si el
         // usuario todavía no scrolleó más allá de este punto, ese empuje
         // corre su posición visual sin que el navegador lo compense solo.
-        const beforeTop = stickyHeader ? stickyHeader.getBoundingClientRect().top : null;
+        //
+        // Referencia: item (el <li>), NO stickyHeader — ver el comentario
+        // grande en killActive() sobre por qué el sticky-header ya no es
+        // un punto de referencia seguro (tiene su propio transform vía
+        // .mrv/.mrv--in).
+        const refEl = item;
+        const beforeTop = refEl.getBoundingClientRect().top;
 
         const trigger = ScrollTrigger.create({
             trigger: stage,
@@ -147,12 +166,10 @@ export function initDecisionMcPin() {
         });
         activeTrigger = trigger;
 
-        if (stickyHeader && beforeTop !== null) {
-            const afterTop = stickyHeader.getBoundingClientRect().top;
-            const delta = afterTop - beforeTop;
-            if (delta !== 0) {
-                window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
-            }
+        const afterTop = refEl.getBoundingClientRect().top;
+        const delta = afterTop - beforeTop;
+        if (delta !== 0) {
+            window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
         }
 
         // Recalcula los límites de TODOS los ScrollTrigger de la página

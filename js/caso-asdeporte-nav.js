@@ -86,6 +86,11 @@ initMobileReveals({
         '.cs-contexto__text-track p',
         '.cs-contexto__actions',
         '.cs-decisiones-titulos__label',
+        // El sticky-header sí va acá (bidireccional, tamaño acotado y
+        // fijo — no crece con el <li>, así que no sufre el problema de
+        // porcentaje-de-elemento-gigante de abajo). El <li> que lo
+        // contiene NO va acá por ese motivo — ver oneShotSelectors.
+        '.cs-decisiones-titulos__sticky-header',
         // .cs-decisiones-titulos__item NO va acá: puede crecer a varias
         // pantallas de alto cuando el usuario abre una decisión — con el
         // toggle bidireccional (threshold:0.15) se ocultaba a mitad de
