@@ -111,7 +111,7 @@ export function initAperturaTablet() {
     // confirmado en vivo. kpi ya está oculto (.mrv, arriba) en este
     // punto, así que este cambio de texto no se alcanza a ver.
     const primedCounter = primeCounter(metric);
-    const revealArrow = setupMetricaArrow(arrow);
+    const { reveal: revealArrow } = setupMetricaArrow(arrow);
 
     function revealMetrica() {
         // Mismo fade + slide-up que .cs-apertura__ticker — el número

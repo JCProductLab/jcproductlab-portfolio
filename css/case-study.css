@@ -19,8 +19,14 @@
 @media (prefers-reduced-motion: no-preference) {
     .mrv {
         opacity: 0;
-        transform: translateY(24px);
-        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        /* 60px + cubic-bezier con "overshoot" de desaceleración (aprox.
+           GSAP power3.out) — mismo orden de magnitud que el desplazamiento
+           de .testimonial-card en index.html (60px), para que el reveal
+           genérico de esta página se sienta igual de notorio. Antes 24px
+           + ease-out lineal se sentía tenue en comparación. */
+        transform: translateY(60px);
+        transition: opacity 0.9s cubic-bezier(0.215, 0.61, 0.355, 1),
+            transform 0.9s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .mrv--in {

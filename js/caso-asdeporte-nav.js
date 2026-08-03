@@ -16,6 +16,7 @@ import { initAperturaExit } from './modules/animations/apertura-exit.js';
 import { initDecisionesAccordion } from './modules/animations/decisiones-accordion.js';
 import { initDecisionMcPin } from './modules/animations/decision-mc-pin.js';
 import { initAperturaTablet } from './modules/animations/apertura-tablet.js';
+import { initRsMetricasCards } from './modules/animations/rs-metricas-cards.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
@@ -100,7 +101,11 @@ initMobileReveals({
         '.rs-mosaico__intro',
         '.rs-mosaico__card',
         '.rs-metricas__title',
-        '.rs-metricas__card',
+        // .rs-metricas__card NO va acá: tiene su propia coreografía
+        // (zoom + fade + desplazamiento, réplica de .testimonial-card
+        // mobile), ver rs-metricas-cards.js. Si quedara acá también,
+        // mobile-reveals la animaría una segunda vez con el fade+slide
+        // genérico, compitiendo con la de abajo.
         '.rs-usuarios__title',
         '.rs-usuarios__media',
         '.rs-usuarios__text',
@@ -131,6 +136,12 @@ initMetricaPin();
 // .cs-apertura (fondo pineado por CSS, ver case-study.css). Bespoke por
 // la misma razón que initMetricaSequence.
 initAperturaExit();
+
+// Cards verdes de "El impacto en el negocio": zoom + fade + desplazamiento,
+// réplica exacta de la entrada mobile de .testimonial-card en index.html.
+// Sale solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
+// rs-metricas-cards.js).
+initRsMetricasCards();
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {

@@ -37,7 +37,7 @@ function findNumericTextNode(el) {
     return null;
 }
 
-function parseCounterNode(el) {
+export function parseCounterNode(el) {
     const node = findNumericTextNode(el);
     if (!node) return null;
 
@@ -143,14 +143,45 @@ export function initMobileReveals({ revealSelectors = [], counterSelectors = [],
         : [];
     const counterSet = new Set(counterEls);
 
+    const revealSet = new Set(revealEls);
+
+    // Objetivo real de cada contador, capturado UNA sola vez desde el
+    // texto estático original del HTML — nunca se re-parsea desde el DOM
+    // después de esto. Si se re-parseara en cada salida de viewport, un
+    // scroll rápido que saque el elemento de vista a mitad del conteo
+    // (animateCounter todavía escribiendo un valor intermedio, ej. "14%")
+    // corrompería el target real (25) para siempre: la próxima vuelta
+    // contaría hasta 14, no hasta 25.
+    const counterTargets = new Map();
+    counterEls.forEach((el) => {
+        const parsed = parseCounterNode(el);
+        if (parsed) counterTargets.set(el, parsed);
+    });
+
+    // Toggle bidireccional: revela al entrar, oculta al salir (en
+    // cualquier dirección de scroll) — igual que el patrón
+    // toggleActions:'play reverse play reverse' que ya usa index.html
+    // (mask-reveal.js), pero con CSS transitions en vez de GSAP.
     const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add('mrv--in');
-            if (counterSet.has(entry.target)) {
-                animateCounter(entry.target);
+            const el = entry.target;
+
+            if (revealSet.has(el)) {
+                el.classList.toggle('mrv--in', entry.isIntersecting);
             }
-            io.unobserve(entry.target);
+
+            if (counterSet.has(el)) {
+                const parsed = counterTargets.get(el);
+                if (!parsed) return;
+                if (entry.isIntersecting) {
+                    animateCounter(el, null, parsed);
+                } else {
+                    // Reset instantáneo a "0" — invisible para el usuario
+                    // porque solo ocurre mientras el elemento ya está
+                    // fuera del viewport.
+                    parsed.node.data = parsed.prefix + (0).toFixed(parsed.decimals) + parsed.suffix;
+                }
+            }
         });
     }, { threshold: 0.15 });
 

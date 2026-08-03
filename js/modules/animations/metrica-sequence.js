@@ -16,7 +16,7 @@
 // y ralentizaba en iPhone real — ver .cs-metrica__comet, oculto en mobile
 // vía display:none en case-study.css.)
 
-import { animateCounter } from './mobile-reveals.js';
+import { animateCounter, parseCounterNode } from './mobile-reveals.js';
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 // Piso, no rango: "tablet" es todo lo que NO es desktop (ver MQ_DESKTOP)
@@ -59,10 +59,10 @@ export function setupMetricaArrow(arrow) {
     mainPath.style.strokeDasharray = String(mainLength);
     mainPath.style.strokeDashoffset = String(mainLength);
 
-    tipPaths.forEach((p) => {
-        const len = p.getTotalLength();
-        p.style.strokeDasharray = String(len);
-        p.style.strokeDashoffset = String(len);
+    const tipLengths = Array.from(tipPaths).map((p) => p.getTotalLength());
+    tipPaths.forEach((p, i) => {
+        p.style.strokeDasharray = String(tipLengths[i]);
+        p.style.strokeDashoffset = String(tipLengths[i]);
     });
 
     fillet.style.opacity = '0';
@@ -84,12 +84,26 @@ export function setupMetricaArrow(arrow) {
         c.style.transition = 'opacity 0.05s linear 0.75s';
     });
 
-    return function reveal() {
+    function reveal() {
         mainPath.style.strokeDashoffset = '0';
         tipPaths.forEach((p) => { p.style.strokeDashoffset = '0'; });
         fillet.style.opacity = '1';
         caps.forEach((c) => { c.style.opacity = '1'; });
-    };
+    }
+
+    // Reversa de reveal() — misma transition ya definida arriba, así que
+    // resetear el dashoffset también anima (0.5s/0.3s ease-out), no es
+    // un salto instantáneo. Usado por initMetricaSequence (mobile) al
+    // salir del viewport; apertura-tablet.js no lo usa (su secuencia es
+    // de carga, no de scroll).
+    function reset() {
+        mainPath.style.strokeDashoffset = String(mainLength);
+        tipPaths.forEach((p, i) => { p.style.strokeDashoffset = String(tipLengths[i]); });
+        fillet.style.opacity = '0';
+        caps.forEach((c) => { c.style.opacity = '0'; });
+    }
+
+    return { reveal, reset };
 }
 
 export function initMetricaSequence() {
@@ -109,18 +123,32 @@ export function initMetricaSequence() {
     const caption = document.querySelector('.cs-metrica__caption');
     if (!metric || !arrow || !caption) return;
 
-    const revealArrow = setupMetricaArrow(arrow);
+    const { reveal: revealArrow, reset: resetArrow } = setupMetricaArrow(arrow);
 
-    function revealArrowAndCaption() {
-        revealArrow();
-        caption.classList.add('cs-metrica__caption--in');
-    }
+    // Objetivo real capturado una sola vez — mismo motivo que
+    // mobile-reveals.js: evita que un reset a mitad de conteo corrompa
+    // el target si el usuario sale del viewport durante los 800ms de
+    // animateCounter.
+    const counterTarget = parseCounterNode(metric);
 
+    // Toggle bidireccional: conteo + flecha + caption se revelan al
+    // entrar y se resetean al salir (en cualquier dirección), para que
+    // la secuencia completa se repita limpiamente al reingresar.
     const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            io.unobserve(entry.target);
-            animateCounter(metric, revealArrowAndCaption);
+            if (entry.isIntersecting) {
+                animateCounter(metric, () => {
+                    revealArrow();
+                    caption.classList.add('cs-metrica__caption--in');
+                }, counterTarget);
+            } else {
+                if (counterTarget) {
+                    counterTarget.node.data =
+                        counterTarget.prefix + (0).toFixed(counterTarget.decimals) + counterTarget.suffix;
+                }
+                resetArrow();
+                caption.classList.remove('cs-metrica__caption--in');
+            }
         });
     }, { threshold: 0.15 });
 
