@@ -308,21 +308,44 @@
         padding-bottom: 80px;
     }
 
+    /* Mismo bloque que desktop (resultado-responsive.css): "¡Gracias" y
+       "por ver!" apiladas en bloque, alineadas a la izquierda ENTRE sí
+       (no centradas cada una) — el bloque completo se centra en la
+       sección vía align-self (el padre .rs-cierre es flex-column). Antes
+       era flex+justify-content:center, que centraba cada palabra por
+       separado en vez de dejarlas escalonadas. */
     .rs-cierre__gracias {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        column-gap: 0.3em;
-        text-align: center;
+        display: inline-block;
+        align-self: center;
+        text-align: left;
+        line-height: 1.1;
         /* Por encima de .rs-cierre__media (z-index:1): el texto se solapa
            con la imagen 16px y debe quedar visible encima de ella. */
         position: relative;
         z-index: 2;
     }
 
+    .rs-cierre__gracias-word {
+        display: block;
+    }
+
     /* .cs-gracias es 144px fijos (desktop); en mobile escala fluida */
     .rs-cierre__gracias-word.cs-gracias {
         font-size: clamp(3rem, 13vw, 6rem);
+    }
+
+    .rs-cierre__gracias-word--left {
+        margin-left: 0;
+    }
+
+    /* Mismo offset relativo que desktop (resultado-responsive.css:549-551):
+       margin-left:3em ya escala solo con el font-size (clamp más chico
+       acá); el -32px fijo de desktop equivale a -0.22em a su font-size de
+       144px (32/144), convertido a em para mantener la misma proporción
+       de solape con el font-size más chico de mobile/tablet. */
+    .rs-cierre__gracias-word--right {
+        margin-left: 3em;
+        margin-top: -0.22em;
     }
 
     .rs-cierre__media {
@@ -797,18 +820,8 @@
             display: none;
         }
 
-        /* "¡Gracias / por ver!" a 2 líneas siempre, como en desktop —
-           la base es flex+flex-wrap:wrap, que en mobile envuelve solo
-           porque las 2 palabras no entran juntas en una línea angosta;
-           en este ancho SÍ entran, así que sin este override quedaban
-           en una sola línea. flex-direction:column fuerza el quiebre
-           sin importar el ancho disponible (mismo criterio que usamos
-           con .rs-testimonio__line-wrap, pero al revés: acá forzamos 2
-           líneas en vez de dejarlas fluir). */
-        .rs-cierre__gracias {
-            flex-direction: column;
-            align-items: center;
-        }
+        /* .rs-cierre__gracias-word ya es display:block (base) — siempre
+           2 líneas sin importar el ancho, no hace falta override acá. */
 
         /* Imagen de cierre: en desktop es un rectángulo fijo 1200×560
            (ratio ~2.14/1) centrado, nunca 100% del ancho. La base mobile

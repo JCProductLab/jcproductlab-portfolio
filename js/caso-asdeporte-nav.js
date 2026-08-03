@@ -18,6 +18,8 @@ import { initDecisionMcPin } from './modules/animations/decision-mc-pin.js';
 import { initAperturaTablet } from './modules/animations/apertura-tablet.js';
 import { initRsMetricasCards } from './modules/animations/rs-metricas-cards.js';
 import { initCtaButtonsReveal } from './modules/animations/cta-buttons-reveal.js';
+import { initRsCierreGraciasReveal } from './modules/animations/rs-cierre-gracias-reveal.js';
+import { initRsCierreCasesReveal } from './modules/animations/rs-cierre-cases-reveal.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
@@ -112,9 +114,15 @@ initMobileReveals({
         '.rs-usuarios__text',
         '.rs-testimonio__quote',
         '.rs-testimonio__closing',
-        '.rs-cierre__gracias',
-        '.rs-cierre__media',
-        '.rs-cierre__case',
+        // .rs-cierre__gracias y .rs-cierre__media NO van acá: tienen su
+        // propia coreografía (réplica exacta de la entrada de desktop:
+        // y+x+opacity por separado en cada palabra, y+opacity en la
+        // imagen), ver rs-cierre-gracias-reveal.js. Si quedaran acá
+        // también, mobile-reveals las animaría una segunda vez con el
+        // fade+slide genérico, compitiendo con la de abajo.
+        // .rs-cierre__case NO va acá: entra una y después la otra
+        // (stagger explícito), ver rs-cierre-cases-reveal.js — mismo
+        // motivo, evitar el doble reveal.
         '.rs-cierre__footer',
     ],
     counterSelectors: [
@@ -149,6 +157,17 @@ initRsMetricasCards();
 // solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
 // cta-buttons-reveal.js).
 initCtaButtonsReveal();
+
+// "¡Gracias" / "por ver!" / imagen de cierre: réplica exacta de la
+// entrada de desktop (y+x+opacity por palabra, y+opacity en la imagen).
+// Sale solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
+// rs-cierre-gracias-reveal.js).
+initRsCierreGraciasReveal();
+
+// Las 2 cards de casos: entran una y después la otra (stagger), mismo
+// criterio que desktop. Sale solo si GSAP/ScrollTrigger no cargaron o en
+// desktop (ver rs-cierre-cases-reveal.js).
+initRsCierreCasesReveal();
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
