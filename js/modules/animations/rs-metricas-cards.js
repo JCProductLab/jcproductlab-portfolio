@@ -29,6 +29,18 @@ export function initRsMetricasCards() {
     const cards = gsap.utils.toArray('.rs-metricas__card');
     if (!cards.length) return;
 
+    // html { scroll-behavior: smooth } (reset.css) rompe la medición
+    // interna que hace ScrollTrigger al crear/refrescar triggers — en
+    // Chrome/Android (Blink) el ajuste de scroll que GSAP hace por dentro
+    // para medir queda "animado" por el smooth-scroll en vez de
+    // instantáneo, lo que se percibe como un rebote de scroll. Mismo bug
+    // ya documentado y resuelto en decision-mc-pin.js — mismo parche:
+    // neutralizar mientras se crean/miden los triggers y restaurar
+    // después (500ms, igual que ahí).
+    const htmlEl = document.documentElement;
+    const prevScrollBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = 'auto';
+
     // Mismos tiempos que buildMobileCardTriggers en testimonial-cards-reveal.js.
     const ENTRY_DUR = 1.0;
     const REST_DUR = 0.4;
@@ -62,5 +74,16 @@ export function initRsMetricasCards() {
             duration: EXIT_DUR,
             ease: 'power3.in',
         }, EXIT_START);
+    });
+
+    // Mismo patrón que mask-reveal.js/cta-section-reveal.js/etc. en
+    // index.html — recalcula las posiciones de los ScrollTrigger después
+    // de que el documento asiente su altura final (ver cta-buttons-reveal.js
+    // para el detalle completo del porqué).
+    requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        setTimeout(() => {
+            htmlEl.style.scrollBehavior = prevScrollBehavior;
+        }, 500);
     });
 }

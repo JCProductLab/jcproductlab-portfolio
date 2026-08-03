@@ -17,6 +17,7 @@ import { initDecisionesAccordion } from './modules/animations/decisiones-accordi
 import { initDecisionMcPin } from './modules/animations/decision-mc-pin.js';
 import { initAperturaTablet } from './modules/animations/apertura-tablet.js';
 import { initRsMetricasCards } from './modules/animations/rs-metricas-cards.js';
+import { initCtaButtonsReveal } from './modules/animations/cta-buttons-reveal.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
@@ -142,6 +143,12 @@ initAperturaExit();
 // Sale solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
 // rs-metricas-cards.js).
 initRsMetricasCards();
+
+// Pop de los 3 botones CTA (Contexto, Testimonio, Cierre): zoom + fade,
+// réplica exacta del botón de cta-section-reveal.js en index.html. Sale
+// solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
+// cta-buttons-reveal.js).
+initCtaButtonsReveal();
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {

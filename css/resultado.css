@@ -293,6 +293,21 @@
         padding: 2rem var(--cs-mobile-pad);
     }
 
+    /* Colchón invisible al final del documento (mismo fondo que .rs-cierre,
+       sin contenido visible) — el botón final (.rs-cierre__footer) quedaba
+       a solo 32px del borde físico real de la página (nada scrolleable
+       después). Eso deja su propio punto de reveal (ScrollTrigger
+       start:'top 90%') pegado al lugar exacto donde el navegador hace
+       rebote elástico/overscroll nativo al tocar fondo — de ahí el rebote
+       reportado, que ningún ajuste de GSAP puede evitar porque no lo causa
+       GSAP. Este padding-bottom extra aleja el punto de reveal del borde
+       real, sin cambiar nada visible (mismo color de fondo, sin contenido
+       nuevo).
+    */
+    .rs-cierre {
+        padding-bottom: 80px;
+    }
+
     .rs-cierre__gracias {
         display: flex;
         flex-wrap: wrap;
