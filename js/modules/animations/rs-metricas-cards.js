@@ -53,7 +53,7 @@ export function initRsMetricasCards() {
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: card,
-                start: 'top 85%',
+                start: 'top 65%',
                 end: 'top -30%',
                 scrub: 1,
                 // decision-mc-pin.js crea/destruye un ScrollTrigger con

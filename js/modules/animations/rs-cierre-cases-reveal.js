@@ -54,14 +54,14 @@ export function initRsCierreCasesReveal() {
         // Retraso antes de que arranque la primera card — da tiempo a
         // que se alcance a ver un poco más de su entrada antes de que
         // dispare (la segunda hereda el mismo retraso vía el stagger).
-        delay: 0.5,
+        delay: 0.15,
         paused: true,
     });
 
     ScrollTrigger.create({
         trigger: container,
-        start: 'top 85%',
-        end: 'bottom 20%',
+        start: 'top 40%',
+        end: 'bottom -80%',
         onEnter: () => { if (!ScrollTrigger.isRefreshing) tween.play(); },
         onLeave: () => { if (!ScrollTrigger.isRefreshing) tween.reverse(); },
         onEnterBack: () => { if (!ScrollTrigger.isRefreshing) tween.play(); },
