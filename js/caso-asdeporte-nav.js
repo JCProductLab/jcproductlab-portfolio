@@ -20,6 +20,7 @@ import { initRsMetricasCards } from './modules/animations/rs-metricas-cards.js';
 import { initCtaButtonsReveal } from './modules/animations/cta-buttons-reveal.js';
 import { initRsCierreGraciasReveal } from './modules/animations/rs-cierre-gracias-reveal.js';
 import { initRsCierreCasesReveal } from './modules/animations/rs-cierre-cases-reveal.js';
+import { initOrientationReloadBanner } from './modules/orientation-reload-banner.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Barra de progreso de lectura — corre una sola vez para todos los
@@ -187,6 +188,10 @@ initRsCierreGraciasReveal();
 // criterio que desktop. Sale solo si GSAP/ScrollTrigger no cargaron o en
 // desktop (ver rs-cierre-cases-reveal.js).
 initRsCierreCasesReveal();
+
+// Aviso de "recargá la página" al detectar una rotación real en tablet
+// (no dispara en mobile/desktop). Ver orientation-reload-banner.js.
+initOrientationReloadBanner();
 
 if (typeof gsap !== 'undefined') {
     gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {

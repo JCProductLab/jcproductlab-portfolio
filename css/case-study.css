@@ -948,3 +948,57 @@
     }
 
 } /* fin MQ_MOBILE */
+
+/* ============================================
+   ORIENTATION RELOAD BANNER — solo tablet
+   Creado por JS (orientation-reload-banner.js) al detectar un cambio de
+   orientación real — no existe en el DOM hasta que se dispara la primera
+   vez. Descartable (botón cerrar), no bloqueante.
+   ============================================ */
+.orientation-banner {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: min(90vw, 420px);
+    padding: 1.25rem 1.5rem;
+    border-radius: 16px;
+    background: var(--color-bg);
+    color: var(--color-secondary);
+    box-shadow: var(--glass-shadow, 0 8px 24px rgba(0, 0, 0, 0.3));
+    text-align: center;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.orientation-banner--visible {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.orientation-banner__text {
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+.orientation-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* .btn asume un ícono a la derecha (.btn__icon) y por eso su padding
+   base es asimétrico (8px derecha, 16px izquierda, atoms.css) — este
+   botón es solo texto, sin ícono, así que se pareja a 16px en ambos
+   lados. */
+.orientation-banner__reload {
+    padding-left: 16px;
+    padding-right: 16px;
+}

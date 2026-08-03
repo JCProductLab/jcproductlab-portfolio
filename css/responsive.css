@@ -709,3 +709,56 @@
         }
     }
 }
+
+/* ============================================
+   ROTATE OVERLAY — bloquea mobile en landscape
+   Compartido por index.html, en/index.html y
+   caso-asdeporte.html (este archivo se carga en las 3).
+   Markup estático: <div class="rotate-overlay"> agregado
+   una vez en cada HTML, cerca del <body>. Puro CSS, sin JS:
+   la media query lo muestra/oculta sola al girar el
+   dispositivo. Mobile en landscape no es un layout
+   aprobado — en vez de sostener esa combinación, se tapa
+   el contenido y se pide volver a portrait.
+   max-width (no max-height): mismo criterio que MQ_TABLET_FLOOR
+   (700px) en el JS de caso-asdeporte — TODO el sitio clasifica
+   mobile/tablet por el width ACTUAL del viewport, sin importar
+   orientación. Usar max-height acá rompía esa consistencia:
+   cualquier ventana/tablet con poca altura en landscape
+   disparaba el overlay, aunque su width la clasificara como
+   tablet en todo el resto del sitio (bug confirmado en vivo).
+   Con max-width, un teléfono cuyo ancho en landscape ya supera
+   700px (la mayoría de los modelos actuales) queda clasificado
+   "tablet" acá también — consistente con cómo ya se comporta el
+   resto del sitio en ese mismo caso, no una excepción nueva.
+   ============================================ */
+.rotate-overlay {
+    display: none;
+}
+
+@media (max-width: 699.98px) and (orientation: landscape) {
+    .rotate-overlay {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 2rem;
+        text-align: center;
+        background: var(--color-primary);
+        color: var(--color-secondary);
+    }
+
+    .rotate-overlay__icon {
+        font-size: 3rem;
+        color: var(--color-accent);
+    }
+
+    .rotate-overlay__text {
+        font-size: 1.125rem;
+        max-width: 28ch;
+    }
+}
