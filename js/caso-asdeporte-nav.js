@@ -116,6 +116,10 @@ initMobileReveals({
         '.rs-usuarios__title',
         '.rs-usuarios__media',
         '.rs-usuarios__text',
+        // Copia del párrafo del testimonio, visible SOLO en tablet
+        // landscape (ver resultado.css) — no tenía ningún reveal propio,
+        // por eso no animaba a diferencia del resto de los textos.
+        '.rs-usuarios__quote-tablet',
         '.rs-testimonio__quote',
         '.rs-testimonio__closing',
         // .rs-cierre__gracias y .rs-cierre__media NO van acá: tienen su

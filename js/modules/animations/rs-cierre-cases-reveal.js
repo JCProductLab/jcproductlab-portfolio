@@ -60,7 +60,7 @@ export function initRsCierreCasesReveal() {
 
     ScrollTrigger.create({
         trigger: container,
-        start: 'top 40%',
+        start: 'top 50%',
         end: 'bottom -80%',
         onEnter: () => { if (!ScrollTrigger.isRefreshing) tween.play(); },
         onLeave: () => { if (!ScrollTrigger.isRefreshing) tween.reverse(); },
