@@ -1,15 +1,22 @@
 // js/modules/animations/mobile-reveals.js
 // Capa de animación de la versión mobile/tablet del caso: reveals
-// one-shot (clase .mrv/.mrv--in, ver case-study.css) + count-up de
-// métricas. IntersectionObserver vanilla, sin GSAP a propósito — la
-// página mobile debe quedar 100% funcional aunque el CDN falle.
+// (clase .mrv/.mrv--in, ver case-study.css) + count-up de métricas.
+// IntersectionObserver vanilla, sin GSAP a propósito — la página mobile
+// debe quedar 100% funcional aunque el CDN falle.
 // En MQ_DESKTOP no hace nada (ahí manda el scrollytelling GSAP).
 //
-// Dos mecanismos de reveal, según si el elemento arranca dentro o fuera
-// del viewport:
-// - revealSelectors: elementos fuera del viewport al cargar — JS agrega
-//   .mrv (oculto) y usa IntersectionObserver para detectar el cruce real
-//   por scroll y agregar .mrv--in.
+// Tres mecanismos de reveal:
+// - revealSelectors: elementos fuera del viewport al cargar, de tamaño
+//   acotado — JS agrega .mrv (oculto) y usa IntersectionObserver para
+//   detectar el cruce real por scroll y togglear .mrv--in (bidireccional:
+//   se oculta de nuevo al salir del viewport en cualquier dirección, se
+//   vuelve a revelar al reingresar).
+// - oneShotSelectors: mismo mecanismo, pero revela una sola vez y no
+//   vuelve a ocultar. Para contenedores que pueden crecer a varias
+//   pantallas de alto en runtime (ver comentario junto a oneShotEls más
+//   abajo) — el toggle bidireccional con threshold:0.15 los oculta por
+//   error a mitad de lectura, porque el % visible de un elemento así de
+//   alto cae por debajo del umbral con solo scrollear por su contenido.
 // - immediateSelectors: elementos YA visibles en el primer frame (ej. el
 //   título del hero). El oculto es el reposo por defecto del CSS (no lo
 //   crea JS — mismo patrón que .hero-word en main.css), así que JS solo
@@ -100,7 +107,7 @@ export function animateCounter(el, onComplete, primed) {
     requestAnimationFrame(tick);
 }
 
-export function initMobileReveals({ revealSelectors = [], counterSelectors = [], immediateSelectors = [] } = {}) {
+export function initMobileReveals({ revealSelectors = [], counterSelectors = [], immediateSelectors = [], oneShotSelectors = [] } = {}) {
     // Desktop: el scrollytelling GSAP es el dueño de todas las animaciones.
     if (window.matchMedia(MQ_DESKTOP).matches) return;
 
@@ -197,4 +204,33 @@ export function initMobileReveals({ revealSelectors = [], counterSelectors = [],
             io.observe(el);
         }
     });
+
+    // oneShotSelectors: mismo mecanismo que el toggle bidireccional de
+    // arriba, PERO revela una vez y no vuelve a ocultar — comportamiento
+    // original de este módulo, previo a hacerlo bidireccional. Necesario
+    // para contenedores que pueden crecer a varias pantallas de alto en
+    // runtime (ej. .cs-decisiones-titulos__item con una decisión abierta):
+    // con threshold:0.15 sobre un elemento así de alto, el % visible cae
+    // por debajo del umbral con solo scrollear por la MITAD de su
+    // contenido, y el toggle bidireccional lo ocultaría por completo
+    // (incluido su sticky-header, todavía en pantalla) — bug confirmado
+    // en vivo.
+    const oneShotEls = oneShotSelectors.length
+        ? document.querySelectorAll(oneShotSelectors.join(', '))
+        : [];
+
+    if (oneShotEls.length) {
+        const ioOnce = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('mrv--in');
+                ioOnce.unobserve(entry.target);
+            });
+        }, { threshold: 0.15 });
+
+        oneShotEls.forEach((el) => {
+            el.classList.add('mrv');
+            ioOnce.observe(el);
+        });
+    }
 }

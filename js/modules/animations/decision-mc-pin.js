@@ -55,8 +55,41 @@ export function initDecisionMcPin() {
             cancelPendingSetup = null;
         }
         if (activeTrigger) {
+            // activeTrigger.kill() borra al instante el pin-spacer que
+            // reserva ~PIN_DISTANCE_PX + el alto de la imagen alrededor de
+            // .cs-decision-mc__stage. Esa desaparición de espacio pasa
+            // DESPUÉS de que decisiones-accordion.js ya compensó su propio
+            // colapso de grid-template-rows (llega acá vía el
+            // MutationObserver, como microtask posterior) — sin compensar
+            // ESTA reducción de espacio por separado, todo lo que sigue en
+            // el documento (Razonamiento, Resultado, Cierre) queda
+            // desalineado respecto al scrollY real. Cualquier
+            // ScrollTrigger de más abajo (cards, botones, etc.) evalúa mal
+            // su estado la próxima vez que se recalcula, porque su umbral
+            // en píxeles ya no corresponde a la posición real del usuario
+            // (bug confirmado en vivo: esos elementos dejaban de
+            // revelarse tras cerrar una decisión).
+            const refEl = activeItem?.querySelector('.cs-decisiones-titulos__sticky-header');
+            const beforeTop = refEl ? refEl.getBoundingClientRect().top : null;
+
             activeTrigger.kill();
             activeTrigger = null;
+
+            if (refEl && beforeTop !== null) {
+                const afterTop = refEl.getBoundingClientRect().top;
+                const delta = afterTop - beforeTop;
+                if (delta !== 0) {
+                    window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
+                }
+            }
+
+            // Con el scroll ya compensado arriba, este refresh recalcula
+            // los límites de TODOS los ScrollTrigger de la página contra
+            // la posición real — no hay ningún pin activo en este
+            // instante (recién matamos el único), así que no dispara la
+            // remedición espuria que sí ocurre cuando GSAP necesita
+            // remedir un pin en vivo.
+            ScrollTrigger.refresh();
         }
         if (activeItem) {
             const textWrap = activeItem.querySelector('.cs-decision-mc__text-wrap');
@@ -95,6 +128,13 @@ export function initDecisionMcPin() {
         const prevScrollBehavior = htmlEl.style.scrollBehavior;
         htmlEl.style.scrollBehavior = 'auto';
 
+        // Mismo motivo que en killActive() pero al revés: crear el pin
+        // INSERTA el pin-spacer (~PIN_DISTANCE_PX + alto de la imagen),
+        // empujando hacia abajo todo lo que sigue en el documento. Si el
+        // usuario todavía no scrolleó más allá de este punto, ese empuje
+        // corre su posición visual sin que el navegador lo compense solo.
+        const beforeTop = stickyHeader ? stickyHeader.getBoundingClientRect().top : null;
+
         const trigger = ScrollTrigger.create({
             trigger: stage,
             start: `top top+=${pinStartOffset}`,
@@ -106,6 +146,18 @@ export function initDecisionMcPin() {
             invalidateOnRefresh: true,
         });
         activeTrigger = trigger;
+
+        if (stickyHeader && beforeTop !== null) {
+            const afterTop = stickyHeader.getBoundingClientRect().top;
+            const delta = afterTop - beforeTop;
+            if (delta !== 0) {
+                window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
+            }
+        }
+
+        // Recalcula los límites de TODOS los ScrollTrigger de la página
+        // contra el layout ya asentado y el scroll ya compensado arriba.
+        ScrollTrigger.refresh();
 
         setTimeout(() => {
             htmlEl.style.scrollBehavior = prevScrollBehavior;

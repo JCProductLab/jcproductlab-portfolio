@@ -86,7 +86,11 @@ initMobileReveals({
         '.cs-contexto__text-track p',
         '.cs-contexto__actions',
         '.cs-decisiones-titulos__label',
-        '.cs-decisiones-titulos__item',
+        // .cs-decisiones-titulos__item NO va acá: puede crecer a varias
+        // pantallas de alto cuando el usuario abre una decisión — con el
+        // toggle bidireccional (threshold:0.15) se ocultaba a mitad de
+        // lectura (bug confirmado en vivo: el header pegado desaparecía
+        // de golpe). Va en oneShotSelectors, más abajo.
         '.cs-decision__content',
         '.cs-decision__media',
         '.cs-problema__title',
@@ -130,6 +134,12 @@ initMobileReveals({
         // flecha + revela párrafo), ver metrica-sequence.js.
         '.cs-razonamiento__metric-value',
         '.rs-metricas__value',
+    ],
+    // Revela una sola vez, nunca vuelve a ocultar — ver comentario en
+    // mobile-reveals.js (oneShotSelectors) y el que dejamos arriba junto
+    // a .cs-decisiones-titulos__item.
+    oneShotSelectors: [
+        '.cs-decisiones-titulos__item',
     ],
 });
 

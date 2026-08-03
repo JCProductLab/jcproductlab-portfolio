@@ -56,6 +56,16 @@ export function initRsMetricasCards() {
                 start: 'top 85%',
                 end: 'top -30%',
                 scrub: 1,
+                // decision-mc-pin.js crea/destruye un ScrollTrigger con
+                // pin:true cada vez que se abre/cierra una decisión — eso
+                // obliga a GSAP a remedir TODOS los triggers de la página,
+                // moviendo el scroll a 0 momentáneamente por dentro (mismo
+                // mecanismo documentado en caso-asdeporte.js). invalidateOnRefresh
+                // fuerza a que, al terminar esa remedición, el progreso del
+                // scrub se recalcule contra la posición real de scroll
+                // (no quede pegado al valor espurio del instante en 0) —
+                // mismo flag que ya usa decision-mc-pin.js en su propio pin.
+                invalidateOnRefresh: true,
             },
         });
 

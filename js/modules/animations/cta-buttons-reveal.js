@@ -92,19 +92,38 @@ export function initCtaButtonsReveal() {
 
         gsap.set(wrap, { scale: 0.5, opacity: 0 });
 
-        gsap.to(wrap, {
+        // paused:true + onEnter/onLeaveBack manuales (en vez de
+        // toggleActions) para poder ignorar la remedición espuria de
+        // ScrollTrigger.refresh() — ver comentario grande más abajo.
+        const tween = gsap.to(wrap, {
             scale: 1,
             opacity: 1,
             duration: 0.6,
             ease: 'back.out(1.4)',
-            scrollTrigger: {
-                trigger: wrap,
-                start: 'top 90%',
-                end: 'bottom top',
-                toggleActions: 'play none none reverse',
-            },
+            paused: true,
+        });
+
+        ScrollTrigger.create({
+            trigger: wrap,
+            start: 'top 90%',
+            end: 'bottom top',
+            onEnter: () => { if (!ScrollTrigger.isRefreshing) tween.play(); },
+            onLeaveBack: () => { if (!ScrollTrigger.isRefreshing) tween.reverse(); },
         });
     });
+
+    // decision-mc-pin.js crea/destruye un ScrollTrigger con pin:true cada
+    // vez que se abre/cierra una decisión — eso obliga a GSAP a remedir
+    // TODOS los triggers de la página (necesita la altura real del
+    // documento para el pin-spacer), y esa remedición interna mueve el
+    // scroll a 0 momentáneamente para calcular las posiciones de los
+    // elementos pineados (mismo mecanismo ya documentado en
+    // caso-asdeporte.js: "ScrollTrigger.refresh() hace obj(0) internamente
+    // para re-medir pines"). Sin este guard, ese scroll temporal a 0
+    // dispara onEnter/onLeaveBack de estos botones como si el usuario
+    // hubiera subido hasta arriba de todo — ocultándolos de golpe al
+    // abrir/cerrar CUALQUIER decisión, sin que el usuario haya scrolleado
+    // nada (bug confirmado en vivo).
 
     // Mismo patrón que mask-reveal.js/cta-section-reveal.js/etc. en
     // index.html: la posición en píxeles de cada ScrollTrigger se calcula

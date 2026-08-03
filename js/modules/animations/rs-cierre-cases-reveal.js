@@ -41,7 +41,11 @@ export function initRsCierreCasesReveal() {
 
     gsap.set(cards, { y: 60, opacity: 0 });
 
-    gsap.to(cards, {
+    // paused:true + onEnter/onLeave/onEnterBack/onLeaveBack manuales (en
+    // vez de toggleActions), todos con guard de ScrollTrigger.isRefreshing
+    // — ver comentario grande más abajo (mismo motivo que
+    // cta-buttons-reveal.js/rs-cierre-gracias-reveal.js).
+    const tween = gsap.to(cards, {
         y: 0,
         opacity: 1,
         duration: 0.6,
@@ -51,13 +55,29 @@ export function initRsCierreCasesReveal() {
         // que se alcance a ver un poco más de su entrada antes de que
         // dispare (la segunda hereda el mismo retraso vía el stagger).
         delay: 0.5,
-        scrollTrigger: {
-            trigger: container,
-            start: 'top 85%',
-            end: 'bottom 20%',
-            toggleActions: 'play reverse play reverse',
-        },
+        paused: true,
     });
+
+    ScrollTrigger.create({
+        trigger: container,
+        start: 'top 85%',
+        end: 'bottom 20%',
+        onEnter: () => { if (!ScrollTrigger.isRefreshing) tween.play(); },
+        onLeave: () => { if (!ScrollTrigger.isRefreshing) tween.reverse(); },
+        onEnterBack: () => { if (!ScrollTrigger.isRefreshing) tween.play(); },
+        onLeaveBack: () => { if (!ScrollTrigger.isRefreshing) tween.reverse(); },
+    });
+
+    // decision-mc-pin.js crea/destruye un ScrollTrigger con pin:true cada
+    // vez que se abre/cierra una decisión — eso obliga a GSAP a remedir
+    // TODOS los triggers de la página, y esa remedición interna mueve el
+    // scroll a 0 momentáneamente para calcular las posiciones de los
+    // elementos pineados (mismo mecanismo documentado en caso-asdeporte.js:
+    // "ScrollTrigger.refresh() hace obj(0) internamente para re-medir
+    // pines"). Sin el guard de arriba, ese scroll temporal a 0 disparaba
+    // onLeave/onEnterBack de estas cards como si el usuario hubiera subido
+    // hasta arriba de todo — ocultándolas de golpe al abrir/cerrar
+    // CUALQUIER decisión (bug confirmado en vivo).
 
     requestAnimationFrame(() => {
         ScrollTrigger.refresh();
