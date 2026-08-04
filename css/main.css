@@ -665,6 +665,19 @@ body *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(h1 *):not(h2 *):not(h
     letter-spacing: 0.05em;
 }
 
+/* Testimonios / Sobre mí / Contacto: mismo estilo de etiqueta "[ TEXTO ]"
+   que usa caso-asdeporte.html (.cs-label, variables.css) — .cs-label ya
+   pone color y uppercase iguales; acá solo se pisan tamaño/peso/tracking,
+   que .section-header__label define distinto. Selector compuesto (no
+   tocar .section-header__label a secas) para no afectar otros headers de
+   sección que no pidieron este cambio. */
+.section-header__label.cs-label {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.1em;
+}
+
 .section-header__title {
     color: var(--color-secondary);
     margin: 0;
@@ -946,10 +959,29 @@ body *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(h1 *):not(h2 *):not(h
 }
 
 /* CTA desktop del cta-section: oculto por default (solo visible en
-   ≥1200px de responsive.css). El .btn.btn--primary.cta-section__cta
-   hermano es el que se ve en mobile/tablet. */
+   ≥1200px CON mouse — hover:hover + pointer:fine, ver el bloque dedicado
+   en responsive.css). El .btn.btn--primary.cta-section__cta hermano es
+   el que se ve en mobile/tablet Y en cualquier dispositivo táctil, sin
+   importar el ancho. */
 .cta-section__cta-desktop {
     display: none;
+}
+
+/* cta-section-reveal.js envuelve CADA botón (mobile y desktop) en su
+   propio <span class="cta-cta-wrap"> para animar el "pop" sin pisar el
+   transform del botón — ese wrapper NO se oculta solo porque el botón de
+   adentro esté display:none, así que sin esto queda como un ítem flex
+   vacío dentro de .cta-section__body, agregando un gap de más (bug
+   confirmado en vivo: se veía más espacio hacia el email cuando estaba
+   activo el botón mobile, porque el wrapper vacío del desktop quedaba
+   DESPUÉS de él en el DOM). :has() lo oculta en pareja con su botón.
+   !important necesario: cta-section-reveal.js le pone display:inline-flex
+   directo en el atributo style de CADA wrapper (para la animación de
+   pop) — un estilo inline le gana a cualquier regla de hoja de estilos
+   sin importar especificidad, así que sin !important esta regla nunca
+   llega a aplicarse (bug confirmado en vivo). */
+.cta-cta-wrap:has(.cta-section__cta-desktop) {
+    display: none !important;
 }
 
 .cta-section__text {

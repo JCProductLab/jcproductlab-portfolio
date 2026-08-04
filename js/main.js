@@ -27,6 +27,7 @@ import { initCtaSectionReveal, initStickyReveal } from './modules/animations/cta
 import { initModalMiRol } from './modal-rol-proceso.js';
 import { initModalProceso } from './modal-proceso.js';
 import { initModalQueAprendi } from './modal-que-aprendi.js';
+import { initScrollToTop } from './modules/scroll-to-top.js';
 
 // Theme runs before DOMContentLoaded to avoid flash of wrong theme
 initTheme();
@@ -40,6 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initModalMiRol();
     initModalProceso();
     initModalQueAprendi();
+    // A diferencia de caso-asdeporte.html (mobile/tablet únicamente, ver
+    // scroll-to-top.js): index.html no tiene section-nav ni ningún atajo
+    // de navegación rápida propio de desktop, así que acá el botón debe
+    // aparecer siempre, en cualquier viewport.
+    initScrollToTop({ allowDesktop: true });
 });
 
 // Custom cursor: el canvas #fluid y el div #customCursor ya existen en el DOM

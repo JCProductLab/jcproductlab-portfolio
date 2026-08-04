@@ -27,4 +27,13 @@
     display: inline-block;
     will-change: transform, opacity;
     backface-visibility: hidden;
+    /* Sin esto, el color de este span queda gris: la regla amplia
+       "body *:not(h1)...":not(h6 *)" (main.css) apunta DIRECTO a este
+       span (no es herencia, es una coincidencia explícita), y una
+       declaración explícita siempre gana sobre un color heredado, sin
+       importar especificidad. color:inherit convierte esto en una regla
+       explícita propia (con especificidad de clase) que sí le gana a esa
+       regla del body, y hereda el color real del padre (ej. el verde de
+       .cs-label/.section-header__label) — bug confirmado en vivo. */
+    color: inherit;
 }

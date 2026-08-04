@@ -488,16 +488,12 @@
         gap: 40px;
     }
 
-    /* CTA desktop: invertir la visibilidad — en ≥1200px gana el
-       .btn-liquid (efecto hover de fusión), el .btn--primary hermano
-       se oculta. En mobile/tablet el .btn--primary sigue visible
-       (regla base) y el .btn-liquid permanece oculto. */
-    .cta-section__cta-mobile {
-        display: none;
-    }
-    .cta-section__cta-desktop {
-        display: inline-flex;
-    }
+    /* La visibilidad mobile/desktop de estos 2 botones NO va acá — ver
+       el bloque dedicado más abajo (mismo criterio que caso-asdeporte.html:
+       hover:hover + pointer:fine, no solo ancho). Este bloque es
+       min-width:1200px puro, así que una tablet táctil de ese ancho
+       también entraría acá y mostraría el botón liquid (pensado para
+       mouse) en vez del táctil — bug confirmado en vivo. */
 
     .cta-section__contacts {
         gap: 32px;
@@ -526,6 +522,36 @@
         flex: 0 1 200px;
     }
 
+}
+
+/* ============================================
+   CTA desktop — detecta touch vs mouse, no solo ancho
+   Mismo criterio que MQ_DESKTOP en caso-asdeporte.html: en ≥1200px CON
+   mouse (hover:hover + pointer:fine) gana el .btn-liquid (efecto hover de
+   fusión); el .btn--primary hermano se oculta. Una tablet táctil de
+   1200px+ (pointer:coarse) NO entra acá — se queda con el botón táctil
+   de la regla base (main.css: .cta-section__cta-desktop{display:none}),
+   igual que mobile/tablet angosto.
+   ============================================ */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+    .cta-section__cta-mobile {
+        display: none;
+    }
+    .cta-section__cta-desktop {
+        display: inline-flex;
+    }
+
+    /* Wrapper en pareja con su botón — ver el comentario grande junto a
+       .cta-cta-wrap:has(.cta-section__cta-desktop) en main.css (mismo
+       motivo del !important: estilo inline puesto por JS). Acá se
+       invierte: el botón visible es el desktop, así que el wrapper que
+       hay que ocultar es el del mobile. */
+    .cta-cta-wrap:has(.cta-section__cta-mobile) {
+        display: none !important;
+    }
+    .cta-cta-wrap:has(.cta-section__cta-desktop) {
+        display: inline-flex !important;
+    }
 }
 
 

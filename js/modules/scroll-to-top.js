@@ -1,13 +1,15 @@
 // js/modules/scroll-to-top.js
-// Botón flotante "volver arriba" — mobile/tablet. Compensa los bullets
-// del section-nav (desktop-only, ver scroll-nav.css/section-nav.js) para
-// viajar rápido en páginas largas — mobile no tiene ese recurso.
+// Botón flotante "volver arriba". En caso-asdeporte.html es mobile/tablet
+// únicamente — compensa los bullets del section-nav (desktop-only, ver
+// scroll-nav.css/section-nav.js) para viajar rápido en páginas largas, ya
+// que ahí desktop tiene ese recurso propio y no hace falta el botón.
 //
-// Se inyecta por JS, nunca vive en el HTML autoreado de ninguna página:
-// mismo criterio que el resto de los módulos mobile de esta sesión — así
-// no hace falta gatear/ocultar nada para desktop, el botón simplemente
-// no existe ahí (initScrollToTop se sale de inmediato si matchea
-// MQ_DESKTOP).
+// index.html no tiene section-nav ni ningún atajo equivalente en
+// desktop, así que ahí el botón debe aparecer SIEMPRE — initScrollToTop
+// acepta { allowDesktop: true } para saltarse el gate de MQ_DESKTOP en
+// ese caso (ver main.js).
+//
+// Se inyecta por JS, nunca vive en el HTML autoreado de ninguna página.
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 
@@ -49,8 +51,8 @@ function animateScrollToTop() {
     requestAnimationFrame(step);
 }
 
-export function initScrollToTop() {
-    if (window.matchMedia(MQ_DESKTOP).matches) return;
+export function initScrollToTop({ allowDesktop = false } = {}) {
+    if (!allowDesktop && window.matchMedia(MQ_DESKTOP).matches) return;
 
     // .btn-icon: mismo botón circular que .nav__hamburger (glass, 48px,
     // ver atoms.css) — .scroll-to-top solo agrega la posición fija y la

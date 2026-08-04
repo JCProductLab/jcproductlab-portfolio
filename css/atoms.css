@@ -856,13 +856,16 @@
 }
 
 /* ============================================
-   SCROLL TO TOP — botón flotante mobile/tablet
+   SCROLL TO TOP — botón flotante
    Inyectado por JS (ver js/modules/scroll-to-top.js) con class="btn-icon
    scroll-to-top" — mismo botón circular que .nav__hamburger (glass,
    48px, borde, ícono blanco), solo se agrega acá lo que hace falta de
-   más: posición fija y la animación de entrada/pulso. Sale solo en
-   desktop, así que estas reglas no necesitan gatearse a ningún
-   breakpoint — el elemento no existe ahí.
+   más: posición fija y la animación de entrada/pulso.
+   En caso-asdeporte.html el módulo sale (no corre) en desktop — ahí el
+   section-nav ya resuelve la navegación rápida. En index.html corre con
+   { allowDesktop: true } (ver main.js) y aparece en cualquier viewport,
+   sin gatearse a ningún breakpoint acá tampoco: el elemento simplemente
+   no existe en el DOM cuando el JS decide no crearlo.
    ============================================ */
 .scroll-to-top {
     position: fixed;
