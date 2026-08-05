@@ -702,6 +702,18 @@
         }
     </script>
 
+    <!-- Pin de "Sobre mí" y "Metodología" cuando su contenido desborda
+         los 100svh de la sección (independiente de main.js, mismo
+         patrón que fractal.js arriba) -->
+    <script type="module">
+        import { initPinnedOverflowSections } from './js/modules/animations/pinned-overflow-section.js';
+        if (document.readyState === 'complete') {
+            initPinnedOverflowSections();
+        } else {
+            window.addEventListener('load', initPinnedOverflowSections);
+        }
+    </script>
+
 </body>
 
 </html>
