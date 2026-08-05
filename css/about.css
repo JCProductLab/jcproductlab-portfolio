@@ -57,3 +57,118 @@
     }
 
 }
+
+/* ============================================
+   ORGANISMO: Methodology — Sección "Metodología"
+   ============================================ */
+
+.methodology {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+    padding: 24px;
+    background-color: var(--color-primary);
+}
+
+.methodology__header {
+    flex-shrink: 0;
+}
+
+.methodology__mask {
+    width: 100%;
+}
+
+.methodology__track {
+    width: 100%;
+}
+
+.methodology__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.methodology-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 24px;
+}
+
+.methodology-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.methodology-card__number {
+    margin: 0;
+    color: var(--color-accent);
+}
+
+.methodology-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 9999px;
+    border: 1px solid var(--color-glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    color: var(--color-accent);
+    font-size: 1.25rem;
+}
+
+.methodology-card__title {
+    margin: 0;
+    color: var(--color-secondary);
+}
+
+.methodology-card__description {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+/* ============================================
+   min-width: 700px — Tablet
+   ============================================ */
+
+@media (min-width: 700px) {
+
+    .methodology {
+        gap: 48px;
+        padding: 40px;
+    }
+
+    .methodology-card {
+        padding: 32px;
+    }
+
+}
+
+/* ============================================
+   min-width: 700px + max-width: 1199px + landscape — Tablet
+   landscape: 3 columnas, igual que desktop (about-responsive.css)
+   ============================================ */
+
+@media (min-width: 700px) and (max-width: 1199px) and (orientation: landscape) {
+
+    .methodology__grid {
+        flex-direction: row;
+    }
+
+    .methodology-card {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+}

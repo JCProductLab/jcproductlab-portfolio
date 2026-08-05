@@ -48,4 +48,24 @@
         transform: translate(50%, -50%);
     }
 
+    /* ============================================
+       Methodology — 3 columnas en fila
+       ============================================ */
+    .methodology {
+        padding: 64px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    .methodology__grid {
+        flex-direction: row;
+        gap: 32px;
+    }
+
+    .methodology-card {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 40px;
+    }
+
 }
