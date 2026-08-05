@@ -30,6 +30,17 @@ export function initPinnedOverflowSections() {
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const htmlEl = document.documentElement;
+    // html { scroll-behavior: smooth } (reset.css) rompe la medición
+    // interna de ScrollTrigger al crear/refrescar un pin en
+    // Chrome/Android (Blink) — mismo workaround que decision-mc-pin.js
+    // (ver createPin() ahí). Se captura UNA sola vez, al nivel del
+    // módulo, no dentro de cada setup(): si dos resizes ocurren dentro
+    // de los 500ms de la restauración diferida, un segundo setup()
+    // podría capturar 'auto' (el valor que dejó el primer setup() en
+    // vuelo) en vez del valor original real, y "restaurar" a 'auto'.
+    const originalScrollBehavior = htmlEl.style.scrollBehavior;
+
     let activeTriggers = [];
 
     function teardown() {
@@ -40,17 +51,6 @@ export function initPinnedOverflowSections() {
     function setup() {
         teardown();
 
-        // html { scroll-behavior: smooth } (reset.css) rompe la medición
-        // interna de ScrollTrigger al crear/refrescar un pin en
-        // Chrome/Android (Blink) — mismo workaround que
-        // decision-mc-pin.js (ver createPin() ahí). Se captura/restaura UNA
-        // sola vez por setup(), no por sección: htmlEl es compartido entre
-        // las dos secciones de CONFIGS, así que capturar/restaurar dentro
-        // del forEach corrompería prevScrollBehavior cuando ambas pinean
-        // (la segunda iteración capturaría 'auto', el valor que dejó la
-        // primera, no el original).
-        const htmlEl = document.documentElement;
-        const prevScrollBehavior = htmlEl.style.scrollBehavior;
         htmlEl.style.scrollBehavior = 'auto';
 
         CONFIGS.forEach(({ section, mask, track }) => {
@@ -85,15 +85,38 @@ export function initPinnedOverflowSections() {
         ScrollTrigger.refresh();
 
         window.setTimeout(() => {
-            htmlEl.style.scrollBehavior = prevScrollBehavior;
+            htmlEl.style.scrollBehavior = originalScrollBehavior;
         }, 500);
     }
 
     setup();
 
+    // lastWidth/lastHeight — geometría conocida tras el setup() inicial.
+    // El handler de resize solo reconstruye los pins si el viewport
+    // cambió de verdad (ancho, o alto en más de 120px). Filtra el
+    // resize que dispara Chrome/Android al mostrar/ocultar la barra de
+    // URL durante el scroll — ahí 100svh no cambia, pero sin este
+    // guard igual se destruían y recreaban los pins con la misma
+    // geometría, generando un ScrollTrigger.refresh() de sobra y un
+    // salto visible en pleno scroll.
+    let lastWidth = window.innerWidth;
+    let lastHeight = window.innerHeight;
+
+    function handleViewportChange() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        if (width === lastWidth && Math.abs(height - lastHeight) <= 120) return;
+        lastWidth = width;
+        lastHeight = height;
+        setup();
+    }
+
     let resizeTimeout;
-    window.addEventListener('resize', () => {
+    function debouncedViewportChange() {
         clearTimeout(resizeTimeout);
-        resizeTimeout = window.setTimeout(setup, 250);
-    });
+        resizeTimeout = window.setTimeout(handleViewportChange, 250);
+    }
+
+    window.addEventListener('resize', debouncedViewportChange);
+    window.addEventListener('orientationchange', debouncedViewportChange);
 }

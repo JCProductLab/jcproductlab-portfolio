@@ -84,6 +84,7 @@
     width: 100%;
     height: 100svh;
     padding: 24px;
+    padding-top: calc(24px + 64px);
     background-color: var(--color-primary);
     overflow: hidden;
 }
@@ -175,6 +176,7 @@
     .methodology {
         gap: 48px;
         padding: 40px;
+        padding-top: calc(40px + 64px);
     }
 
     .methodology-card {

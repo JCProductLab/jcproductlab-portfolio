@@ -11,7 +11,7 @@
        ============================================ */
     .about-bio {
         flex-direction: row;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 64px;
         padding: 64px;
         max-width: 1440px;
@@ -21,6 +21,7 @@
     .about-bio__header {
         flex: 0 0 35%;
         max-width: 35%;
+        align-self: flex-start;
     }
 
     .about-bio__mask {
@@ -53,6 +54,7 @@
        ============================================ */
     .methodology {
         padding: 64px;
+        padding-top: calc(64px + 64px);
         max-width: 1440px;
         margin: 0 auto;
     }

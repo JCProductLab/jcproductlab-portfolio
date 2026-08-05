@@ -41,6 +41,10 @@ export function initMaskReveal() {
         if (header.closest('.about-section')) return;
         // CTA section header is orchestrated by cta-section-reveal.js
         if (header.closest('.cta-section')) return;
+        // About bio header is orchestrated by pinned-overflow-section.js (pin)
+        if (header.closest('.about-bio')) return;
+        // Methodology header is orchestrated by pinned-overflow-section.js (pin)
+        if (header.closest('.methodology')) return;
 
         const title = header.querySelector('.section-header__title');
         const label = header.querySelector('.section-header__label');
