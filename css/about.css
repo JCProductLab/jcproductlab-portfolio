@@ -200,3 +200,29 @@
     }
 
 }
+
+/* ============================================
+   prefers-reduced-motion: reduce
+   pinned-overflow-section.js no crea ningún pin cuando el usuario
+   prefiere reducir movimiento — nunca se aplica el translateY que
+   revela el contenido excedente. Sin este fallback, height: 100svh +
+   overflow: hidden (reglas base de arriba) recortarían el párrafo de
+   "Sobre mí" o las cards de "Metodología" en vez de mostrarlos
+   completos. Se relaja a flujo natural: la sección crece más allá de
+   100vh si hace falta, sin pin ni scroll interno.
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .about-bio,
+    .methodology {
+        height: auto;
+        overflow: visible;
+    }
+
+    .about-bio__mask,
+    .methodology__mask {
+        overflow: visible;
+    }
+
+}

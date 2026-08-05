@@ -40,6 +40,19 @@ export function initPinnedOverflowSections() {
     function setup() {
         teardown();
 
+        // html { scroll-behavior: smooth } (reset.css) rompe la medición
+        // interna de ScrollTrigger al crear/refrescar un pin en
+        // Chrome/Android (Blink) — mismo workaround que
+        // decision-mc-pin.js (ver createPin() ahí). Se captura/restaura UNA
+        // sola vez por setup(), no por sección: htmlEl es compartido entre
+        // las dos secciones de CONFIGS, así que capturar/restaurar dentro
+        // del forEach corrompería prevScrollBehavior cuando ambas pinean
+        // (la segunda iteración capturaría 'auto', el valor que dejó la
+        // primera, no el original).
+        const htmlEl = document.documentElement;
+        const prevScrollBehavior = htmlEl.style.scrollBehavior;
+        htmlEl.style.scrollBehavior = 'auto';
+
         CONFIGS.forEach(({ section, mask, track }) => {
             const sectionEl = document.querySelector(section);
             const maskEl = document.querySelector(mask);
@@ -54,14 +67,6 @@ export function initPinnedOverflowSections() {
             const overflow = trackEl.scrollHeight - maskEl.clientHeight;
             if (overflow <= 0) return;
 
-            // html { scroll-behavior: smooth } (reset.css) rompe la medición
-            // interna de ScrollTrigger al crear/refrescar un pin en
-            // Chrome/Android (Blink) — mismo workaround que
-            // decision-mc-pin.js (ver createPin() ahí).
-            const htmlEl = document.documentElement;
-            const prevScrollBehavior = htmlEl.style.scrollBehavior;
-            htmlEl.style.scrollBehavior = 'auto';
-
             const tween = gsap.to(trackEl, { y: -overflow, ease: 'none' });
 
             const st = ScrollTrigger.create({
@@ -75,13 +80,13 @@ export function initPinnedOverflowSections() {
                 invalidateOnRefresh: true,
             });
             activeTriggers.push(st);
-
-            window.setTimeout(() => {
-                htmlEl.style.scrollBehavior = prevScrollBehavior;
-            }, 500);
         });
 
         ScrollTrigger.refresh();
+
+        window.setTimeout(() => {
+            htmlEl.style.scrollBehavior = prevScrollBehavior;
+        }, 500);
     }
 
     setup();
