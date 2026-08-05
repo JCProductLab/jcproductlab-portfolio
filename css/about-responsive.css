@@ -1,0 +1,30 @@
+/* ============================================
+   ABOUT (sobre-mi.html) — Desktop (1200px+)
+   Todo el contenido de este archivo vive dentro de un único
+   @media (min-width: 1200px), igual que responsive.css.
+   ============================================ */
+
+@media (min-width: 1200px) {
+
+    /* ============================================
+       Hero invertido — mismo layout que .hero de responsive.css
+       a 1200px (row + foto absoluta), espejado: la columna de la
+       foto (.hero__right) queda primera en el DOM (ver
+       sobre-mi.html), así que solo hace falta invertir el eje
+       principal y espejar la posición horizontal de la foto
+       dentro de su propia caja (antes bebía hacia la izquierda
+       desde su borde derecho, ahora bebe hacia la derecha desde
+       su borde izquierdo — mismo efecto de solape con el texto,
+       en el lado opuesto).
+       ============================================ */
+    .hero--about {
+        flex-direction: row-reverse;
+    }
+
+    .hero--about .hero__photo {
+        left: auto;
+        right: 40%;
+        transform: translate(50%, -50%);
+    }
+
+}

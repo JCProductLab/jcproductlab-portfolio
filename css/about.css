@@ -1,0 +1,8 @@
+/* ============================================
+   ABOUT (sobre-mi.html) — Base + Mobile/Tablet
+   Mobile-first: reglas base sin @media aplican a mobile,
+   overrides de tablet van en @media (min-width: 700px) y su
+   sub-caso landscape. Desktop (1200px+) vive en
+   about-responsive.css. Mismo patrón que case-study.css /
+   case-study-responsive.css.
+   ============================================ */
