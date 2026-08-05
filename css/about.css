@@ -6,3 +6,54 @@
    about-responsive.css. Mismo patrón que case-study.css /
    case-study-responsive.css.
    ============================================ */
+
+/* ============================================
+   ORGANISMO: About Bio — Sección "Sobre mí"
+   ============================================ */
+
+.about-bio {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+    padding: 24px;
+    padding-top: calc(24px + 64px);
+    background-color: var(--color-primary);
+}
+
+.about-bio__header {
+    flex-shrink: 0;
+}
+
+.about-bio__mask {
+    width: 100%;
+}
+
+.about-bio__track {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.about-bio__track p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+/* ============================================
+   min-width: 700px — Tablet
+   ============================================ */
+
+@media (min-width: 700px) {
+
+    .about-bio {
+        gap: 48px;
+        padding: 40px;
+        padding-top: calc(40px + 64px);
+    }
+
+    .about-bio__track {
+        gap: 24px;
+    }
+
+}

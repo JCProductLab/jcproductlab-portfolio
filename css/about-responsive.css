@@ -7,6 +7,27 @@
 @media (min-width: 1200px) {
 
     /* ============================================
+       About Bio — 2 columnas (header ~35% / texto ~62%)
+       ============================================ */
+    .about-bio {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 64px;
+        padding: 64px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    .about-bio__header {
+        flex: 0 0 35%;
+        max-width: 35%;
+    }
+
+    .about-bio__mask {
+        flex: 1 1 auto;
+    }
+
+    /* ============================================
        Hero invertido — mismo layout que .hero de responsive.css
        a 1200px (row + foto absoluta), espejado: la columna de la
        foto (.hero__right) queda primera en el DOM (ver
