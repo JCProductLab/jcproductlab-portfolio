@@ -7,46 +7,118 @@
 @media (min-width: 1200px) {
 
     /* ============================================
-       About Bio — 2 columnas (header ~35% / texto ~62%)
+       About Bio — 2 columnas 55/45 (header/párrafo). padding-top con el mismo +64px
+       de despeje del header fijo del sitio que usa el resto de la
+       página (antes esta regla tenía padding:64px parejo, sin ese
+       despeje — bug confirmado en vivo, el contenido arrancaba
+       tapado por el header). .about-bio__mask tiene un alto fijo de
+       400px en vez de estirarse a la altura completa de la sección:
+       con eso el desborde del párrafo (~1400-1600px de texto) queda
+       garantizado siempre, sin depender de qué tan alto sea el
+       viewport — la máscara de 400px hace de "ventana" fija y
+       pinned-overflow-section.js siempre encuentra overflow > 0 para
+       pinear en desktop.
+       align-items:center (antes stretch, con header/mask en
+       align-self:flex-start pegados arriba): ahora label+título y
+       párrafo quedan centrados verticalmente como bloque, entre el
+       borde inferior del header fijo del sitio (los 128px de
+       padding-top de arriba) y el borde inferior de la sección (los
+       64px de padding de abajo) — mismo criterio de centrado que el
+       resto de la página. Ninguno de los dos hijos lleva ya
+       align-self propio, así que ambos heredan este align-items.
        ============================================ */
     .about-bio {
         flex-direction: row;
-        align-items: stretch;
+        align-items: center;
         gap: 64px;
         padding: 64px;
+        padding-top: calc(64px + 64px);
         max-width: 1440px;
         margin: 0 auto;
     }
 
     .about-bio__header {
-        flex: 0 0 35%;
-        max-width: 35%;
-        align-self: flex-start;
+        flex: 0 0 55%;
+        max-width: 55%;
     }
 
     .about-bio__mask {
         flex: 1 1 auto;
+        height: 400px;
     }
 
     /* ============================================
        Hero invertido — mismo layout que .hero de responsive.css
-       a 1200px (row + foto absoluta), espejado: la columna de la
-       foto (.hero__right) queda primera en el DOM (ver
-       sobre-mi.html), así que solo hace falta invertir el eje
-       principal y espejar la posición horizontal de la foto
-       dentro de su propia caja (antes bebía hacia la izquierda
-       desde su borde derecho, ahora bebe hacia la derecha desde
-       su borde izquierdo — mismo efecto de solape con el texto,
-       en el lado opuesto).
+       a 1200px (row + foto absoluta). La columna de la foto
+       (.hero__right) ya queda PRIMERA en el DOM (ver sobre-mi.html),
+       así que flex-direction: row (NO row-reverse) alcanza para que
+       se vea primera/izquierda: row coloca el primer hijo del DOM en
+       main-start (izquierda en LTR). row-reverse hace lo contrario —
+       coloca el primer hijo del DOM en main-end (derecha), que es
+       exactamente la posición que ya tenía en index.html — así que
+       con row-reverse la foto terminaba en el mismo lado que en
+       index (bug confirmado en vivo: la foto no se invertía).
+       El posicionamiento de la foto en sí NO es un espejo del de
+       index.html (left:40% + translate(-50%,-50%), que la acerca al
+       borde cercano al texto) — acá va centrada dentro de
+       .hero__right (ver comentario en .hero--about .hero__photo).
        ============================================ */
     .hero--about {
-        flex-direction: row-reverse;
+        flex-direction: row;
     }
 
+    /* Centrada dentro de .hero__right, no espejada al 40% del borde
+       cercano al texto como en index.html — con las columnas 50/50
+       (ver .hero--about .hero__content debajo) ese 40% empujaba la
+       foto demasiado hacia la derecha, encimándose con el texto.
+       scaleX(-1) acá adentro (no como regla aparte en about.css,
+       donde vive el flip de mobile/tablet) porque transform no se
+       acumula entre reglas — esta declaración ya pisa la de mobile
+       para reposicionar, así que el flip tiene que ir en la misma.
+       width/height al 180% del tamaño ORIGINAL de index.html (681×912):
+       150% (1021.5×1368) + 20% más sobre ESE valor = 1225.8×1641.6.
+       El translate(-50%,-50%) sigue centrando bien porque el
+       porcentaje es relativo al tamaño propio del elemento, no a un
+       valor fijo. Esto también agranda la variante de pantalla
+       ancha-y-baja de abajo, que no redeclara width/height y hereda
+       estos dos.
+       +250px en Y (calc(-50% + 250px)): mueve la foto 250px hacia
+       abajo respecto del centrado vertical (200px que ya tenía + 50px
+       más) — solo en este bloque (desktop 1200px+ con viewport alto),
+       no en la variante de pantalla ancha-y-baja de abajo. */
     .hero--about .hero__photo {
-        left: auto;
-        right: 40%;
-        transform: translate(50%, -50%);
+        left: 50%;
+        right: auto;
+        width: 1225.8px;
+        height: 1641.6px;
+        transform: translate(-50%, calc(-50% + 250px)) scaleX(-1);
+    }
+
+    /* index.html reparte 60% texto / ~40% foto (.hero__content width:60%
+       + max-width:840px, responsive.css). Acá las 2 columnas van 50/50:
+       pisamos el width y quitamos el cap de 840px para que se mantenga
+       50/50 en cualquier ancho, no solo hasta 840px de columna.
+       El fondo también se pisa acá: .hero__content hereda de la regla
+       de 700px un degradado "linear-gradient(to right, opaco →
+       transparente)" pensado para desvanecerse hacia el lado donde
+       vive la foto — la derecha en index.html. Acá la foto está a la
+       izquierda (ver arriba), así que el degradado necesita la
+       dirección opuesta para seguir desvaneciéndose hacia la foto en
+       vez de alejarse de ella. */
+    .hero--about .hero__content {
+        width: 50%;
+        max-width: none;
+        background: linear-gradient(to left,
+                rgba(13, 13, 13, 0.95) 0%,
+                rgba(13, 13, 13, 0.85) 60%,
+                transparent 100%);
+    }
+
+    [data-theme="light"] .hero--about .hero__content {
+        background: linear-gradient(to left,
+                rgba(245, 245, 245, 0.95) 0%,
+                rgba(245, 245, 245, 0.85) 60%,
+                transparent 100%);
     }
 
     /* ============================================
@@ -68,6 +140,42 @@
         flex: 1 1 0;
         min-width: 0;
         padding: 40px;
+    }
+
+}
+
+/* ============================================
+   min-width: 1200px + max-width: 1280px + max-height: 700px
+   Narrow desktop + short viewport (tablets grandes en landscape,
+   ej. Galaxy Tab S8) — responsive.css define su propia variante de
+   .hero__photo para este caso (right:0; top:-120px; transform:none),
+   separada de la de @media (min-width:1200px) de arriba. Necesita su
+   propio bloque acá con las 4 propiedades fijadas — si solo
+   tocáramos el bloque de arriba, esta variante más específica de
+   responsive.css seguiría ganando acá por especificidad en las
+   propiedades no tocadas, mezclando ambas reglas en una posición
+   rota (bug confirmado en vivo).
+   Centrada dentro de .hero__right igual que en el bloque de arriba,
+   con un empujón extra de 100px hacia la derecha: left:50% +
+   translateX(calc(-50% + 100px)) (sin translateY — el top:-120px es
+   un offset absoluto propio de esta variante "corta", no un
+   centrado vertical, así que no lleva -50% en Y).
+   width/height al 130% del tamaño ORIGINAL de index.html (681×912,
+   responsive.css) — no al 130% del 150% que usa el bloque de arriba,
+   son dos ajustes independientes: 681×1.3=885.3, 912×1.3=1185.6. Sin
+   esto heredaría el 1021.5×1368 del bloque de @media (min-width:1200px)
+   de arriba (esta media query no redeclara width/height por sí sola).
+   ============================================ */
+
+@media (min-width: 1200px) and (max-width: 1280px) and (max-height: 700px) {
+
+    .hero--about .hero__photo {
+        left: 50%;
+        right: auto;
+        top: -120px;
+        width: 885.3px;
+        height: 1185.6px;
+        transform: translateX(calc(-50% + 100px)) scaleX(-1);
     }
 
 }

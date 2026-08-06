@@ -8,6 +8,35 @@
    ============================================ */
 
 /* ============================================
+   ORGANISMO: Hero (invertido)
+   Foto reflejada horizontalmente (mismo archivo que index.html,
+   assets/images/hero-photo.webp) para que la mirada/composición
+   quede coherente ahora que la foto vive del lado izquierdo en vez
+   del derecho. Sin @media: aplica en mobile y tablet (donde la foto
+   es fondo completo, sin transform propio) tal cual. Desktop
+   (1200px+) y el caso "pantalla ancha y baja" (about-responsive.css)
+   ya usan transform para centrar la foto — ahí el scaleX(-1) se
+   combina en la misma declaración de transform en vez de repetir
+   esta regla, porque transform no se acumula entre reglas distintas.
+   ============================================ */
+
+.hero--about .hero__photo {
+    transform: scaleX(-1);
+}
+
+/* Mobile únicamente (<700px) — 30px hacia la derecha además del
+   flip. No usa max-width: 699.98px (el complemento de mobile que usa
+   el resto del sitio, ej. rotate-overlay) porque acá no importa la
+   orientación, solo el ancho. Va después de la regla de arriba (gana
+   por orden en el archivo, misma especificidad) para no repetir el
+   scaleX(-1) en una regla aparte. */
+@media (max-width: 699.98px) {
+    .hero--about .hero__photo {
+        transform: translateX(30px) scaleX(-1);
+    }
+}
+
+/* ============================================
    ORGANISMO: About Bio — Sección "Sobre mí"
    ============================================ */
 
@@ -32,6 +61,19 @@
 
 .about-bio__header {
     flex-shrink: 0;
+}
+
+/* En columnas angostas (desktop/tablet-landscape, ver
+   about-responsive.css y el bloque tablet-landscape más abajo) una
+   palabra larga del título puede ser más ancha que la columna del
+   35-50% y desbordar horizontalmente sobre el párrafo de al lado
+   (bug confirmado en vivo). h1 ya tiene overflow-wrap: break-word en
+   variables.css; h2 no, así que lo agregamos acá puntual en vez de
+   tocar el h2 global (usado también en testimonios/CTA, donde no
+   hace falta). Inocuo en mobile/tablet-portrait: ahí el título tiene
+   todo el ancho de la sección, nunca llega a desbordar. */
+.about-bio__header .section-header__title {
+    overflow-wrap: break-word;
 }
 
 .about-bio__mask {
@@ -68,6 +110,59 @@
 
     .about-bio__track {
         gap: 24px;
+    }
+
+}
+
+/* ============================================
+   min-width: 700px + max-width: 1199px + landscape — Tablet
+   landscape: 2 columnas 50/50, igual que desktop
+   (about-responsive.css). No redeclara padding/gap: hereda
+   padding-top: calc(40px + 64px) del bloque de 700px de arriba, que
+   ya despeja el header fijo del sitio.
+   ============================================ */
+
+@media (min-width: 700px) and (max-width: 1199px) and (orientation: landscape) {
+
+    .about-bio {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .about-bio__header {
+        flex: 0 0 50%;
+        max-width: 50%;
+        align-self: flex-start;
+    }
+
+    .about-bio__mask {
+        flex: 1 1 auto;
+    }
+
+}
+
+/* ============================================
+   max-width: 699.98px — Mobile
+   Acá NO hace falta el scroll interno pineado: el párrafo completo
+   entra cómodo con el scroll normal de la página, a diferencia de
+   Metodología (que sigue pineando en mobile si sus cards no caben).
+   Se relaja a flujo natural, mismo patrón que el fallback de
+   prefers-reduced-motion de más abajo pero acá scopeado solo a
+   .about-bio (Metodología no se toca) y solo a este ancho — con
+   overflow:visible + height:auto, .about-bio__mask termina con la
+   misma altura que .about-bio__track (sin recorte), así que
+   pinned-overflow-section.js mide overflow <= 0 y no crea ningún pin.
+   ============================================ */
+
+@media (max-width: 699.98px) {
+
+    .about-bio {
+        height: auto;
+        overflow: visible;
+    }
+
+    .about-bio__mask {
+        overflow: visible;
     }
 
 }

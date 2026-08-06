@@ -23,6 +23,16 @@ const CONFIGS = [
     { section: '.methodology', mask: '.methodology__mask', track: '.methodology__track' },
 ];
 
+// scrub:1 introduce ~1s de inercia entre el scroll real y la posición
+// animada del track — sin margen, al llegar al final exacto de
+// `overflow` px el pin ya se libera pero la animación todavía está
+// "alcanzando" su valor final (y:-overflow), así que la última porción
+// del contenido nunca llega a mostrarse (bug confirmado en vivo: "no
+// hay scroll suficiente para ver todo el texto"). Este buffer extiende
+// el rango pineado más allá de `overflow` para darle tiempo al scrub
+// de asentarse antes de soltar el pin.
+const SCRUB_BUFFER_PX = 100;
+
 export function initPinnedOverflowSections() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
@@ -72,7 +82,7 @@ export function initPinnedOverflowSections() {
             const st = ScrollTrigger.create({
                 trigger: sectionEl,
                 start: 'top top',
-                end: () => '+=' + overflow,
+                end: () => '+=' + (overflow + SCRUB_BUFFER_PX),
                 pin: true,
                 pinSpacing: true,
                 scrub: 1,
