@@ -714,6 +714,17 @@
         }
     </script>
 
+    <!-- Reveal de "Sobre mí" (label + título + párrafo) — independiente
+         de main.js, mismo patrón que fractal.js/pinned-overflow arriba -->
+    <script type="module">
+        import { initAboutBioReveal } from './js/modules/animations/about-bio-reveal.js';
+        if (document.readyState === 'complete') {
+            initAboutBioReveal();
+        } else {
+            window.addEventListener('load', initAboutBioReveal);
+        }
+    </script>
+
 </body>
 
 </html>
