@@ -288,6 +288,34 @@
         width: 50%;
     }
 
+    /******************* Section headers *******************/
+    /* -15% sobre el clamp de h2 (variables.css: clamp(2rem, 7vw,
+       5.5rem)) — pedido puntual para tablet landscape, afecta a
+       TODOS los títulos que usan .section-header__title (no solo
+       sobre-mi.html). calc(clamp(...) * 0.85) en vez de recalcular
+       los 3 valores del clamp a mano: si el clamp base cambia en
+       variables.css, esto se mantiene proporcional sin tocar acá. */
+    .section-header__title {
+        font-size: calc(clamp(2rem, 7vw, 5.5rem) * 0.85);
+    }
+
+}
+
+/* ============================================
+   min-width: 1200px + landscape + touch — Tablets grandes en
+   landscape (Galaxy Tab S8 y similares). Su ancho cae en el bucket de
+   "desktop" de responsive.css (min-width:1200px) — detectado por
+   capacidad táctil (no por ancho/alto exactos) para no afectar
+   monitores de escritorio reales, mismo criterio que ya usa
+   about-responsive.css para .about-bio__mask en este mismo rango.
+   ============================================ */
+
+@media (min-width: 1200px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+
+    .section-header__title {
+        font-size: calc(clamp(2rem, 7vw, 5.5rem) * 0.85);
+    }
+
 }
 
 /* ============================================

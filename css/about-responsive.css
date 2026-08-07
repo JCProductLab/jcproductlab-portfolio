@@ -179,3 +179,61 @@
     }
 
 }
+
+/* ============================================
+   Tablets grandes en landscape (Galaxy Tab S8 y similares) — su
+   ancho en landscape (~1200-1280px) cae en el bucket de "desktop" de
+   arriba, así que heredan .about-bio__mask: 400px fijo + pin/scroll
+   interno pensados para monitores de escritorio. En vez de acotar por
+   ancho/alto exactos (ambiguo: un laptop chico tiene casi las mismas
+   dimensiones que una tablet grande en landscape), se detecta por
+   capacidad táctil — mismo criterio que ya usa el resto del proyecto
+   para distinguir tablet de desktop real (ver MQ_DESKTOP en
+   decision-mc-pin.js, apertura-tablet.js, etc.: "(hover: hover) and
+   (pointer: fine)" para desktop → acá el inverso). Esto cubre
+   CUALQUIER tablet táctil en landscape que caiga en min-width:1200px,
+   no solo la Galaxy Tab S8.
+   height/overflow no se redeclaran acá: la sección hereda
+   height:100svh + overflow:hidden de la regla base de about.css —
+   ocupa exactamente el alto del viewport. Sin pin ni scroll interno:
+   el párrafo se recorta a un alto fijo (70svh) con overflow:hidden
+   simple, sin ScrollTrigger: lo que no entra ahí queda oculto, sin
+   forma de revelarlo con scroll.
+   align-items:center ya viene heredado del bloque de arriba
+   (min-width:1200px, pensado para desktop real) — acá no hace falta
+   pisarlo. padding-top/padding-bottom SÍ se pisan: el bloque de
+   arriba usa 64px parejo + 64px hardcodeado como si ese fuera el alto
+   del header, en vez de --cs-header-height real (81px) — mismo
+   patrón que ya usa el resto del sitio (ej. decisiones-responsive.css,
+   `calc(var(--cs-header-height) + ...)`). Acá separamos el despeje
+   del header (--cs-header-height, exacto) del aire visual (64px, el
+   mismo valor arriba y abajo — antes solo estaba abajo). Con esto,
+   header y mask —columnas lado a lado, cada una centrada de forma
+   independiente— quedan dentro de una caja ya simétrica en aire y
+   exacta en el despeje del header.
+   ============================================ */
+@media (min-width: 1200px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+
+    .about-bio {
+        padding-top: calc(var(--cs-header-height) + 64px);
+        padding-bottom: 64px;
+    }
+
+    /* overflow:hidden (no auto) — pinned-overflow-section.js anima el
+       .about-bio__track con GSAP (translateY vía scrub) mientras la
+       sección queda pineada; el scroll nativo del mask competiría con
+       esa animación. */
+    .about-bio__mask {
+        height: 70svh;
+        overflow: hidden;
+    }
+
+}
+
+@supports not (height: 100svh) {
+    @media (min-width: 1200px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+        .about-bio__mask {
+            height: 70vh;
+        }
+    }
+}

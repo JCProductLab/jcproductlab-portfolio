@@ -7,6 +7,27 @@
    case-study-responsive.css.
    ============================================ */
 
+/* html { scroll-behavior: smooth } (reset.css) rompe la medición
+   interna de ScrollTrigger en Chrome/Android (Blink) — bug ya conocido
+   en este proyecto (ver decision-mc-pin.js), pero ahí es acotado
+   porque el pin es efímero. Acá .about-bio/.methodology
+   (pinned-overflow-section.js) pinean durante TODA la sesión de
+   scroll de la página, y neutralizar 'smooth' solo por JS alrededor
+   de create()/refresh() no alcanza: confirmado en vivo con un DOM
+   breakpoint en una Galaxy Tab S8 (tablet landscape) que es
+   ScrollTrigger.min.js el que vuelve a escribir "scroll-behavior:
+   smooth" inline en <html> por su cuenta — cachea el valor "normal"
+   apenas se ejecuta su propio <script> (antes de que corra nuestro
+   JS) y lo restaura después de cada remedición interna de pin,
+   sin importar lo que hagamos después vía JS. La única forma de que
+   GSAP cachee 'auto' en vez de 'smooth' es que el CSS ya diga eso
+   desde antes de que su script se ejecute. Costo: los anchor-links
+   internos de esta página (#sobre-mi, #hablemos) saltan directo en
+   vez de animar — aceptable frente a la sección rota. */
+html {
+    scroll-behavior: auto;
+}
+
 /* ============================================
    ORGANISMO: Hero (invertido)
    Foto reflejada horizontalmente (mismo archivo que index.html,
@@ -117,28 +138,60 @@
 /* ============================================
    min-width: 700px + max-width: 1199px + landscape — Tablet
    landscape: 2 columnas 50/50, igual que desktop
-   (about-responsive.css). No redeclara padding/gap: hereda
-   padding-top: calc(40px + 64px) del bloque de 700px de arriba, que
-   ya despeja el header fijo del sitio.
+   (about-responsive.css).
    ============================================ */
 
 @media (min-width: 700px) and (max-width: 1199px) and (orientation: landscape) {
 
+    /* height/overflow no se redeclaran: la sección hereda
+       height:100svh + overflow:hidden de la regla base de arriba —
+       ocupa exactamente el alto del viewport, sin crecer con el
+       contenido. Sin pin ni scroll interno: .about-bio__mask recorta
+       el párrafo a un alto fijo (70svh) con overflow:hidden simple,
+       sin ScrollTrigger — lo que no entra en ese alto queda oculto,
+       sin forma de revelarlo con scroll.
+       padding-top/padding-bottom SÍ se redeclaran acá (el bloque de
+       700px de arriba usa 40px parejo + 64px hardcodeado como si ese
+       fuera el alto del header, en vez de --cs-header-height real:
+       81px — mismo patrón que ya usa el resto del sitio, ej.
+       decisiones-responsive.css, `calc(var(--cs-header-height) + ...)`).
+       Acá separamos el despeje del header (--cs-header-height, exacto)
+       del aire visual (40px, el mismo valor arriba y abajo — antes
+       solo estaba abajo, haciendo el padding-top casi el doble que el
+       padding-bottom). align-items:center centra header y mask —
+       columnas lado a lado, cada una de forma independiente — dentro
+       de esa caja ya simétrica en aire y exacta en el despeje del
+       header. */
     .about-bio {
         flex-direction: row;
-        align-items: stretch;
+        align-items: center;
+        padding-top: calc(var(--cs-header-height) + 40px);
+        padding-bottom: 40px;
     }
 
     .about-bio__header {
         flex: 0 0 50%;
         max-width: 50%;
-        align-self: flex-start;
     }
 
+    /* overflow:hidden (no auto) — pinned-overflow-section.js anima el
+       .about-bio__track con GSAP (translateY vía scrub) mientras la
+       sección queda pineada; el scroll nativo del mask competiría con
+       esa animación. */
     .about-bio__mask {
         flex: 1 1 auto;
+        height: 70svh;
+        overflow: hidden;
     }
 
+}
+
+@supports not (height: 100svh) {
+    @media (min-width: 700px) and (max-width: 1199px) and (orientation: landscape) {
+        .about-bio__mask {
+            height: 70vh;
+        }
+    }
 }
 
 /* ============================================
