@@ -18,15 +18,17 @@
 // la misma propiedad en el mismo elemento desde dos módulos distintos
 // pelearía por el control de `y`.
 //
-// Mobile (<700px) es distinto: ahí .about-bio no pinea (about.css lo
-// deja en flujo natural, el párrafo completo entra con scroll normal
-// de la página — ver ese bloque), así que no hay ningún `y` en pelea
-// y cada <p> puede tener su propio ScrollTrigger independiente, mismo
+// Mobile (<700px) y tablet portrait (700-1199.98px, orientation:
+// portrait) son distintos: ahí .about-bio no pinea (about.css los deja
+// en flujo natural, el párrafo completo entra con scroll normal de la
+// página — ver esos bloques), así que no hay ningún `y` en pelea y
+// cada <p> puede tener su propio ScrollTrigger independiente, mismo
 // mecanismo que ya usa testimonial-cards-reveal.js para sus cards en
 // mobile ("CADA card tiene su propio ScrollTrigger... dispara su
 // entry cuando entra al viewport"): la misma animación (fade + y)
 // pero escalonada y seguida al scroll, párrafo por párrafo, en vez de
-// como un solo bloque.
+// como un solo bloque. Tablet landscape y desktop (isTabletDesktop)
+// siguen pineados con el bloque único (.about-bio__mask).
 // ============================================
 
 export function initAboutBioReveal() {
@@ -69,8 +71,12 @@ export function initAboutBioReveal() {
 
     mm.add(
         {
-            isMobile: '(max-width: 699.98px)',
-            isTabletDesktop: '(min-width: 700px)',
+            // Mobile + tablet portrait: mismo comportamiento (flujo
+            // natural, párrafo por párrafo). Tablet portrait no se
+            // distingue de tablet landscape por pointer/hover (ambos
+            // son táctiles) sino por orientation, igual que about.css.
+            isMobile: '(max-width: 699.98px), (min-width: 700px) and (max-width: 1199.98px) and (orientation: portrait)',
+            isTabletDesktop: '(min-width: 1200px), (min-width: 700px) and (max-width: 1199.98px) and (orientation: landscape)',
         },
         (context) => {
             const { isMobile } = context.conditions;

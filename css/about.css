@@ -221,6 +221,32 @@ html {
 }
 
 /* ============================================
+   min-width: 700px + max-width: 1199.98px + portrait — Tablet
+   portrait: mismo comportamiento que mobile (flujo natural, sin pin
+   ni scroll interno pineado) — a diferencia de tablet landscape (que
+   sigue recortando a 70svh + pin/scroll, ver bloque de arriba), acá
+   el párrafo entra completo con el scroll normal de la página.
+   Mismo mecanismo que el bloque de mobile: con overflow:visible +
+   height:auto, .about-bio__mask termina con la misma altura que
+   .about-bio__track (sin recorte), así que pinned-overflow-section.js
+   mide overflow <= 0 y no crea ningún pin — about-bio-reveal.js
+   entonces anima cada párrafo con su propio ScrollTrigger, igual que
+   en mobile.
+   ============================================ */
+@media (min-width: 700px) and (max-width: 1199.98px) and (orientation: portrait) {
+
+    .about-bio {
+        height: auto;
+        overflow: visible;
+    }
+
+    .about-bio__mask {
+        overflow: visible;
+    }
+
+}
+
+/* ============================================
    ORGANISMO: Methodology — Sección "Metodología"
    ============================================ */
 
@@ -267,6 +293,11 @@ html {
     width: 100%;
 }
 
+/* --entry-* : reveal de entrada (methodology-reveal.js), mismo
+   mecanismo que --entry-* en testimonial-cards-reveal.css (GSAP
+   escribe estas custom properties vía ScrollTrigger scrub). Sin
+   --tilt-* acá: a diferencia de .testimonial-card, .methodology-card
+   no tiene hover 3D con el que componer. */
 .methodology-card {
     display: flex;
     flex-direction: column;
@@ -275,6 +306,11 @@ html {
     background-color: var(--color-bg);
     border: 1px solid var(--color-glass-border);
     border-radius: 24px;
+    --entry-y: 0px;
+    --entry-scale: 1;
+    transform:
+        translate3d(0, var(--entry-y), 0)
+        scale3d(var(--entry-scale), var(--entry-scale), var(--entry-scale));
 }
 
 .methodology-card__header {
@@ -373,6 +409,7 @@ html {
     }
 
     .methodology-card {
+        gap: 24px;
         padding: 32px;
     }
 
@@ -392,6 +429,7 @@ html {
     .methodology-card {
         flex: 1 1 0;
         min-width: 0;
+        padding: 24px;
     }
 
 }

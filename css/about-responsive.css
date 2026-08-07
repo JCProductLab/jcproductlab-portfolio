@@ -158,15 +158,19 @@
    ============================================ */
 @media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
 
+    .methodology-card {
+        gap: 32px;
+    }
+
     .methodology-card__number {
-        font-size: 200px;
+        font-size: 180px;
         height: 140px;
     }
 
     .methodology-card__icon {
-        width: 96px;
-        height: 96px;
-        font-size: 3rem;
+        width: 72px;
+        height: 72px;
+        font-size: 2.25rem;
     }
 
 }
@@ -255,6 +259,10 @@
         overflow: hidden;
     }
 
+    .methodology-card {
+        padding: 24px;
+    }
+
 }
 
 @supports not (height: 100svh) {
@@ -263,4 +271,25 @@
             height: 70vh;
         }
     }
+}
+
+/* ============================================
+   min-width: 700px + max-width: 1199.98px — Tablet
+   Tamaño intermedio del número (entre base 120px y desktop 180px).
+   height = 140 × 0.7 = 98px (mismo ratio 0.7 que el resto de
+   breakpoints, ver comentario en about.css:294-303).
+   ============================================ */
+@media (min-width: 700px) and (max-width: 1199.98px) {
+
+    .methodology-card__number {
+        font-size: 140px;
+        height: 98px;
+    }
+
+    .methodology-card__icon {
+        width: 64px;
+        height: 64px;
+        font-size: 2rem;
+    }
+
 }

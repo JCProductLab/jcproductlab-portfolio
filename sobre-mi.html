@@ -725,6 +725,17 @@
         }
     </script>
 
+    <!-- Reveal de "Metodología" (label + título) — independiente de
+         main.js, mismo patrón que fractal.js/pinned-overflow arriba -->
+    <script type="module">
+        import { initMethodologyReveal } from './js/modules/animations/methodology-reveal.js';
+        if (document.readyState === 'complete') {
+            initMethodologyReveal();
+        } else {
+            window.addEventListener('load', initMethodologyReveal);
+        }
+    </script>
+
 </body>
 
 </html>
