@@ -145,6 +145,33 @@
 }
 
 /* ============================================
+   min-width: 1200px + desktop real (no táctil) — número/ícono a tamaño
+   completo (200px / 96x96, el pedido original tal cual about.jpg,
+   capturado en un ancho de escritorio). Acotado a "hover:hover and
+   pointer:fine" (no solo min-width:1200px) porque las tablets grandes
+   táctiles TAMBIÉN caen en ese ancho pero con cards más angostas (ver
+   la card de about.css, tamaño base 120px/56x56) — a esos 200px/96x96
+   completos el ícono termina desbordando la card (confirmado en vivo,
+   Galaxy Tab S8, ~36px afuera del borde). Mismo criterio que ya usa
+   about-responsive.css para .about-bio__mask (MQ_DESKTOP en
+   decision-mc-pin.js, etc.).
+   ============================================ */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+
+    .methodology-card__number {
+        font-size: 200px;
+        height: 140px;
+    }
+
+    .methodology-card__icon {
+        width: 96px;
+        height: 96px;
+        font-size: 3rem;
+    }
+
+}
+
+/* ============================================
    min-width: 1200px + max-width: 1280px + max-height: 700px
    Narrow desktop + short viewport (tablets grandes en landscape,
    ej. Galaxy Tab S8) — responsive.css define su propia variante de

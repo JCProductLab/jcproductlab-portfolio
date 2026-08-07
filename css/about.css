@@ -284,8 +284,30 @@ html {
     gap: 16px;
 }
 
+/* Tamaño base (mobile/tablet, cualquier ancho de card angosto — 1 o 3
+   columnas): 200px/96x96 (el pedido original, ver about-responsive.css
+   para el desktop real 1200px+ no táctil) desborda una card angosta
+   — confirmado en vivo en tablet landscape, el ícono terminaba
+   ~36px afuera del borde de la card. Acá va a un 60% de esos valores
+   (120px número, 56px ícono), mismo recorte/proporción, solo más
+   chico para que quepa. Alto recortado a propósito (menos que
+   font-size × line-height 1.1): en el diseño de referencia (about.jpg)
+   el número se ve cortado por abajo, no completo — overflow:hidden +
+   un alto fijo menor logra ese mismo recorte (mismo ratio 0.7 que
+   140/200 en el pedido original). display:block porque
+   .number-display es un <span> (inline por defecto) y overflow:hidden
+   no recorta inline. flex-shrink:0 — sin esto,
+   .methodology-card__header (flex) achica el span para que quepa
+   junto al ícono, y overflow:hidden recortaba el segundo dígito por
+   el LADO (ancho), no solo por abajo (bug confirmado en vivo:
+   "01"/"02"/"03" se veían todos iguales, solo el "0"). */
 .methodology-card__number {
+    display: block;
+    flex-shrink: 0;
     margin: 0;
+    font-size: 120px;
+    height: 84px;
+    overflow: hidden;
     color: var(--color-accent);
 }
 
@@ -294,19 +316,42 @@ html {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 56px;
+    height: 56px;
     border-radius: 9999px;
     border: 1px solid var(--color-glass-border);
     background: var(--glass-bg);
     backdrop-filter: var(--glass-backdrop);
     -webkit-backdrop-filter: var(--glass-backdrop);
     color: var(--color-accent);
-    font-size: 1.25rem;
+    /* Mismo ratio 0.5 que el pedido original (48px de icono / 96px de
+       círculo): el icono crece en proporción al círculo. */
+    font-size: 1.75rem;
 }
 
+/* La regla amplia "body *:not(h1)...":not(h6 *)" (main.css) le pone
+   gris explícito al <i> del icono (no es herencia del color:accent de
+   arriba, es una coincidencia DIRECTA sobre el <i> — un valor
+   explícito siempre gana sobre uno heredado, sin importar
+   especificidad). Mismo bug y mismo fix que .mask-reveal__inner en
+   mask-reveal.css: color:inherit vuelve a hacerlo una declaración
+   explícita (ahora "heredar"), que sí le gana a la regla de main.css. */
+.methodology-card__icon i {
+    color: inherit;
+}
+
+/* Misma familia/peso/line-height que .cs-section-title (la receta
+   más parecida ya existente para un H2/H3 en Plus Jakarta Sans 500,
+   line-height 1.1) — pero con tamaño fijo en vez del clamp fluido de
+   esa clase: acá se pide 32px exactos, y el clamp de .cs-section-title
+   (2rem-4rem según el ancho del VIEWPORT completo, no de la card)
+   pasaría de los 32px en la mayoría de tablets/desktops reales. */
 .methodology-card__title {
     margin: 0;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.1;
     color: var(--color-secondary);
 }
 
@@ -347,6 +392,37 @@ html {
     .methodology-card {
         flex: 1 1 0;
         min-width: 0;
+    }
+
+}
+
+/* ============================================
+   Mobile + tablet (cualquier orientación) — sin pin ni scroll interno
+   en las cards de Metodología. Nunca se pidió eso acá, solo para el
+   párrafo de "Sobre mí" — pero pinned-overflow-section.js es
+   genérico (corre igual para .about-bio y .methodology) y con
+   overflow:hidden + alto fijo, si las 3 cards no entraban en 100svh
+   (mobile: apiladas en columna; tablet landscape: fila más baja que
+   desktop), medía overflow > 0 y pineaba igual, sin que nadie lo
+   pidiera. height:auto + overflow:visible (mismo patrón que
+   .about-bio en estos rangos, y que el fallback de
+   prefers-reduced-motion de más abajo) hace que .methodology__mask
+   termine con la misma altura que .methodology__track — overflow
+   mide <= 0 y pinned-overflow-section.js no crea ningún ScrollTrigger
+   acá. Desktop real (1200px+, no táctil) no se toca: ahí las 3 cards
+   en una sola fila ya entran en 100svh sin desbordar (motivo original
+   por el que nunca pineaba ahí).
+   ============================================ */
+
+@media (max-width: 1199.98px), (min-width: 1200px) and (hover: none) and (pointer: coarse) {
+
+    .methodology {
+        height: auto;
+        overflow: visible;
+    }
+
+    .methodology__mask {
+        overflow: visible;
     }
 
 }

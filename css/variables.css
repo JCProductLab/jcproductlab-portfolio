@@ -208,6 +208,20 @@ h4 {
    line-height: 1.3;
 }
 
+/* Display Number — número grande de tarjeta (ej. "01" de las cards de
+   Metodología en sobre-mi.html). No hay ningún estilo existente con
+   este tamaño exacto (144px de .cs-gracias y el clamp 96-240px de
+   .cs-metric son los más cercanos, pero ninguno da 200px fijo) —
+   clase nueva, misma familia/peso/line-height que esos dos. Sin
+   font-size a propósito: el tamaño real (200px en desktop, menor en
+   tablet/mobile — las cards de 3 columnas angostas no entran con
+   200px) lo controla el componente que la usa (about.css). */
+.number-display {
+   font-family: var(--font-display);
+   font-weight: 500;
+   line-height: 1.1;
+}
+
 /* Body Large — Cuerpo de texto más grande */
 .large-paragraph {
    font-size: clamp(1.125rem, 1.25vw, 1.375rem);
