@@ -690,6 +690,27 @@
     <!-- ============================================ -->
     <!-- JAVASCRIPT — defer, non-blocking            -->
     <!-- ============================================ -->
+
+    <!-- Pin de "Sobre mí" y "Metodología" cuando su contenido desborda los
+         100svh de la sección — VA ANTES que js/main.js a propósito: los
+         scripts type="module" (inline o externos) se ejecutan en orden de
+         documento, y sus listeners de 'load' se disparan en ese mismo
+         orden de registro. main.js crea ahí los ScrollTrigger de
+         "Clientes satisfechos" y "Contacto" — si este pin corría después,
+         esos triggers medían la posición de la página ANTES de que el pin
+         insertara su pin-spacer (~500px), quedaban desfasados, y
+         ScrollTrigger.refresh() no los corregía después (confirmado en
+         vivo con DevTools) — por eso ninguna de sus animaciones se veía en
+         el punto correcto del scroll pese a ajustar los tiempos. -->
+    <script type="module">
+        import { initPinnedOverflowSections } from './js/modules/animations/pinned-overflow-section.js';
+        if (document.readyState === 'complete') {
+            initPinnedOverflowSections();
+        } else {
+            window.addEventListener('load', initPinnedOverflowSections);
+        }
+    </script>
+
     <script type="module" src="js/main.js" defer></script>
 
     <!-- Fractal Aurora — fondo .cta-section (independiente de main.js) -->
@@ -699,18 +720,6 @@
             initFractalBackground();
         } else {
             window.addEventListener('load', initFractalBackground);
-        }
-    </script>
-
-    <!-- Pin de "Sobre mí" y "Metodología" cuando su contenido desborda
-         los 100svh de la sección (independiente de main.js, mismo
-         patrón que fractal.js arriba) -->
-    <script type="module">
-        import { initPinnedOverflowSections } from './js/modules/animations/pinned-overflow-section.js';
-        if (document.readyState === 'complete') {
-            initPinnedOverflowSections();
-        } else {
-            window.addEventListener('load', initPinnedOverflowSections);
         }
     </script>
 

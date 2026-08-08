@@ -40,6 +40,21 @@ export function initTestimonialCardsReveal() {
     const cards = Array.from(section.querySelectorAll('.testimonial-card'));
     if (!cards.length) return;
 
+    // sobre-mi.html ('.hero--about' es su único marcador en el DOM) necesita
+    // un rango de trigger relativo al propio elemento en vez del % fijo de vh
+    // que usa index.html — ahí la sección queda más corta en el flujo de la
+    // página y el rango fijo hacía que la entrada ya estuviera completa antes
+    // de llegar a verla, y que la salida se reprodujera fuera de pantalla.
+    // Gateado por página para no tocar el timing ya validado en index.html.
+    const isAboutPage = !!document.querySelector('.hero--about');
+    // El ajuste es solo para tablet/desktop — mobile (mismo umbral que
+    // isStacked/isRow en methodology-reveal.js) ya estaba bien y no se pidió
+    // tocarlo. Se usa solo dentro de buildMobileCardTriggers(): la rama
+    // desktop nunca corre en mobile (isDesktop exige hover:hover), así que
+    // ahí isAboutPage solo no necesita este filtro extra.
+    const isPhoneWidth = window.matchMedia('(max-width: 699.98px)').matches;
+    const tuneForAboutPage = isAboutPage && !isPhoneWidth;
+
     // Wrap idempotente en .mask-reveal__inner — el container (.mask-reveal) recibe
     // overflow:hidden de mask-reveal.css, lo que convierte el xPercent/yPercent
     // del inner en un wipe/reveal real.
@@ -107,18 +122,29 @@ export function initTestimonialCardsReveal() {
                 const TITLE_DUR = 0.9;
                 const CARDS_START = 0.85;
                 const CARDS_DUR = 0.9;
-                const REST_DUR = 0.4;
-                const EXIT_START = CARDS_START + CARDS_DUR + REST_DUR;     // 2.15
-                const TITLE_EXIT_START = EXIT_START + 0.5;                       // 2.65
-                const LABEL_EXIT_START = TITLE_EXIT_START + 0.45;                // 3.10
+                // sobre-mi.html: .testimonial-section ahí es mucho más corta
+                // (sin altura fija, content-hugging) que el tramo de scroll
+                // fijo que index.html ya tenía calibrado — con REST_DUR=0.4
+                // el EXIT arrancaba mientras la sección todavía estaba recién
+                // asentada y totalmente visible ("empieza mucho antes").
+                // 1.4 alarga el tramo "quieto" antes de empezar a salir.
+                const REST_DUR = isAboutPage ? 1.4 : 0.4;
+                const EXIT_START = CARDS_START + CARDS_DUR + REST_DUR;     // 2.15 (index) / 3.15 (about)
+                const TITLE_EXIT_START = EXIT_START + 0.5;
+                const LABEL_EXIT_START = TITLE_EXIT_START + 0.45;
                 const TITLE_EXIT_DUR = 0.8;
                 const LABEL_EXIT_DUR = 0.6;
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: section,
-                        start: 'top 70%',
-                        end: 'top -90%',
+                        // sobre-mi.html: start más tarde ('top 65%' en vez de
+                        // 'top 85%') — retrasa cuándo arranca la entrada, que
+                        // se disparaba con la sección apenas asomando y para
+                        // cuando el usuario la veía ya estaba resuelta. end
+                        // 'bottom 15%' se deja igual (ya confirmado en reversa).
+                        start: isAboutPage ? 'top 65%' : 'top 70%',
+                        end: isAboutPage ? 'bottom 15%' : 'top -90%',
                         scrub: 1,
                         onEnter: () => lockTransition(cards),
                         onLeave: () => releaseTransition(cards),
@@ -211,14 +237,17 @@ export function initTestimonialCardsReveal() {
                         opacity: 0,
                     });
 
-                    // Timing por card: ~2.4 unidades.
+                    // Timing por card: ~2.4 unidades (mobile/index) o ~3.2
+                    // (sobre-mi.html tablet, ver REST_DUR abajo).
                     // Entry 0→1.0  (card sube y se ensambla)
-                    // Rest  1.0→1.4 (card asentada, plenamente legible)
-                    // Exit  1.4→2.4 (card se eleva y desvanece por arriba)
+                    // Rest  1.0→1.4/2.2 (card asentada, plenamente legible)
+                    // Exit  después del rest (card se eleva y desvanece)
                     const ENTRY_DUR = 1.0;
-                    const REST_DUR = 0.4;
+                    // sobre-mi.html (tablet): mismo motivo que la rama
+                    // desktop — alarga el tramo "quieto" antes del exit.
+                    const REST_DUR = tuneForAboutPage ? 1.2 : 0.4;
                     const EXIT_DUR = 1.0;
-                    const EXIT_START_CARD = ENTRY_DUR + REST_DUR; // 1.4
+                    const EXIT_START_CARD = ENTRY_DUR + REST_DUR;
 
                     const tl = gsap.timeline({
                         scrollTrigger: {
@@ -226,11 +255,16 @@ export function initTestimonialCardsReveal() {
                             // Cada card dispara su animación al asomar por el
                             // borde inferior del viewport — el usuario la ve
                             // ensamblarse exactamente cuando llega a ella.
-                            start: 'top 85%',
-                            // Rango ~115%vh: después del REST la card aún es
-                            // legible; el exit ocurre mientras todavía está
-                            // visible en la mitad superior del viewport.
-                            end: 'top -30%',
+                            // sobre-mi.html (tablet): start más tarde ('top
+                            // 75%' en vez de 'top 90%') — retrasa cuándo
+                            // arranca la entrada, igual motivo que la rama
+                            // desktop de arriba.
+                            start: tuneForAboutPage ? 'top 75%' : 'top 85%',
+                            // sobre-mi.html (tablet): 'bottom 10%' deja margen
+                            // visible al terminar el exit (ya confirmado en
+                            // reversa). Mobile e index.html conservan el
+                            // rango fijo validado.
+                            end: tuneForAboutPage ? 'bottom 10%' : 'top -30%',
                             scrub: 1,
                             onEnter: () => lockTransition(card),
                             onLeave: () => releaseTransition(card),

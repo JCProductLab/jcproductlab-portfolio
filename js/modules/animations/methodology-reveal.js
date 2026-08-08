@@ -178,8 +178,23 @@ export function initMethodologyReveal() {
                     const rowTl = gsap.timeline({
                         scrollTrigger: {
                             trigger: section,
+                            // start SIN TOCAR — 'top 55%' es el punto en el
+                            // que la entrada ya se veía bien (no se pidió
+                            // ajustarlo). end: 'bottom 20%' (relativo al
+                            // propio elemento, no un % fijo de vh) deja un
+                            // margen de ~20% de viewport todavía visible al
+                            // terminar el EXIT — 'bottom top' (0% de margen,
+                            // usado en el ajuste anterior) resolvía que el
+                            // EXIT no se cortara al bajar, pero en reversa
+                            // (scroll hacia arriba) esa misma franja de 0%
+                            // hacía que la entrada revertida se reprodujera
+                            // casi entera mientras la sección apenas asomaba
+                            // 1-2px, imperceptible. Con margen, el EXIT sigue
+                            // completando dentro de lo visible al bajar, y al
+                            // subir la reversa ya tiene una porción visible
+                            // razonable de la sección para reproducirse.
                             start: 'top 55%',
-                            end: '+=220%',
+                            end: 'bottom 20%',
                             scrub: 1,
                         },
                     });

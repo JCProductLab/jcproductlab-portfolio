@@ -83,6 +83,17 @@ export function initCtaSectionReveal() {
     const ctaMobileWrap = wrapButton(ctaMobile);
     const ctaDesktopWrap = wrapButton(ctaDesktop);
 
+    // sobre-mi.html ('.hero--about' es su único marcador en el DOM): la
+    // sección previa a .cta-section ahí no es .about-section (sticky, ver
+    // initStickyReveal más abajo), así que el rango fijo 'top 70%'/'bottom
+    // 80%' no alcanzaba a mostrar la entrada. Gateado por página para no
+    // tocar el timing ya validado en index.html. Este módulo no tiene
+    // matchMedia (corre igual en todos los viewports), así que además se
+    // excluye mobile explícitamente — el ajuste es solo para tablet/desktop,
+    // Contacto en mobile ya estaba bien y no se pidió tocarlo.
+    const isAboutPage = !!document.querySelector('.hero--about')
+        && !window.matchMedia('(max-width: 699.98px)').matches;
+
     // ── Estados iniciales ────────────────────────────────────────────
     if (labelInner) gsap.set(labelInner, { xPercent: -100, opacity: 0 });
     if (titleInner) gsap.set(titleInner, { yPercent: 150 });
@@ -106,11 +117,15 @@ export function initCtaSectionReveal() {
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: section,
-            start: 'top 70%',
+            start: isAboutPage ? 'top 85%' : 'top 70%',
             // 'bottom 80%' termina la animación cuando la sección está
             // completamente visible — evita que el footer aparezca antes
-            // de que la coreografía complete.
-            end: 'bottom 80%',
+            // de que la coreografía complete. En sobre-mi.html usamos
+            // 'bottom 15%' (mirror del 85% del start, relativo al propio
+            // elemento) — 'bottom top' (0% margen, usado en el ajuste
+            // anterior) hacía que la entrada revertida en scroll-reversa
+            // fuera casi imperceptible, con la sección apenas asomando.
+            end: isAboutPage ? 'bottom 15%' : 'bottom 80%',
             scrub: 1,
         },
     });
