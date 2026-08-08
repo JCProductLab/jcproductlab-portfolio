@@ -291,13 +291,20 @@ html {
     flex-direction: column;
     gap: 24px;
     width: 100%;
+    /* Mismo criterio que .testimonial-section__grid en main.css: la
+       perspectiva vive en el contenedor, no en cada card, para que el
+       rotateX/rotateY del hover 3D (--tilt-rx/--tilt-ry) tenga
+       profundidad real. Inofensivo sin hover activo (--tilt-* en 0). */
+    perspective: 1200px;
 }
 
 /* --entry-* : reveal de entrada (methodology-reveal.js), mismo
    mecanismo que --entry-* en testimonial-cards-reveal.css (GSAP
-   escribe estas custom properties vía ScrollTrigger scrub). Sin
-   --tilt-* acá: a diferencia de .testimonial-card, .methodology-card
-   no tiene hover 3D con el que componer. */
+   escribe estas custom properties vía ScrollTrigger scrub).
+   --tilt-* : mismo hover 3D + shine que .testimonial-card
+   (interactions.js, sólo pointer:fine/desktop) — compuesto con
+   --entry-* igual que testimonial-cards-reveal.css hace con
+   .testimonial-card, para no romper el reveal de entrada. */
 .methodology-card {
     display: flex;
     flex-direction: column;
@@ -308,16 +315,47 @@ html {
     border-radius: 24px;
     --entry-y: 0px;
     --entry-scale: 1;
+    --tilt-rx: 0deg;
+    --tilt-ry: 0deg;
+    --tilt-scale: 1;
+    position: relative;
+    overflow: hidden;
     transform:
         translate3d(0, var(--entry-y), 0)
-        scale3d(var(--entry-scale), var(--entry-scale), var(--entry-scale));
+        rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry))
+        scale3d(
+            calc(var(--tilt-scale) * var(--entry-scale)),
+            calc(var(--tilt-scale) * var(--entry-scale)),
+            calc(var(--tilt-scale) * var(--entry-scale))
+        );
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+}
+
+.methodology-card__shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+    background: radial-gradient(circle at 50% 50%,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0) 75%);
+    transition: opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .methodology-card__header {
+    --tilt-z: 0px;
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
+    transform: translateZ(var(--tilt-z));
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
 }
 
 /* Tamaño base (mobile/tablet, cualquier ancho de card angosto — 1 o 3
@@ -383,17 +421,29 @@ html {
    (2rem-4rem según el ancho del VIEWPORT completo, no de la card)
    pasaría de los 32px en la mayoría de tablets/desktops reales. */
 .methodology-card__title {
+    --tilt-z: 0px;
+    position: relative;
+    z-index: 2;
     margin: 0;
     font-family: var(--font-display);
     font-size: 2rem;
     font-weight: 500;
     line-height: 1.1;
     color: var(--color-secondary);
+    transform: translateZ(var(--tilt-z));
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
 }
 
 .methodology-card__description {
+    --tilt-z: 0px;
+    position: relative;
+    z-index: 2;
     margin: 0;
     color: var(--color-text-secondary);
+    transform: translateZ(var(--tilt-z));
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
 }
 
 /* ============================================
@@ -487,6 +537,16 @@ html {
     .about-bio__mask,
     .methodology__mask {
         overflow: visible;
+    }
+
+    /* Mismo criterio que .testimonial-card en main.css: sin transiciones
+       de transform en el hover 3D + shine. */
+    .methodology-card,
+    .methodology-card__shine,
+    .methodology-card__header,
+    .methodology-card__title,
+    .methodology-card__description {
+        transition: none;
     }
 
 }

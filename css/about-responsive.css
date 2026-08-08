@@ -158,6 +158,26 @@
    ============================================ */
 @media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
 
+    /* El hover 3D (--tilt-rx/--tilt-ry/--tilt-scale, ver interactions.js)
+       saca visualmente a la card de su caja normal al inclinarse/
+       escalar — .methodology/.methodology__mask tienen overflow:hidden
+       en about.css para el mecanismo de pin-scroll de
+       pinned-overflow-section.js, pero ESE mecanismo nunca corre acá:
+       en desktop real las 3 cards en fila caben en 100svh (comentario
+       en pinned-overflow-section.js), así que no crea ningún
+       ScrollTrigger — no hay nada que este overflow:hidden esté
+       enmascarando en este viewport. Liberarlo solo acá deja ver el
+       tilt completo sin cortar la card, sin afectar tablet/mobile
+       (donde el pin sí puede estar activo y necesita el overflow:hidden
+       intacto). */
+    .methodology {
+        overflow: visible;
+    }
+
+    .methodology__mask {
+        overflow: visible;
+    }
+
     .methodology-card {
         gap: 32px;
     }

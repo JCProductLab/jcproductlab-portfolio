@@ -41,33 +41,57 @@ const PROXIMITY_SHINE_OPACITY = '0.18';
 const PROXIMITY_SCALE = '1.02';
 const PROXIMITY_BAND = '-35% 0px -35% 0px'; // 30% central del viewport
 
+// Elementos que reciben el lift en Z (--tilt-z) dentro de cada tipo de
+// card — mismo mecanismo, distinta estructura interna.
+const TESTIMONIAL_LIFTER_SELECTORS = [
+    '.testimonial-card__quote',
+    '.testimonial-card__text',
+    '.testimonial-card__author',
+];
+const METHODOLOGY_LIFTER_SELECTORS = [
+    '.methodology-card__header',
+    '.methodology-card__title',
+    '.methodology-card__description',
+];
+
 export function initInteractions() {
     const cards = document.querySelectorAll('.testimonial-card');
-    if (!cards.length) return;
+    // sobre-mi.html únicamente — vacío (no rompe nada) en index.html/
+    // caso-asdeporte.html, que no tienen .methodology-card.
+    const methodologyCards = document.querySelectorAll('.methodology-card');
+    if (!cards.length && !methodologyCards.length) return;
 
-    // Inyectar capa .testimonial-card__shine en cada card
-    cards.forEach((card) => {
-        if (!card.querySelector('.testimonial-card__shine')) {
+    // Inyectar capa __shine en cada card (idempotente)
+    const injectShine = (card, shineClass) => {
+        if (!card.querySelector(`.${shineClass}`)) {
             const shine = document.createElement('div');
-            shine.className = 'testimonial-card__shine';
+            shine.className = shineClass;
             shine.setAttribute('aria-hidden', 'true');
             card.prepend(shine);
         }
-    });
+    };
+    cards.forEach((card) => injectShine(card, 'testimonial-card__shine'));
+    methodologyCards.forEach((card) => injectShine(card, 'methodology-card__shine'));
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
     const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    // === Animación 1 — Layered Parallax ===
-    initLayeredParallax(cards);
+    // === Animación 1 — Layered Parallax (sólo testimonial: usa
+    // --parallax-y en .testimonial-card__quote/__text, que no existen
+    // en .methodology-card) ===
+    if (cards.length) initLayeredParallax(cards);
 
-    // === Animación 3 — Proximity Reveal (sólo coarse pointer) ===
-    if (!isFinePointer) initProximityReveal(cards);
+    // === Animación 3 — Proximity Reveal (sólo coarse pointer, sólo
+    // testimonial — no se pidió para Metodología) ===
+    if (!isFinePointer && cards.length) initProximityReveal(cards);
 
-    // === Animación 2 — Tilt 3D + Shine (sólo fine pointer) ===
-    if (isFinePointer) cards.forEach(initTiltOnCard);
+    // === Animación 2 — Tilt 3D + Shine (sólo fine pointer/desktop) ===
+    if (isFinePointer) {
+        cards.forEach((card) => initTiltOnCard(card, TESTIMONIAL_LIFTER_SELECTORS, 'testimonial-card__shine'));
+        methodologyCards.forEach((card) => initTiltOnCard(card, METHODOLOGY_LIFTER_SELECTORS, 'methodology-card__shine'));
+    }
 }
 
 // --------------------------------------------
@@ -148,13 +172,11 @@ function initProximityReveal(cards) {
 // --------------------------------------------
 // Animación 2 — Tilt 3D + Shine (mousemove + rAF)
 // --------------------------------------------
-function initTiltOnCard(card) {
-    const shine = card.querySelector('.testimonial-card__shine');
-    const lifters = [
-        card.querySelector('.testimonial-card__quote'),
-        card.querySelector('.testimonial-card__text'),
-        card.querySelector('.testimonial-card__author'),
-    ].filter(Boolean);
+function initTiltOnCard(card, lifterSelectors = TESTIMONIAL_LIFTER_SELECTORS, shineClass = 'testimonial-card__shine') {
+    const shine = card.querySelector(`.${shineClass}`);
+    const lifters = lifterSelectors
+        .map((selector) => card.querySelector(selector))
+        .filter(Boolean);
 
     let raf = null;
     let pending = null;

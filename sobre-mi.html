@@ -757,6 +757,15 @@
         initOrientationReloadBanner();
     </script>
 
+    <!-- Bloquea el scroll de fondo mientras .rotate-overlay está visible
+         (mobile en landscape, ver css/responsive.css) y lo restaura
+         exactamente donde estaba al volver a portrait — independiente
+         de main.js, mismo patrón que el script de arriba. -->
+    <script type="module">
+        import { initRotateOverlayScrollLock } from './js/modules/rotate-overlay-scroll-lock.js';
+        initRotateOverlayScrollLock();
+    </script>
+
 </body>
 
 </html>
