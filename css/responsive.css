@@ -766,31 +766,36 @@
 
 /* ============================================
    ROTATE OVERLAY — bloquea mobile en landscape
-   Compartido por index.html, en/index.html y
-   caso-asdeporte.html (este archivo se carga en las 3).
+   Compartido por index.html, en/index.html,
+   sobre-mi.html y caso-asdeporte.html (este archivo
+   se carga en las 4).
    Markup estático: <div class="rotate-overlay"> agregado
    una vez en cada HTML, cerca del <body>. Puro CSS, sin JS:
    la media query lo muestra/oculta sola al girar el
    dispositivo. Mobile en landscape no es un layout
    aprobado — en vez de sostener esa combinación, se tapa
    el contenido y se pide volver a portrait.
-   max-width (no max-height): mismo criterio que MQ_TABLET_FLOOR
-   (700px) en el JS de caso-asdeporte — TODO el sitio clasifica
-   mobile/tablet por el width ACTUAL del viewport, sin importar
-   orientación. Usar max-height acá rompía esa consistencia:
-   cualquier ventana/tablet con poca altura en landscape
-   disparaba el overlay, aunque su width la clasificara como
-   tablet en todo el resto del sitio (bug confirmado en vivo).
-   Con max-width, un teléfono cuyo ancho en landscape ya supera
-   700px (la mayoría de los modelos actuales) queda clasificado
-   "tablet" acá también — consistente con cómo ya se comporta el
-   resto del sitio en ese mismo caso, no una excepción nueva.
+   max-height + pointer:coarse (NO max-width): la versión anterior
+   usaba max-width:699.98px para mantener el mismo criterio de
+   ancho que separa mobile/tablet en el resto del sitio, pero eso
+   deja pasar sin bloquear a la mayoría de los teléfonos reales
+   actuales — en landscape su ANCHO supera 700px aunque el
+   dispositivo siga siendo un teléfono (confirmado en vivo: iPhone
+   13, 844px de ancho en landscape, no activaba el overlay). Un
+   intento previo con solo max-height se revirtió porque disparaba
+   falsos positivos en ventanas/tablets de poca altura — la
+   diferencia acá es sumar pointer:coarse, que excluye cualquier
+   ventana de escritorio (siempre pointer:fine) sin importar su
+   alto. El alto en landscape de un teléfono real es su ancho en
+   portrait (~320–430px en todos los modelos actuales); el de una
+   tablet real, aunque sea chica, es bastante mayor (~740px+) — 500px
+   deja margen de sobra entre ambos casos sin depender del ancho.
    ============================================ */
 .rotate-overlay {
     display: none;
 }
 
-@media (max-width: 699.98px) and (orientation: landscape) {
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
     .rotate-overlay {
         display: flex;
         position: fixed;
@@ -815,4 +820,63 @@
         font-size: 1.125rem;
         max-width: 28ch;
     }
+}
+
+/* ============================================
+   ORIENTATION RELOAD BANNER — solo tablet
+   Copiado tal cual desde css/case-study.css (caso-asdeporte.html) para
+   que index.html y sobre-mi.html también lo tengan disponible — ambas
+   páginas cargan responsive.css pero no case-study.css. El JS que lo
+   crea/muestra es js/modules/orientation-reload-banner.js, compartido
+   sin cambios (ver initOrientationReloadBanner() en js/main.js).
+   Creado por JS al detectar un cambio de orientación real — no existe
+   en el DOM hasta que se dispara la primera vez. Descartable (botón
+   cerrar), no bloqueante.
+   ============================================ */
+.orientation-banner {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: min(90vw, 420px);
+    padding: 1.25rem 1.5rem;
+    border-radius: 16px;
+    background: var(--color-bg);
+    color: var(--color-secondary);
+    box-shadow: var(--glass-shadow, 0 8px 24px rgba(0, 0, 0, 0.3));
+    text-align: center;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.orientation-banner--visible {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.orientation-banner__text {
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+.orientation-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* .btn asume un ícono a la derecha (.btn__icon) y por eso su padding
+   base es asimétrico (8px derecha, 16px izquierda, atoms.css) — este
+   botón es solo texto, sin ícono, así que se pareja a 16px en ambos
+   lados. */
+.orientation-banner__reload {
+    padding-left: 16px;
+    padding-right: 16px;
 }

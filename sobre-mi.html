@@ -745,6 +745,18 @@
         }
     </script>
 
+    <!-- Aviso de "recargá la página" al detectar una rotación real en
+         tablet (no dispara en mobile/desktop) — independiente de main.js,
+         mismo módulo y misma llamada a nivel de script (sin esperar
+         DOMContentLoaded/load) que usa caso-asdeporte-nav.js. Va en un
+         script propio (no dentro de main.js) porque main.js también lo
+         carga caso-asdeporte.html, que ya llama a este módulo por su
+         cuenta — meterlo en main.js lo habría duplicado ahí. -->
+    <script type="module">
+        import { initOrientationReloadBanner } from './js/modules/orientation-reload-banner.js';
+        initOrientationReloadBanner();
+    </script>
+
 </body>
 
 </html>
