@@ -120,12 +120,17 @@ export function initCtaSectionReveal() {
             start: isAboutPage ? 'top 85%' : 'top 70%',
             // 'bottom 80%' termina la animación cuando la sección está
             // completamente visible — evita que el footer aparezca antes
-            // de que la coreografía complete. En sobre-mi.html usamos
-            // 'bottom 15%' (mirror del 85% del start, relativo al propio
-            // elemento) — 'bottom top' (0% margen, usado en el ajuste
-            // anterior) hacía que la entrada revertida en scroll-reversa
-            // fuera casi imperceptible, con la sección apenas asomando.
-            end: isAboutPage ? 'bottom 15%' : 'bottom 80%',
+            // de que la coreografía complete. En sobre-mi.html .cta-section
+            // mide min-height:100dvh (prácticamente el viewport completo),
+            // así que 'bottom 15%' (usado en el ajuste anterior) hacía que
+            // la coreografía completa recién terminara con la sección casi
+            // toda arriba del viewport y el footer ya asomando — había que
+            // scrollear hasta el final de la página para ver todo el
+            // contenido. 'center center' termina la entrada justo cuando la
+            // sección queda centrada a lo alto del viewport (el objetivo
+            // pedido), sin depender de un % fijo — se ajusta solo si la
+            // altura real de la sección cambia.
+            end: isAboutPage ? 'center center' : 'bottom 80%',
             scrub: 1,
         },
     });
