@@ -184,6 +184,16 @@ export function initCaseCardsScroll() {
     // ============================================
     mm.add('(pointer: coarse)', () => {
         cards.forEach((card) => {
+            // Click-a-navegar: en pointer:fine lo maneja case-cursor.js,
+            // que se desactiva en touch/mobile. Sin este listener, las
+            // cards no navegan a ningún lado en mobile/tablet.
+            if (card.dataset.href) {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', () => {
+                    window.location.href = card.dataset.href;
+                });
+            }
+
             const bgImage = card.querySelector('.case-card__bg');
             const metrics = card.querySelectorAll('.metric-badge');
 

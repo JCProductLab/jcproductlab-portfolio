@@ -189,6 +189,19 @@ initRsCierreGraciasReveal();
 // desktop (ver rs-cierre-cases-reveal.js).
 initRsCierreCasesReveal();
 
+// Navegación real de las 2 mini-tarjetas de "otros casos" — antes eran
+// puramente decorativas (solo el reveal de arriba, sin click a ningún
+// lado). Corre en cualquier dispositivo, sin GSAP.
+function initRsCierreCasesLinks() {
+    document.querySelectorAll('.rs-cierre__case[data-href]').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+            window.location.href = card.dataset.href;
+        });
+    });
+}
+initRsCierreCasesLinks();
+
 // Aviso de "recargá la página" al detectar una rotación real en tablet
 // (no dispara en mobile/desktop). Ver orientation-reload-banner.js.
 initOrientationReloadBanner();
