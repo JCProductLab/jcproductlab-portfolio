@@ -627,11 +627,15 @@ export function initCustomCursor() {
         // Fluid simulation pointer
         let p = pointers[0];
         updatePointerMoveData(p, scaleByPixelRatio(e.clientX), scaleByPixelRatio(e.clientY), p.color);
-        // Suppress smoke while cursor is over the header, a button, or the CTA section
+        // Suppress smoke while cursor is over the header, a button, the CTA
+        // section, or a card with its own hover tilt/shine effect
+        // (testimonial-card, methodology-card) — the smoke fights visually
+        // with that effect the same way it does with buttons.
         const overHeader = header && e.clientY <= header.getBoundingClientRect().bottom;
         const overButton = !!e.target.closest('button, .btn, .btn-icon');
         const overCTA    = !!e.target.closest('.cta-section');
-        if (overHeader || overButton || overCTA) {
+        const overTiltCard = !!e.target.closest('.testimonial-card, .methodology-card');
+        if (overHeader || overButton || overCTA || overTiltCard) {
             p.moved = false;
         }
         // Hide custom cursor on interactive elements; .case-cards manages its own opacity

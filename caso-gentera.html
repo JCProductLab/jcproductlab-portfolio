@@ -8,20 +8,20 @@
     <!-- ============================================ -->
     <!-- SEO TÉCNICO — Meta tags básicos             -->
     <!-- ============================================ -->
-    <title>Caso Asdeporte — JC ProductLab</title>
+    <title>Caso Gentera — JC ProductLab</title>
     <meta name="description"
-        content="Caso de estudio: Asdeporte. Una app de clase mundial que frenaba a sus propios atletas. Product Designer Senior, Julio César Tinoco.">
+        content="Caso de estudio: Gentera. Una sola persona sostenía en su cabeza la capacitación de 27,000 empleados. Product Designer, Julio César Tinoco.">
     <meta name="author" content="Julio César Tinoco">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://jcproductlab.design/caso-asdeporte">
+    <link rel="canonical" href="https://jcproductlab.design/caso-gentera">
 
     <!-- ============================================ -->
     <!-- OPEN GRAPH                                   -->
     <!-- ============================================ -->
-    <meta property="og:title" content="Caso Asdeporte — JC ProductLab">
-    <meta property="og:description" content="Una app de clase mundial que frenaba a sus propios atletas.">
+    <meta property="og:title" content="Caso Gentera — JC ProductLab">
+    <meta property="og:description" content="Una sola persona sostenía en su cabeza la capacitación de 27,000 empleados.">
     <meta property="og:image" content="https://jcproductlab.design/assets/images/og-image.jpg">
-    <meta property="og:url" content="https://jcproductlab.design/caso-asdeporte">
+    <meta property="og:url" content="https://jcproductlab.design/caso-gentera">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="es_MX">
 
@@ -30,8 +30,8 @@
     <!-- ============================================ -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@jcproductlab">
-    <meta name="twitter:title" content="Caso Asdeporte — JC ProductLab">
-    <meta name="twitter:description" content="Una app de clase mundial que frenaba a sus propios atletas.">
+    <meta name="twitter:title" content="Caso Gentera — JC ProductLab">
+    <meta name="twitter:description" content="Una sola persona sostenía en su cabeza la capacitación de 27,000 empleados.">
     <meta name="twitter:image" content="https://jcproductlab.design/assets/images/og-image.jpg">
 
     <!-- ============================================ -->
@@ -73,13 +73,30 @@
     <link rel="stylesheet" href="css/scroll-nav-responsive.css">
 
     <!-- ============================================ -->
+    <!-- OVERRIDE ESPECÍFICO DE PÁGINA — case-study.css hardcodea      -->
+    <!-- el fondo mobile/tablet de la Apertura por caso (compartido    -->
+    <!-- entre AsDeporte/ABC/Gentera); se sobreescribe acá sin tocar   -->
+    <!-- el archivo compartido.                                        -->
+    <!-- ============================================ -->
+    <style>
+        .cs-apertura__bg-pin::before {
+            background-image: url(assets/images/cases/product-design-fintech-gentera-mobile.webp);
+        }
+        @media (min-width: 700px) {
+            .cs-apertura__bg-pin::before {
+                background-image: url(assets/images/cases/product-design-fintech-gentera-tablet.webp);
+            }
+        }
+    </style>
+
+    <!-- ============================================ -->
     <!-- GSAP + ScrollTrigger                        -->
     <!-- ============================================ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-    <script type="module" src="js/caso-asdeporte.js" defer></script>
+    <script type="module" src="js/caso-gentera.js" defer></script>
     <script type="module" src="js/resultado.js" defer></script>
-    <script type="module" src="js/caso-asdeporte-nav.js" defer></script>
+    <script type="module" src="js/caso-gentera-nav.js" defer></script>
 
 </head>
 
@@ -250,7 +267,7 @@
         <!-- ============================================ -->
         <!-- SECCIÓN 1 — APERTURA                        -->
         <!-- ============================================ -->
-        <section class="cs-apertura" aria-label="Apertura del caso Asdeporte">
+        <section class="cs-apertura" aria-label="Apertura del caso Gentera">
 
             <!-- Wrapper mobile/tablet — envuelve fondo+overlay+viñeta+sombra
                  para poder "pinearlos" con position:sticky mientras el
@@ -287,37 +304,41 @@
             </div>
 
             <!-- Ticker anclado al fondo -->
-            <div class="cs-apertura__ticker" aria-label="Una app de clase mundial que frenaba a sus propios atletas.">
+            <div class="cs-apertura__ticker" aria-label="Una sola persona sostenía la capacitación de 27,000 empleados a mano, en Excel.">
 
                 <!-- Track 1 — copia original -->
                 <div class="cs-ticker__track" aria-hidden="true">
                     <span class="cs-ticker__word cs-headline">Una</span>
-                    <span class="cs-ticker__word cs-headline">app</span>
+                    <span class="cs-ticker__word cs-headline">sola</span>
+                    <span class="cs-ticker__word cs-headline">persona</span>
+                    <span class="cs-ticker__word cs-headline">sostenía</span>
+                    <span class="cs-ticker__word cs-headline">la</span>
+                    <span class="cs-ticker__word cs-headline">capacitación</span>
                     <span class="cs-ticker__word cs-headline">de</span>
-                    <span class="cs-ticker__word cs-headline">clase</span>
-                    <span class="cs-ticker__word cs-headline">mundial</span>
-                    <span class="cs-ticker__word cs-headline">que</span>
-                    <span class="cs-ticker__word cs-headline">frenaba</span>
+                    <span class="cs-ticker__word cs-headline">27,000</span>
+                    <span class="cs-ticker__word cs-headline">empleados</span>
                     <span class="cs-ticker__word cs-headline">a</span>
-                    <span class="cs-ticker__word cs-headline">sus</span>
-                    <span class="cs-ticker__word cs-headline">propios</span>
-                    <span class="cs-ticker__word cs-headline">atletas.</span>
+                    <span class="cs-ticker__word cs-headline">mano,</span>
+                    <span class="cs-ticker__word cs-headline">en</span>
+                    <span class="cs-ticker__word cs-headline">Excel.</span>
                     <span class="cs-ticker__separator" aria-hidden="true">—</span>
                 </div>
 
                 <!-- Track 2 — copia para loop seamless -->
                 <div class="cs-ticker__track" aria-hidden="true">
                     <span class="cs-ticker__word cs-headline">Una</span>
-                    <span class="cs-ticker__word cs-headline">app</span>
+                    <span class="cs-ticker__word cs-headline">sola</span>
+                    <span class="cs-ticker__word cs-headline">persona</span>
+                    <span class="cs-ticker__word cs-headline">sostenía</span>
+                    <span class="cs-ticker__word cs-headline">la</span>
+                    <span class="cs-ticker__word cs-headline">capacitación</span>
                     <span class="cs-ticker__word cs-headline">de</span>
-                    <span class="cs-ticker__word cs-headline">clase</span>
-                    <span class="cs-ticker__word cs-headline">mundial</span>
-                    <span class="cs-ticker__word cs-headline">que</span>
-                    <span class="cs-ticker__word cs-headline">frenaba</span>
+                    <span class="cs-ticker__word cs-headline">27,000</span>
+                    <span class="cs-ticker__word cs-headline">empleados</span>
                     <span class="cs-ticker__word cs-headline">a</span>
-                    <span class="cs-ticker__word cs-headline">sus</span>
-                    <span class="cs-ticker__word cs-headline">propios</span>
-                    <span class="cs-ticker__word cs-headline">atletas.</span>
+                    <span class="cs-ticker__word cs-headline">mano,</span>
+                    <span class="cs-ticker__word cs-headline">en</span>
+                    <span class="cs-ticker__word cs-headline">Excel.</span>
                     <span class="cs-ticker__separator" aria-hidden="true">—</span>
                 </div>
 
@@ -402,14 +423,14 @@
         <div class="cs-metrica-pin">
 
         <!-- Panel 1 — MÉTRICA -->
-        <section class="cs-metrica" aria-label="Métrica de conversión post-lanzamiento">
+        <section class="cs-metrica" aria-label="Métrica de eficiencia operativa post-lanzamiento">
 
             <!-- Columna izquierda: KPI + texto -->
             <div class="cs-metrica__left">
 
                 <!-- Número + flecha -->
                 <div class="cs-metrica__kpi">
-                    <span class="cs-metric">43%</span>
+                    <span class="cs-metric">16x</span>
                     <svg class="cs-metrica__arrow" aria-hidden="true" viewBox="0 0 103 103" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <!-- Path 1: diagonal principal -->
                         <path class="cs-metrica__arrow-main" d="M6 96.5L96.5 6"
@@ -440,7 +461,7 @@
 
                 <!-- Descripción -->
                 <p class="cs-body-xxl cs-metrica__caption">
-                    Conversión de 8%&nbsp;→&nbsp;11.5% en el primer mes post-lanzamiento.
+                    El proceso de capacitación pasó de 24 a 32 horas semanales a 1.5 a 2 horas. Dieciséis veces más rápido.
                 </p>
 
             </div>
@@ -458,20 +479,20 @@
                 <span class="cs-label">[ Contexto ]</span>
 
                 <h2 class="cs-section-title">
-                    Atletas que entrenaban meses para un triatlón encontraban más obstáculos en la app que en la carrera.
+                    Una sola persona sostenía en su cabeza las reglas de capacitación de 27,000 empleados, y nadie más las conocía.
                 </h2>
 
                 <!-- Imagen placeholder (parallax pendiente) -->
                 <div class="cs-contexto__media">
-                    <img loading="lazy" class="cs-contexto__image" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Calendario de carreras de AsDeporte">
+                    <img loading="lazy" class="cs-contexto__image" src="assets/images/cases/product-design-fintech-gentera-desktop.webp" alt="Interfaz de la plataforma GAC de Gentera">
                 </div>
 
                 <!-- Etiquetas de contexto -->
                 <div class="cs-contexto__tags">
-                    <span class="small-paragraph cs-contexto__tag">AsDeporte</span>
-                    <span class="small-paragraph cs-contexto__tag">Sports Tech</span>
-                    <span class="small-paragraph cs-contexto__tag">B2C/B2B</span>
-                    <span class="small-paragraph cs-contexto__tag">10 meses</span>
+                    <span class="small-paragraph cs-contexto__tag">Gentera</span>
+                    <span class="small-paragraph cs-contexto__tag">Interno / RRHH</span>
+                    <span class="small-paragraph cs-contexto__tag">27,000 colaboradores</span>
+                    <span class="small-paragraph cs-contexto__tag">B2E</span>
                 </div>
 
             </div>
@@ -491,16 +512,16 @@
                 <div class="cs-contexto__mask">
                     <div class="cs-contexto__text-track">
                         <p class="large-paragraph">
-                            Una de mis primeras sesiones de research fue con Alex. Triatleta experto, ingeniero, usuario leal y más de diez carreras con AsDeporte. Le pedí una tarea simple; encontrar un triatlón olímpico.
+                            Una de mis primeras sesiones de research fue observar a Carlos, el Administrador de Capacitación, en su rutina semanal. Cada jueves por la mañana descargaba una plantilla de datos del sistema de RRHH y desaparecía durante horas en una maratón de Excel.
                         </p>
                         <p class="large-paragraph">
-                            Lo que siguió fueron varios minutos de silencio y frustración frente a un calendario de píxeles de colores, puntos naranjas, puntos azules, sin nombres, sin contexto, sin nada que le dijera si ese punto naranja era su próxima carrera o un evento de ciclismo a 800 kilómetros. Después de varios segundos en silencio, dijo algo que se me quedó grabado y cambió mi estrategia. "Si esto no fuera el Ironman de Cozumel y no fuera la única forma de inscribirme, ya habría cerrado la app."
+                            El proceso consumía entre 24 y 32 horas semanales de una sola persona. Las reglas que determinaban quién se capacitaba, cuándo y en qué sede no estaban documentadas en ningún sistema. Vivían únicamente en el conocimiento de Carlos.
                         </p>
                         <p class="large-paragraph">
-                            Ahí entendí la magnitud del problema. Si Alex, un usuario que AsDeporte considera su mejor cliente estaba a un paso de rendirse, el atleta que llegaba por primera vez no tenía ninguna oportunidad. El problema no era estético ni técnico. Era estratégico. AsDeporte tenía el monopolio de las mejores carreras del país y lo estaba usando como red de contención, no como ventaja competitiva.
+                            La tasa de error en las convocatorias rondaba entre el 10% y el 15% de los registros: colaboradores enviados a cursos equivocados, en sedes equivocadas, o cursos que ya habían tomado antes.
                         </p>
                         <p class="large-paragraph">
-                            Y esa distinción es la diferencia entre una marca sólida y una marca que desaparece en cuanto aparece un competidor con la mitad de los eventos pero con una plataforma que funciona. No estábamos rediseñando una app. Llegamos a rescatar una relación que estaba a punto del divorcio.
+                            Carlos lo resumió sin rodeos sobre una de las tareas más tediosas del proceso: "Lo del .ical es lo que más odio".
                         </p>
                     </div>
                 </div>
@@ -540,7 +561,7 @@
                         <span class="cs-decisiones-titulos__number">01</span>
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 1</h3>
                     </div>
-                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">No se construye lealtad sobre una experiencia rota.</p>
+                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">Una tabla de estatus no le devuelve a nadie su camino.</p>
                     <hr class="divider--horizontal">
                 </li>
 
@@ -549,7 +570,7 @@
                         <span class="cs-decisiones-titulos__number">02</span>
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 2</h3>
                     </div>
-                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">La elegancia que no convierte es el diseño más caro.</p>
+                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">Rechazar un error no es lo mismo que ayudar a corregirlo.</p>
                     <hr class="divider--horizontal">
                 </li>
 
@@ -558,7 +579,7 @@
                         <span class="cs-decisiones-titulos__number">03</span>
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 3</h3>
                     </div>
-                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">Saber cuándo no rediseñar es una de las habilidades más difíciles de adquirir.</p>
+                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">Una decisión automática sin explicación no libera a nadie, lo pone a vigilar a la máquina.</p>
                     <hr class="divider--horizontal">
                 </li>
 
@@ -581,7 +602,7 @@
 
             <div class="cs-decision__content">
                 <span class="cs-label cs-decision__label">[ Decisión 1 ]</span>
-                <h3 class="cs-decision-title cs-decision__title">No se construye lealtad sobre una experiencia rota.</h3>
+                <h3 class="cs-decision-title cs-decision__title">Una tabla de estatus no le devuelve a nadie su camino.</h3>
             </div>
 
             <div class="cs-decision__media">
@@ -605,19 +626,19 @@
                 <div class="cs-problema__grid">
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Marketing y liderazgo llevaban meses apostando por "Tribu", la red social interna de atletas, como la pieza que transformaría a AsDeporte de ticketera a comunidad deportiva.</p>
+                        <p class="large-paragraph cs-problema__text">Los stakeholders pedían una interfaz corporativa estándar: una tabla con columnas de nombre del curso y estatus.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">La investigación fue en sentido contrario: en entrevistas y pruebas, Tribu era un "pueblo fantasma", nadie la usaba, pocos la conocían. Un atleta de Spartan Race fue directo: "Esto no es para espartanos. Cero útil."</p>
+                        <p class="large-paragraph cs-problema__text">Ana, asesora de ventas en sucursal, recibía las convocatorias de capacitación como mensajes administrativos sin contexto, sin saber cuánto le faltaba para avanzar en su desarrollo.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Los atletas ya tenían dónde socializar y medir su rendimiento: Strava y WhatsApp. Tribu competía en un terreno que el usuario ya había resuelto por su cuenta.</p>
+                        <p class="large-paragraph cs-problema__text">En la primera ronda de pruebas, Ana se detuvo confundida sobre el término "Toques con Formador" y preguntó: "No sé qué implica esto, ¿es una llamada o una reunión física?"</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Nadie en la mesa había cuestionado la apuesta hasta que llegó la investigación, porque era una idea emocionalmente atractiva y políticamente respaldada.</p>
+                        <p class="large-paragraph cs-problema__text">El hallazgo se clasificó como Severidad Baja individualmente, pero era un síntoma de un problema mayor: terminología validada por el negocio que no se traducía en claridad para quien la usaba a diario.</p>
                     </div>
                 </div>
             </div>
@@ -640,7 +661,7 @@
                          alt="" />
                 </div>
                 <div class="cs-decision-mc__text-wrap">
-                    <p class="cs-decision-mc__text cs-body-xxl">Propuse clasificar "Tribu" como Won't Have (W1) para el lanzamiento del MVP y redirigir el foco de diseño e ingeniería al motor de búsqueda y al flujo de pago, los dos puntos donde el negocio realmente sangraba. Fue una decisión incómoda: sabía que había capital político invertido en la idea, pero mi responsabilidad como diseñador senior era proteger los recursos de desarrollo.</p>
+                    <p class="cs-decision-mc__text cs-body-xxl">Diseñé un mapa de ruta visual con niveles (Básico, Intermedio, Avanzado, Experto) en vez de una tabla de estatus, con tooltips en los nodos clave que explicaran cada término técnico en lenguaje simple. No fue una decisión estética, fue reconocer que Ana no necesitaba más trabajo administrativo encima de su carga ya pesada, necesitaba ver en segundos dónde estaba y hacia dónde iba.</p>
                 </div>
             </div>
         </section>
@@ -672,15 +693,15 @@
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">100%</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">4</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="2">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">3 perfiles</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">Severidad Baja</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="3">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">50%</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">2 segundos</span>
                 </div>
             </div>
 
@@ -692,9 +713,9 @@
                  par, validado para solape sin hueco y sin convivencia
                  a media altura. -->
             <div class="cs-razonamiento__rail">
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">De los participantes del Perfil 1 en la investigación rechazó &lsquo;Tribu&rsquo; casi de inmediato, el hallazgo más unánime y doloroso de todo el estudio.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Perfiles de usuario documentados llegaron, de forma independiente, a la misma conclusión: para conectar con sus amigos usaban WhatsApp, el rendimiento ya lo cubría Strava.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Era la meta fijada para reducir los reportes de error de pago a soporte. No había margen para diluir ese esfuerzo en una funcionalidad social sin tracción.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Cuatro niveles de progreso reemplazaron una lista plana de cursos pendientes.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">La clasificación inicial de Severidad Baja no reflejaba el impacto real: terminología validada por el negocio, pero ambigua para quien la usaba a diario.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">En la segunda ronda, Ana pasó el cursor sobre 'Toque con Formador' y dijo: 'Ah, ahora sí sé qué es esto. Es cuando me siento con mi mentor para revisar el avance. Muy claro'.</p>
             </div>
 
             <!-- ============================================ -->
@@ -724,8 +745,8 @@
             <!--   (que ya tiene su propio pin).                   -->
             <!-- ============================================ -->
             <div class="cs-razonamiento__conclusion">
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;No tenía sentido pelear por diferenciación social mientras el motor de inscripciones fallaba en lo básico. Primero había que ganarse el derecho de hablar con el usuario,</p>
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">arreglando el pago.&rdquo;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;Ver que estás en el nodo 3 de 12 no es un juego.</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">Es el alivio de saber que tienes un camino claro y que estás avanzando en él.&rdquo;</p>
             </div>
         </section>
 
@@ -746,7 +767,7 @@
 
             <div class="cs-decision__content">
                 <span class="cs-label cs-decision__label">[ Decisión 2 ]</span>
-                <h3 class="cs-decision-title cs-decision__title">La elegancia que no convierte es el diseño más caro.</h3>
+                <h3 class="cs-decision-title cs-decision__title">Rechazar un error no es lo mismo que ayudar a corregirlo.</h3>
             </div>
 
             <div class="cs-decision__media">
@@ -772,19 +793,19 @@
                 <div class="cs-problema__grid">
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">En el checkout original, el pago en Oxxo existía, pero se trataba como una opción secundaria, casi oculta frente a tarjeta de crédito/débito.</p>
+                        <p class="large-paragraph cs-problema__text">Cuando la plantilla importada llegaba con errores, algo que pasaba siempre, el sistema los detectaba pero obligaba a Carlos a volver al archivo original de Excel para corregirlos.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">En las pruebas de usabilidad, 8 de 15 participantes, sobre todo perfiles principiantes y mayores, pidieron explícitamente más visibilidad para esa opción.</p>
+                        <p class="large-paragraph cs-problema__text">Carlos lo dijo directamente durante una sesión de feedback: "Me gusta que detectemos el error, pero desearía que el sistema no se detuviera ahí. Si sabemos que un dato está mal, el sistema debe ser capaz de sugerir la corrección basándose en el histórico, no solo señalar la herida."</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Un usuario lo resumió sin rodeos: "Oxxo es lo mejor para mí". Para el atleta ocasional, el efectivo era su zona de calma frente a un sistema digital en el que ya no confiaba del todo.</p>
+                        <p class="large-paragraph cs-problema__text">El Líder Técnico de Dacodes objetó la edición en línea total por integridad de datos: "Modificar celdas individuales en una tabla que refleja una base de datos relacional de este tamaño tiene implicaciones de integridad que no podemos ignorar."</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">La interfaz seguía priorizando lo digital sobre la realidad física de buena parte de los atletas mexicanos, a pesar de que la investigación ya lo señalaba como punto ciego.</p>
+                        <p class="large-paragraph cs-problema__text">Mandar a Carlos de regreso al archivo original por errores de tipografía no era eficiencia, era trasladar su sufrimiento de una ventana a otra con mejor diseño.</p>
                     </div>
                 </div>
             </div>
@@ -805,7 +826,7 @@
                          alt="" />
                 </div>
                 <div class="cs-decision-mc__text-wrap">
-                    <p class="cs-decision-mc__text cs-body-xxl">Rediseñé la jerarquía visual de la pantalla de pago para darle a Oxxo el mismo peso que a las tarjetas, mismo tamaño de logo, misma prominencia, y añadí un microcopy directo debajo: "Genera una referencia y paga en efectivo en cualquier tienda Oxxo." No fue una concesión estética: fue tratar el pago en efectivo como lo que los datos decían que era, un habilitador crítico de conversión.</p>
+                    <p class="cs-decision-mc__text cs-body-xxl">Diseñé una edición in-situ controlada, con validación en tiempo real antes de guardar, para errores individuales, más un botón de "Re-subir Plantilla" reservado para errores masivos que sí requerían corregir el archivo de origen. Fue más difícil de implementar por las restricciones de integridad que planteó el equipo técnico, pero resolvía el problema real sin trasladarlo.</p>
                 </div>
             </div>
         </section>
@@ -819,27 +840,27 @@
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">4.7</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">9</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="2">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">53%</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">85→90</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="3">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">5</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">0</span>
                 </div>
             </div>
 
             <div class="cs-razonamiento__rail">
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">SEQ del pago en Oxxo entre quienes lo usaban, sobre 5, un acierto que no podíamos dejar escondido detrás de una jerarquía visual débil.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">De los usuarios de prueba pidieron explícitamente más visibilidad para esa opción. No era un problema de color, era de arquitectura de información.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Problemas de Prioridad Alta para el lanzamiento, este era 1 de ellos, con esfuerzo de implementación bajo e impacto directo en inclusión financiera.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Nueve problemas de usabilidad priorizados en la primera ronda, con la corrección de errores como el más citado por los usuarios.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">La puntuación SUS subió de 85 a 90 entre rondas, pero la cifra por sí sola escondía la frustración real que Carlos mostraba al corregir errores.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">En la sesión de validación, Carlos corrigió un error directamente en la plataforma y dijo, sin que se lo preguntaran: "Esto es súper práctico. Es mucho más rápido que tener que descargar, corregir y volver a subir todo por un simple error de dedo."</p>
             </div>
 
             <div class="cs-razonamiento__conclusion">
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;En el re-testing, la apuesta se validó sin ambigüedad: SEQ perfecto de 5.0/5 y 100% de identificación inmediata del logo. Una participante lo dijo mejor que cualquier informe:</p>
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">&lsquo;Qué bueno que está ahí grande y con el logo! Se ve claro.&rsquo;&rdquo;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;Si obligamos a Carlos a salir de la plataforma para corregir un solo dato en Excel y volver a subirlo,</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">estamos rompiendo la promesa de automatización.&rdquo;</p>
             </div>
         </section>
 
@@ -855,7 +876,7 @@
 
             <div class="cs-decision__content">
                 <span class="cs-label cs-decision__label">[ Decisión 3 ]</span>
-                <h3 class="cs-decision-title cs-decision__title">Saber cuándo no rediseñar es una de las habilidades más difíciles de adquirir.</h3>
+                <h3 class="cs-decision-title cs-decision__title">Una decisión automática sin explicación no libera a nadie, lo pone a vigilar a la máquina.</h3>
             </div>
 
             <div class="cs-decision__media">
@@ -876,19 +897,19 @@
                 <div class="cs-problema__grid">
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Los atletas de nicho (trail, MTB, triatlón) pedían filtros técnicos granulares, condiciones de drafting, puntos ITRA, tipo de terreno, que el modelo de datos del evento simplemente no capturaba.</p>
+                        <p class="large-paragraph cs-problema__text">El sistema debía clasificar automáticamente casos especiales, como identificar a un gerente bajo la regla de Gerente Multiproducto, sin que existiera un campo explícito para eso en los datos de origen.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">5 de 15 usuarios de las pruebas, mayoritariamente del perfil Plus, el segmento más rentable de la plataforma, reportaron esta carencia como fricción real de descubrimiento.</p>
+                        <p class="large-paragraph cs-problema__text">Los stakeholders pedían una interfaz limpia, sin explicaciones visibles de por qué el sistema tomaba cada decisión.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Los principiantes tenían el problema inverso: 6 de 15 no encontraban información de terreno o dificultad antes de inscribirse, 0% de éxito en esa tarea, con 25 segundos adicionales de fricción.</p>
+                        <p class="large-paragraph cs-problema__text">Carlos fue directo: "Me gusta que el sistema decida, pero necesito saber por qué lo decidió." Enfatizó que la plataforma no podía ser una caja negra.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">La solución "completa", rediseñar el modelo de datos de eventos desde su raíz, competía directamente con el cronograma de ingeniería y con el alcance de la futura plataforma B2B.</p>
+                        <p class="large-paragraph cs-problema__text">Si un colaborador era excluido de una ruta de capacitación, el sistema tenía que mostrar la lógica aplicada, o Carlos terminaría verificando cada caso a mano en su Excel de todas formas.</p>
                     </div>
                 </div>
             </div>
@@ -909,7 +930,7 @@
                          alt="" />
                 </div>
                 <div class="cs-decision-mc__text-wrap">
-                    <p class="cs-decision-mc__text cs-body-xxl">No reconstruí el modelo de datos. Documenté ambas carencias como Deuda Técnica de Diseño explícita para una fase futura, implementé soluciones tácticas dentro del alcance ya definido (uno o dos sub-filtros inferibles de los datos existentes, campos opcionales de terreno para organizadores) y protegí la arquitectura de información central, que auditoría propia confirmó sólida, de una reestructuración que habría puesto en riesgo la fecha de lanzamiento.</p>
+                    <p class="cs-decision-mc__text cs-body-xxl">Insistí en incluir un tooltip junto a cada decisión automática que explicara la regla aplicada, por ejemplo, por qué un colaborador se clasificó como Gerente Multiproducto. No era ensuciar la interfaz, era la diferencia entre que Carlos soltara el control por primera vez en años, o que siguiera haciendo el trabajo doble por no confiar en la máquina.</p>
                 </div>
             </div>
         </section>
@@ -923,27 +944,27 @@
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">10</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">98%</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="2">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">2</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">100%</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="3">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">88.3</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">0.5%</span>
                 </div>
             </div>
 
             <div class="cs-razonamiento__rail">
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Flujos críticos de usuario auditados y confirmados sólidos. El problema vivía en la densidad de atributos del evento, no en el esqueleto de la app.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Hallazgos como filtros de nicho y datos de terreno dependían de la misma estructura de datos que alimentaría a la futura plataforma B2B. No era una corazonada aislada.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Puntos de SUS ya alcanzados, calificación &lsquo;excelente&rsquo;, sin haber resuelto estos hallazgos, la señal de que no eran bloqueantes para el lanzamiento.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">La automatización de elegibles alcanzó 98% de precisión en producción real, superando el objetivo inicial del 95%.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Cien por ciento de adopción administrativa en tres meses: el equipo de Carlos abandonó definitivamente sus hojas de cálculo artesanales.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">La tasa de error se desplomó de un rango de 10 a 15% a menos de 0.5%, sin que Carlos tuviera que vigilar cada decisión del sistema.</p>
             </div>
 
             <div class="cs-razonamiento__conclusion">
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;El criterio senior no es entregar la solución perfecta, es saber qué batallas pelear hoy para que el producto llegue a manos del atleta mañana. Documenté la deuda, protegí el lanzamiento, y dejé el problema correctamente diagnosticado</p>
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">para cuando la plataforma B2B pudiera resolverlo de raíz.&rdquo;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;La automatización sin transparencia no libera a Carlos, lo pone a vigilar a la máquina en lugar de vigilar sus Excel,</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">y si no entiende por qué el sistema decidió, va a seguir haciendo el trabajo doble.&rdquo;</p>
             </div>
         </section>
 
@@ -957,7 +978,7 @@
         <section class="rs-mosaico" aria-label="Resultados: impacto medible">
             <div class="rs-mosaico__intro">
                 <span class="cs-label">[ RESULTADO ]</span>
-                <h3 class="cs-section-title ">Cuando la certeza reemplaza la duda, los números se mueven solos.</h3>
+                <h3 class="cs-section-title ">Carlos dejó de trabajar los jueves por la noche.</h3>
             </div>
             <div class="rs-mosaico__grid">
                 <div class="rs-mosaico__card" data-size="tall" data-col="1">
@@ -993,19 +1014,19 @@
         <section class="rs-metricas" aria-label="El impacto en el negocio">
             <h3 class="rs-metricas__title cs-section-title">El impacto en el negocio</h3>
             <div class="rs-metricas__card" data-metric="1">
-                <span class="rs-metricas__value cs-decision-title">+30%<i class="ph ph-arrow-up-right rs-metricas__arrow" aria-hidden="true"></i></span>
-                <p class="rs-metricas__label cs-body-xxl">Uso de beneficios Plus.</p>
-                <p class="rs-metricas__detail large-paragraph">3.1 visitas promedio por miembro al Hub de Beneficios.</p>
+                <span class="rs-metricas__value cs-decision-title">-90%<i class="ph ph-arrow-down-right rs-metricas__arrow" aria-hidden="true"></i></span>
+                <p class="rs-metricas__label cs-body-xxl">Tiempo operativo.</p>
+                <p class="rs-metricas__detail large-paragraph">De 24 a 32 horas semanales a 1.5 a 2 horas.</p>
             </div>
             <div class="rs-metricas__card" data-metric="2">
-                <span class="rs-metricas__value cs-decision-title">-60%<i class="ph ph-arrow-down-right rs-metricas__arrow" aria-hidden="true"></i></span>
-                <p class="rs-metricas__label cs-body-xxl">Tickets de soporte por pagos.</p>
-                <p class="rs-metricas__detail large-paragraph">Medido en Zendesk pre y post lanzamiento.</p>
+                <span class="rs-metricas__value cs-decision-title">&lt;0.5%<i class="ph ph-arrow-down-right rs-metricas__arrow" aria-hidden="true"></i></span>
+                <p class="rs-metricas__label cs-body-xxl">Tasa de error en convocatorias.</p>
+                <p class="rs-metricas__detail large-paragraph">Antes, entre 10% y 15% de los registros.</p>
             </div>
             <div class="rs-metricas__card" data-metric="3">
-                <span class="rs-metricas__value cs-decision-title">125,000<i class="ph ph-arrow-up-right rs-metricas__arrow" aria-hidden="true"></i></span>
-                <p class="rs-metricas__label cs-body-xxl">Usuarios activos mensuales.</p>
-                <p class="rs-metricas__detail large-paragraph">+20% sobre la base histórica &middot; 15,000 nuevos registros en 30 días.</p>
+                <span class="rs-metricas__value cs-decision-title">100%<i class="ph ph-arrow-up-right rs-metricas__arrow" aria-hidden="true"></i></span>
+                <p class="rs-metricas__label cs-body-xxl">Adopción de administradores.</p>
+                <p class="rs-metricas__detail large-paragraph">De capacitación, en los primeros tres meses.</p>
             </div>
         </section>
 
@@ -1031,14 +1052,14 @@
             <div class="rs-usuarios__media">
                 <img loading="lazy" class="rs-usuarios__img" src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&h=500&fit=crop" alt="" />
             </div>
-            <p class="rs-usuarios__text cs-body-xxl">Las métricas contaban la mitad de la historia. La otra mitad la contaron las grabaciones en Hotjar. Rage clicks que desaparecieron, usuarios que encontraban Oxxo y continuaban con alivio visible, el campo del CURP que dejó de paralizar.</p>
+            <p class="rs-usuarios__text cs-body-xxl">Las métricas contaban la mitad de la historia. La otra mitad la contó Carlos: el proceso que antes le quitaba el jueves completo ahora toma menos de dos horas a la semana, y prácticamente no se equivoca.</p>
             <!-- Copia del testimonio de .rs-testimonio__quote-text, solo
                  para el layout 2 columnas de tablet landscape (imagen
                  izq. / 2 párrafos der.) — oculta en el resto de
                  breakpoints vía CSS (resultado.css). El original en
                  .rs-testimonio se oculta en ese mismo breakpoint para
                  no duplicar visualmente el texto. -->
-            <p class="rs-usuarios__quote-tablet cs-body-xxl">"La interfaz se siente limpia y moderna. Por primera vez, no sentí que la tecnología de AsDeporte competía con la calidad de sus carreras."</p>
+            <p class="rs-usuarios__quote-tablet cs-body-xxl">"El proceso que antes le quitaba el jueves completo a una sola persona ahora toma menos de dos horas a la semana, y prácticamente no se equivoca."</p>
         </section>
 
         <div class="cs-pin-spacer cs-pin-spacer--rs-testimonio" data-phase="rs-testimonio"></div>
@@ -1053,13 +1074,13 @@
             <span class="rs-testimonio__ring" aria-hidden="true"></span>
             <blockquote class="rs-testimonio__quote">
                 <i class="ph ph-quotes rs-testimonio__quote-icon" aria-hidden="true"></i>
-                <p class="rs-testimonio__quote-text">"La interfaz se siente limpia y moderna. Por primera vez, no sentí que la tecnología de AsDeporte competía con la calidad de sus carreras."</p>
+                <p class="rs-testimonio__quote-text">"El proceso que antes le quitaba el jueves completo a una sola persona ahora toma menos de dos horas a la semana, y prácticamente no se equivoca."</p>
             </blockquote>
             <div class="rs-testimonio__closing">
                 <h3 class="rs-testimonio__closing-title">
-                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">No rediseñamos una app.</span></span>
-                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">Recuperamos la autoridad</span></span>
-                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">de una marca.</span></span>
+                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">No automatizamos un Excel.</span></span>
+                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">Le devolvimos su tiempo</span></span>
+                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">a 27,000 personas.</span></span>
                 </h3>
                 <button class="btn btn--secondary">
                     Qué aprendí
@@ -1087,12 +1108,12 @@
             <div class="rs-cierre__bottom">
                 <div class="rs-cierre__cases">
                     <article class="rs-cierre__case">
-                        <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp" alt="" />
-                        <p class="rs-cierre__case-text">Un hospital con más de 130 años de excelencia clínica hacía que sus pacientes se sintieran incompetentes frente a una pantalla.</p>
+                        <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="" />
+                        <p class="rs-cierre__case-text">Atletas que entrenaban meses para un triatlón encontraban más obstáculos en la app que en la carrera.</p>
                     </article>
                     <article class="rs-cierre__case">
-                        <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-fintech-gentera-desktop.webp" alt="" />
-                        <p class="rs-cierre__case-text">Una sola persona sostenía en su cabeza las reglas de capacitación de 27,000 empleados, y nadie más las conocía.</p>
+                        <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp" alt="" />
+                        <p class="rs-cierre__case-text">Un hospital con más de 130 años de excelencia clínica hacía que sus pacientes se sintieran incompetentes frente a una pantalla.</p>
                     </article>
                 </div>
                 <div class="rs-cierre__footer">
@@ -1135,14 +1156,14 @@
             <h2 class="cs-section-title modal-rol-proceso__title">Más allá de las pantallas.</h2>
             <div class="modal-rol-proceso__inner">
                 <div class="modal-rol-proceso__image">
-                    <img loading="lazy" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Placeholder imagen Mi Rol">
+                    <img loading="lazy" src="assets/images/cases/product-design-fintech-gentera-desktop.webp" alt="Placeholder imagen Mi Rol">
                 </div>
                 <div class="modal-rol-proceso__text">
                     <p class="large-paragraph">
-                        Entré al proyecto como consultor de producto senior, vía la consultora Dacodes, y fui responsable del ciclo completo de diseño. Desde el descubrimiento hasta la validación post-lanzamiento. Pero el trabajo que más importaba no estaba en las pantallas entregadas.
+                        Entré al proyecto como consultor de producto senior, vía la consultora Dacodes, y fui responsable del ciclo completo de diseño de la plataforma GAC, desde la investigación inicial hasta el monitoreo post-lanzamiento.
                     </p>
                     <p class="large-paragraph">
-                        Mi verdadero rol fue tener conversaciones incómodas, tomar y defender decisiones. Frenar funcionalidades que distraían, rebatir argumentos de negocio con datos de usuario, insistir cuando el negocio quería priorizar la estética sobre la confianza, y convencer a una organización de 30 años de que su mayor amenaza no venía de la competencia. Venía de su propia plataforma.
+                        Mi verdadero rol fue traducir el conocimiento que vivía solo en la cabeza de Carlos en reglas de negocio documentadas y defendibles, y negociar entre lo que el negocio pedía y lo que la integridad de los datos permitía construir.
                     </p>
                 </div>
             </div>
@@ -1166,17 +1187,17 @@
             <div class="cs-label modal-rol-proceso__label">[ EL PROCESO ]</div>
             <div class="modal-proceso__grid">
                 <div class="modal-proceso__steps">
-                    <div class="modal-proceso__step" data-step="0" data-description="En AsDeporte, la fase de descubrimiento no buscó tendencias ni referencias visuales.&#10;&#10;Buscó las fracturas exactas donde la experiencia estaba costándole dinero al negocio.&#10;&#10;Entrevistas con atletas, análisis de logs de soporte, grabaciones de sesión y auditorías de la plataforma existente construyeron un diagnóstico claro: la plataforma no tenía un problema visual, tenía una fuga de capital en el punto exacto donde el negocio facturaba.">
+                    <div class="modal-proceso__step" data-step="0" data-description="En Gentera, la investigación empezó observando a Carlos en su rutina semanal: una maratón de Excel de entre 24 y 32 horas para determinar quién de los 27,000 empleados debía capacitarse, dónde y cuándo.&#10;&#10;Las reglas que gobernaban ese proceso, como la identificación del Gerente Multiproducto o el tratamiento de reingresos, no estaban documentadas en ningún sistema. Vivían únicamente en el conocimiento de Carlos.&#10;&#10;Un hallazgo cambió el alcance del proyecto: el brief prometía notificaciones por WhatsApp, pero al indagar con el proveedor de datos descubrimos que los números de teléfono de los colaboradores simplemente no existían en ninguna base de datos disponible.">
                         <span class="modal-proceso__number">01</span>
                         <h3 class="modal-proceso__title">Discovery</h3>
                     </div>
                     <hr class="divider--horizontal">
-                    <div class="modal-proceso__step" data-step="1" data-description="La definición del alcance fue tan importante como el diseño mismo. El espacio de ideación se abrió a todas las disciplinas (ingeniería, marketing, producto), generando más de lo que el MVP podía absorber.&#10;&#10;La priorización fue implacable: cada funcionalidad se evaluó contra su impacto directo en conversión, y lo que no sobrevivió ese criterio quedó fuera del alcance, sin excepciones.&#10;&#10;Cada decisión respondía a un problema de usabilidad documentado. Ningún elemento existía por razones estéticas, cada iniciativa tenía un KPI asociado que la justificaba.">
+                    <div class="modal-proceso__step" data-step="1" data-description="Definir el alcance significó decidir qué reglas de negocio eran innegociables y cuáles podían resolverse en una fase evolutiva. La integración directa con el sistema de RRHH se pospuso a favor de una plantilla semi-limpia, dando a Carlos un punto de validación humana antes de automatizar.&#10;&#10;El módulo de WhatsApp se rediseñó como configurable y dependiente de que Gentera resolviera primero la captura de esos datos, en vez de bloquear el resto del proyecto.&#10;&#10;Se priorizaron dos perfiles como críticos, Carlos y Ana, y se dejaron fuera del MVP funcionalidades como la gestión de contenido de cursos.">
                         <span class="modal-proceso__number">02</span>
                         <h3 class="modal-proceso__title">Definition</h3>
                     </div>
                     <hr class="divider--horizontal">
-                    <div class="modal-proceso__step" data-step="2" data-description="El sistema de diseño se construyó pensando en quien lo iba a implementar, no en quien lo iba a presentar. Cada decisión de componentes respondía a las restricciones técnicas del equipo de ingeniería. La factibilidad no fue una limitación, fue una variable de diseño desde el primer día.&#10;&#10;Post-lanzamiento, el monitoreo convirtió el comportamiento real de los atletas en insumo de diseño accionable. Un fallo crítico de pagos en Android se detectó dentro de las primeras 72 horas de monitoreo intensivo y se resolvió como prioridad P0 en la ventana de estabilización. El proceso no terminó con la entrega, terminó cuando los datos confirmaron las hipótesis.">
+                    <div class="modal-proceso__step" data-step="2" data-description="El sistema de diseño se construyó sobre una premisa simple: la verdadera simplicidad no es quitar elementos de la pantalla, es absorber la complejidad del usuario. Un SUS de 85 en la primera ronda de pruebas no fue suficiente, insistí en una segunda ronda porque ese número escondía frustración real en la corrección de errores.&#10;&#10;La segunda ronda elevó el SUS a 90 antes del lanzamiento. En producción real, la medición fue de 88 sobre 100.&#10;&#10;La adopción llegó a 100% entre los administradores en los primeros tres meses, y la tasa de error cayó de un rango de 10 a 15% a menos de 0.5%. El proceso no terminó con el handoff, terminó cuando los datos confirmaron que nadie quería volver al Excel.">
                         <span class="modal-proceso__number">03</span>
                         <h3 class="modal-proceso__title">Delivery</h3>
                     </div>
@@ -1213,13 +1234,10 @@
                 <div class="modal-que-aprendi__right">
                     <div class="modal-rol-proceso__text">
                         <p class="large-paragraph">
-                            <span class="cs-highlight">Lección 1: Habla el idioma del negocio.</span> Defender al usuario a veces significa argumentar con métricas, no con empatía. El argumento que ganó con Oxxo no fue "es mejor para el usuario", fue "esto nos está costando conversiones medibles."
+                            <span class="cs-highlight">Lección 1: Una métrica alta puede esconder una frustración real.</span> Un SUS de 85 sobre 100 es, para la mayoría, el final del camino. Para mí fue una señal de alarma: detrás de esa cifra vi a Carlos frustrado corrigiendo un error de plantilla. Insistí en una segunda ronda de pruebas en vez de aceptar un número que ya se veía bien en un reporte ejecutivo.
                         </p>
                         <p class="large-paragraph">
-                            <span class="cs-highlight">Lección 2: Los datos también exponen mis propios puntos ciegos.</span> Construí la integración con wearables asumiendo que "ver tu actividad reciente" bastaría. La adopción llegó a 3%, muy por debajo del 10% que proyectamos. Los atletas avanzados no querían un espejo, querían sincronización bidireccional real, subir sus resultados automáticamente a Strava o Garmin.
-                        </p>
-                        <p class="large-paragraph">
-                            <span class="cs-highlight">Lección 3: La pregunta correcta.</span> Dejé de preguntar "¿dónde abandona el usuario?" Ahora pregunto "¿qué duda específica lo hizo abandonar?" Son preguntas distintas. Llevan a soluciones distintas.
+                            <span class="cs-highlight">Lección 2: Un requerimiento del brief puede depender de un dato que no existe.</span> El brief pedía notificaciones por WhatsApp como funcionalidad clave. Al indagar con el proveedor de datos, descubrimos que los números de teléfono de los colaboradores no existían en ninguna base consumible por el sistema. Aprendí a validar la existencia real de los datos antes de diseñar sobre ellos, no después.
                         </p>
                     </div>
                 </div>

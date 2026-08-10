@@ -8,20 +8,20 @@
     <!-- ============================================ -->
     <!-- SEO TÉCNICO — Meta tags básicos             -->
     <!-- ============================================ -->
-    <title>Caso Asdeporte — JC ProductLab</title>
+    <title>Caso Centro Médico ABC — JC ProductLab</title>
     <meta name="description"
-        content="Caso de estudio: Asdeporte. Una app de clase mundial que frenaba a sus propios atletas. Product Designer Senior, Julio César Tinoco.">
+        content="Caso de estudio: Centro Médico ABC. Un hospital de excelencia clínica con una experiencia digital fragmentada en tres sistemas distintos. Product Designer Lead, Julio César Tinoco.">
     <meta name="author" content="Julio César Tinoco">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://jcproductlab.design/caso-asdeporte">
+    <link rel="canonical" href="https://jcproductlab.design/caso-abc">
 
     <!-- ============================================ -->
     <!-- OPEN GRAPH                                   -->
     <!-- ============================================ -->
-    <meta property="og:title" content="Caso Asdeporte — JC ProductLab">
-    <meta property="og:description" content="Una app de clase mundial que frenaba a sus propios atletas.">
+    <meta property="og:title" content="Caso Centro Médico ABC — JC ProductLab">
+    <meta property="og:description" content="Un hospital de excelencia clínica con una experiencia digital fragmentada en tres sistemas distintos.">
     <meta property="og:image" content="https://jcproductlab.design/assets/images/og-image.jpg">
-    <meta property="og:url" content="https://jcproductlab.design/caso-asdeporte">
+    <meta property="og:url" content="https://jcproductlab.design/caso-abc">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="es_MX">
 
@@ -30,8 +30,8 @@
     <!-- ============================================ -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@jcproductlab">
-    <meta name="twitter:title" content="Caso Asdeporte — JC ProductLab">
-    <meta name="twitter:description" content="Una app de clase mundial que frenaba a sus propios atletas.">
+    <meta name="twitter:title" content="Caso Centro Médico ABC — JC ProductLab">
+    <meta name="twitter:description" content="Un hospital de excelencia clínica con una experiencia digital fragmentada en tres sistemas distintos.">
     <meta name="twitter:image" content="https://jcproductlab.design/assets/images/og-image.jpg">
 
     <!-- ============================================ -->
@@ -73,13 +73,30 @@
     <link rel="stylesheet" href="css/scroll-nav-responsive.css">
 
     <!-- ============================================ -->
+    <!-- OVERRIDE ESPECÍFICO DE PÁGINA — case-study.css hardcodea      -->
+    <!-- el fondo mobile/tablet de la Apertura por caso (compartido    -->
+    <!-- entre AsDeporte/ABC/Gentera); se sobreescribe acá sin tocar   -->
+    <!-- el archivo compartido.                                        -->
+    <!-- ============================================ -->
+    <style>
+        .cs-apertura__bg-pin::before {
+            background-image: url(assets/images/cases/product-design-healthtech-hospital-abc-mobile.webp);
+        }
+        @media (min-width: 700px) {
+            .cs-apertura__bg-pin::before {
+                background-image: url(assets/images/cases/product-design-healthtech-hospital-abc-tablet.webp);
+            }
+        }
+    </style>
+
+    <!-- ============================================ -->
     <!-- GSAP + ScrollTrigger                        -->
     <!-- ============================================ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-    <script type="module" src="js/caso-asdeporte.js" defer></script>
+    <script type="module" src="js/caso-abc.js" defer></script>
     <script type="module" src="js/resultado.js" defer></script>
-    <script type="module" src="js/caso-asdeporte-nav.js" defer></script>
+    <script type="module" src="js/caso-abc-nav.js" defer></script>
 
 </head>
 
@@ -250,7 +267,7 @@
         <!-- ============================================ -->
         <!-- SECCIÓN 1 — APERTURA                        -->
         <!-- ============================================ -->
-        <section class="cs-apertura" aria-label="Apertura del caso Asdeporte">
+        <section class="cs-apertura" aria-label="Apertura del caso Centro Médico ABC">
 
             <!-- Wrapper mobile/tablet — envuelve fondo+overlay+viñeta+sombra
                  para poder "pinearlos" con position:sticky mientras el
@@ -287,37 +304,49 @@
             </div>
 
             <!-- Ticker anclado al fondo -->
-            <div class="cs-apertura__ticker" aria-label="Una app de clase mundial que frenaba a sus propios atletas.">
+            <div class="cs-apertura__ticker" aria-label="Un hospital de 130 años de excelencia clínica con una experiencia digital fragmentada en tres sistemas distintos.">
 
                 <!-- Track 1 — copia original -->
                 <div class="cs-ticker__track" aria-hidden="true">
-                    <span class="cs-ticker__word cs-headline">Una</span>
-                    <span class="cs-ticker__word cs-headline">app</span>
+                    <span class="cs-ticker__word cs-headline">Un</span>
+                    <span class="cs-ticker__word cs-headline">hospital</span>
                     <span class="cs-ticker__word cs-headline">de</span>
-                    <span class="cs-ticker__word cs-headline">clase</span>
-                    <span class="cs-ticker__word cs-headline">mundial</span>
-                    <span class="cs-ticker__word cs-headline">que</span>
-                    <span class="cs-ticker__word cs-headline">frenaba</span>
-                    <span class="cs-ticker__word cs-headline">a</span>
-                    <span class="cs-ticker__word cs-headline">sus</span>
-                    <span class="cs-ticker__word cs-headline">propios</span>
-                    <span class="cs-ticker__word cs-headline">atletas.</span>
+                    <span class="cs-ticker__word cs-headline">130</span>
+                    <span class="cs-ticker__word cs-headline">años</span>
+                    <span class="cs-ticker__word cs-headline">de</span>
+                    <span class="cs-ticker__word cs-headline">excelencia</span>
+                    <span class="cs-ticker__word cs-headline">clínica</span>
+                    <span class="cs-ticker__word cs-headline">con</span>
+                    <span class="cs-ticker__word cs-headline">una</span>
+                    <span class="cs-ticker__word cs-headline">experiencia</span>
+                    <span class="cs-ticker__word cs-headline">digital</span>
+                    <span class="cs-ticker__word cs-headline">fragmentada</span>
+                    <span class="cs-ticker__word cs-headline">en</span>
+                    <span class="cs-ticker__word cs-headline">tres</span>
+                    <span class="cs-ticker__word cs-headline">sistemas</span>
+                    <span class="cs-ticker__word cs-headline">distintos.</span>
                     <span class="cs-ticker__separator" aria-hidden="true">—</span>
                 </div>
 
                 <!-- Track 2 — copia para loop seamless -->
                 <div class="cs-ticker__track" aria-hidden="true">
-                    <span class="cs-ticker__word cs-headline">Una</span>
-                    <span class="cs-ticker__word cs-headline">app</span>
+                    <span class="cs-ticker__word cs-headline">Un</span>
+                    <span class="cs-ticker__word cs-headline">hospital</span>
                     <span class="cs-ticker__word cs-headline">de</span>
-                    <span class="cs-ticker__word cs-headline">clase</span>
-                    <span class="cs-ticker__word cs-headline">mundial</span>
-                    <span class="cs-ticker__word cs-headline">que</span>
-                    <span class="cs-ticker__word cs-headline">frenaba</span>
-                    <span class="cs-ticker__word cs-headline">a</span>
-                    <span class="cs-ticker__word cs-headline">sus</span>
-                    <span class="cs-ticker__word cs-headline">propios</span>
-                    <span class="cs-ticker__word cs-headline">atletas.</span>
+                    <span class="cs-ticker__word cs-headline">130</span>
+                    <span class="cs-ticker__word cs-headline">años</span>
+                    <span class="cs-ticker__word cs-headline">de</span>
+                    <span class="cs-ticker__word cs-headline">excelencia</span>
+                    <span class="cs-ticker__word cs-headline">clínica</span>
+                    <span class="cs-ticker__word cs-headline">con</span>
+                    <span class="cs-ticker__word cs-headline">una</span>
+                    <span class="cs-ticker__word cs-headline">experiencia</span>
+                    <span class="cs-ticker__word cs-headline">digital</span>
+                    <span class="cs-ticker__word cs-headline">fragmentada</span>
+                    <span class="cs-ticker__word cs-headline">en</span>
+                    <span class="cs-ticker__word cs-headline">tres</span>
+                    <span class="cs-ticker__word cs-headline">sistemas</span>
+                    <span class="cs-ticker__word cs-headline">distintos.</span>
                     <span class="cs-ticker__separator" aria-hidden="true">—</span>
                 </div>
 
@@ -402,14 +431,14 @@
         <div class="cs-metrica-pin">
 
         <!-- Panel 1 — MÉTRICA -->
-        <section class="cs-metrica" aria-label="Métrica de conversión post-lanzamiento">
+        <section class="cs-metrica" aria-label="Métrica de usabilidad post-lanzamiento">
 
             <!-- Columna izquierda: KPI + texto -->
             <div class="cs-metrica__left">
 
                 <!-- Número + flecha -->
                 <div class="cs-metrica__kpi">
-                    <span class="cs-metric">43%</span>
+                    <span class="cs-metric">82</span>
                     <svg class="cs-metrica__arrow" aria-hidden="true" viewBox="0 0 103 103" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <!-- Path 1: diagonal principal -->
                         <path class="cs-metrica__arrow-main" d="M6 96.5L96.5 6"
@@ -440,7 +469,7 @@
 
                 <!-- Descripción -->
                 <p class="cs-body-xxl cs-metrica__caption">
-                    Conversión de 8%&nbsp;→&nbsp;11.5% en el primer mes post-lanzamiento.
+                    Puntuación de usabilidad (SUS) de 45&nbsp;→&nbsp;82 en producción real, medida en los primeros meses tras el lanzamiento.
                 </p>
 
             </div>
@@ -458,20 +487,20 @@
                 <span class="cs-label">[ Contexto ]</span>
 
                 <h2 class="cs-section-title">
-                    Atletas que entrenaban meses para un triatlón encontraban más obstáculos en la app que en la carrera.
+                    Un hospital con más de 130 años de excelencia clínica hacía que sus pacientes se sintieran incompetentes frente a una pantalla.
                 </h2>
 
                 <!-- Imagen placeholder (parallax pendiente) -->
                 <div class="cs-contexto__media">
-                    <img loading="lazy" class="cs-contexto__image" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Calendario de carreras de AsDeporte">
+                    <img loading="lazy" class="cs-contexto__image" src="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp" alt="Interfaz del sitio del Centro Médico ABC">
                 </div>
 
                 <!-- Etiquetas de contexto -->
                 <div class="cs-contexto__tags">
-                    <span class="small-paragraph cs-contexto__tag">AsDeporte</span>
-                    <span class="small-paragraph cs-contexto__tag">Sports Tech</span>
-                    <span class="small-paragraph cs-contexto__tag">B2C/B2B</span>
-                    <span class="small-paragraph cs-contexto__tag">10 meses</span>
+                    <span class="small-paragraph cs-contexto__tag">Centro Médico ABC</span>
+                    <span class="small-paragraph cs-contexto__tag">HealthTech</span>
+                    <span class="small-paragraph cs-contexto__tag">B2C</span>
+                    <span class="small-paragraph cs-contexto__tag">14 meses</span>
                 </div>
 
             </div>
@@ -491,16 +520,16 @@
                 <div class="cs-contexto__mask">
                     <div class="cs-contexto__text-track">
                         <p class="large-paragraph">
-                            Una de mis primeras sesiones de research fue con Alex. Triatleta experto, ingeniero, usuario leal y más de diez carreras con AsDeporte. Le pedí una tarea simple; encontrar un triatlón olímpico.
+                            Una de mis primeras sesiones de research fue con un ejecutivo que buscaba un cardiólogo. Encontró al médico que necesitaba, llegó a su perfil esperando ver un calendario de disponibilidad, y el flujo terminaba en un número de teléfono para llamar al conmutador.
                         </p>
                         <p class="large-paragraph">
-                            Lo que siguió fueron varios minutos de silencio y frustración frente a un calendario de píxeles de colores, puntos naranjas, puntos azules, sin nombres, sin contexto, sin nada que le dijera si ese punto naranja era su próxima carrera o un evento de ciclismo a 800 kilómetros. Después de varios segundos en silencio, dijo algo que se me quedó grabado y cambió mi estrategia. "Si esto no fuera el Ironman de Cozumel y no fuera la única forma de inscribirme, ya habría cerrado la app."
+                            El diagnóstico inicial fue contundente. El 75% de los usuarios que intentaron agendar una cita con un especialista en línea reportó frustración o no pudo completarla. En pruebas moderadas, la tasa de éxito de esa misma tarea fue de 0%.
                         </p>
                         <p class="large-paragraph">
-                            Ahí entendí la magnitud del problema. Si Alex, un usuario que AsDeporte considera su mejor cliente estaba a un paso de rendirse, el atleta que llegaba por primera vez no tenía ninguna oportunidad. El problema no era estético ni técnico. Era estratégico. AsDeporte tenía el monopolio de las mejores carreras del país y lo estaba usando como red de contención, no como ventaja competitiva.
+                            La plataforma tenía una puntuación de usabilidad (SUS) de 45 sobre 100, calificada como pobre. El 68% de los pacientes pedía explícitamente un solo lugar para ver todos sus resultados médicos, en vez de tener que adivinar si estaban en el sistema de laboratorio o en el de radiología.
                         </p>
                         <p class="large-paragraph">
-                            Y esa distinción es la diferencia entre una marca sólida y una marca que desaparece en cuanto aparece un competidor con la mitad de los eventos pero con una plataforma que funciona. No estábamos rediseñando una app. Llegamos a rescatar una relación que estaba a punto del divorcio.
+                            El problema no era estético. Un paciente esperando el resultado de un estudio no tiene la misma paciencia que un usuario comprando ropa en línea. Diseñar para salud significa diseñar para gente en un momento de vulnerabilidad, no para un usuario promedio con tiempo de sobra.
                         </p>
                     </div>
                 </div>
@@ -540,7 +569,7 @@
                         <span class="cs-decisiones-titulos__number">01</span>
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 1</h3>
                     </div>
-                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">No se construye lealtad sobre una experiencia rota.</p>
+                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">El portal que nadie entendía era un obstáculo entre el paciente y su salud.</p>
                     <hr class="divider--horizontal">
                 </li>
 
@@ -549,7 +578,7 @@
                         <span class="cs-decisiones-titulos__number">02</span>
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 2</h3>
                     </div>
-                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">La elegancia que no convierte es el diseño más caro.</p>
+                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">Un hospital que excluye a quien más lo necesita no está cumpliendo su misión.</p>
                     <hr class="divider--horizontal">
                 </li>
 
@@ -558,7 +587,7 @@
                         <span class="cs-decisiones-titulos__number">03</span>
                         <h3 class="cs-decision-text cs-decisiones-titulos__title">Decisión 3</h3>
                     </div>
-                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">Saber cuándo no rediseñar es una de las habilidades más difíciles de adquirir.</p>
+                    <p class="cs-body-xxl cs-decisiones-titulos__subtitle">El prototipo mintió, y la producción real me lo hizo pagar.</p>
                     <hr class="divider--horizontal">
                 </li>
 
@@ -581,7 +610,7 @@
 
             <div class="cs-decision__content">
                 <span class="cs-label cs-decision__label">[ Decisión 1 ]</span>
-                <h3 class="cs-decision-title cs-decision__title">No se construye lealtad sobre una experiencia rota.</h3>
+                <h3 class="cs-decision-title cs-decision__title">El portal que nadie entendía era un obstáculo entre el paciente y su salud.</h3>
             </div>
 
             <div class="cs-decision__media">
@@ -605,19 +634,19 @@
                 <div class="cs-problema__grid">
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Marketing y liderazgo llevaban meses apostando por "Tribu", la red social interna de atletas, como la pieza que transformaría a AsDeporte de ticketera a comunidad deportiva.</p>
+                        <p class="large-paragraph cs-problema__text">La arquitectura original proponía "Mi Portal Paciente ABC" como un hub centralizado: el paciente debía entrar ahí primero y luego navegar a resultados o citas.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">La investigación fue en sentido contrario: en entrevistas y pruebas, Tribu era un "pueblo fantasma", nadie la usaba, pocos la conocían. Un atleta de Spartan Race fue directo: "Esto no es para espartanos. Cero útil."</p>
+                        <p class="large-paragraph cs-problema__text">En pruebas con prototipo navegable, los usuarios se detenían confundidos frente al acceso al portal, sin saber si ahí estaban sus citas, sus resultados, o ambos.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Los atletas ya tenían dónde socializar y medir su rendimiento: Strava y WhatsApp. Tribu competía en un terreno que el usuario ya había resuelto por su cuenta.</p>
+                        <p class="large-paragraph cs-problema__text">Una usuaria lo dijo de forma directa durante una sesión de prueba: "No sé si tengo que ir a Mi Portal o a Consulta tus Resultados. ¿Es lo mismo?"</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Nadie en la mesa había cuestionado la apuesta hasta que llegó la investigación, porque era una idea emocionalmente atractiva y políticamente respaldada.</p>
+                        <p class="large-paragraph cs-problema__text">El hallazgo se clasificó como Severidad Mayor: el concepto de portal era demasiado abstracto frente a la necesidad concreta del paciente de ver un resultado o agendar una cita.</p>
                     </div>
                 </div>
             </div>
@@ -640,7 +669,7 @@
                          alt="" />
                 </div>
                 <div class="cs-decision-mc__text-wrap">
-                    <p class="cs-decision-mc__text cs-body-xxl">Propuse clasificar "Tribu" como Won't Have (W1) para el lanzamiento del MVP y redirigir el foco de diseño e ingeniería al motor de búsqueda y al flujo de pago, los dos puntos donde el negocio realmente sangraba. Fue una decisión incómoda: sabía que había capital político invertido en la idea, pero mi responsabilidad como diseñador senior era proteger los recursos de desarrollo.</p>
+                    <p class="cs-decision-mc__text cs-body-xxl">Prioricé la acción directa sobre el concepto de portal. En la homepage, transformé el acceso genérico al hub en dos CTAs utilitarios y prominentes, "Agenda tu cita" y "Consulta tus resultados", con el portal pasando de ser un destino en sí mismo a ser el contenedor que se activa después de que el paciente decide qué necesita. No fue una simplificación estética, fue reconocer que nadie llega a un sitio de salud con ganas de explorar un hub, llega con una necesidad puntual que hay que resolver en el menor número de clics posible.</p>
                 </div>
             </div>
         </section>
@@ -672,15 +701,15 @@
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">100%</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">7</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="2">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">3 perfiles</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">Severidad Mayor</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="3">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">50%</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">60%</span>
                 </div>
             </div>
 
@@ -692,9 +721,9 @@
                  par, validado para solape sin hueco y sin convivencia
                  a media altura. -->
             <div class="cs-razonamiento__rail">
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">De los participantes del Perfil 1 en la investigación rechazó &lsquo;Tribu&rsquo; casi de inmediato, el hallazgo más unánime y doloroso de todo el estudio.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Perfiles de usuario documentados llegaron, de forma independiente, a la misma conclusión: para conectar con sus amigos usaban WhatsApp, el rendimiento ya lo cubría Strava.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Era la meta fijada para reducir los reportes de error de pago a soporte. No había margen para diluir ese esfuerzo en una funcionalidad social sin tracción.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Sesiones de prueba con protocolo Think Aloud, todas moderadas por mí. Los usuarios no buscaban un portal como concepto, buscaban resolver una necesidad inmediata.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">La clasificación más alta del sistema de triaje usado para priorizar hallazgos. La arquitectura estaba compitiendo consigo misma.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Éxito en inicio de sesión al portal medido después del lanzamiento, con 70% de éxito en visualización de resultados una vez dentro. La arquitectura seguía reflejando los silos del hospital, no la mente del paciente.</p>
             </div>
 
             <!-- ============================================ -->
@@ -724,8 +753,8 @@
             <!--   (que ya tiene su propio pin).                   -->
             <!-- ============================================ -->
             <div class="cs-razonamiento__conclusion">
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;No tenía sentido pelear por diferenciación social mientras el motor de inscripciones fallaba en lo básico. Primero había que ganarse el derecho de hablar con el usuario,</p>
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">arreglando el pago.&rdquo;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;El paciente no debe entender de silos tecnológicos.</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">El paciente solo quiere saber si está sano.&rdquo;</p>
             </div>
         </section>
 
@@ -746,7 +775,7 @@
 
             <div class="cs-decision__content">
                 <span class="cs-label cs-decision__label">[ Decisión 2 ]</span>
-                <h3 class="cs-decision-title cs-decision__title">La elegancia que no convierte es el diseño más caro.</h3>
+                <h3 class="cs-decision-title cs-decision__title">Un hospital que excluye a quien más lo necesita no está cumpliendo su misión.</h3>
             </div>
 
             <div class="cs-decision__media">
@@ -772,19 +801,19 @@
                 <div class="cs-problema__grid">
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">En el checkout original, el pago en Oxxo existía, pero se trataba como una opción secundaria, casi oculta frente a tarjeta de crédito/débito.</p>
+                        <p class="large-paragraph cs-problema__text">En la auditoría automatizada inicial en staging, la plataforma tenía múltiples violaciones críticas de contraste, ARIA y jerarquía de encabezados rota.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">En las pruebas de usabilidad, 8 de 15 participantes, sobre todo perfiles principiantes y mayores, pidieron explícitamente más visibilidad para esa opción.</p>
+                        <p class="large-paragraph cs-problema__text">Al navegar solo con teclado, encontré keyboard traps reales: un modal de agendamiento y el modal de Aviso de Privacidad atrapaban el foco sin posibilidad de salir con Escape.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Un usuario lo resumió sin rodeos: "Oxxo es lo mejor para mí". Para el atleta ocasional, el efectivo era su zona de calma frente a un sistema digital en el que ya no confiaba del todo.</p>
+                        <p class="large-paragraph cs-problema__text">Más de 15 elementos de navegación críticos estaban implementados como div con onClick en vez de HTML semántico, invisibles para cualquier usuario de teclado.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">La interfaz seguía priorizando lo digital sobre la realidad física de buena parte de los atletas mexicanos, a pesar de que la investigación ya lo señalaba como punto ciego.</p>
+                        <p class="large-paragraph cs-problema__text">El equipo de desarrollo había eliminado el anillo de foco visual por estética, dejando a cualquier usuario de teclado navegando a ciegas.</p>
                     </div>
                 </div>
             </div>
@@ -805,7 +834,7 @@
                          alt="" />
                 </div>
                 <div class="cs-decision-mc__text-wrap">
-                    <p class="cs-decision-mc__text cs-body-xxl">Rediseñé la jerarquía visual de la pantalla de pago para darle a Oxxo el mismo peso que a las tarjetas, mismo tamaño de logo, misma prominencia, y añadí un microcopy directo debajo: "Genera una referencia y paga en efectivo en cualquier tienda Oxxo." No fue una concesión estética: fue tratar el pago en efectivo como lo que los datos decían que era, un habilitador crítico de conversión.</p>
+                    <p class="cs-decision-mc__text cs-body-xxl">No tratamos la accesibilidad como una lista de ajustes cosméticos de última hora. Prioricé WCAG 2.1 Nivel AA como estándar no negociable, con criterios ligados directamente a tickets de Jira para que cada corrección compitiera por recursos igual que cualquier bug funcional. Cuando el Design System usaba un gris claro elegante que no llegaba al contraste mínimo de 4.5 a 1, decidí oscurecerlo aunque el equipo argumentara que se perdía sutileza visual: la estética del hospital nunca debía comprometer que un paciente con baja visión pudiera leer una instrucción de preparación para un estudio.</p>
                 </div>
             </div>
         </section>
@@ -819,27 +848,27 @@
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">4.7</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">65→95</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="2">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">53%</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">15+</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="3">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">5</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">4.5:1</span>
                 </div>
             </div>
 
             <div class="cs-razonamiento__rail">
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">SEQ del pago en Oxxo entre quienes lo usaban, sobre 5, un acierto que no podíamos dejar escondido detrás de una jerarquía visual débil.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">De los usuarios de prueba pidieron explícitamente más visibilidad para esa opción. No era un problema de color, era de arquitectura de información.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Problemas de Prioridad Alta para el lanzamiento, este era 1 de ellos, con esfuerzo de implementación bajo e impacto directo en inclusión financiera.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Puntaje de accesibilidad en Lighthouse antes y después de la remediación en staging.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Elementos de navegación corregidos de div clicable a HTML semántico.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Ratio de contraste mínimo alcanzado en todas las combinaciones de color del Design System, verificado en la ronda final de pruebas.</p>
             </div>
 
             <div class="cs-razonamiento__conclusion">
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;En el re-testing, la apuesta se validó sin ambigüedad: SEQ perfecto de 5.0/5 y 100% de identificación inmediata del logo. Una participante lo dijo mejor que cualquier informe:</p>
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">&lsquo;Qué bueno que está ahí grande y con el logo! Se ve claro.&rsquo;&rdquo;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;La accesibilidad no es un feature que se añade al final, es la integridad misma de la arquitectura.</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">Si un usuario no puede salir de un modal con la tecla Escape, hemos fallado en la construcción básica de la libertad del usuario dentro de nuestro ecosistema digital.&rdquo;</p>
             </div>
         </section>
 
@@ -855,7 +884,7 @@
 
             <div class="cs-decision__content">
                 <span class="cs-label cs-decision__label">[ Decisión 3 ]</span>
-                <h3 class="cs-decision-title cs-decision__title">Saber cuándo no rediseñar es una de las habilidades más difíciles de adquirir.</h3>
+                <h3 class="cs-decision-title cs-decision__title">El prototipo mintió, y la producción real me lo hizo pagar.</h3>
             </div>
 
             <div class="cs-decision__media">
@@ -876,19 +905,19 @@
                 <div class="cs-problema__grid">
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Los atletas de nicho (trail, MTB, triatlón) pedían filtros técnicos granulares, condiciones de drafting, puntos ITRA, tipo de terreno, que el modelo de datos del evento simplemente no capturaba.</p>
+                        <p class="large-paragraph cs-problema__text">En el prototipo de Figma, sin lógica de backend real, el flujo de agendamiento con especialistas midió una tasa de éxito del 95% en pruebas de usabilidad pre-lanzamiento.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">5 de 15 usuarios de las pruebas, mayoritariamente del perfil Plus, el segmento más rentable de la plataforma, reportaron esta carencia como fricción real de descubrimiento.</p>
+                        <p class="large-paragraph cs-problema__text">En producción real, la tasa de abandono en ese mismo flujo se disparó a 60%, concentrada exactamente en el paso de selección de horario.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">Los principiantes tenían el problema inverso: 6 de 15 no encontraban información de terreno o dificultad antes de inscribirse, 0% de éxito en esa tarea, con 25 segundos adicionales de fricción.</p>
+                        <p class="large-paragraph cs-problema__text">Cruzando los datos de GA4 con grabaciones de Hotjar, encontré usuarios haciendo rage clicks, cinco o seis clics repetidos sobre el mismo horario en menos de dos segundos, antes de abandonar.</p>
                     </div>
                     <div class="cs-problema__card">
                         <span class="cs-problema__bullet" aria-hidden="true"></span>
-                        <p class="large-paragraph cs-problema__text">La solución "completa", rediseñar el modelo de datos de eventos desde su raíz, competía directamente con el cronograma de ingeniería y con el alcance de la futura plataforma B2B.</p>
+                        <p class="large-paragraph cs-problema__text">El prototipo de alta fidelidad nunca pudo simular la latencia y disponibilidad real del sistema de citas del hospital: la ausencia de un indicador de carga claro generaba una incertidumbre que el prototipo, por diseño, no podía predecir.</p>
                     </div>
                 </div>
             </div>
@@ -909,7 +938,7 @@
                          alt="" />
                 </div>
                 <div class="cs-decision-mc__text-wrap">
-                    <p class="cs-decision-mc__text cs-body-xxl">No reconstruí el modelo de datos. Documenté ambas carencias como Deuda Técnica de Diseño explícita para una fase futura, implementé soluciones tácticas dentro del alcance ya definido (uno o dos sub-filtros inferibles de los datos existentes, campos opcionales de terreno para organizadores) y protegí la arquitectura de información central, que auditoría propia confirmó sólida, de una reestructuración que habría puesto en riesgo la fecha de lanzamiento.</p>
+                    <p class="cs-decision-mc__text cs-body-xxl">No presenté este hallazgo como un éxito disfrazado. Documenté la brecha entre la validación en prototipo (95% de éxito, sin backend real) y el resultado real en producción (60% de abandono) como lo que era: una limitación estructural de validar flujos transaccionales complejos en Figma sin simular latencia de sistemas reales. Prioricé, para el corto plazo, el rediseño del selector de horarios y la comunicación clara de disponibilidad real, en vez de prometer una solución inmediata que no habíamos validado todavía.</p>
                 </div>
             </div>
         </section>
@@ -923,27 +952,27 @@
                 <h3 class="cs-decision-text cs-razonamiento__label">[ El razonamiento ]</h3>
                 <div class="cs-razonamiento__metric" data-screen="1">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">10</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">95%</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="2">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">2</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">60%</span>
                 </div>
                 <div class="cs-razonamiento__metric" data-screen="3">
                     <i class="ph ph-check cs-razonamiento__check" aria-hidden="true"></i>
-                    <span class="cs-headline cs-razonamiento__metric-value">88.3</span>
+                    <span class="cs-headline cs-razonamiento__metric-value">95%</span>
                 </div>
             </div>
 
             <div class="cs-razonamiento__rail">
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Flujos críticos de usuario auditados y confirmados sólidos. El problema vivía en la densidad de atributos del evento, no en el esqueleto de la app.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Hallazgos como filtros de nicho y datos de terreno dependían de la misma estructura de datos que alimentaría a la futura plataforma B2B. No era una corazonada aislada.</p>
-                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Puntos de SUS ya alcanzados, calificación &lsquo;excelente&rsquo;, sin haber resuelto estos hallazgos, la señal de que no eran bloqueantes para el lanzamiento.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="1">Éxito medido en el prototipo de Figma antes del lanzamiento.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="2">Abandono real en producción en el paso de selección de horario, el hallazgo más citado de toda la fase de monitoreo post-lanzamiento.</p>
+                <p class="cs-body-xxl cs-razonamiento__descriptor" data-screen="3">Nivel de confianza estadística exigido como estándar mínimo para cualquier cambio implementado a partir de este hallazgo.</p>
             </div>
 
             <div class="cs-razonamiento__conclusion">
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;El criterio senior no es entregar la solución perfecta, es saber qué batallas pelear hoy para que el producto llegue a manos del atleta mañana. Documenté la deuda, protegí el lanzamiento, y dejé el problema correctamente diagnosticado</p>
-                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">para cuando la plataforma B2B pudiera resolverlo de raíz.&rdquo;</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-body">&ldquo;El criterio senior no es entregar la solución perfecta en el primer intento. Es medir en producción real, admitir cuando el prototipo no fue suficiente, y priorizar la corrección con la misma disciplina con la que se prioriza un lanzamiento,</p>
+                <p class="cs-body-xxl-italic cs-razonamiento__conclusion-final">sin maquillar el resultado.&rdquo;</p>
             </div>
         </section>
 
@@ -993,19 +1022,19 @@
         <section class="rs-metricas" aria-label="El impacto en el negocio">
             <h3 class="rs-metricas__title cs-section-title">El impacto en el negocio</h3>
             <div class="rs-metricas__card" data-metric="1">
-                <span class="rs-metricas__value cs-decision-title">+30%<i class="ph ph-arrow-up-right rs-metricas__arrow" aria-hidden="true"></i></span>
-                <p class="rs-metricas__label cs-body-xxl">Uso de beneficios Plus.</p>
-                <p class="rs-metricas__detail large-paragraph">3.1 visitas promedio por miembro al Hub de Beneficios.</p>
+                <span class="rs-metricas__value cs-decision-title">-50%<i class="ph ph-arrow-down-right rs-metricas__arrow" aria-hidden="true"></i></span>
+                <p class="rs-metricas__label cs-body-xxl">Tiempo en tarea.</p>
+                <p class="rs-metricas__detail large-paragraph">Agendar una cita de laboratorio bajó de 4:15 a 2:10 minutos.</p>
             </div>
             <div class="rs-metricas__card" data-metric="2">
-                <span class="rs-metricas__value cs-decision-title">-60%<i class="ph ph-arrow-down-right rs-metricas__arrow" aria-hidden="true"></i></span>
-                <p class="rs-metricas__label cs-body-xxl">Tickets de soporte por pagos.</p>
-                <p class="rs-metricas__detail large-paragraph">Medido en Zendesk pre y post lanzamiento.</p>
+                <span class="rs-metricas__value cs-decision-title">-25%<i class="ph ph-arrow-down-right rs-metricas__arrow" aria-hidden="true"></i></span>
+                <p class="rs-metricas__label cs-body-xxl">Llamadas al Call Center.</p>
+                <p class="rs-metricas__detail large-paragraph">Consultas que ahora se resuelven en línea, sin pasar por soporte telefónico.</p>
             </div>
             <div class="rs-metricas__card" data-metric="3">
-                <span class="rs-metricas__value cs-decision-title">125,000<i class="ph ph-arrow-up-right rs-metricas__arrow" aria-hidden="true"></i></span>
-                <p class="rs-metricas__label cs-body-xxl">Usuarios activos mensuales.</p>
-                <p class="rs-metricas__detail large-paragraph">+20% sobre la base histórica &middot; 15,000 nuevos registros en 30 días.</p>
+                <span class="rs-metricas__value cs-decision-title">+18%<i class="ph ph-arrow-up-right rs-metricas__arrow" aria-hidden="true"></i></span>
+                <p class="rs-metricas__label cs-body-xxl">CTR en pruebas A/B.</p>
+                <p class="rs-metricas__detail large-paragraph">"Agendar Cita Ahora" &middot; +22% adicional en la tarjeta "Consulta tus Resultados", ambas con 95%+ de confianza estadística.</p>
             </div>
         </section>
 
@@ -1031,14 +1060,14 @@
             <div class="rs-usuarios__media">
                 <img loading="lazy" class="rs-usuarios__img" src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&h=500&fit=crop" alt="" />
             </div>
-            <p class="rs-usuarios__text cs-body-xxl">Las métricas contaban la mitad de la historia. La otra mitad la contaron las grabaciones en Hotjar. Rage clicks que desaparecieron, usuarios que encontraban Oxxo y continuaban con alivio visible, el campo del CURP que dejó de paralizar.</p>
+            <p class="rs-usuarios__text cs-body-xxl">Las métricas contaban la mitad de la historia. La otra mitad la contaron las grabaciones en Hotjar: pacientes que dejaban de dudar entre "Mi Portal" y "Consulta tus Resultados", usuarios de lector de pantalla que por fin podían salir de un modal con la tecla Escape.</p>
             <!-- Copia del testimonio de .rs-testimonio__quote-text, solo
                  para el layout 2 columnas de tablet landscape (imagen
                  izq. / 2 párrafos der.) — oculta en el resto de
                  breakpoints vía CSS (resultado.css). El original en
                  .rs-testimonio se oculta en ese mismo breakpoint para
                  no duplicar visualmente el texto. -->
-            <p class="rs-usuarios__quote-tablet cs-body-xxl">"La interfaz se siente limpia y moderna. Por primera vez, no sentí que la tecnología de AsDeporte competía con la calidad de sus carreras."</p>
+            <p class="rs-usuarios__quote-tablet cs-body-xxl">"Los pacientes dejaron de sentirse perdidos entre el sitio del hospital y el portal de resultados. La confusión que antes terminaba en una llamada al Call Center ahora se resuelve sola, la mayoría de las veces."</p>
         </section>
 
         <div class="cs-pin-spacer cs-pin-spacer--rs-testimonio" data-phase="rs-testimonio"></div>
@@ -1053,13 +1082,13 @@
             <span class="rs-testimonio__ring" aria-hidden="true"></span>
             <blockquote class="rs-testimonio__quote">
                 <i class="ph ph-quotes rs-testimonio__quote-icon" aria-hidden="true"></i>
-                <p class="rs-testimonio__quote-text">"La interfaz se siente limpia y moderna. Por primera vez, no sentí que la tecnología de AsDeporte competía con la calidad de sus carreras."</p>
+                <p class="rs-testimonio__quote-text">"Los pacientes dejaron de sentirse perdidos entre el sitio del hospital y el portal de resultados. La confusión que antes terminaba en una llamada al Call Center ahora se resuelve sola, la mayoría de las veces."</p>
             </blockquote>
             <div class="rs-testimonio__closing">
                 <h3 class="rs-testimonio__closing-title">
-                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">No rediseñamos una app.</span></span>
-                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">Recuperamos la autoridad</span></span>
-                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">de una marca.</span></span>
+                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">No rediseñamos un sitio web.</span></span>
+                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">Le devolvimos al paciente</span></span>
+                    <span class="rs-testimonio__line-wrap"><span class="rs-testimonio__line">la continuidad del cuidado.</span></span>
                 </h3>
                 <button class="btn btn--secondary">
                     Qué aprendí
@@ -1087,8 +1116,8 @@
             <div class="rs-cierre__bottom">
                 <div class="rs-cierre__cases">
                     <article class="rs-cierre__case">
-                        <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp" alt="" />
-                        <p class="rs-cierre__case-text">Un hospital con más de 130 años de excelencia clínica hacía que sus pacientes se sintieran incompetentes frente a una pantalla.</p>
+                        <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="" />
+                        <p class="rs-cierre__case-text">Atletas que entrenaban meses para un triatlón encontraban más obstáculos en la app que en la carrera.</p>
                     </article>
                     <article class="rs-cierre__case">
                         <img loading="lazy" class="rs-cierre__case-img" src="assets/images/cases/product-design-fintech-gentera-desktop.webp" alt="" />
@@ -1135,14 +1164,14 @@
             <h2 class="cs-section-title modal-rol-proceso__title">Más allá de las pantallas.</h2>
             <div class="modal-rol-proceso__inner">
                 <div class="modal-rol-proceso__image">
-                    <img loading="lazy" src="assets/images/cases/product-design-ecommerce-asdeporte-desktop.webp" alt="Placeholder imagen Mi Rol">
+                    <img loading="lazy" src="assets/images/cases/product-design-healthtech-hospital-abc-desktop.webp" alt="Placeholder imagen Mi Rol">
                 </div>
                 <div class="modal-rol-proceso__text">
                     <p class="large-paragraph">
-                        Entré al proyecto como consultor de producto senior, vía la consultora Dacodes, y fui responsable del ciclo completo de diseño. Desde el descubrimiento hasta la validación post-lanzamiento. Pero el trabajo que más importaba no estaba en las pantallas entregadas.
+                        Entré al proyecto como consultor de producto senior, de forma independiente para una agencia externa, y fui responsable del ciclo completo de diseño desde el descubrimiento hasta la validación post-lanzamiento.
                     </p>
                     <p class="large-paragraph">
-                        Mi verdadero rol fue tener conversaciones incómodas, tomar y defender decisiones. Frenar funcionalidades que distraían, rebatir argumentos de negocio con datos de usuario, insistir cuando el negocio quería priorizar la estética sobre la confianza, y convencer a una organización de 30 años de que su mayor amenaza no venía de la competencia. Venía de su propia plataforma.
+                        Mi verdadero rol fue traducir entre departamentos que no se hablaban entre sí. Para que un botón de Agendar Cita funcionara, tuve que sentar a un médico, a un desarrollador y a un área administrativa en la misma mesa y hacer que se pusieran de acuerdo.
                     </p>
                 </div>
             </div>
@@ -1166,17 +1195,17 @@
             <div class="cs-label modal-rol-proceso__label">[ EL PROCESO ]</div>
             <div class="modal-proceso__grid">
                 <div class="modal-proceso__steps">
-                    <div class="modal-proceso__step" data-step="0" data-description="En AsDeporte, la fase de descubrimiento no buscó tendencias ni referencias visuales.&#10;&#10;Buscó las fracturas exactas donde la experiencia estaba costándole dinero al negocio.&#10;&#10;Entrevistas con atletas, análisis de logs de soporte, grabaciones de sesión y auditorías de la plataforma existente construyeron un diagnóstico claro: la plataforma no tenía un problema visual, tenía una fuga de capital en el punto exacto donde el negocio facturaba.">
+                    <div class="modal-proceso__step" data-step="0" data-description="En el Centro Médico ABC, la investigación no partió de tendencias visuales de otros hospitales. Partió de medir qué tan roto estaba el sistema: 24 entrevistas con pacientes, familiares y personal, más 287 encuestas, arrojaron una puntuación de usabilidad (SUS) de apenas 45 sobre 100.&#10;&#10;El benchmarking se hizo contra hospitales de clase mundial como Mayo Clinic y Cleveland Clinic, pero también contra BBVA, Nubank y Amazon, porque el paciente no compara su experiencia contra otro hospital, la compara contra la última app que usó.&#10;&#10;El diagnóstico fue claro: el 75% de los pacientes que intentaban agendar una cita con un especialista en línea reportaba frustración o no lograba completarla.">
                         <span class="modal-proceso__number">01</span>
                         <h3 class="modal-proceso__title">Discovery</h3>
                     </div>
                     <hr class="divider--horizontal">
-                    <div class="modal-proceso__step" data-step="1" data-description="La definición del alcance fue tan importante como el diseño mismo. El espacio de ideación se abrió a todas las disciplinas (ingeniería, marketing, producto), generando más de lo que el MVP podía absorber.&#10;&#10;La priorización fue implacable: cada funcionalidad se evaluó contra su impacto directo en conversión, y lo que no sobrevivió ese criterio quedó fuera del alcance, sin excepciones.&#10;&#10;Cada decisión respondía a un problema de usabilidad documentado. Ningún elemento existía por razones estéticas, cada iniciativa tenía un KPI asociado que la justificaba.">
+                    <div class="modal-proceso__step" data-step="1" data-description="Definir el alcance significó decidir qué no se iba a construir. Se descartó una app nativa completa para concentrar los 12 meses de proyecto en una web mobile-first sólida, y se pospuso la integración de pagos en línea para no arriesgar la estabilidad del agendamiento y la consulta de resultados.&#10;&#10;La arquitectura de información se validó con Card Sorting y Tree Testing con usuarios reales, no con supuestos internos, y reveló que etiquetas como 'Unidades Especializadas' eran un agujero negro para el paciente.&#10;&#10;En las pruebas de baja fidelidad, una usuaria dudó entre 'Mi Portal' y 'Consulta tus Resultados' y preguntó si eran lo mismo. Esa sola pregunta forzó a rediseñar el concepto de portal antes de invertir en diseño visual de alta fidelidad.">
                         <span class="modal-proceso__number">02</span>
                         <h3 class="modal-proceso__title">Definition</h3>
                     </div>
                     <hr class="divider--horizontal">
-                    <div class="modal-proceso__step" data-step="2" data-description="El sistema de diseño se construyó pensando en quien lo iba a implementar, no en quien lo iba a presentar. Cada decisión de componentes respondía a las restricciones técnicas del equipo de ingeniería. La factibilidad no fue una limitación, fue una variable de diseño desde el primer día.&#10;&#10;Post-lanzamiento, el monitoreo convirtió el comportamiento real de los atletas en insumo de diseño accionable. Un fallo crítico de pagos en Android se detectó dentro de las primeras 72 horas de monitoreo intensivo y se resolvió como prioridad P0 en la ventana de estabilización. El proceso no terminó con la entrega, terminó cuando los datos confirmaron las hipótesis.">
+                    <div class="modal-proceso__step" data-step="2" data-description="El sistema de diseño se construyó con accesibilidad como no negociable desde el día uno: WCAG 2.1 AA, contraste mínimo de 4.5 a 1, y una auditoría manual con lectores de pantalla que llevó el puntaje de Lighthouse de 65 a 95.&#10;&#10;Post-lanzamiento, la puntuación de usabilidad subió de 45 a 82 en producción real, pero el monitoreo también reveló un problema que ningún prototipo de Figma pudo anticipar: 60% de abandono en el paso de seleccionar horario con un especialista, causado por falta de feedback visual ante la disponibilidad real del sistema.&#10;&#10;El proceso no terminó con el lanzamiento, terminó cuando los datos confirmaron qué funcionaba y qué todavía no.">
                         <span class="modal-proceso__number">03</span>
                         <h3 class="modal-proceso__title">Delivery</h3>
                     </div>
@@ -1213,13 +1242,10 @@
                 <div class="modal-que-aprendi__right">
                     <div class="modal-rol-proceso__text">
                         <p class="large-paragraph">
-                            <span class="cs-highlight">Lección 1: Habla el idioma del negocio.</span> Defender al usuario a veces significa argumentar con métricas, no con empatía. El argumento que ganó con Oxxo no fue "es mejor para el usuario", fue "esto nos está costando conversiones medibles."
+                            <span class="cs-highlight">Lección 1: La accesibilidad se defiende con tickets, no con principios.</span> El argumento que movió al equipo no fue "es lo correcto", fue vincular cada hallazgo a un criterio WCAG específico y a un ticket de Jira. Sin ese respaldo, un bug de accesibilidad es solo una sugerencia de diseño.
                         </p>
                         <p class="large-paragraph">
-                            <span class="cs-highlight">Lección 2: Los datos también exponen mis propios puntos ciegos.</span> Construí la integración con wearables asumiendo que "ver tu actividad reciente" bastaría. La adopción llegó a 3%, muy por debajo del 10% que proyectamos. Los atletas avanzados no querían un espejo, querían sincronización bidireccional real, subir sus resultados automáticamente a Strava o Garmin.
-                        </p>
-                        <p class="large-paragraph">
-                            <span class="cs-highlight">Lección 3: La pregunta correcta.</span> Dejé de preguntar "¿dónde abandona el usuario?" Ahora pregunto "¿qué duda específica lo hizo abandonar?" Son preguntas distintas. Llevan a soluciones distintas.
+                            <span class="cs-highlight">Lección 2: Un prototipo sin backend real puede mentir.</span> Validé el flujo de agendamiento con especialistas en Figma con 95% de éxito, y en producción real ese mismo flujo tuvo 60% de abandono. La causa no fue mi diseño del calendario, fue que ningún prototipo estático puede simular la incertidumbre real de esperar una respuesta del sistema. Aprendí a no declarar una victoria de usabilidad hasta verla sostenida en producción, con tráfico real.
                         </p>
                     </div>
                 </div>

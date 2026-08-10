@@ -1,0 +1,231 @@
+// js/caso-asdeporte-nav.js
+// Config específica de esta página para los módulos genéricos de
+// scroll-progress, section-nav y mobile-reveals.
+// - scroll-progress: SIEMPRE (mobile y desktop) — no depende de GSAP.
+// - mobile-reveals: siempre invocado; el módulo sale solo si matchea
+//   MQ_DESKTOP (ahí manda el scrollytelling GSAP).
+// - section-nav (dots + velo): solo desktop, via gsap.matchMedia con
+//   la misma condición MQ_DESKTOP que caso-asdeporte.js/resultado.js
+//   y los *-responsive.css.
+
+import { initScrollProgress } from './modules/scroll-progress.js';
+import { initSectionNav } from './modules/section-nav.js';
+import { initMobileReveals } from './modules/animations/mobile-reveals.js';
+import { initMetricaSequence, initMetricaPin } from './modules/animations/metrica-sequence.js';
+import { initAperturaExit } from './modules/animations/apertura-exit.js';
+import { initDecisionesAccordion } from './modules/animations/decisiones-accordion.js';
+import { initDecisionMcPin } from './modules/animations/decision-mc-pin.js';
+import { initAperturaTablet } from './modules/animations/apertura-tablet.js';
+import { initRsMetricasCards } from './modules/animations/rs-metricas-cards.js';
+import { initCtaButtonsReveal } from './modules/animations/cta-buttons-reveal.js';
+import { initRsCierreGraciasReveal } from './modules/animations/rs-cierre-gracias-reveal.js';
+import { initRsCierreCasesReveal } from './modules/animations/rs-cierre-cases-reveal.js';
+import { initOrientationReloadBanner } from './modules/orientation-reload-banner.js';
+import { initScrollToTop } from './modules/scroll-to-top.js';
+
+// Barra de progreso de lectura — corre una sola vez para todos los
+// modos (ya no vive en el matchMedia: no hay nada que revertir al
+// cruzar el breakpoint porque aplica en ambos lados).
+initScrollProgress({ anchorSelector: '.header' });
+
+// Botón flotante "volver arriba" — mobile/tablet, compensa los bullets
+// de section-nav (desktop-only, más abajo). Sale solo en desktop.
+initScrollToTop();
+
+// Reestructura el acordeón de Decisiones (mobile/tablet) ANTES de armar
+// los reveals de abajo — mueve las 4 secciones de cada decisión adentro
+// de su <li> de índice (ver decisiones-accordion.js). Sale solo en
+// desktop, no toca el HTML autoreado que usa el scrollytelling GSAP.
+initDecisionesAccordion();
+
+// Pin + fade-in de la imagen y el texto de "La decisión" en mobile/tablet.
+// Necesita que el acordeón ya esté reestructurado (arriba) para que
+// .cs-decisiones-titulos__sticky-header exista y se pueda medir su alto
+// al calcular el start offset del pin. Sale solo en desktop.
+initDecisionMcPin();
+
+// Combina Apertura + Métrica en una sola pantalla de 2 columnas para
+// tablet (todo lo que NO es desktop y mide >=700px — no un rango
+// acotado por max-width, ver comentario de isTabletApertura abajo) —
+// mueve .cs-metrica adentro de .cs-apertura y arma su propia secuencia
+// de entrada. Sale solo en mobile/desktop. Corre ANTES de
+// initMobileReveals de abajo: isTabletApertura decide qué selectores
+// excluir de esa lista (ver comentarios abajo).
+initAperturaTablet();
+
+// Piso, no rango: "tablet" acá es todo lo que NO es desktop (misma
+// query que gsap.matchMedia más abajo) y mide al menos 700px — mismo
+// criterio que decisiones-accordion.js/decision-mc-pin.js (solo
+// excluyen MQ_DESKTOP), sumado al piso de 700px para separarse de
+// mobile (<700px). Un táctil de 1300px+ (pointer:coarse) también entra
+// acá, igual que en el CSS (ver header de case-study-responsive.css).
+const isTabletApertura = !window.matchMedia('(min-width: 1200px) and (hover: hover) and (pointer: fine)').matches
+    && window.matchMedia('(min-width: 700px)').matches;
+
+// Reveals + contadores de la versión mobile/tablet. Sin GSAP a
+// propósito: debe funcionar con el CDN bloqueado.
+initMobileReveals({
+    // El ticker ya está visible en el primer frame (es el hero) — no hay
+    // scroll que lo cruce, así que va por immediateSelectors
+    // (DOMContentLoaded + delay fijo, sin IntersectionObserver). Ver
+    // mobile-reveals.js. En tablet se excluye: apertura-tablet.js ya lo
+    // revela con su propio timing (encadenado a la métrica) — si
+    // quedara acá también, mobile-reveals lo animaría una segunda vez.
+    immediateSelectors: isTabletApertura ? [] : [
+        '.cs-apertura__ticker',
+    ],
+    revealSelectors: [
+        // En tablet, apertura-tablet.js revela .cs-metrica__left
+        // encadenado a la entrada del título — si quedara acá también,
+        // mobile-reveals lo animaría una segunda vez (mismo motivo que
+        // arriba).
+        ...(isTabletApertura ? [] : ['.cs-metrica__left']),
+        '.cs-contexto .cs-label',
+        '.cs-contexto .cs-section-title',
+        '.cs-contexto__media',
+        '.cs-contexto__tags',
+        '.cs-contexto__text-track p',
+        '.cs-contexto__actions',
+        '.cs-decisiones-titulos__label',
+        // El sticky-header sí va acá (bidireccional, tamaño acotado y
+        // fijo — no crece con el <li>, así que no sufre el problema de
+        // porcentaje-de-elemento-gigante de abajo). El <li> que lo
+        // contiene NO va acá por ese motivo — ver oneShotSelectors.
+        '.cs-decisiones-titulos__sticky-header',
+        // .cs-decisiones-titulos__item NO va acá: puede crecer a varias
+        // pantallas de alto cuando el usuario abre una decisión — con el
+        // toggle bidireccional (threshold:0.15) se ocultaba a mitad de
+        // lectura (bug confirmado en vivo: el header pegado desaparecía
+        // de golpe). Va en oneShotSelectors, más abajo.
+        '.cs-decision__content',
+        '.cs-decision__media',
+        '.cs-problema__title',
+        '.cs-problema__card',
+        '.cs-decision-mc__title',
+        // .cs-decision-mc__media y .cs-decision-mc__text-wrap NO van
+        // acá: su animación la maneja decision-mc-pin.js (pin + fade-in
+        // atado al scroll). Si quedaran acá, mobile-reveals las animaría
+        // también vía IntersectionObserver y se verían dos reveals a la
+        // vez sobre los mismos elementos.
+        '.cs-razonamiento__label',
+        '.cs-razonamiento__metric',
+        '.cs-razonamiento__descriptor',
+        '.cs-razonamiento__conclusion',
+        '.rs-mosaico__intro',
+        '.rs-mosaico__card',
+        '.rs-metricas__title',
+        // .rs-metricas__card NO va acá: tiene su propia coreografía
+        // (zoom + fade + desplazamiento, réplica de .testimonial-card
+        // mobile), ver rs-metricas-cards.js. Si quedara acá también,
+        // mobile-reveals la animaría una segunda vez con el fade+slide
+        // genérico, compitiendo con la de abajo.
+        '.rs-usuarios__title',
+        '.rs-usuarios__media',
+        '.rs-usuarios__text',
+        // Copia del párrafo del testimonio, visible SOLO en tablet
+        // landscape (ver resultado.css) — no tenía ningún reveal propio,
+        // por eso no animaba a diferencia del resto de los textos.
+        '.rs-usuarios__quote-tablet',
+        '.rs-testimonio__quote',
+        '.rs-testimonio__closing',
+        // .rs-cierre__gracias y .rs-cierre__media NO van acá: tienen su
+        // propia coreografía (réplica exacta de la entrada de desktop:
+        // y+x+opacity por separado en cada palabra, y+opacity en la
+        // imagen), ver rs-cierre-gracias-reveal.js. Si quedaran acá
+        // también, mobile-reveals las animaría una segunda vez con el
+        // fade+slide genérico, compitiendo con la de abajo.
+        // .rs-cierre__case NO va acá: entra una y después la otra
+        // (stagger explícito), ver rs-cierre-cases-reveal.js — mismo
+        // motivo, evitar el doble reveal.
+        '.rs-cierre__footer',
+    ],
+    counterSelectors: [
+        // .cs-metric NO va acá: tiene su propia secuencia (conteo → dibuja
+        // flecha + revela párrafo), ver metrica-sequence.js.
+        '.cs-razonamiento__metric-value',
+        '.rs-metricas__value',
+    ],
+    // Revela una sola vez, nunca vuelve a ocultar — ver comentario en
+    // mobile-reveals.js (oneShotSelectors) y el que dejamos arriba junto
+    // a .cs-decisiones-titulos__item.
+    oneShotSelectors: [
+        '.cs-decisiones-titulos__item',
+    ],
+});
+
+// Animación bespoke de Métrica (conteo → flecha + párrafo). Separada
+// del sistema genérico de arriba porque necesita coreografía propia.
+initMetricaSequence();
+
+// Frena a .cs-metrica en el borde inferior de pantalla en su punto, en
+// vez de dejarla seguir subiendo con el scroll (ver metrica-sequence.js).
+initMetricaPin();
+
+// Fade de salida del título de Apertura atado al scroll del colchón de
+// .cs-apertura (fondo pineado por CSS, ver case-study.css). Bespoke por
+// la misma razón que initMetricaSequence.
+initAperturaExit();
+
+// Cards verdes de "El impacto en el negocio": zoom + fade + desplazamiento,
+// réplica exacta de la entrada mobile de .testimonial-card en index.html.
+// Sale solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
+// rs-metricas-cards.js).
+initRsMetricasCards();
+
+// Pop de los 3 botones CTA (Contexto, Testimonio, Cierre): zoom + fade,
+// réplica exacta del botón de cta-section-reveal.js en index.html. Sale
+// solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
+// cta-buttons-reveal.js).
+initCtaButtonsReveal();
+
+// "¡Gracias" / "por ver!" / imagen de cierre: réplica exacta de la
+// entrada de desktop (y+x+opacity por palabra, y+opacity en la imagen).
+// Sale solo si GSAP/ScrollTrigger no cargaron o en desktop (ver
+// rs-cierre-gracias-reveal.js).
+initRsCierreGraciasReveal();
+
+// Las 2 cards de casos: entran una y después la otra (stagger), mismo
+// criterio que desktop. Sale solo si GSAP/ScrollTrigger no cargaron o en
+// desktop (ver rs-cierre-cases-reveal.js).
+initRsCierreCasesReveal();
+
+// Aviso de "recargá la página" al detectar una rotación real en tablet
+// (no dispara en mobile/desktop). Ver orientation-reload-banner.js.
+initOrientationReloadBanner();
+
+if (typeof gsap !== 'undefined') {
+    gsap.matchMedia().add('(min-width: 1200px) and (hover: hover) and (pointer: fine)', () => {
+        const { destroy: destroySectionNav } = initSectionNav([
+            { selector: '.cs-apertura', label: 'Inicio' },
+            // El fade-in de label/título/imagen/tags/flecha de Contexto en
+            // realidad corre en el trigger ANTERIOR (shift-mc), vía
+            // renderContextoEntrada() — el propio trigger "contexto" no
+            // mueve esos elementos. 0.75 deja todo ya asentado.
+            { selector: '.cs-contexto', label: 'Contexto', phase: 'shift-mc', scrollProgress: 0.75 },
+            // Cada trigger decision-N es la cortina HACIA la pantalla verde,
+            // no la pantalla en sí — en progreso 0 la cortina sigue cerrada.
+            // La imagen del cascade llega exactamente en 1.0; 0.95 la deja
+            // asentada sin entrar ya al siguiente gate (expansion).
+            { selector: '.cs-decision[data-dec="1"]', label: 'Decisión 1', phase: 'decision-1', scrollProgress: 0.95 },
+            { selector: '.cs-decision[data-dec="2"]', label: 'Decisión 2', phase: 'decision-2', scrollProgress: 0.95 },
+            { selector: '.cs-decision[data-dec="3"]', label: 'Decisión 3', phase: 'decision-3', scrollProgress: 0.95 },
+            // El intro (label + h3) entra 0.10-0.25 y sale 0.55-0.70 — el
+            // "respiro" (0.70-0.80) ya lo perdió. 0.40 cae dentro de la
+            // ventana donde el intro sigue asentado y las cards ya
+            // avanzaron bastante (ease-out, entran 0.20-0.65).
+            { selector: '.rs-mosaico', label: 'Resultado', phase: 'rs-mosaico', scrollProgress: 0.40 },
+            // .rs-cierre__bottom comparte pin con "Gracias" + media, no tiene
+            // spacer propio (ver spec 2026-07-24, tabla data-phase).
+            // scrollProgress subido de 0.85 a 0.92 — a calibrar en vivo con el usuario.
+            { selector: '.rs-cierre__bottom', label: 'Contacto', phase: 'rs-cierre', scrollProgress: 0.92 },
+        ]);
+
+        // I3: gsap.matchMedia calls this returned function automatically
+        // when the MQ_DESKTOP query stops matching (it does NOT
+        // undo plain DOM appendChild on its own), so re-crossing the
+        // breakpoint re-inits cleanly instead of duplicating the nav.
+        return () => {
+            destroySectionNav();
+        };
+    });
+}

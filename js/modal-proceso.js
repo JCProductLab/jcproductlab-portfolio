@@ -28,21 +28,13 @@ export function initModalProceso() {
     const isDesktop = window.matchMedia(MQ_DESKTOP).matches;
     const scrollHint = initModalScrollHint(detail, scrollHintEl);
 
-    // Textos reales de assets/content/final-content.md (líneas 241-262)
-    const stepData = [
-        {
-            title: 'Discovery',
-            text: 'En AsDeporte, la fase de descubrimiento no buscó tendencias ni referencias visuales.\n\nBuscó las fracturas exactas donde la experiencia estaba costándole dinero al negocio.\n\nEntrevistas con atletas, análisis de logs de soporte, grabaciones de sesión y auditorías de la plataforma existente construyeron un diagnóstico claro: la plataforma no tenía un problema visual, tenía una fuga de capital en el punto exacto donde el negocio facturaba.'
-        },
-        {
-            title: 'Definition',
-            text: 'La definición del alcance fue tan importante como el diseño mismo. El espacio de ideación se abrió a todas las disciplinas (ingeniería, marketing, producto), generando más de lo que el MVP podía absorber.\n\nLa priorización fue implacable: cada funcionalidad se evaluó contra su impacto directo en conversión, y lo que no sobrevivió ese criterio quedó fuera del alcance, sin excepciones.\n\nCada decisión respondía a un problema de usabilidad documentado. Ningún elemento existía por razones estéticas, cada iniciativa tenía un KPI asociado que la justificaba.'
-        },
-        {
-            title: 'Delivery',
-            text: 'El sistema de diseño se construyó pensando en quien lo iba a implementar, no en quien lo iba a presentar. Cada decisión de componentes respondía a las restricciones técnicas del equipo de ingeniería. La factibilidad no fue una limitación, fue una variable de diseño desde el primer día.\n\nPost-lanzamiento, el monitoreo convirtió el comportamiento real de los atletas en insumo de diseño accionable. Un fallo crítico detectado en Android en las primeras 48 horas se resolvió antes de escalar. El proceso no terminó con la entrega — terminó cuando los datos confirmaron las hipótesis.'
-        }
-    ];
+    // Texto por paso: vive en el HTML (data-description de cada
+    // .modal-proceso__step), no hardcodeado acá, porque este módulo se
+    // carga vía main.js en todas las páginas de caso, no solo AsDeporte.
+    const stepData = Array.from(steps).map(step => ({
+        title: step.querySelector('.modal-proceso__title')?.textContent ?? '',
+        text: step.dataset.description ?? ''
+    }));
 
     let currentStep = 0;
     let autoPlayTimer = null;
