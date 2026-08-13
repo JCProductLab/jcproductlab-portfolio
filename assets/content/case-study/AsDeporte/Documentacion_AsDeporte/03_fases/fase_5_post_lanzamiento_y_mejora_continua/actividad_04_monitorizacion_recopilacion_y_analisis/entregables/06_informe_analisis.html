@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Análisis de Feedback y Datos - AsDeporte MVP B2C</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9; /* Un gris azulado muy claro */
+            color: #1e293b; /* Slate-800 */
+        }
+        .report-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        h1, h2, h3, h4 {
+            color: #0f769e; /* Un azul AsDeporte */
+        }
+        h1 {
+            font-size: 2.25rem; /* 36px */
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #0ea5e9; /* Sky-500 */
+            padding-bottom: 0.5rem;
+        }
+        h2 {
+            font-size: 1.75rem; /* 28px */
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #075985; /* Sky-700 */
+        }
+        h3 {
+            font-size: 1.375rem; /* 22px */
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #0369a1; /* Sky-600 */
+        }
+        h4 {
+            font-size: 1.125rem; /* 18px */
+            font-weight: 600;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #0284c7; /* Sky-600 */
+        }
+        p, li {
+            font-size: 1rem; /* 16px */
+            line-height: 1.65;
+            color: #334155; /* Slate-700 */
+            margin-bottom: 0.75rem;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        strong {
+            font-weight: 600;
+            color: #0c4a6e; /* Sky-800 */
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 0.875rem 1rem; /* 14px 16px */
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0; /* Slate-200 */
+            vertical-align: top;
+        }
+        th {
+            background-color: #0ea5e9; /* Sky-500 */
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem; /* 13px */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8fafc; /* Slate-50 */
+        }
+        tbody tr:hover {
+            background-color: #e0f2fe; /* Sky-100 */
+        }
+        .kpi-status-icon {
+            font-size: 1rem;
+            margin-right: 0.3rem;
+        }
+        .kpi-status-cumplido { color: #16a34a; /* Green-600 */ font-weight: 500; }
+        .kpi-status-oportunidad { color: #ea580c; /* Orange-600 */ font-weight: 500; }
+        .kpi-status-en-progreso { color: #2563eb; /* Blue-600 */ font-weight: 500; }
+        .kpi-status-positivo { color: #059669; /* Emerald-600 */ font-weight: 500; }
+        .kpi-status-superado { color: #65a30d; /* Lime-600 */ font-weight: 500; }
+        .kpi-observations {
+            font-size: 0.85rem;
+            color: #475569; /* Slate-600 */
+        }
+        .metadata {
+            background-color: #e0f2fe; /* Sky-100 */
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #0ea5e9; /* Sky-500 */
+        }
+        .metadata p {
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .section-divider {
+            border-bottom: 1px dashed #cbd5e1; /* Slate-300 */
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="report-container">
+        <header class="text-center mb-10">
+            <img src="https://placehold.co/150x50/0F769E/FFFFFF?text=AsDeporte&font=inter" alt="Logo AsDeporte" class="mx-auto mb-4 rounded">
+            <h1>Informe de Análisis de Feedback y Datos</h1>
+            <p class="text-xl text-slate-600">Primer Mes Post-Lanzamiento MVP B2C</p>
+        </header>
+
+        <div class="metadata">
+            <p><strong>Proyecto:</strong> Nueva Plataforma Digital Integral AsDeporte</p>
+            <p><strong>Fase:</strong> 5. Post-Lanzamiento y Mejora Continua</p>
+            <p><strong>Período Analizado:</strong> 16 de Abril de 2025 - 15 de Mayo de 2025</p>
+            <p><strong>Fecha del Informe:</strong> 16 de Mayo de 2025</p>
+        </div>
+
+        <h2>1. Introducción</h2>
+        <p>Este informe presenta el primer análisis mensual de los datos cuantitativos y el feedback cualitativo recopilados tras el lanzamiento del Producto Mínimo Viable (MVP) B2C de la nueva plataforma digital de AsDeporte. El objetivo es evaluar el rendimiento inicial del MVP, identificar el comportamiento de los usuarios, detectar problemas emergentes, y descubrir oportunidades de mejora continua.</p>
+
+        <div class="section-divider"></div>
+
+        <h2>2. Resumen de Metodología de Captura de Información</h2>
+        <p>Durante este primer mes, se utilizaron los siguientes sistemas para la captura de información:</p>
+        <ul>
+            <li>
+                <strong>Datos Cuantitativos:</strong>
+                <ul>
+                    <li><strong>Mixpanel:</strong> Seguimiento de eventos clave de interacción, funnels de conversión (inscripción, búsqueda), y uso de funcionalidades.</li>
+                    <li><strong>Google Analytics 4 (GA4):</strong> Métricas de adquisición de usuarios, comportamiento general en el sitio web y la aplicación.</li>
+                    <li><strong>Hotjar (Web):</strong> Mapas de calor y grabaciones de sesión para páginas clave.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Feedback Cualitativo:</strong>
+                <ul>
+                    <li><strong>Encuestas CSAT In-App/Web:</strong> Al finalizar la inscripción.</li>
+                    <li><strong>Formulario "Enviar Feedback":</strong> Disponible de forma permanente en app y web.</li>
+                    <li><strong>Monitorización de Tiendas de Apps (AppFollow):</strong> Reseñas y calificaciones en App Store y Google Play.</li>
+                    <li><strong>Monitorización de Redes Sociales (Brandwatch/Manual):</strong> Menciones y comentarios sobre la nueva plataforma.</li>
+                    <li><strong>Tickets de Soporte (Zendesk):</strong> Categorización específica para problemas de la nueva plataforma.</li>
+                    <li><strong>Repositorio Centralizado (Dovetail):</strong> Para análisis temático del feedback cualitativo.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="section-divider"></div>
+
+        <h2>3. Hallazgos Cuantitativos Clave (KPIs del MVP)</h2>
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Métrica Clave del MVP</th>
+                        <th>Objetivo Inicial (Ejemplo)</th>
+                        <th>Resultado del Primer Mes</th>
+                        <th>Estado vs. Objetivo</th>
+                        <th>Observaciones Adicionales</th>
+                    </tr>
+                </thead>
+                <tbody id="kpiTableBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2>4. Hallazgos Cualitativos Clave</h2>
+
+        <h3>4.1. Temas Positivos Recurrentes:</h3>
+        <ul>
+            <li><strong>Interfaz Moderna y Rápida:</strong> Elogios consistentes sobre la mejora visual y la velocidad de la nueva plataforma (app y web).</li>
+            <li><strong>Facilidad de Búsqueda:</strong> Los nuevos filtros y la presentación de resultados son percibidos como una mejora significativa.</li>
+            <li><strong>Proceso de Inscripción Sencillo:</strong> El flujo de 3 pasos es valorado por su claridad y agilidad.</li>
+            <li><strong>Claridad Beneficios Plus:</strong> El "Hub de Beneficios Plus" es muy apreciado por los miembros.</li>
+            <li><strong>Opción de Pago Oxxo:</strong> Genera confianza y es valorada por usuarios que prefieren pagos offline.</li>
+            <li><strong>Guías para Principiantes:</strong> Muy útiles para nuevos usuarios, reduciendo la intimidación.</li>
+        </ul>
+
+        <h3>4.2. Problemas, Puntos de Fricción y Oportunidades:</h3>
+        <ul>
+            <li>
+                <strong>PU-03 (CURP en Inscripción):</strong>
+                <ul>
+                    <li><strong>Qué:</strong> Persiste incomodidad y dudas sobre la obligatoriedad del CURP, a pesar de la explicación.</li>
+                    <li><strong>Por qué (Hipótesis):</strong> Preocupaciones de privacidad, percepción de dato no esencial para una carrera.</li>
+                    <li><strong>Impacto:</strong> Fricción menor en el flujo de inscripción para algunos usuarios.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>PU-01 (Filtros para Nichos Deportivos):</strong>
+                <ul>
+                    <li><strong>Qué:</strong> Atletas de nichos (Trail, Triatlón avanzado) solicitan filtros aún más específicos (tipo de terreno, drafting, etc.).</li>
+                    <li><strong>Por qué (Hipótesis):</strong> El MVP mejoró los filtros generales, pero las necesidades hiper-específicas de estos segmentos aún no están completamente cubiertas.</li>
+                    <li><strong>Impacto:</strong> Podría mejorar la satisfacción y eficiencia para estos segmentos de alto valor.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>PU-09 (Claridad Condiciones Wallet Plus):</strong>
+                <ul>
+                    <li><strong>Qué:</strong> Algunas dudas sobre la aplicabilidad del crédito del Wallet en ciertos eventos o su vigencia exacta.</li>
+                    <li><strong>Por qué (Hipótesis):</strong> Las condiciones, aunque disponibles, podrían necesitar ejemplos más claros o ser más visibles en el contexto de uso.</li>
+                    <li><strong>Impacto:</strong> Puede afectar la percepción de valor del programa Plus si los beneficios no se entienden completamente.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Información de Eventos de Terceros:</strong>
+                <ul>
+                    <li><strong>Qué:</strong> Quejas ocasionales sobre información incompleta o menos detallada para eventos no organizados directamente por AsDeporte.</li>
+                    <li><strong>Por qué (Hipótesis):</strong> AsDeporte tiene menos control sobre la calidad de estos datos. El futuro módulo B2B para organizadores deberá abordar esto.</li>
+                    <li><strong>Impacto:</strong> Afecta la experiencia del usuario en la plataforma AsDeporte, incluso si el problema se origina externamente.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Expectativas Integración Wearables (Post-MVP):</strong>
+                <ul>
+                    <li><strong>Qué:</strong> Usuarios avanzados que conectaron sus wearables esperan funcionalidades más profundas (sincronización automática de carreras, análisis en AsDeporte).</li>
+                    <li><strong>Por qué (Hipótesis):</strong> La integración básica del MVP es solo un primer paso.</li>
+                    <li><strong>Impacto:</strong> Oportunidad de engagement futuro para este segmento.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>4.3. Solicitudes de Funcionalidad Recurrentes:</h3>
+        <ul>
+            <li>Inscripciones grupales.</li>
+            <li>Posibilidad de editar la talla de playera post-inscripción (antes de una fecha de corte).</li>
+            <li>Mayor contenido visual de los eventos (fotos, videos de rutas).</li>
+        </ul>
+
+        <div class="section-divider"></div>
+
+        <h2>5. Correlación Cuantitativo-Cualitativo (Ejemplos)</h2>
+        <ul>
+            <li><strong>Búsqueda Exitosa:</strong> El alto uso de filtros (65%) y el CSAT de 4.1/5 se reflejan en comentarios como "Encontrar carreras ahora es más fácil". Sin embargo, las solicitudes de filtros de nicho (PU-01) indican que el CSAT podría aumentar aún más.</li>
+            <li><strong>Confianza en Inscripción:</strong> La mejora en la tasa de conversión del funnel (11.5%) y la reducción de errores de pago (-60%) se correlacionan con feedback como "El proceso de inscripción es súper sencillo y claro" y la valoración de la opción Oxxo.</li>
+            <li><strong>Valor de Asdeporte Plus:</strong> El aumento en el uso de descuentos (+30%) y las visitas al Hub (3.1/miembro) se alinea con comentarios como "¡Al fin puedo ver mis beneficios Plus!". Las dudas sobre el Wallet (PU-09) sugieren una oportunidad para mejorar aún más la comprensión y el uso de todos los beneficios.</li>
+        </ul>
+
+        <div class="section-divider"></div>
+
+        <h2>6. Conclusiones Iniciales (Primer Mes)</h2>
+        <ul>
+            <li><strong>Lanzamiento Exitoso del MVP:</strong> La nueva plataforma ha sido bien recibida en general, con mejoras significativas en UX/UI, búsqueda e inscripción. Los KPIs iniciales son mayormente positivos.</li>
+            <li><strong>Validación de Soluciones Clave:</strong> Las soluciones implementadas para los principales puntos de dolor identificados en la investigación (búsqueda, inscripción, claridad Plus) han demostrado ser efectivas.</li>
+            <li>
+                <strong>Áreas de Enfoque Inmediato:</strong>
+                <ul>
+                    <li>Refinar la comunicación y justificación del CURP.</li>
+                    <li>Mejorar la claridad de las condiciones del Wallet Asdeporte Plus.</li>
+                    <li>Comenzar a planificar la adición de filtros más específicos para nichos clave.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Oportunidades a Mediano Plazo:</strong>
+                <ul>
+                    <li>Desarrollar la funcionalidad de inscripciones grupales.</li>
+                    <li>Expandir la integración con wearables.</li>
+                    <li>Mejorar la riqueza de la información de eventos (especialmente de terceros).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="section-divider"></div>
+
+        <h2>7. Próximos Pasos</h2>
+        <ul>
+            <li>Presentar este informe al equipo de Producto y stakeholders.</li>
+            <li>Priorizar los problemas y oportunidades identificados para el backlog de desarrollo.</li>
+            <li>Planificar las próximas iteraciones de diseño y desarrollo enfocadas en las áreas de mejora clave.</li>
+            <li>Continuar con la monitorización de métricas y la recopilación de feedback para el próximo ciclo de análisis.</li>
+        </ul>
+        <p class="mt-8 text-sm text-slate-500">Este primer mes de análisis post-lanzamiento proporciona una base sólida para la mejora continua de la plataforma AsDeporte, asegurando que evolucione en línea con las necesidades de los usuarios y los objetivos del negocio.</p>
+    </div>
+
+    <script>
+        // Datos de KPIs (los mismos que en el dashboard anterior)
+        const kpiData = [
+            { metric: "Usuarios Activos Mensuales (MAU)", objective: "Aumento del X%", result: "125,000 (Aumento ~20%)", status: "✅ Cumplido", observations: "Crecimiento saludable inicial." },
+            { metric: "Nuevos Usuarios Registrados", objective: "N/A", result: "15,000", status: "N/A", observations: "Buen volumen de nuevos registros." },
+            { metric: "Tasa de Retención D30 (Nuevos Usuarios)", objective: "Mejorar en Y% (~30%)", result: "25%", status: "⚠️ Oportunidad", observations: "Ligeramente por debajo del objetivo, indica necesidad de mejorar el engagement temprano." },
+            { metric: "Número Total de Inscripciones (B2C)", objective: "Incrementar", result: "22,000", status: "✅ Positivo", observations: "Volumen de inscripciones saludable." },
+            { metric: "Tasa de Conversión Funnel Inscripción (Promedio)", objective: "Aumento 15% (ej. a 9.2%)", result: "11.5%", status: "✅ Superado", observations: "Mejora significativa. App Android (9%) afectada por bug inicial, pero recuperando tras hotfix. iOS (14%), Web (12%)." },
+            { metric: "Tasa de Conversión Búsqueda a Vista de Evento", objective: "Aumento 20% (ej. a 42%)", result: "45%", status: "✅ Cumplido", observations: "La nueva búsqueda es efectiva." },
+            { metric: "Uso de Filtros Avanzados (en Búsqueda)", objective: "Aumento 30% (ej. a >50%)", result: "65%", status: "✅ Cumplido", observations: "Alta adopción de los nuevos filtros." },
+            { metric: "Tasa de Abandono en Búsqueda", objective: "Disminuir 15% (ej. a <11.8%)", result: "10%", status: "✅ Cumplido", observations: "Menos usuarios abandonan la búsqueda." },
+            { metric: "Satisfacción con Búsqueda (CSAT In-App)", objective: ">= 4.0/5", result: "4.1/5", status: "✅ Cumplido", observations: "Usuarios satisfechos con la nueva búsqueda." },
+            { metric: "Tasa de Abandono del Carrito/Pago", objective: "Disminuir 20% (ej. a <22.5%)", result: "18%", status: "✅ Cumplido", observations: "Menos abandonos en el proceso final." },
+            { metric: "Errores de Pago Reportados (Soporte)", objective: "Reducir 50%", result: "Reducción del 60%", status: "✅ Superado", observations: "Impacto positivo del hotfix y mejoras." },
+            { metric: "Frecuencia Acceso \"Mis Eventos\"", objective: "Aumento 15%", result: "Aumento del 20%", status: "✅ Cumplido", observations: "Usuarios consultan más sus inscripciones." },
+            { metric: "Tasa de Uso Descuentos Asdeporte Plus", objective: "Aumento 25%", result: "Aumento del 30%", status: "✅ Cumplido", observations: "Miembros Plus utilizan más sus descuentos." },
+            { metric: "Visitas al \"Hub de Beneficios Plus\" (prom/miembro)", objective: "N/A", result: "3.1", status: "N/A", observations: "Buen engagement con la nueva sección." },
+            { metric: "Reducción Consultas Soporte (Info Básica Evento)", objective: "Disminuir 20%", result: "Reducción del 25%", status: "✅ Cumplido", observations: "Mejoras en claridad de información de evento." },
+            { metric: "Tasa Apertura Notificaciones Transaccionales (Email)", objective: "Definir X%", result: "60%", status: "N/A", observations: "Tasa de apertura saludable." },
+            { metric: "Adopción Integración Wearables (Básica)", objective: "10% en 6 meses", result: "3% en 1er mes", status: "⏳ En progreso", observations: "Inicio esperado, requiere más tiempo y promoción." }
+        ];
+
+        function getStatusClass(statusText) {
+            if (statusText.includes("✅ Cumplido")) return 'kpi-status-cumplido';
+            if (statusText.includes("⚠️ Oportunidad")) return 'kpi-status-oportunidad';
+            if (statusText.includes("⏳ En progreso")) return 'kpi-status-en-progreso';
+            if (statusText.includes("✅ Positivo")) return 'kpi-status-positivo';
+            if (statusText.includes("✅ Superado")) return 'kpi-status-superado';
+            return '';
+        }
+
+        function getStatusIcon(statusText) {
+            if (statusText.includes("✅")) return '✅';
+            if (statusText.includes("⚠️")) return '⚠️';
+            if (statusText.includes("⏳")) return '⏳';
+            return '';
+        }
+
+        const tableBody = document.getElementById('kpiTableBody');
+        kpiData.forEach(item => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td class="font-medium text-slate-700">${item.metric}</td>
+                <td class="text-slate-600">${item.objective}</td>
+                <td class="font-semibold text-sky-600">${item.result}</td>
+                <td class="${getStatusClass(item.status)}">
+                    <span class="kpi-status-icon">${getStatusIcon(item.status)}</span>
+                    ${item.status.replace(/✅|⚠️|⏳/g, '').trim()}
+                </td>
+                <td class="kpi-observations">${item.observations}</td>
+            `;
+        });
+    </script>
+
+</body>
+</html>

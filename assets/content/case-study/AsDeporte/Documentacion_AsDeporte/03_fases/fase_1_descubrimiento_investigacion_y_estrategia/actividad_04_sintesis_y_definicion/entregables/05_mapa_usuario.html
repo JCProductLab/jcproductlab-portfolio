@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapas de Viaje del Usuario B2C - AsDeporte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6; /* Un gris verdoso muy claro para un look más fresco */
+            color: #333;
+        }
+        .container {
+            max-width: 1400px; /* Un poco más ancho para tablas grandes */
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .persona-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            overflow: hidden; /* Para que el aombreado de la tabla no se salga */
+        }
+        .persona-header {
+            background-color: #0077C2; /* Un azul corporativo, ejemplo */
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .persona-title {
+            font-size: 1.75rem; /* 28px */
+            font-weight: 700;
+        }
+        .persona-objective {
+            font-size: 0.95rem; /* 15px */
+            font-style: italic;
+            color: #e0f2fe; /* Azul claro para el subtítulo */
+            margin-top: 5px;
+        }
+        .table-wrapper {
+            overflow-x: auto; /* Permite scroll horizontal en tablas */
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb; /* Gris claro */
+            vertical-align: top; /* Alinea el contenido arriba */
+        }
+        th {
+            background-color: #f9fafb; /* Gris muy claro para cabeceras */
+            font-weight: 600;
+            color: #1f2937; /* Gris oscuro */
+            font-size: 0.875rem; /* 14px */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa; /* Zebra striping sutil */
+        }
+        tbody tr:hover {
+            background-color: #eff6ff; /* Azul muy claro al pasar el mouse */
+        }
+        .emoji {
+            font-size: 1.5rem; /* Emojis más grandes */
+            display: block; /* Para centrar si es necesario o dar más espacio */
+            text-align: center;
+        }
+        .pain-point-list, .opportunity-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        .pain-point-list li {
+            color: #c81e1e; /* Rojo oscuro para mejor contraste */
+            margin-bottom: 4px;
+        }
+        .opportunity-list li {
+            color: #057a55; /* Verde oscuro para mejor contraste */
+            margin-bottom: 4px;
+        }
+        .phase-title {
+            font-weight: 600;
+            color: #111827; /* Gris más oscuro */
+        }
+
+        /* Estilos para hacer la cabecera de la tabla pegajosa */
+        .sticky-header th {
+            position: sticky;
+            top: 0;
+            background-color: #f9fafb; /* Asegurar que el fondo cubra al hacer scroll */
+            z-index: 10;
+        }
+         /* Scrollbar styling (opcional, para un look más moderno) */
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #0077C2; /* Azul corporativo */
+            border-radius: 10px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #005a8f; /* Azul más oscuro al pasar el mouse */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800">Mapas de Viaje del Usuario (Actuales)</h1>
+            <p class="text-xl text-gray-600 mt-2">Atletas B2C: Descubrimiento y Registro en Eventos AsDeporte</p>
+        </header>
+
+        <section id="carlos" class="persona-card">
+            <div class="persona-header">
+                <h2 class="persona-title">Carlos "El Competidor Comprometido"</h2>
+                <p class="persona-objective">Objetivo: Encontrar y registrarse en un triatlón específico o un evento de su disciplina que se ajuste a su calendario y objetivos de rendimiento.</p>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead class="sticky-header">
+                        <tr>
+                            <th>Fase del Viaje</th>
+                            <th>Acciones del Usuario</th>
+                            <th>Puntos de Contacto</th>
+                            <th>Pensamientos</th>
+                            <th>Emociones</th>
+                            <th>Puntos de Dolor</th>
+                            <th>Oportunidades de Mejora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="phase-title">1. Necesidad / Deseo Inicial</td>
+                            <td>Siente la necesidad de planificar su temporada. Busca un evento específico o explora opciones.</td>
+                            <td>Plan de entrenamiento, objetivos personales, calendario de competencias, recomendaciones de amigos/equipo.</td>
+                            <td>"Necesito un triatlón olímpico para abril." <br>"¿Qué eventos importantes hay?" <br>"¿Ya abrieron inscripciones para La Paz?"</td>
+                            <td><span class="emoji">😃</span><br>Entusiasmado, Planificador</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Poca visibilidad de eventos a largo plazo.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Mejorar visibilidad de calendarios futuros.</li>
+                                    <li>Facilitar planificación de temporada.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">2. Búsqueda de Eventos (App)</td>
+                            <td>Abre la app AsDeporte. Usa "Eventos" o "Buscar". Navega por el calendario o intenta usar filtros.</td>
+                            <td>App AsDeporte (móvil)</td>
+                            <td>"Este calendario es confuso." <br>"¿Dónde están los filtros?" <br>"Tengo que picar cada día."</td>
+                            <td><span class="emoji">🤔</span><br>Frustrado, Confundido</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Interfaz de calendario poco intuitiva/visual.</li>
+                                    <li>Dificultad para explorar sin fechas exactas.</li>
+                                    <li>Filtros no evidentes o sin granularidad necesaria (ej. distancia triatlón).</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Rediseñar interfaz de búsqueda/exploración.</li>
+                                    <li>Ofrecer vistas alternativas (lista, tarjetas).</li>
+                                    <li>Mejorar prominencia y funcionalidad de filtros.</li>
+                                    <li>Filtros específicos por disciplina.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">3. Evaluación de Eventos</td>
+                            <td>Entra a ver detalles del evento. Busca info de ruta, altimetría, horarios, costos, organizador.</td>
+                            <td>Página del evento en app/web, Convocatoria (PDF).</td>
+                            <td>"¿Ruta retadora?" <br>"¿Organización confiable?" <br>"¿GPX disponible?" <br>"¿Vale la pena el costo?"</td>
+                            <td><span class="emoji">🤔</span><br>Investigador, Analítico</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Información técnica clave (GPX, mapas detallados) a menudo falta o es difícil de encontrar.</li>
+                                    <li>Detalles importantes (kits, horarios) "escondidos" en convocatorias largas.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Centralizar y destacar info crucial en página del evento.</li>
+                                    <li>Proveer mapas interactivos y GPX descargables.</li>
+                                    <li>Estandarizar presentación de información.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">4. Proceso de Inscripción</td>
+                            <td>Selecciona categoría, verifica datos precargados, confirma talla, revisa descuento Plus, procede al pago.</td>
+                            <td>Formulario de inscripción app/web, Pasarela de pago.</td>
+                            <td>"Mis datos ya están, bien." <br>"Descuento Plus aplicado, perfecto." <br>"Espero que no se sature."</td>
+                            <td><span class="emoji">😃</span> Satisfecho (si fluido)<br><span class="emoji">🤔</span> Ansioso (si lento)</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Lentitud en picos de demanda.</li>
+                                    <li>Problemas ocasionales con descuentos de patrocinadores.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Optimizar rendimiento en picos.</li>
+                                    <li>Asegurar correcta aplicación de descuentos.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">5. Post-Inscripción / Gestión</td>
+                            <td>Revisa email de confirmación. Accede a perfil para ver "Mis Eventos".</td>
+                            <td>Email, Sección "Mis Eventos" app/web.</td>
+                            <td>"¿Llegó la confirmación?" <br>"Quiero revisar detalles."</td>
+                            <td><span class="emoji">😃</span><br>Satisfecho, Organizado</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Dificultad para encontrar lista completa de beneficios Plus en perfil.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Crear "Hub de Beneficios Plus" claro en perfil.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">6. Preparación y Día del Evento</td>
+                            <td>Entrena, consulta info del evento (horarios, transición). Usa livetracking.</td>
+                            <td>App/web AsDeporte, Apps de terceros (Garmin, Strava).</td>
+                            <td>"¿Mapa final de ruta?" <br>"Espero que el livetracking funcione."</td>
+                            <td><span class="emoji">🤔</span><br>Expectante, Preparado</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Livetracking a veces impreciso/con retrasos.</li>
+                                    <li>Falta de integración profunda con sus apps.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Mejorar fiabilidad del livetracking.</li>
+                                    <li>Integración bidireccional con Strava/Garmin.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">7. Post-Evento (Resultados y Comunidad)</td>
+                            <td>Busca resultados, compara objetivos. Intenta usar "Tribu" pero la ve poco útil.</td>
+                            <td>Sección "Resultados" app/web, "Tribu", Redes sociales externas.</td>
+                            <td>"¿Ya están los resultados?" <br>"¿Cómo quedé?" <br>"Tribu no sirve, mejor Strava."</td>
+                            <td><span class="emoji">😃</span> Satisfecho (resultados)<br><span class="emoji">🤔</span> Indiferente (Tribu)</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>"Tribu" percibida como inactiva/irrelevante.</li>
+                                    <li>Resultados podrían ser más analíticos o integrarse mejor.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Reimaginar "Tribu" o reemplazarla.</li>
+                                    <li>Mejorar presentación y análisis de resultados.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="laura" class="persona-card">
+            <div class="persona-header">
+                <h2 class="persona-title">User Journey 2: Laura "La Entusiasta Ocasional"</h2>
+                <p class="persona-objective">Objetivo: Encontrar una carrera divertida (5k o 10k) para participar con amigas, inscribirse sin problemas y disfrutar de la experiencia.</p>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead class="sticky-header">
+                        <tr>
+                            <th>Fase del Viaje</th>
+                            <th>Acciones del Usuario</th>
+                            <th>Puntos de Contacto</th>
+                            <th>Pensamientos</th>
+                            <th>Emociones</th>
+                            <th>Puntos de Dolor</th>
+                            <th>Oportunidades de Mejora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="phase-title">1. Necesidad / Deseo Inicial</td>
+                            <td>Quiere participar en una carrera 5k/10k con amigas, evento temático o con causa.</td>
+                            <td>Recomendación de amigos, Redes Sociales, Búsqueda en Google.</td>
+                            <td>"Quiero una carrera divertida." <br>"¿Alguna con causa bonita?" <br>"Mis amigas me dijeron de una, ¿dónde me inscribo?"</td>
+                            <td><span class="emoji">😃</span><br>Entusiasmada, Social</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Dificultad para encontrar eventos por intereses específicos (temáticos, causas).</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Facilitar descubrimiento por intereses.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">2. Búsqueda de Eventos (App)</td>
+                            <td>Abre app AsDeporte. Usa calendario o filtros.</td>
+                            <td>App AsDeporte (móvil)</td>
+                            <td>"Calendario confuso." <br>"No hay filtro 'temática' o 'causa'." <br>"¿Funcionan los filtros?"</td>
+                            <td><span class="emoji">🤔</span><br>Confundida, Frustrada</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Interfaz de calendario poco intuitiva.</li>
+                                    <li>Falta de filtros por tipo de evento (temático, causa).</li>
+                                    <li>Percepción de filtros no funcionales.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Búsqueda más visual y sencilla.</li>
+                                    <li>Filtros por categorías (carreras divertidas, con causa).</li>
+                                    <li>Mejorar fiabilidad de filtros.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">3. Evaluación de Eventos</td>
+                            <td>Encuentra evento. Busca costo, kit, si es para ella.</td>
+                            <td>Página del evento en app/web.</td>
+                            <td>"¿Cuánto cuesta?" <br>"¿Qué incluye el kit?" <br>"¿Es para principiantes?" <br>"¿Puedo ir con carriola?"</td>
+                            <td><span class="emoji">🤔</span><br>Curiosa, Dubitativa</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Costos poco claros ("Desde $XXX").</li>
+                                    <li>Dificultad para encontrar info específica (políticas carriolas).</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Precios transparentes y claros.</li>
+                                    <li>Info detallada y accesible sobre políticas.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">4. Proceso de Inscripción</td>
+                            <td>Intenta inscribirse, llena formulario, procede al pago.</td>
+                            <td>Formulario de inscripción app/web, Pasarela de pago.</td>
+                            <td>"No quiero muchos datos." <br>"¿Mi categoría estará bien?" <br>"Ojalá no falle el pago."</td>
+                            <td><span class="emoji">🤔</span><br>Ansiosa, Desconfiada</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Formularios largos.</li>
+                                    <li>Alta desconfianza por errores técnicos previos en pago (cobro doble, app congelada).</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Simplificar formulario.</li>
+                                    <li>**Prioridad Máxima:** Asegurar fiabilidad y seguridad del pago.</li>
+                                    <li>Confirmaciones claras e inmediatas.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                         <tr>
+                            <td class="phase-title">5. Post-Inscripción / Gestión</td>
+                            <td>Espera confirmación por correo. Contacta a soporte si hay problemas.</td>
+                            <td>Email de confirmación, Soporte al Cliente.</td>
+                            <td>"¿Se completó?" <br>"¿No me cobraron de más?" <br>"¿Me ayudarán si hay problema?"</td>
+                            <td><span class="emoji">🤔</span><br>Preocupada, Insegura</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Falta de confirmación inmediata en errores.</li>
+                                    <li>Necesidad de contactar a soporte para resolver problemas.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Mejorar comunicación post-transacción.</li>
+                                    <li>Optimizar tiempos de respuesta de soporte.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">6. Preparación y Día del Evento</td>
+                            <td>Se prepara casualmente, coordina con amigas.</td>
+                            <td>Comunicación con amigas (WhatsApp).</td>
+                            <td>"¿Qué playera usamos?" <br>"Espero buen ambiente."</td>
+                            <td><span class="emoji">😃</span><br>Expectante, Social</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Poca interacción con la plataforma AsDeporte aquí.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Funcionalidades para coordinación de grupos o compartir participación.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">7. Post-Evento (Resultados y Comunidad)</td>
+                            <td>Busca resultados por curiosidad. No explora funciones comunitarias.</td>
+                            <td>Sección "Resultados" app/web.</td>
+                            <td>"¿Mi tiempo?" <br>"¿'Tribu'? No sé qué es."</td>
+                            <td><span class="emoji">😃</span> Satisfecha (si encuentra resultados)<br><span class="emoji">🤔</span> Indiferente (a Tribu)</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Dificultad para encontrar resultados si no conoce bien la plataforma.</li>
+                                    <li>Desconocimiento/desinterés por "Tribu".</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Facilitar acceso a resultados.</li>
+                                    <li>Si "Tribu" se mantiene, hacerla visible y explicar su propósito.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="javier" class="persona-card">
+            <div class="persona-header">
+                <h2 class="persona-title">User Journey 3: Javier "El Explorador Novato"</h2>
+                <p class="persona-objective">Objetivo: Encontrar su primera o segunda carrera (corta, para principiantes), entender el proceso de inscripción y participar para mejorar su salud.</p>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead class="sticky-header">
+                        <tr>
+                            <th>Fase del Viaje</th>
+                            <th>Acciones del Usuario</th>
+                            <th>Puntos de Contacto</th>
+                            <th>Pensamientos</th>
+                            <th>Emociones</th>
+                            <th>Puntos de Dolor</th>
+                            <th>Oportunidades de Mejora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="phase-title">1. Necesidad / Deseo Inicial</td>
+                            <td>Quiere empezar a correr para mejorar su salud y participar en una carrera corta (3-5k).</td>
+                            <td>Recomendación médica, Conversación con amigos/familia.</td>
+                            <td>"Quiero una carrera fácil." <br>"¿Será muy difícil?" <br>"¿Cómo me inscribo?"</td>
+                            <td><span class="emoji">🤔</span><br>Curioso, Intimidado</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Falta de conocimiento sobre carreras.</li>
+                                    <li>Incertidumbre sobre su capacidad.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Contenido introductorio para principiantes.</li>
+                                    <li>Destacar eventos "ideales para empezar".</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">2. Búsqueda de Eventos (Web/App)</td>
+                            <td>Intenta usar web de AsDeporte (o app). Se siente abrumado por la información o interfaz.</td>
+                            <td>Plataforma web AsDeporte, App AsDeporte (móvil).</td>
+                            <td>"Demasiadas opciones." <br>"¿Dónde están las de 5k?" <br>"Filtros confusos." <br>"Letras pequeñas en app."</td>
+                            <td><span class="emoji">🤔</span><br>Abrumado, Confundido</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Interfaz compleja/sobrecargada.</li>
+                                    <li>Dificultad con filtros/calendario (app).</li>
+                                    <li>Problemas de accesibilidad (tamaño texto).</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Simplificar interfaz (primera visita).</li>
+                                    <li>Filtros claros para "principiante" / "caminata".</li>
+                                    <li>Mejorar accesibilidad (fuentes, contraste).</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">3. Evaluación de Eventos</td>
+                            <td>Encuentra evento. Busca info básica: lugar, horario, qué incluye, si es para principiantes.</td>
+                            <td>Página del evento en web/app.</td>
+                            <td>"¿Adecuado para mí?" <br>"¿Qué es 'chip'?" <br>"¿Costo accesible?" <br>"¿Qué me dan?"</td>
+                            <td><span class="emoji">🤔</span><br>Dubitativo, Cauteloso</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Falta de explicaciones de terminología de carreras.</li>
+                                    <li>Info sobre aptitud para principiantes no siempre clara.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Glosario o explicaciones de términos.</li>
+                                    <li>Etiquetar claramente eventos para principiantes.</li>
+                                    <li>Mostrar valor de inscripción claramente.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">4. Proceso de Inscripción</td>
+                            <td>Intenta inscribirse. Formulario largo o pide datos que no entiende (CURP). Duda de seguridad del pago.</td>
+                            <td>Formulario de inscripción web/app, Pasarela de pago.</td>
+                            <td>"Son muchos datos." <br>"¿Para qué el CURP?" <br>"Desconfío pagar con tarjeta aquí."</td>
+                            <td><span class="emoji">🤔</span><br>Inseguro, Desconfiado</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Formularios largos/con datos sensibles innecesarios.</li>
+                                    <li>Preocupación por seguridad del pago online.</li>
+                                    <li>Falta de opciones de pago alternativas.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Simplificar formulario al mínimo.</li>
+                                    <li>Explicar solicitud de datos.</li>
+                                    <li>Ofrecer múltiples métodos de pago (offline).</li>
+                                    <li>Reforzar visualmente la seguridad.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">5. Post-Inscripción / Gestión</td>
+                            <td>No seguro de inscripción exitosa. Duda dónde encontrar comprobante/detalles.</td>
+                            <td>Email de confirmación (si llega/ve), Plataforma web/app.</td>
+                            <td>"¿Pago bien hecho?" <br>"¿Dónde está mi comprobante?" <br>"¿Ahora qué?"</td>
+                            <td><span class="emoji">🤔</span><br>Ansioso, Incierto</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Falta de confirmación clara/inmediata.</li>
+                                    <li>Dificultad para entender siguientes pasos.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Confirmaciones claras y visuales.</li>
+                                    <li>Sección "Mis Inscripciones" fácil de encontrar/entender.</li>
+                                    <li>Guía "próximos pasos" para novatos.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">6. Preparación y Día del Evento</td>
+                            <td>Busca info básica sobre qué llevar o cómo es una carrera.</td>
+                            <td>Información del evento (si la encuentra), Amigos.</td>
+                            <td>"¿Qué necesito llevar?" <br>"¿Cómo es la entrega de kits?" <br>"Espero no perderme."</td>
+                            <td><span class="emoji">🤔</span><br>Expectante, Algo Nervioso</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Falta de información orientada a principiantes sobre logística del evento.</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Ofrecer guías o FAQs para "tu primera carrera".</li>
+                                    <li>Info clara y visual sobre logística.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="phase-title">7. Post-Evento (Resultados y Comunidad)</td>
+                            <td>Podría buscar resultados por curiosidad, pero puede tener dificultades. No explora funciones comunitarias.</td>
+                            <td>Sección "Resultados" en web/app.</td>
+                            <td>"¿Salí en los resultados?" <br>"¿Cómo me busco?"</td>
+                            <td><span class="emoji">🤔</span><br>Curioso, Posiblemente Frustrado</td>
+                            <td class="pain-point-list">
+                                <ul>
+                                    <li>Dificultad para encontrar resultados si interfaz no es intuitiva.</li>
+                                    <li>Desconocimiento/desinterés por "Tribu".</li>
+                                </ul>
+                            </td>
+                            <td class="opportunity-list">
+                                <ul>
+                                    <li>Simplificar búsqueda de resultados personales.</li>
+                                    <li>No forzar funciones comunitarias complejas en este perfil.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="text-center text-sm text-gray-500 mt-16 py-8 border-t border-gray-200">
+            <p>&copy; 2025 AsDeporte - Análisis de Experiencia de Usuario</p>
+        </footer>
+    </div>
+
+</body>
+</html>
