@@ -1,5 +1,8 @@
 /* ============================================
-   MODAL MI ROL — Estilos base (mobile-first)
+   MODAL MI ROL / EL PROCESO / QUÉ APRENDÍ
+   Los tres modales comparten estructura (modal-proceso__grid) y
+   estilos base (mobile-first). Reglas específicas por modal viven
+   en modal-rol-proceso-responsive.css (desktop).
    ============================================ */
 
 /* Estado inicial — oculto */
@@ -49,9 +52,6 @@
     height: 100vh;
     height: 100dvh;
     background-color: var(--color-bg-modal);
-    /* padding-bottom 32px en mobile (antes 80px, dejaba mucho aire entre
-       .inner y el borde inferior); desktop conserva su propio valor
-       (120px) vía el override en modal-rol-proceso-responsive.css. */
     padding: 40px 24px 32px;
     display: flex;
     flex-direction: column;
@@ -96,86 +96,12 @@
 }
 
 /* Pista de scroll — degradado + chevron animado sobre el borde inferior
-   visible de .inner. Oculta por defecto: solo tiene sentido en
-   mobile/tablet, donde .inner tiene scroll propio (ver overflow-y:auto
-   más abajo); en desktop .inner no scrollea. Estilos reales en el bloque
-   MOBILE/TABLET más abajo. */
+   visible del contenedor scrolleable. Oculta por defecto: solo tiene
+   sentido en mobile/tablet, donde .modal-proceso__detail tiene scroll
+   propio (ver overflow-y:auto más abajo); en desktop no scrollea.
+   Estilos reales en el bloque MOBILE/TABLET más abajo. */
 .modal-rol-proceso__scroll-hint {
     display: none;
-}
-
-/* Gap entre título e inner solo en modalMiRol — 32px en mobile/tablet;
-   overrideado a 80px en desktop (ver modal-rol-proceso-responsive.css). */
-#modalMiRol .modal-rol-proceso__inner {
-    margin-top: 32px;
-}
-
-/* Contenedor interno — columnas */
-.modal-rol-proceso__inner {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    flex: 1;
-    min-height: 0;
-}
-
-/* Imagen placeholder */
-.modal-rol-proceso__image {
-    width: 100%;
-    height: 100%;
-    flex: 1;
-    border-radius: 24px;
-    overflow: hidden;
-    background-color: #1A1A1A;
-}
-
-.modal-rol-proceso__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* Texto narrativo */
-.modal-rol-proceso__text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 24px;
-}
-
-.modal-rol-proceso__text .large-paragraph {
-    line-height: 1.6;
-    color: #C0C0C0;
-}
-
-/* ============================================
-   MODAL QUÉ APRENDÍ — Grid 2 columnas
-   ============================================ */
-
-.modal-que-aprendi__grid {
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
-    flex: 1;
-    min-height: 0;
-}
-
-.modal-que-aprendi__left {
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-que-aprendi__right {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    flex: 1;
-    min-height: 0;
-}
-
-.modal-que-aprendi__right .modal-rol-proceso__text {
-    justify-content: flex-end;
 }
 
 .cs-highlight {
@@ -183,10 +109,11 @@
 }
 
 /* ============================================
-   MODAL EL PROCESO — Carrusel de 3 pasos
+   MODAL GRID — Estructura compartida por los 3
    ============================================ */
 
-/* Grid 50/50 — columnas iguales */
+/* Grid 50/50 — columnas iguales (aplicado en desktop; en mobile/tablet
+   se aplana a columna más abajo). */
 .modal-proceso__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -292,7 +219,14 @@
     opacity: 0;
 }
 
-/* Intro del proceso — oculto por defecto. Solo se muestra en desktop
+/* Espacio entre el título (large-paragraph) y el cuerpo del párrafo
+   en la columna derecha del modal. Mobile-first: 24px (mobile).
+   Tablet landscape y desktop hacen override a 32px más abajo. */
+.modal-proceso__description .large-paragraph {
+    margin-bottom: 24px;
+}
+
+/* Intro del modal — oculto por defecto. Solo se muestra en desktop
    (media query en modal-rol-proceso-responsive.css); en mobile/tablet
    el layout es tabs horizontales y este párrafo no aplica. */
 .modal-proceso__intro {
@@ -301,47 +235,24 @@
 
 /* ============================================
    MOBILE/TABLET — Contenido con scroll propio
-   Label, título y botón cerrar quedan anclados (fuera de este bloque,
-   nunca scrollean); .modal-rol-proceso__inner ya es flex:1 + min-height:0
-   dentro de .content (overflow:hidden, alto fijo 100vh) — le falta
-   overflow-y:auto para completar el patrón de "header fijo + body con
-   scroll" en vez de recortar el contenido que no entra.
+   Aplica a Mi Rol, El Proceso y Qué Aprendí (los tres usan la misma
+   estructura modal-proceso__grid). El label, título y botón cerrar
+   quedan anclados (fuera de este bloque, nunca scrollean);
+   .modal-proceso__detail es flex:1 + min-height:0 dentro de .content
+   (overflow:hidden, alto fijo 100vh) — overflow-y:auto completa el
+   patrón de "header fijo + body con scroll" en vez de recortar el
+   contenido que no entra.
+
+   Sin mouse, los pasos se leen como tabs horizontales (tap para
+   cambiar, sin autoplay) — mismo lenguaje visual que
+   .nav-link[aria-current] (subrayado con glow en la activa). La
+   imagen y la descripción pasan a flujo normal apiladas dentro de
+   .modal-proceso__detail.
    ============================================ */
 @media (max-width: 1199.98px), (hover: none), (pointer: coarse) {
-    #modalMiRol .modal-rol-proceso__inner {
-        overflow-y: auto;
-        /* Sin scrollbar visible — el scroll táctil sigue funcionando
-           igual, solo se oculta el track/thumb del sistema operativo. */
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    #modalMiRol .modal-rol-proceso__inner::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* flex:1 hacía que la imagen compitiera por el alto acotado del
-       contenedor con scroll en vez de tener un tamaño propio predecible
-       (podía terminar aplastada a casi 0px con textos largos). Alto fijo
-       por aspect-ratio, igual que .cs-contexto__media en mobile. */
-    #modalMiRol .modal-rol-proceso__image {
-        flex: 0 0 auto;
-        height: auto;
-        aspect-ratio: 3 / 2;
-    }
-
-    /* ============================================
-       MODAL EL PROCESO — mobile/tablet
-       Desktop: lista vertical con hover + autoplay (ver modal-proceso.js).
-       Mobile: sin mouse, así que los pasos se leen como tabs horizontales
-       (tap para cambiar, sin autoplay) — mismo lenguaje visual que
-       .nav-link[aria-current] (subrayado con glow en la activa). La
-       imagen y la descripción, absolutas en desktop, pasan a flujo
-       normal apiladas dentro de .modal-proceso__detail, que es el
-       contenedor scrolleable (mismo patrón que .modal-rol-proceso__inner
-       en Mi Rol).
-       ============================================ */
-    #modalProceso .modal-proceso__grid {
+    /* El grid pasa a columna: steps arriba, detail abajo (que es el
+       contenedor scrolleable). */
+    .modal-proceso__grid {
         display: flex;
         flex-direction: column;
         gap: 0;
@@ -350,14 +261,14 @@
         padding: 0;
     }
 
-    /* En mobile/tablet: el título H2 y el párrafo intro viven dentro de
+    /* El título H2 y el párrafo intro viven dentro de
        .modal-proceso__steps (column flex natural), y las tabs se
        distribuyen en una fila horizontal con scroll dentro de su propio
        sub-container .modal-proceso__steps-tabs. min-width:0 evita que
        el sub-container se estire más allá del padding de .content.
        Gap de 24px entre H2/intro y el sub-container de tabs aplica a
        tablet (768-1199.98px); en mobile puro (<768px) hay override a 16px. */
-    #modalProceso .modal-proceso__steps {
+    .modal-proceso__steps {
         gap: 24px;
     }
 
@@ -366,7 +277,7 @@
        natural en vez de repartirse en 3 columnas iguales; las tabs que
        no entren se cortan y se accede a ellas con scroll horizontal —
        tap en una tab recortada hace scrollIntoView (ver modal-proceso.js). */
-    #modalProceso .modal-proceso__steps-tabs {
+    .modal-proceso__steps-tabs {
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
@@ -378,11 +289,11 @@
         -ms-overflow-style: none;
     }
 
-    #modalProceso .modal-proceso__steps-tabs::-webkit-scrollbar {
+    .modal-proceso__steps-tabs::-webkit-scrollbar {
         display: none;
     }
 
-    #modalProceso .modal-proceso__steps hr {
+    .modal-proceso__steps hr {
         display: none;
     }
 
@@ -390,9 +301,9 @@
        cada tab ocupa su ancho natural en vez de repartirse en 3 columnas
        iguales — "Delivery" puede quedar cortado, para eso es el scroll.
        padding shorthand completo (no solo padding-bottom): la base
-       desktop define "padding: 40px 0" — si acá solo se pisa
-       padding-bottom, el padding-top:40px de esa regla se cuela igual. */
-    #modalProceso .modal-proceso__step {
+       desktop define "padding: 24px 0" — si acá solo se pisa
+       padding-bottom, el padding-top:24px de esa regla se cuela igual. */
+    .modal-proceso__step {
         flex: 0 0 auto;
         display: flex;
         align-items: center;
@@ -409,7 +320,7 @@
        verde acento (así lo pidió el usuario, el resto del estilo de las
        tabs es idéntico a desktop, ver .modal-proceso__number/__title en
        la sección base de este archivo — acá solo se ajusta el tamaño). */
-    #modalProceso .modal-proceso__step::after {
+    .modal-proceso__step::after {
         content: '';
         position: absolute;
         bottom: 0;
@@ -423,7 +334,7 @@
             box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    #modalProceso .modal-proceso__step--active::after {
+    .modal-proceso__step--active::after {
         width: 100%;
         box-shadow: 0 0 12px rgba(240, 240, 240, 0.4);
     }
@@ -432,13 +343,13 @@
        base más arriba: bg var(--color-primary), color activo/inactivo
        ya resuelto ahí) — acá solo se achica el diámetro y la tipografía
        para que entre en una fila de tabs. */
-    #modalProceso .modal-proceso__number {
+    .modal-proceso__number {
         width: 24px;
         height: 24px;
         font-size: 11px;
     }
 
-    #modalProceso .modal-proceso__title {
+    .modal-proceso__title {
         font-family: var(--font-family);
         /* ~18px en la mayoría de mobiles, responsivo en vez de un valor
            fijo — escala un poco hacia abajo/arriba según el ancho real
@@ -450,7 +361,10 @@
         text-align: center;
     }
 
-    #modalProceso .modal-proceso__detail {
+    /* Detail — columna, scrolleable verticalmente. La imagen y la
+       descripción (y cualquier otro hijo, como el <div> extra de Mi Rol)
+       se apilan dentro con gap 24px. */
+    .modal-proceso__detail {
         display: flex;
         flex-direction: column;
         gap: 24px;
@@ -462,11 +376,11 @@
         -ms-overflow-style: none;
     }
 
-    #modalProceso .modal-proceso__detail::-webkit-scrollbar {
+    .modal-proceso__detail::-webkit-scrollbar {
         display: none;
     }
 
-    #modalProceso .modal-proceso__image {
+    .modal-proceso__image {
         position: static;
         width: 100%;
         height: auto;
@@ -475,49 +389,17 @@
         border-radius: 16px;
     }
 
-    #modalProceso .modal-proceso__description {
+    .modal-proceso__description {
         position: static;
         color: var(--color-text-secondary);
     }
 
-    /* ============================================
-       MODAL QUÉ APRENDÍ — mobile/tablet
-       Más simple que los otros dos: ya era una columna en la base
-       (unguarded) — solo hace falta ajustar el gap a 32px (antes 48px,
-       heredado de desktop) y hacer scrolleable .modal-que-aprendi__right
-       (mismo patrón que .modal-rol-proceso__inner / .modal-proceso__detail).
-       ============================================ */
-    #modalQueAprendi .modal-que-aprendi__grid {
-        gap: 32px;
-    }
-
-    #modalQueAprendi .modal-que-aprendi__right {
-        overflow-y: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        /* La base define justify-content:flex-end (pensado para desktop,
-           texto anclado al fondo de una columna alta) — en mobile el
-           contenido debe leerse de arriba hacia abajo, no empujado al
-           fondo. */
-        justify-content: flex-start;
-    }
-
-    #modalQueAprendi .modal-que-aprendi__right::-webkit-scrollbar {
-        display: none;
-    }
-
-    #modalQueAprendi .modal-que-aprendi__right .modal-rol-proceso__text {
-        justify-content: flex-start;
-    }
-
     /* Compartida por los 3 modales — hermano del contenedor scrolleable
-       de cada uno (.modal-rol-proceso__inner en Mi Rol,
-       .modal-proceso__detail en El Proceso, .modal-que-aprendi__right en
-       Qué Aprendí), nunca hijo: si fuera hijo scrollearía junto con el
-       contenido en vez de quedar fijo sobre el borde inferior visible.
-       .content ya es position:relative, así que bottom:0 queda flush con
-       el borde donde empieza su padding-bottom (32px), justo donde
-       termina el área visible del contenedor. */
+       (.modal-proceso__detail), nunca hijo: si fuera hijo scrollearía
+       junto con el contenido en vez de quedar fijo sobre el borde
+       inferior visible. .content ya es position:relative, así que
+       bottom:0 queda flush con el borde donde empieza su padding-bottom
+       (32px), justo donde termina el área visible del contenedor. */
     .modal-rol-proceso__scroll-hint {
         display: flex;
         align-items: center;
@@ -559,7 +441,7 @@
     }
 
     /* ============================================
-       TABLET LANDSCAPE — 2 columnas en Mi Rol y El Proceso
+       TABLET LANDSCAPE — 2 columnas en los 3 modales
        (image left | text right). Por defecto en el
        rango mobile/tablet el contenido va en columna
        (stacked); acá se aplana a fila solo cuando el
@@ -568,38 +450,18 @@
        en modal-rol-proceso-responsive.css.
        ============================================ */
     @media (min-width: 900px) and (orientation: landscape) {
-        /* Mi Rol: inner pasa a fila, imagen 45% izq, texto 55% der */
-        #modalMiRol .modal-rol-proceso__inner {
-            flex-direction: row;
-            gap: 48px;
-            align-items: stretch;
-        }
-        /* Override del flex:0 0 auto + aspect-ratio:3/2 del bloque
-           mobile/tablet de arriba — la imagen llena la columna
-           (alto = alto de la fila) en vez de mantener proporción 3:2. */
-        #modalMiRol .modal-rol-proceso__image {
-            flex: 0 0 45%;
-            width: 45%;
-            height: 100%;
-            aspect-ratio: auto;
-        }
-        #modalMiRol .modal-rol-proceso__text {
-            flex: 0 0 55%;
-            width: 55%;
-        }
-
-        /* El Proceso: detail (image + description) pasa a fila.
-           Los steps arriba siguen como tabs horizontales (row)
-           igual que en mobile/tablet — el cambio es solo el detail. */
-        #modalProceso .modal-proceso__grid {
-            /* grid-template-rows: 1fr hace que la fila del grid
-               (que contiene steps + detail) ocupe toda la altura
-               disponible del container, en vez de auto. Sin esto,
-               detail con height:100% no tiene altura a la que
-               referenciarse y la imagen se queda en su tamaño natural. */
+        /* grid-template-rows: 1fr hace que la fila del grid (que contiene
+           steps + detail) ocupe toda la altura disponible del container,
+           en vez de auto. Sin esto, detail con height:100% no tiene
+           altura a la que referenciarse y la imagen se queda en su
+           tamaño natural. */
+        .modal-proceso__grid {
             grid-template-rows: 1fr;
         }
-        #modalProceso .modal-proceso__detail {
+        /* Detail (image + description) pasa a fila. Los steps arriba
+           siguen como tabs horizontales (row) igual que en mobile/tablet
+           — el cambio es solo el detail. */
+        .modal-proceso__detail {
             flex-direction: row;
             gap: 32px;
             align-items: stretch;
@@ -611,7 +473,7 @@
            propio de la foto (3:2 desde la regla mobile). Si el aspect
            no encaja exactamente, queda algo de aire arriba/abajo o a
            los lados — aceptable: la imagen se ve íntegra, sin scroll. */
-        #modalProceso .modal-proceso__image {
+        .modal-proceso__image {
             flex: 0 0 50%;
             width: 50%;
             height: 100%;
@@ -620,18 +482,23 @@
             align-items: center;
             justify-content: center;
         }
-        #modalProceso .modal-proceso__image img {
+        .modal-proceso__image img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
         /* Description: 50% ancho, 100% alto, scroll vertical si el texto
            no entra. La imagen NO scrollea porque ya cabe entera. */
-        #modalProceso .modal-proceso__description {
+        .modal-proceso__description {
             flex: 0 0 50%;
             width: 50%;
             height: 100%;
             overflow-y: auto;
+        }
+        /* Título → cuerpo del párrafo: 32px en tablet landscape (override
+           del 24px base mobile). */
+        .modal-proceso__description .large-paragraph {
+            margin-bottom: 32px;
         }
         /* Scroll hint centrado solo sobre la columna del texto (no sobre
            la imagen). El detail es 50% imagen + 32px gap + 50% texto
@@ -653,10 +520,10 @@
    imagen→descripción).
    ============================================ */
 @media (max-width: 767.98px) {
-    #modalProceso .modal-proceso__steps {
+    .modal-proceso__steps {
         gap: 16px;
     }
-    #modalProceso .modal-proceso__detail {
+    .modal-proceso__detail {
         gap: 16px;
     }
 }

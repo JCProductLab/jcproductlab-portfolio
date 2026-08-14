@@ -47,12 +47,15 @@ Fui responsable del ciclo completo de producto, desde el descubrimiento hasta el
 Mi intervención como Product Designer se sintetiza en tres ejes de impacto:
 
 Decisiones estratégicas y renuncias clave:
+
 Audité los datos y ejercí un veto firme a funcionalidades secundarias como la red social "Tribu" para la fase inicial. Asumí el riesgo de recortar ese alcance para redirigir cientos de horas de desarrollo hacia lo que realmente importaba: la estabilidad de la pasarela de pagos y la eliminación del "calendario de puntos" por un buscador granular con modelos mentales de atletas.
 
 Liderazgo con C-Level e Ingeniería:
+
 Sustituí los debates estéticos en la mesa ejecutiva por métricas de conversión, eficiencia operativa y costo de soporte, congelando el alcance mediante un Acta de Validación para evitar el scope creep. Con ingeniería, me integré en sus ceremonias Agile para co-diseñar soluciones ante limitaciones de backend en tiempo real, entregando Design Tokens sincronizados 1:1 con Storybook para garantizar factibilidad técnica sin fricción.
 
 Mitigación de riesgos de negocio:
+
 Sin este liderazgo de diseño, el proyecto habría derivado en un producto "Frankenstein" retrasado por la acumulación de peticiones directivas. Mi intervención protegió la temporada alta de lanzamientos, evitó pérdidas de ingresos por cobros fallidos en el checkout, redujo los tickets de soporte por confusión de usuario y garantizó que el sistema fuera accesible bajo estándares WCAG 2.1 AA.
 
 # El proceso

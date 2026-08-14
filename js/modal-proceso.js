@@ -1,11 +1,15 @@
 'use strict';
 
 // ============================================
-// MÓDULO: Modal El Proceso
-// Desktop: carrusel automático de 3 pasos con hover.
-// Mobile/tablet: tabs — tap para cambiar, sin autoplay (no hay "mouse
-// afuera" que lo pause de forma natural, y con contenido scrolleable
-// que cambia solo cada 5s se siente invasivo mientras se lee).
+// MÓDULO: Modal con pasos (Mi Rol + El Proceso)
+// Panel deslizante desde la derecha con carrusel de pasos:
+// - Desktop: hover sobre cada paso pausa el autoplay y muestra su contenido.
+// - Mobile/tablet: tap directo sobre el paso (sin autoplay, porque con
+//   contenido scrolleable que cambia solo cada 5s se siente invasivo
+//   mientras se lee).
+// Reutilizable: recibe el elemento del modal y su botón disparador, así
+// sirve tanto para #modalMiRol como para #modalProceso sin duplicar
+// lógica ni selectores.
 // ============================================
 
 import { initModalScrollHint } from './modal-scroll-hint.js';
@@ -13,13 +17,7 @@ import { initModalScrollHint } from './modal-scroll-hint.js';
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
 const MQ_TABLET_LANDSCAPE = '(min-width: 900px) and (orientation: landscape)';
 
-export function initModalProceso() {
-    const modal = document.getElementById('modalProceso');
-    // Antes: :last-child. Roto en tablet/mobile — ver nota en
-    // modal-rol-proceso.js sobre el wrap en .cs-cta-pop-wrap. Ahora:
-    // último elemento de la lista de botones.
-    const triggerBtns = document.querySelectorAll('.cs-contexto__actions .btn--secondary');
-    const triggerBtn = triggerBtns[triggerBtns.length - 1];
+export function initStepModal(modal, triggerBtn) {
     const closeBtn = modal?.querySelector('.modal-rol-proceso__close');
     const overlay = modal?.querySelector('.modal-rol-proceso__overlay');
     const content = modal?.querySelector('.modal-rol-proceso__content');
@@ -64,7 +62,7 @@ export function initModalProceso() {
 
         if (fadeTimer) clearTimeout(fadeTimer);
         fadeTimer = setTimeout(() => {
-            description.textContent = stepData[index].text;
+            description.innerHTML = stepData[index].text.replace(/\n\n/g, '<br><br>');
             description.classList.remove('modal-proceso__description--fading');
             // El párrafo cambia de largo entre tabs — hay que revisar de
             // nuevo si el contenido desborda (mobile) recién acá, cuando
@@ -113,7 +111,7 @@ export function initModalProceso() {
 
         currentStep = 0;
         isHovering = false;
-        description.textContent = stepData[0].text;
+        description.innerHTML = stepData[0].text.replace(/\n\n/g, '<br><br>');
         description.classList.remove('modal-proceso__description--fading');
         steps.forEach(step => step.classList.remove('modal-proceso__step--active'));
         steps[0].classList.add('modal-proceso__step--active');
@@ -200,4 +198,30 @@ export function initModalProceso() {
             closeModal();
         }
     });
+}
+
+// Wrapper específico para Mi Rol — primer botón secundario en
+// .cs-contexto__actions. Mantiene la firma initModalMiRol() para no
+// tocar main.js más allá del cambio de import.
+export function initModalMiRol() {
+    const modal = document.getElementById('modalMiRol');
+    // Antes: :first-child. Roto en tablet/mobile porque
+    // initCtaButtonsReveal (caso-asdeporte-nav.js) envuelve cada botón en
+    // <span class="cs-cta-pop-wrap">, y dentro de ese span cada botón es
+    // simultáneamente :first-child y :last-child — querySelector devolvía
+    // siempre el primero en orden del documento (Mi rol) para ambos
+    // modales. Ahora: índice 0 sobre la lista de botones.
+    const triggerBtns = document.querySelectorAll('.cs-contexto__actions .btn--secondary');
+    const triggerBtn = triggerBtns[0];
+    initStepModal(modal, triggerBtn);
+}
+
+// Wrapper específico para El Proceso — último botón secundario en
+// .cs-contexto__actions. Roto en tablet/mobile por la misma razón que
+// initModalMiRol: el wrap en .cs-cta-pop-wrap rompe :last-child.
+export function initModalProceso() {
+    const modal = document.getElementById('modalProceso');
+    const triggerBtns = document.querySelectorAll('.cs-contexto__actions .btn--secondary');
+    const triggerBtn = triggerBtns[triggerBtns.length - 1];
+    initStepModal(modal, triggerBtn);
 }
