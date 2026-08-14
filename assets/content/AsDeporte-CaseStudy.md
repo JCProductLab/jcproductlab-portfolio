@@ -28,11 +28,11 @@ Atletas que encontraban más obstáculos en la app que en la carrera
 
 Texto de apoyo:
 
-AsDeporte ha liderado durante tres décadas los eventos de resistencia más importantes de México, como Ironman y Spartan Race. Sin embargo, su impecable ejecución operativa se estrellaba contra un "techo de cristal" digital: una plataforma asfixiada por una deuda UX acumulada que amenazaba la lealtad de la comunidad de atletas más grande del país. En mis primeras sesiones de investigación, Alex, un triatleta leal con más de 10 carreras, resumió la crisis frente al "calendario de puntos": “Si esto no fuera el Ironman de Cozumel y la única forma de inscribirme, ya habría cerrado la app”. Ahí entendí que la empresa dependía del monopolio de sus eventos, no de la lealtad ni de la calidad de su producto digital.
+AsDeporte ha liderado durante tres décadas los eventos de resistencia más importantes de México, como Ironman y Spartan Race. Sin embargo, su impecable ejecución operativa se estrellaba contra un "techo de cristal" digital. Una plataforma asfixiada por una deuda UX acumulada que amenazaba la lealtad de la comunidad de atletas más grande del país. En mis primeras sesiones de investigación, Alex, un triatleta leal con más de 10 carreras, resumió la crisis frente al "calendario de puntos", “Si esto no fuera el Ironman de Cozumel y la única forma de inscribirme, ya habría cerrado la app”. Ahí entendí que la empresa dependía del monopolio de sus eventos, no de la lealtad ni de la calidad de su producto digital.
 
-La auditoría reveló fallas sistémicas que destruían la conversión en los puntos más críticos. El descubrimiento de eventos exigía clics a ciegas; el checkout generaba ansiedad financiera con cobros dobles, formularios excesivos y pantallas congeladas; y el soporte técnico operaba con costos inflados, ofreciendo "trucos" manuales (como pedir al usuario abandonar la app para usar una laptop) para concretar compras. Los atletas calificaban bien los eventos físicos, pero acusaban la app de "desastroza" en las tiendas, abriendo una vulnerabilidad crítica ante competidores más ágiles.
+La auditoría reveló fallas sistémicas que destruían la conversión en los puntos más críticos. El descubrimiento de eventos exigía clics a ciegas, el checkout generaba ansiedad financiera con cobros dobles, formularios excesivos, pantallas congeladas y el soporte técnico operaba al máximo, ofreciendo "trucos" manuales (como pedir al usuario abandonar la app para usar una laptop) para concretar compras. Los atletas calificaban bien los eventos, pero acusaban a la app de "desastroza" en las tiendas, abriendo una vulnerabilidad crítica ante competidores más ágiles.
 
-Con una tasa de conversión por debajo del benchmark de la industria (12.6%), el diagnóstico ante la Dirección fue claro: no enfrentábamos un rediseño cosmético, sino una cirugía de supervivencia financiera. Era urgente restaurar la confianza técnica en el pago y la búsqueda de eventos para detener la fuga de ingresos en el checkout, reducir costos operativos y proteger el valor de la marca antes de que el descontento rompiera la relación con sus usuarios.
+Con una tasa de conversión por debajo de la industria (12.6%), el diagnóstico ante la dirección fue claro: no enfrentábamos un rediseño cosmético, sino una cirugía de supervivencia financiera. Era urgente restaurar la confianza técnica en el pago y la búsqueda de eventos para detener la fuga de ingresos en el checkout, reducir costos operativos y proteger el valor de la marca antes de que el descontento rompiera la relación con sus usuarios.
 
 # Mi rol
 
@@ -212,6 +212,8 @@ Convertimos el punto de mayor dolor financiero en una transacción transparente 
 Headline: 
 
 Cuando la certeza reemplaza la duda, los números se mueven solos.
+
+Texto de apoyo:
 
 Logramos que el diseño en AsDeporte dejara de ser percibido como un gasto cosmético para consolidarse como un activo financiero estratégico. Al erradicar años de deuda UX, cerramos la brecha entre la excelencia de sus eventos físicos y una infraestructura digital que frenaba el crecimiento. Este rediseño detuvo la fuga de ingresos en los flujos transaccionales y restauró el prestigio de la marca con una plataforma de alto rendimiento a la altura de sus atletas.
 

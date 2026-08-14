@@ -91,18 +91,42 @@
     }
 
     .modal-proceso__steps {
-        justify-content: flex-end;
-        gap: 80px;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    /* Título del proceso dentro de la columna izquierda. Solo aplica
+       a #modalProceso (los otros 2 modales tienen su título fuera del
+       grid). Reset de margin-top para que no empuje el título hacia
+       abajo dentro del flex column. */
+    #modalProceso .modal-rol-proceso__title {
+        margin-top: 0;
+        margin-bottom: 48px;
+    }
+
+    /* Intro del proceso — solo visible en desktop, encima de los 3 steps.
+       Tamaño 16px (default <p>, no se overridea font-size). line-height
+       1.6 para alinear con el resto del cuerpo de texto del modal. */
+    .modal-proceso__intro {
+        display: block;
+        color: var(--color-text-secondary);
+        margin-bottom: 24px;
+        line-height: 1.6;
     }
 
     .modal-proceso__detail {
+        /* En desktop también flex column — gap controlado por la regla
+           base (48px), mobile hace override a 24px. La posición
+           absoluta previa (top:0 imagen + bottom:0 descripción) hacía
+           que el espacio entre ambas dependiera del alto del container;
+           con flex flow + gap el espacio es explícito y constante. */
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
 
     .modal-proceso__image {
-        position: absolute;
-        top: 80px;
-        left: 0;
+        position: static;
         flex-shrink: 0;
     }
     #modalMiRol .modal-rol-proceso__inner {

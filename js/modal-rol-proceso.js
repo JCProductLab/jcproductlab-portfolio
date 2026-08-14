@@ -9,7 +9,14 @@ import { initModalScrollHint } from './modal-scroll-hint.js';
 
 export function initModalMiRol() {
     const modal = document.getElementById('modalMiRol');
-    const triggerBtn = document.querySelector('.cs-contexto__actions .btn--secondary:first-child');
+    // Antes: :first-child. Roto en tablet/mobile porque
+    // initCtaButtonsReveal (caso-asdeporte-nav.js) envuelve cada botón en
+    // <span class="cs-cta-pop-wrap">, y dentro de ese span cada botón es
+    // simultáneamente :first-child y :last-child — querySelector devolvía
+    // siempre el primero en orden del documento (Mi rol) para ambos
+    // modales. Ahora: índice 0 sobre la lista de botones.
+    const triggerBtns = document.querySelectorAll('.cs-contexto__actions .btn--secondary');
+    const triggerBtn = triggerBtns[0];
     const closeBtn = modal?.querySelector('.modal-rol-proceso__close');
     const overlay = modal?.querySelector('.modal-rol-proceso__overlay');
     const content = modal?.querySelector('.modal-rol-proceso__content');

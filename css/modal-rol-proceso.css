@@ -91,6 +91,7 @@
 
 /* Título principal */
 .modal-rol-proceso__title {
+    font-size: clamp(1.5rem, 4vw, 3rem);
     margin-bottom: 0;
 }
 
@@ -200,14 +201,14 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    gap: 80px;
+    gap: 8px;
 }
 
 .modal-proceso__step {
     display: flex;
     align-items: center;
     gap: 24px;
-    padding: 40px 0;
+    padding: 24px 0;
     cursor: pointer;
 }
 
@@ -231,7 +232,7 @@
 /* Título del paso — transición de color suave */
 .modal-proceso__title {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
     font-weight: 500;
     color: var(--color-text-inactive);
     transition: color 0.4s ease;
@@ -246,13 +247,20 @@
 
 /* Columna derecha: imagen + texto */
 .modal-proceso__detail {
+    /* Flex column con gap explícito entre imagen y descripción.
+       En desktop el gap efectivo es 48px (regla base).
+       En mobile/tablet el media query hace override a 24px. */
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
 }
 
 .modal-proceso__image {
-    position: absolute;
-    top: 80px;
-    left: 0;
+    /* Antes position:absolute top:80px — ahora static para que fluya
+       dentro del flex column. width/height fijos conservan el tamaño
+       del contenedor. */
+    position: static;
     width: 100%;
     height: 240px;
     flex-shrink: 0;
@@ -270,9 +278,9 @@
 
 /* Párrafo con fade */
 .modal-proceso__description {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    /* Antes position:absolute bottom:0 — ahora static para fluir
+       dentro del flex column con gap controlado por el container. */
+    position: static;
     color: var(--color-text-secondary);
     opacity: 1;
     transition: opacity 0.4s ease;
@@ -282,6 +290,13 @@
 /* Estado fade-out durante transición */
 .modal-proceso__description--fading {
     opacity: 0;
+}
+
+/* Intro del proceso — oculto por defecto. Solo se muestra en desktop
+   (media query en modal-rol-proceso-responsive.css); en mobile/tablet
+   el layout es tabs horizontales y este párrafo no aplica. */
+.modal-proceso__intro {
+    display: none;
 }
 
 /* ============================================
@@ -335,20 +350,25 @@
         padding: 0;
     }
 
-    /* min-width:0 es el fix real acá: .steps es row + overflow-x:auto
-       dentro de .grid (columna) — sin esto, un ítem flex nunca se
-       encoge por debajo del ancho de su contenido, así que en vez de
-       scrollear limpio dentro del padding de 24px de .content, empuja a
-       .grid/.content a estirarse con él y termina "pegado" al borde
-       real de la pantalla. Con min-width:0, el corte contra el padding
-       existente pasa solo, sin necesidad de un contenedor nuevo. */
+    /* En mobile/tablet: el título H2 y el párrafo intro viven dentro de
+       .modal-proceso__steps (column flex natural), y las tabs se
+       distribuyen en una fila horizontal con scroll dentro de su propio
+       sub-container .modal-proceso__steps-tabs. min-width:0 evita que
+       el sub-container se estire más allá del padding de .content.
+       Gap de 24px entre H2/intro y el sub-container de tabs aplica a
+       tablet (768-1199.98px); en mobile puro (<768px) hay override a 16px. */
     #modalProceso .modal-proceso__steps {
+        gap: 24px;
+    }
+
+    /* Sub-container de tabs — fila horizontal con scroll. Cada tab tiene
+       flex:0 0 auto en su override (no 1 1 0) para ocupar su ancho
+       natural en vez de repartirse en 3 columnas iguales; las tabs que
+       no entren se cortan y se accede a ellas con scroll horizontal —
+       tap en una tab recortada hace scrollIntoView (ver modal-proceso.js). */
+    #modalProceso .modal-proceso__steps-tabs {
         display: flex;
         flex-direction: row;
-        /* La base desktop define justify-content:flex-end (lista vertical
-           anclada abajo) — sin pisarlo acá, con contenido que desborda
-           empuja las tabs contra el final y deja "Discovery" (el inicio)
-           cortado a la izquierda en vez de "Delivery" al final. */
         justify-content: flex-start;
         gap: 16px;
         width: 100%;
@@ -358,7 +378,7 @@
         -ms-overflow-style: none;
     }
 
-    #modalProceso .modal-proceso__steps::-webkit-scrollbar {
+    #modalProceso .modal-proceso__steps-tabs::-webkit-scrollbar {
         display: none;
     }
 
@@ -571,18 +591,106 @@
         /* El Proceso: detail (image + description) pasa a fila.
            Los steps arriba siguen como tabs horizontales (row)
            igual que en mobile/tablet — el cambio es solo el detail. */
+        #modalProceso .modal-proceso__grid {
+            /* grid-template-rows: 1fr hace que la fila del grid
+               (que contiene steps + detail) ocupe toda la altura
+               disponible del container, en vez de auto. Sin esto,
+               detail con height:100% no tiene altura a la que
+               referenciarse y la imagen se queda en su tamaño natural. */
+            grid-template-rows: 1fr;
+        }
         #modalProceso .modal-proceso__detail {
             flex-direction: row;
             gap: 32px;
-            align-items: flex-start;
+            align-items: stretch;
+            height: 100%;
         }
+        /* Imagen: ocupa 50% ancho y 100% alto del detail; max-height
+           para que nunca desborde. El <img> adentro usa object-fit:contain
+           para verse completo sin recortes, respetando el aspect-ratio
+           propio de la foto (3:2 desde la regla mobile). Si el aspect
+           no encaja exactamente, queda algo de aire arriba/abajo o a
+           los lados — aceptable: la imagen se ve íntegra, sin scroll. */
         #modalProceso .modal-proceso__image {
             flex: 0 0 50%;
             width: 50%;
+            height: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        #modalProceso .modal-proceso__image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        /* Description: 50% ancho, 100% alto, scroll vertical si el texto
+           no entra. La imagen NO scrollea porque ya cabe entera. */
         #modalProceso .modal-proceso__description {
             flex: 0 0 50%;
             width: 50%;
+            height: 100%;
+            overflow-y: auto;
         }
+        /* Scroll hint centrado solo sobre la columna del texto (no sobre
+           la imagen). El detail es 50% imagen + 32px gap + 50% texto
+           dentro del padding-box de .modal-rol-proceso__content; el
+           inicio de la columna de texto está en 50% + 16px (= mitad
+           del gap) desde el borde izquierdo del padding-box. */
+        .modal-rol-proceso__scroll-hint {
+            left: calc(50% + 16px);
+            right: 0;
+        }
+    }
+}
+
+/* ============================================
+   MOBILE PURO (<768px) — overrides sobre el bloque
+   mobile/tablet de arriba.
+   Tablet (768-1199.98px o touch grande): hereda los 24px del bloque
+   previo. Mobile (<768px): 16px en ambos gaps (título→tabs,
+   imagen→descripción).
+   ============================================ */
+@media (max-width: 767.98px) {
+    #modalProceso .modal-proceso__steps {
+        gap: 16px;
+    }
+    #modalProceso .modal-proceso__detail {
+        gap: 16px;
+    }
+}
+
+/* ============================================
+   TABLET — padding del modal al mismo nivel que la
+   página de caso (caso-asdeporte y similares):
+   40px en cada lado.
+
+   Detección de tablet en dos pasos:
+   1. min-width: 700px — coincide con el threshold
+      que la página usa en responsive.css:12
+      (@media (min-width: 700px) { .hero { padding:
+      40px } }). Si subimos esto a 768px, dispositivos
+      como Samsung Tab S8 en portrait (algunas
+      configuraciones reportan viewport < 768px)
+      quedan fuera y siguen con el padding base
+      mobile de 24px.
+   2. OR (hover: none) | (pointer: coarse) — captura
+      tablets grandes (Tab S8, iPad Pro) que reportan
+      viewport > 1200px aunque sean touch. Sin este
+      OR, una Tab S8 en landscape (1280px) no entraría
+      al override y conservaría el padding base.
+
+   Valor explícito 40px (no var()) para evitar
+   dependencia del timing de case-study.css al
+   definir --cs-mobile-pad.
+   ============================================ */
+@media (min-width: 700px) and (
+        (max-width: 1199.98px) or
+        (hover: none) or
+        (pointer: coarse)
+    ) {
+    .modal-rol-proceso__content {
+        padding: 40px;
     }
 }

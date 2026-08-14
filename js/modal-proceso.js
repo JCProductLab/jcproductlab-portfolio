@@ -11,10 +11,15 @@
 import { initModalScrollHint } from './modal-scroll-hint.js';
 
 const MQ_DESKTOP = '(min-width: 1200px) and (hover: hover) and (pointer: fine)';
+const MQ_TABLET_LANDSCAPE = '(min-width: 900px) and (orientation: landscape)';
 
 export function initModalProceso() {
     const modal = document.getElementById('modalProceso');
-    const triggerBtn = document.querySelector('.cs-contexto__actions .btn--secondary:last-child');
+    // Antes: :last-child. Roto en tablet/mobile — ver nota en
+    // modal-rol-proceso.js sobre el wrap en .cs-cta-pop-wrap. Ahora:
+    // último elemento de la lista de botones.
+    const triggerBtns = document.querySelectorAll('.cs-contexto__actions .btn--secondary');
+    const triggerBtn = triggerBtns[triggerBtns.length - 1];
     const closeBtn = modal?.querySelector('.modal-rol-proceso__close');
     const overlay = modal?.querySelector('.modal-rol-proceso__overlay');
     const content = modal?.querySelector('.modal-rol-proceso__content');
@@ -26,7 +31,15 @@ export function initModalProceso() {
     if (!modal || !triggerBtn || !closeBtn || !overlay || !content || !steps || !description) return;
 
     const isDesktop = window.matchMedia(MQ_DESKTOP).matches;
-    const scrollHint = initModalScrollHint(detail, scrollHintEl);
+    const isTabletLandscape = window.matchMedia(MQ_TABLET_LANDSCAPE).matches;
+    /* En tablet landscape el layout es 2 columnas: imagen a la izquierda
+       (sin scroll, cabe entera) y descripción a la derecha con scroll
+       interno. La pista de scroll y el reset de scrollTop deben
+       apuntar a la columna que realmente scrollea (description), no
+       al detail entero — si no, la pista queda fuera de lugar y el
+       reset al cambiar de tab no funciona. */
+    const scrollContainer = isTabletLandscape ? description : detail;
+    const scrollHint = initModalScrollHint(scrollContainer, scrollHintEl);
 
     // Texto por paso: vive en el HTML (data-description de cada
     // .modal-proceso__step), no hardcodeado acá, porque este módulo se
@@ -56,7 +69,7 @@ export function initModalProceso() {
             // El párrafo cambia de largo entre tabs — hay que revisar de
             // nuevo si el contenido desborda (mobile) recién acá, cuando
             // el texto nuevo ya está en el DOM.
-            if (detail) detail.scrollTop = 0;
+            if (scrollContainer) scrollContainer.scrollTop = 0;
             scrollHint.update();
         }, 400);
 
@@ -109,7 +122,7 @@ export function initModalProceso() {
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
 
-        if (detail) detail.scrollTop = 0;
+        if (scrollContainer) scrollContainer.scrollTop = 0;
         scrollHint.update();
 
         gsap.fromTo(content,
